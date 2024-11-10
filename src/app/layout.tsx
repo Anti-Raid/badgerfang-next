@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { title, description, logo } from './common';
-import { NextUIProvider } from '@nextui-org/react';
 import './globals.css';
 import Header from './components/Header';
 import Footer from './components/Footer';
