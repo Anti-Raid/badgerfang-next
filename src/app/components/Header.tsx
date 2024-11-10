@@ -267,7 +267,9 @@ const Header = () => {
 				<Link href="/">
 					<div className="flex items-center space-x-1">
 						<img className="h-8 w-auto" src={logo} alt="AntiRaid" />
-						<p className="text-md text-foreground font-monster font-semibold tracking-tight">AntiRaid</p>
+						<p className="text-md text-foreground font-monster font-semibold tracking-tight">
+							AntiRaid
+						</p>
 					</div>
 				</Link>
 
@@ -328,7 +330,10 @@ const Header = () => {
 									: 'px-3 py-2 text-center text-foreground bg-transparent rounded-md hover:text-foreground/50'
 							}
 						>
-							<Icon icon="mdi:palette" className="text-3xl text-foreground hover:text-foreground/50" />
+							<Icon
+								icon="mdi:palette"
+								className="text-3xl text-foreground hover:text-foreground/50"
+							/>
 						</button>
 						<div id="theme-menu" className="themer-div text-left">
 							<Themer isOpen={openElements.themeMenu.open} />

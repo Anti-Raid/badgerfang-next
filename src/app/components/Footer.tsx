@@ -1,4 +1,4 @@
-import { logo } from "../common";
+import { logo } from '../common';
 
 interface Category {
 	name: string;
@@ -58,7 +58,6 @@ const socials: Social[] = [
 ];
 
 export const getVersion = () => {
-	console.table(process.env);
 	return `v${process.env.NEXT_PUBLIC_VERSION}-${process.env.NEXT_PUBLIC_COMMIT?.substring(
 		0,
 		7
