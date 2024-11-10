@@ -1,3 +1,5 @@
+import { logo } from "../common";
+
 interface Category {
 	name: string;
 	items: { name: string; href: string }[];
@@ -70,7 +72,7 @@ const Footer = () => {
 				<div className="md:flex md:justify-between">
 					<div className="mb-6 md:mb-0">
 						<a href="https://antiraid.xyz/" className="flex items-center">
-							<img src="/logo.webp" className="h-8 mr-3" alt="AntiRaid Logo" />
+							<img src={logo} className="h-8 mr-3" alt="AntiRaid Logo" />
 							<span className="self-center text-2xl font-semibold whitespace-nowrap text-foreground">
 								AntiRaid
 							</span>

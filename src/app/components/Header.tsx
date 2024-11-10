@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Icon } from '@iconify/react';
+import { logo } from '../common';
 
 interface NavButtonProps {
 	current: boolean;
@@ -265,7 +266,7 @@ const Header = () => {
 			<div className="max-w-7xl px-3 mx-auto py-3 flex items-center justify-between">
 				<Link href="/">
 					<div className="flex items-center space-x-1">
-						<img className="h-8 w-auto" src="/logo.webp" alt="AntiRaid" />
+						<img className="h-8 w-auto" src={logo} alt="AntiRaid" />
 						<p className="text-md text-foreground font-monster font-semibold tracking-tight">AntiRaid</p>
 					</div>
 				</Link>
