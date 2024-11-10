@@ -1,21 +1,49 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@tailwind variants;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+	display: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+	-ms-overflow-style: none; /* IE and Edge */
+	scrollbar-width: none; /* Firefox */
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+/* Stretch Animation */
+@keyframes stretchTop {
+	from {
+		transform: scaleY(0);
+		transform-origin: bottom;
+	}
+	to {
+		transform: scaleY(1);
+		transform-origin: bottom;
+	}
+}
+
+@layer base {
+	body {
+		font-feature-settings:
+			'rlig' 1,
+			'calt' 1;
+	}
+
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6,
+	div {
+		@apply text-foreground font-semibold font-cabin;
+	}
+
+	.table tr td {
+		@apply max-sm:max-w-52 max-sm:break-all max-sm:overflow-scroll;
+	}
 }
