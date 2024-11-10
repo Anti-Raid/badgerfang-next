@@ -4,7 +4,7 @@ import PartnerCard from '@/components/PartnerCard';
 import { Partner } from '@/types/Partner';
 import { Metadata } from 'next';
 
-export const partners: Partner[] = [
+const partners: Partner[] = [
 	{
 		name: 'NetSocial',
 		description: 'Connect, Share, Grow.',
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
 	icons: [logo, '/favicon.ico']
 };
 
-const Home: React.FC = () => (
+const Partners: React.FC = () => (
 	<>
 		<section id="partners">
 			<Breadcrumb
@@ -79,4 +79,4 @@ const Home: React.FC = () => (
 	</>
 );
 
-export default Home;
+export default Partners;
