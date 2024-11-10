@@ -35,7 +35,7 @@ export default function RootLayout({
 			<body className="min-h-screen bg-gradient-to-b from-purple-800 to-purple-400/85">
 				<ThemeProvider
 					attribute="class"
-					defaultTheme="dark"
+					defaultTheme="light"
 					enableSystem
 					disableTransitionOnChange
 				>
