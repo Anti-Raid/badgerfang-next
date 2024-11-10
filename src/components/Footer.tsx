@@ -1,4 +1,4 @@
-import { logo } from '../common';
+import { logo } from './common';
 
 interface Category {
 	name: string;

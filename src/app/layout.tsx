@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
-import { title, description, logo } from './common';
+import { title, description, logo } from '@/components/common';
 import './globals.css';
-import Header from './components/Header';
-import Footer from './components/Footer';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import { ThemeProvider } from '@/components/ThemeProvider';
 import React from 'react';
 
 export const metadata: Metadata = {
@@ -17,7 +18,7 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="en">
+		<html lang="en" suppressHydrationWarning>
 			<head>
 				<link rel="preconnect" href="https://fonts.googleapis.com" />
 				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -32,14 +33,21 @@ export default function RootLayout({
 				/>
 			</head>
 			<body className="min-h-screen bg-gradient-to-b from-purple-800 to-purple-400/85">
-				<Header></Header>
-				<article className="min-h-screen flex-col justify-between overflow-x-hidden">
-					<main className="mt-9 p-1 w-full md:max-w-7xl mx-auto h-full min-h-screen">
-						{children}
-					</main>
+				<ThemeProvider
+					attribute="class"
+					defaultTheme="dark"
+					enableSystem
+					disableTransitionOnChange
+				>
+					<Header></Header>
+					<article className="min-h-screen flex-col justify-between overflow-x-hidden">
+						<main className="mt-9 p-1 w-full md:max-w-7xl mx-auto h-full min-h-screen">
+							{children}
+						</main>
 
-					<Footer />
-				</article>
+						<Footer />
+					</article>
+				</ThemeProvider>
 			</body>
 		</html>
 	);

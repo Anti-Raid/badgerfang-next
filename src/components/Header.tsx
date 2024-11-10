@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Icon } from '@iconify/react';
-import { logo } from '../common';
+import { logo } from './common';
 
 interface NavButtonProps {
 	current: boolean;
