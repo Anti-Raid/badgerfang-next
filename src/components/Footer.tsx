@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { logo } from './common';
 
 interface Category {
@@ -68,28 +69,34 @@ const Footer = () => {
 	return (
 		<footer className="bg-background text-foreground">
 			<div className="mx-auto w-full max-w-screen-xl p-4 py-6 lg:py-8">
-				<div className="md:flex md:justify-between">
+				<div className="md:flex md:justify-between md:gap-9 ">
 					<div className="mb-6 md:mb-0">
-						<a href="https://antiraid.xyz/" className="flex items-center">
-							<img src={logo} className="h-8 mr-3" alt="AntiRaid Logo" />
+						<a
+							href="https://antiraid.xyz/"
+							className="flex items-center flex-wrap gap-2 max-[1085px]:justify-center max-[767px]:justify-normal"
+						>
+							<img src={logo} className="h-8 mr-1" alt="AntiRaid Logo" />
 							<span className="self-center text-2xl font-semibold whitespace-nowrap text-foreground">
 								AntiRaid
 							</span>
 						</a>
 					</div>
 
-					<div className="grid grid-cols-2 gap-8 sm:gap-6 sm:grid-cols-3 md:ml-6 lg:ml-6">
+					<div className="flex flex-row gap-5 flex-wrap ">
 						{categories.map((category) => (
 							<div key={category.name}>
-								<h2 className="mb-6 text-sm font-semibold text-foreground uppercase">
+								<h2 className="mb-4 text-md font-bold text-foreground uppercase">
 									{category.name}
 								</h2>
-								<ul className="text-foreground/75 font-medium">
+								<ul className="text-foreground/75 ">
 									{category.items.map((item) => (
-										<li key={item.name} className="mb-4">
-											<a href={item.href} className="hover:underline">
+										<li key={item.name} className="mb-2">
+											<Link
+												href={item.href}
+												className=" opacity-80 hover:opacity-100 font-light text-sm hover:underline"
+											>
 												{item.name}
-											</a>
+											</Link>
 										</li>
 									))}
 								</ul>
@@ -97,7 +104,7 @@ const Footer = () => {
 						))}
 					</div>
 
-					<hr className="my-6 border-gray-200 sm:mx-auto dark:border-gray-700 lg:my-8" />
+					<hr className="hidden max-[768px]:flex my-6 border-gray-200 sm:mx-auto dark:border-gray-700 lg:my-8" />
 
 					<div className="end">
 						<p className="text-foreground font-monster text-md">
@@ -107,14 +114,14 @@ const Footer = () => {
 
 						<div className="flex mt-4 justify-start sm:mt-0 md:mt-2 lg:mt-2">
 							{socials.map((social) => (
-								<a
+								<Link
 									key={social.name}
 									href={social.href}
 									className="text-foreground hover:text-white/75"
 								>
 									<i className={social.icon} />
 									<span className="sr-only">{social.name}</span>
-								</a>
+								</Link>
 							))}
 						</div>
 					</div>
