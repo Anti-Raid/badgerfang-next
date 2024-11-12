@@ -67,7 +67,7 @@ export const getVersion = () => {
 
 const Footer = () => {
 	return (
-		<footer className="bg-background text-foreground">
+		<footer className="bg-transparent text-foreground">
 			<div className="mx-auto w-full max-w-screen-xl p-4 py-6 lg:py-8">
 				<div className="md:flex md:justify-between md:gap-9 ">
 					<div className="mb-6 md:mb-0">
@@ -93,7 +93,7 @@ const Footer = () => {
 										<li key={item.name} className="mb-2">
 											<Link
 												href={item.href}
-												className=" opacity-80 hover:opacity-100 font-light text-sm hover:underline"
+												className=" opacity-90 text-white hover:opacity-100 font-light text-sm hover:underline"
 											>
 												{item.name}
 											</Link>

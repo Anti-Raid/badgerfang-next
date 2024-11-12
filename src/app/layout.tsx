@@ -33,7 +33,7 @@ export default function RootLayout({
 				/>
 			</head>
 			{/* <body className="min-h-screen bg-gradient-to-b from-purple-800 to-purple-400/85"> */}
-			<body className="min-h-screen bg-background">
+			<body className="min-h-screen bg-gradient-to-b from-background to-purple-950">
 				<ThemeProvider
 					attribute="class"
 					defaultTheme="light"

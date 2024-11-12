@@ -262,7 +262,7 @@ const Header = () => {
 	}, [usePathname()]);
 
 	return (
-		<header className="bg-background top-0 w-full my-3">
+		<header className="bg-transparent top-0 w-full my-3">
 			<div className="max-w-7xl px-3 mx-auto py-3 flex items-center justify-between">
 				<Link href="/">
 					<div className="flex items-center space-x-1">
