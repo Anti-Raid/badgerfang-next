@@ -67,8 +67,8 @@ const NavButton: React.FC<NavButtonProps> = ({
 }) => {
 	const classes = useMemo(() => {
 		const baseClasses = current
-			? 'px-4 py-2 text-sm font-medium text-left text-foreground rounded-lg cursor-pointer bg-slate-700 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-white'
-			: 'px-4 py-2 text-sm font-medium text-left text-foreground transition-colors duration-150 bg-transparent rounded-lg cursor-pointer hover:bg-slate-800 hover:text-gray-50 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-white';
+			? ' py-2 text-sm font-light opacity-70 hover:opacity-100 hover:underline text-center text-foreground rounded-lg cursor-pointer bg-slate-700 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-white'
+			: ' py-2 text-sm font-light opacity-70 hover:opacity-100 hover:underline text-left text-foreground transition-colors duration-150 bg-transparent rounded-lg cursor-pointer  focus:outline-none focus:ring-1 focus:ring-inset focus:ring-white';
 
 		// Add disabled state classes if disabled
 		const disabledClasses = disabled ? ' opacity-50 cursor-not-allowed' : '';
@@ -262,7 +262,7 @@ const Header = () => {
 	}, [usePathname()]);
 
 	return (
-		<header className="bg-background top-0 w-full">
+		<header className="bg-background top-0 w-full my-3">
 			<div className="max-w-7xl px-3 mx-auto py-3 flex items-center justify-between">
 				<Link href="/">
 					<div className="flex items-center space-x-1">
@@ -274,7 +274,7 @@ const Header = () => {
 				</Link>
 
 				<div className="flex items-center space-x-2 relative">
-					<div className="flex space-x-4">
+					<div className="flex items-center justify-center space-x-8">
 						{navigation.map((item) => (
 							<NavButton
 								key={item.name}
@@ -296,7 +296,7 @@ const Header = () => {
 				<div className="flex items-center space-x-2">
 					<button
 						type="button"
-						className="block md:hidden rounded-md p-2 font-medium text-left text-foreground hover:text-foreground/50 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-foreground/75"
+						className="block md:hidden rounded-md p-2 font-medium text-left text-foreground focus:outline-none"
 						onClick={() =>
 							setOpenElements((prev) => ({
 								...prev,
@@ -308,7 +308,7 @@ const Header = () => {
 					>
 						<span className="sr-only">Open main menu</span>
 						{openElements.mobileMenu.open ? (
-							<Icon icon="fa-solid:times" width="12px" />
+							<Icon icon="fa-solid:times" width="15px" />
 						) : (
 							<Icon icon="fa-solid:bars" width="16px" />
 						)}
@@ -332,7 +332,7 @@ const Header = () => {
 						>
 							<Icon
 								icon="mdi:palette"
-								className="text-3xl text-foreground hover:text-foreground/50"
+								className="text-2xl text-foreground hover:text-foreground/50"
 							/>
 						</button>
 						<div id="theme-menu" className="themer-div text-left">
@@ -402,7 +402,7 @@ const Header = () => {
 						<button
 							type="button"
 							onClick={loginUser}
-							className="px-4 py-2 text-sm font-medium text-left text-gray-50 rounded-lg cursor-pointer bg-indigo-600 hover:bg-indigo-800 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-white"
+							className="px-5 py-2 text-sm font-medium text-left text-gray-50 rounded-sm cursor-pointer bg-indigo-600 hover:bg-indigo-800 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-white"
 						>
 							Login
 						</button>
@@ -412,7 +412,7 @@ const Header = () => {
 
 			{openElements.mobileMenu.open && (
 				<div id="mobile-menu" className="md:hidden">
-					<div className="space-y-1 px-2 pt-2 pb-3">
+					<div className="space-y-1 px-2 pt-2 pb-3 mx-5">
 						{navigation.map((item) => (
 							<NavButton
 								key={item.name}
