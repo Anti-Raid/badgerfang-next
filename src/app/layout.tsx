@@ -32,7 +32,8 @@ export default function RootLayout({
 					rel="stylesheet"
 				/>
 			</head>
-			<body className="min-h-screen bg-gradient-to-b from-purple-800 to-purple-400/85">
+			{/* <body className="min-h-screen bg-gradient-to-b from-purple-800 to-purple-400/85"> */}
+			<body className="min-h-screen bg-background">
 				<ThemeProvider
 					attribute="class"
 					defaultTheme="light"
