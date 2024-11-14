@@ -14,7 +14,9 @@ export default {
 				monocraft: ['"Monocraft', 'sans-serif'],
 				cursive: ['"Borel"', 'cursive'],
 				monster: ['"Montserrat"', 'sans-serif'],
-				cabin: ['"Cabin"', 'sans-serif']
+				cabin: ['"Cabin"', 'sans-serif'],
+				inter: ['"Inter"', 'sans-serif'],
+				lora: ['"Lora"', 'serif']
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
