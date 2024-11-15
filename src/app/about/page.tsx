@@ -1,4 +1,7 @@
-import { description, logo, title } from '@/components/common';
+import Breadcrumb from '@/components/Breadcrumb';
+import { title, description, logo } from '@/components/common';
+import PartnerCard from '@/components/PartnerCard';
+import { Partner } from '@/types/Partner';
 import { Icon } from '@iconify/react';
 import { Metadata } from 'next';
 
@@ -8,6 +11,7 @@ export const metadata: Metadata = {
 	icons: [logo, '/favicon.ico']
 };
 
+// Internal Components
 const BotFeatures = () => {
 	const features: {
 		Title: string;
@@ -64,8 +68,70 @@ const BotFeatures = () => {
 	);
 };
 
-const AboutPage = () => {
-	const teamMembers = [
+const Partners = () => {
+	const partners: Partner[] = [
+		{
+			name: 'NetSocial',
+			description: 'Connect, Share, Grow.',
+			long_description:
+				'NetSocial empowers communities to be who they want to be, no more bots, paywalls and obscene content!',
+			logo: 'https://cdn.netsocial.app/logos/netsocial.png',
+			url: 'https://netsocial.app/',
+			owner: 'Ranveer Soni',
+			owner_image: 'https://avatars.githubusercontent.com/u/87431619?v=4',
+			owner_website: 'https://maya25-me.vercel.app/',
+			links: [
+				{
+					name: 'Website',
+					emoji: '👀',
+					link: 'https://netsocial.app/'
+				},
+				{
+					name: 'Discord',
+					emoji: 'fa-brands fa-discord',
+					link: 'https://discord.gg/Tf6PCgDwa5'
+				}
+			]
+		},
+		{
+			name: 'Infinity List',
+			description: 'Search our vast list of bots for an exciting start to your server.',
+			long_description:
+				'We make it easier for you to advertise and grow your bots using our vanity links, widgets, bot packs, and more!',
+			logo: 'https://cdn.infinitybots.gg/core/full_logo.webp',
+			url: 'https://infinitybots.gg/',
+			owner: 'Toxic Dev',
+			owner_image:
+				'https://res.cloudinary.com/dh30c3f52/image/upload/v1707465896/immhuag1zamm3juw2mn8.jpg',
+			owner_website: 'https://toxicdev.me/',
+			links: [
+				{
+					name: 'Website',
+					emoji: '👀',
+					link: 'https://infinitybots.gg/'
+				},
+				{
+					name: 'Discord',
+					emoji: 'fa-brands fa-discord',
+					link: 'https://discord.com/invite/KBCRuBKrHe'
+				}
+			]
+		}
+	];
+
+	return (
+		<>
+			<div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
+				{partners.map((partner) => (
+					<PartnerCard key={partner.name} partner={partner} />
+				))}
+			</div>
+		</>
+	);
+};
+
+const TeamMembers = () => {
+	const members = [
 		{
 			DisplayName: 'KANG HAE-RIN',
 			Username: 'haerin',
@@ -84,13 +150,48 @@ const AboutPage = () => {
 
 	return (
 		<>
+			<div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+				{members.map((member, index) => (
+					<div
+						key={index}
+						className="inline-block p-2 max-w-sm mx-5 bg-secondary/90 hover:bg-secondary/50 overflow-hidden rounded-l-full rounded-r-md"
+					>
+						<div className="flex items-center">
+							<img
+								className="h-16 w-16 rounded-full"
+								src={member.Avatar || '/logo.webp'}
+								alt={`${member.DisplayName}'s Avatar`}
+							/>
+							<div className="inline-block ml-3">
+								<h3 className="text-lg font-monster font-semibold leading-7 overflow-clip tracking-tight text-foreground">
+									{member.DisplayName}
+								</h3>
+								<p className="text-sm font-monster font-semibold text-foreground">
+									@{member.Username}
+								</p>
+								<p className="text-md font-cabin font-semibold leading-6 text-purple-600">
+									{member.Role}
+								</p>
+							</div>
+						</div>
+					</div>
+				))}
+			</div>
+		</>
+	);
+};
+
+// Page
+const AboutPage = () => {
+	return (
+		<>
 			<section>
 				<div className="text-center md:text-left">
 					<h1 className="text-4xl font-monster font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
 						<span className="block text-foreground xl:inline">&#128075; About Us</span>
 					</h1>
 					<p className="mt-3 text-base text-center md:text-left text-foreground font-semibold font-cabin ml-3 sm:mt-5 sm:text-lg md:ml-0 md:mt-5 md:text-xl lg:ml-0 lg:mx-0">
-						Learn more about <span className="text-indigo-600 font-bold">AntiRaid</span> and our
+						Learn more about <span className="text-purple-600 font-bold">AntiRaid</span> and our
 						team!
 					</p>
 				</div>
@@ -109,16 +210,9 @@ const AboutPage = () => {
 
 				{/* Features Section */}
 				<section id="features">
-					<div id="features-what" className="text-center">
-						<h2 className="text-4xl font-cabin font-extrabold text-center md:text-left text-indigo-600">
-							Features
-						</h2>
-						<p className="font-monster text-xl text-foreground text-center md:text-left lg:mx-auto">
-							What do we have to offer?
-						</p>
-					</div>
+					<Breadcrumb Title="Features" Description="What do we have to offer?" />
 
-					<div className="mt-5" />
+					<div className="p-2" />
 
 					<center>
 						<dl className="mx-2.5 space-y-4 md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-10 md:space-y-0">
@@ -127,54 +221,38 @@ const AboutPage = () => {
 					</center>
 				</section>
 
-				<div className="py-10">
-					{/* Team Section */}
-					<section id="staff">
-						<div className="text-center">
-							<h2 className="text-4xl font-cabin font-extrabold text-center md:text-left text-indigo-600">
-								Meet the Team!
-							</h2>
-							<p className="font-monster text-xl text-foreground text-center md:text-left lg:mx-auto">
-								Interested in joining our team? Join our{' '}
+				<div className="p-3" />
+
+				{/* Partners Section */}
+				<section id="partners">
+					<Breadcrumb
+						Title="Partners"
+						Description="Take a look at our amazing partners, that help us stand where we are today!"
+					/>
+
+					<div className="p-2" />
+
+					<Partners />
+				</section>
+
+				<div className="p-3" />
+
+				{/* Team Section */}
+				<section id="staff">
+					<Breadcrumb
+						Title="Meet the Team!"
+						Description="Interested in joining our team? Join our
 								<a
-									href="/discord"
-									className="text-indigo-600 font-bold xl:inline hover:text-red-600"
+									href='/discord'
+									className='text-purple-600 font-bold xl:inline hover:text-red-600'
 								>
 									Discord Server
-								</a>
-							</p>
-						</div>
+								</a>"
+					/>
 
-						{/* Display Team Members */}
-						<div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-							{teamMembers.map((member, index) => (
-								<div
-									key={index}
-									className="inline-block p-2 max-w-sm mx-5 bg-secondary/90 hover:bg-secondary/50 overflow-hidden rounded-l-full rounded-r-md"
-								>
-									<div className="flex items-center">
-										<img
-											className="h-16 w-16 rounded-full"
-											src={member.Avatar || '/logo.webp'}
-											alt={`${member.DisplayName}'s Avatar`}
-										/>
-										<div className="inline-block ml-3">
-											<h3 className="text-lg font-monster font-semibold leading-7 overflow-clip tracking-tight text-foreground">
-												{member.DisplayName}
-											</h3>
-											<p className="text-sm font-monster font-semibold text-foreground">
-												@{member.Username}
-											</p>
-											<p className="text-md font-cabin font-semibold leading-6 text-indigo-600">
-												{member.Role}
-											</p>
-										</div>
-									</div>
-								</div>
-							))}
-						</div>
-					</section>
-				</div>
+					{/* Display Team Members */}
+					<TeamMembers />
+				</section>
 			</section>
 		</>
 	);
