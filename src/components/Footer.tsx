@@ -58,13 +58,6 @@ const socials: Social[] = [
 	}
 ];
 
-export const getVersion = () => {
-	return `v${process.env.NEXT_PUBLIC_VERSION}-${process.env.NEXT_PUBLIC_COMMIT?.substring(
-		0,
-		7
-	)}-${process.env?.NEXT_PUBLIC_BUILD_ENV?.substring(0, 3)} (${process.env?.NEXT_PUBLIC_LASTMOD})`;
-};
-
 const Footer = () => {
 	return (
 		<footer className="bg-transparent text-foreground">
@@ -110,7 +103,7 @@ const Footer = () => {
 						<p className="text-foreground font-monster text-md">
 							&copy; 2024 Purrquinox. All Rights Reserved.
 						</p>
-						<small className="text-foreground font-monster text-sm">{getVersion()}</small>
+						<small className="text-foreground font-monster text-sm">{''}</small>
 
 						<div className="flex mt-4 justify-start sm:mt-0 md:mt-2 lg:mt-2">
 							{socials.map((social) => (
