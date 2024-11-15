@@ -23,11 +23,13 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ Title, Description }) => {
 					onError={ImageLoadError}
 				/>
 
-				<h2 className="ml-2 text-white font-monster tracking-tight font-bold text-4xl">{Title}</h2>
+				<h2 className="ml-2 text-foreground font-monster tracking-tight font-bold text-4xl">
+					{Title}
+				</h2>
 			</div>
 
 			<h6
-				className="mt-2 ml-2 text-white/75 font-bold text-left leading-6 font-cabin text-base md:text-xl lg:text-2xl"
+				className="mt-2 ml-2 text-foreground/75 font-bold text-left leading-6 font-cabin text-base md:text-xl lg:text-2xl"
 				dangerouslySetInnerHTML={{ __html: Description }} // Safely insert HTML
 			/>
 		</div>

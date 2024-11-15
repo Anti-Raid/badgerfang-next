@@ -1,22 +1,24 @@
-import type { Metadata } from 'next';
-import { title, description, logo } from '@/components/common';
+'use client';
 import './globals.css';
+import Loading from '@/components/Loading';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { ThemeProvider } from '@/components/ThemeProvider';
-import React from 'react';
-
-export const metadata: Metadata = {
-	title: title,
-	description: description,
-	icons: [logo, '/favicon.ico']
-};
+import React, { useEffect, useState } from 'react';
 
 export default function RootLayout({
 	children
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
+	const [isLoading, setIsLoading] = useState(true);
+	const handleLoadingClose = () => setIsLoading(false);
+
+	useEffect(() => {
+		const timer = setTimeout(() => setIsLoading(false), 2000);
+		return () => clearTimeout(timer);
+	}, []);
+
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<head>
@@ -34,20 +36,21 @@ export default function RootLayout({
 			</head>
 			{/* <body className="min-h-screen bg-gradient-to-b from-purple-800 to-purple-400/85"> */}
 			<body className="min-h-screen bg-background">
-				<ThemeProvider
-					attribute="class"
-					defaultTheme="dark"
-					enableSystem
-					disableTransitionOnChange
-				>
-					<Header></Header>
-					<article className="min-h-screen flex-col justify-between overflow-x-hidden">
-						<main className="mt-9 p-1 w-full md:max-w-7xl mx-auto h-full min-h-screen">
-							{children}
-						</main>
+				<ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+					{isLoading ? (
+						<Loading onClose={handleLoadingClose} />
+					) : (
+						<>
+							<Header></Header>
+							<article className="min-h-screen flex-col justify-between overflow-x-hidden">
+								<main className="mt-9 p-1 w-full md:max-w-7xl mx-auto h-full min-h-screen">
+									{children}
+								</main>
 
-						<Footer />
-					</article>
+								<Footer />
+							</article>
+						</>
+					)}
 				</ThemeProvider>
 			</body>
 		</html>

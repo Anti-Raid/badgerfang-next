@@ -1,5 +1,12 @@
+import type { Metadata } from 'next';
+import { title, description, logo } from '@/components/common';
 import { Hero } from '@/components/Hero';
-import Image from 'next/image';
+
+export const metadata: Metadata = {
+	title: title,
+	description: description,
+	icons: [logo, '/favicon.ico']
+};
 
 export default function Home() {
 	return (

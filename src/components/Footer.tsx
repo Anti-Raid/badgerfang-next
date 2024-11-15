@@ -93,7 +93,7 @@ const Footer = () => {
 										<li key={item.name} className="mb-2">
 											<Link
 												href={item.href}
-												className=" opacity-90 text-white hover:opacity-100 font-light text-sm hover:underline"
+												className=" opacity-90 text-foreground hover:opacity-100 font-light text-sm hover:underline"
 											>
 												{item.name}
 											</Link>
@@ -117,7 +117,7 @@ const Footer = () => {
 								<Link
 									key={social.name}
 									href={social.href}
-									className="text-foreground hover:text-white/75"
+									className="text-foreground hover:text-foreground/75"
 								>
 									<i className={social.icon} />
 									<span className="sr-only">{social.name}</span>

@@ -1,3 +1,4 @@
+@import 'animate.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -12,18 +13,6 @@
 .no-scrollbar {
 	-ms-overflow-style: none; /* IE and Edge */
 	scrollbar-width: none; /* Firefox */
-}
-
-/* Stretch Animation */
-@keyframes stretchTop {
-	from {
-		transform: scaleY(0);
-		transform-origin: bottom;
-	}
-	to {
-		transform: scaleY(1);
-		transform-origin: bottom;
-	}
 }
 
 :root {

@@ -1,17 +1,84 @@
+'use client';
 import { ArrowUpRight } from 'lucide-react';
+import { api_url } from './common';
+import { useEffect, useState } from 'react';
 
 const Hero = () => {
+	interface StatisticsData {
+		resp: {
+			uptime: number;
+			managers: {
+				display_name: string;
+				shard_groups: {
+					shards: Array<[number, number, number, number, number, number]>; // shards' data structure
+				}[];
+			}[];
+		};
+		shard_conns: {
+			[key: number]: {
+				status: 'MarkedForClosure' | 'Active';
+				real_latency: number;
+				guilds: number;
+				uptime: number;
+				total_uptime: number;
+			};
+		};
+		total_guilds: number;
+	}
+
+	const [serverCount, setServerCount] = useState(0);
+	const [stats, setStats] = useState<StatisticsData | null>(null);
+
+	useEffect(() => {
+		const fetchStats = async () => {
+			try {
+				const response = await fetch(`${api_url}/bot-stats`);
+				if (response.ok) {
+					const data: StatisticsData = await response.json();
+					setStats(data);
+				} else {
+					console.error('Failed to fetch stats');
+				}
+			} catch (error) {
+				console.error('Error fetching stats:', error);
+			}
+		};
+
+		fetchStats();
+	}, []);
+
+	useEffect(() => {
+		if (!stats?.total_guilds) return;
+
+		const targetCount = stats.total_guilds;
+		const increment = targetCount / 150;
+
+		const updateCount = () => {
+			setServerCount((prevCount) => {
+				if (prevCount < targetCount) {
+					const newCount = Math.ceil(prevCount + increment);
+					return newCount >= targetCount ? targetCount : newCount;
+				}
+				return prevCount;
+			});
+		};
+
+		const intervalId = setInterval(updateCount, 10);
+
+		return () => clearInterval(intervalId);
+	}, [stats?.total_guilds]);
+
 	return (
 		<>
 			<section>
-				<main className="container  mx-auto px-4 py-16">
+				<main className="container mx-auto px-4 py-16">
 					{/* Top label */}
 					<div className="text-center mb-8 opacity-80">
-						<span className="text-gray-400 inline-flex items-center gap-4  font-inter text-xs font-normal">
+						<span className="text-gray-400 inline-flex items-center gap-4 font-inter text-xs font-normal">
 							<span className="h-px w-14 bg-gradient-to-r to-gray-500 relative from-transparent">
 								<span className="w-[5px] h-[5px] bg-gray-500 absolute rounded top-1/2 -translate-y-1/2 right-0"></span>
 							</span>
-							Top Mod Bot
+							Most Trusted Security
 							<span className="h-px w-14 bg-gradient-to-r from-gray-500 to-transparent relative">
 								<span className="w-[5px] h-[5px] bg-gray-500 absolute rounded top-1/2 -translate-y-1/2 left-0"></span>
 							</span>
@@ -19,28 +86,32 @@ const Hero = () => {
 					</div>
 
 					{/* Hero Section */}
-					<div className="max-w-4xl  relative mx-auto text-center space-y-8">
+					<div className="max-w-4xl relative mx-auto text-center space-y-8">
 						<div className="w-[5rem] h-[10rem] absolute bottom-[-5rem] left-[5rem] blur-[6rem] opacity-50 bg-violet-600"></div>
 						<div className="w-[5rem] h-[10rem] absolute bottom-[-5rem] right-[5rem] blur-[6rem] opacity-50 bg-violet-600"></div>
 
-						<h1 className="text-4xl md:text-6xl font-bold tracking-tight text-white mb-4 font-inter">
+						<h1 className="text-4xl md:text-6xl font-bold tracking-tight text-foreground mb-4 font-inter">
 							Easily Protect Your Discord Server with{' '}
 							<span className="bg-gradient-to-tl from-[#7f7dde] to-purple-50 bg-clip-text text-transparent italic font-lora font-light px-2">
 								AntiRaid
 							</span>
 						</h1>
 
-						<p className="text-gray-400 mb-10 font-inter text-sm font-normal">
-							Join the other 11,848+ servers that use AntiRaid and protect your server today!
+						<p className="text-gray-400 mb-10 font-inter text-sm font-bold">
+							Join the other{' '}
+							<span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-red-400">
+								{serverCount.toLocaleString('en-US')}+
+							</span>{' '}
+							servers that use AntiRaid and protect your server today!
 						</p>
 
 						{/* CTA Buttons */}
 						<div className="flex flex-row max-[380px]:flex-col gap-4 justify-center">
-							<button className="inline-flex items-center justify-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors border border-gray-600 border-opacity-30">
+							<button className="inline-flex items-center justify-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-foreground rounded-lg font-medium transition-colors border border-gray-600 border-opacity-30">
 								Invite now
 								<ArrowUpRight className="ml-2 h-4 w-4" />
 							</button>
-							<button className="inline-flex items-center justify-center px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-medium transition-colors border border-gray-600 border-opacity-30">
+							<button className="inline-flex items-center justify-center px-6 py-3 bg-gray-800 hover:bg-gray-700 text-foreground rounded-lg font-medium transition-colors border border-gray-600 border-opacity-30">
 								Learn more
 								<ArrowUpRight className="ml-2 h-4 w-4" />
 							</button>
@@ -50,7 +121,7 @@ const Hero = () => {
 					{/* Trusted By Section */}
 					<div className="mt-8 text-center">
 						<div className="text-center mb-8 opacity-80">
-							<span className="text-gray-400  font-inter text-xs font-normal inline-flex items-center gap-4">
+							<span className="text-gray-400 font-inter text-xs font-normal inline-flex items-center gap-4">
 								<span className="h-px w-14 bg-gradient-to-r to-gray-500 relative from-transparent">
 									<span className="w-[5px] h-[5px] bg-gray-500 absolute rounded top-1/2 -translate-y-1/2 right-0"></span>
 								</span>

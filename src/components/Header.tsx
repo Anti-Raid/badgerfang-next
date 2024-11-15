@@ -138,7 +138,7 @@ const Themer: React.FC<ThemerProps> = ({ isOpen }) => {
 									className={`group flex rounded-md items-center w-full px-3 py-2 transition-all duration-150 ${
 										theme === th.id
 											? `text-foreground bg-secondary shadow-md shadow-violet-500/10 hover:bg-primary/75`
-											: 'text-foreground/75 hover:text-white/100 hover:bg-primary-800/20'
+											: 'text-foreground/75 hover:text-foreground/100 hover:bg-primary-800/20'
 									}`}
 								>
 									<div data-theme={th.color} className="flex items-center justify-between w-full">
