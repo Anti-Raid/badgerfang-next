@@ -11,10 +11,11 @@ export default function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	const [isLoading, setIsLoading] = useState(true);
+	const [isLoading, setIsLoading] = useState(false);
 	const handleLoadingClose = () => setIsLoading(false);
 
 	useEffect(() => {
+		if (typeof window !== 'undefined') setIsLoading(window.location.pathname === '/');
 		const timer = setTimeout(() => setIsLoading(false), 2000);
 		return () => clearTimeout(timer);
 	}, []);
@@ -34,7 +35,7 @@ export default function RootLayout({
 					rel="stylesheet"
 				/>
 			</head>
-			{/* <body className="min-h-screen bg-gradient-to-b from-purple-800 to-purple-400/85"> */}
+
 			<body className="min-h-screen bg-background">
 				<ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
 					{isLoading ? (
