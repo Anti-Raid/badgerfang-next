@@ -1,7 +1,7 @@
 import Breadcrumb from '@/components/Breadcrumb';
 import { title, description, logo } from '@/components/common';
 import PartnerCard from '@/components/PartnerCard';
-import { Partner } from '@/types/Partner';
+import { Partner } from '@/types/other/Partner';
 import { Icon } from '@iconify/react';
 import { Metadata } from 'next';
 

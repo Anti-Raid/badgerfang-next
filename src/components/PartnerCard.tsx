@@ -1,5 +1,5 @@
 'use client';
-import { Partner } from '../types/Partner';
+import { Partner } from '../types/other/Partner';
 import { useRouter } from 'next/navigation';
 
 const ImageLoadError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
