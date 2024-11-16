@@ -18,7 +18,7 @@ const PartnerCard: React.FC<PartnerCardProps> = ({ partner }) => {
 	};
 
 	return (
-		<div className="block max-w-sm border rounded-lg shadow bg-secondary/75 border-secondary-65 hover:bg-secondary/85 text-foreground">
+		<div className="block max-w-sm p-4 border rounded-lg shadow bg-secondary/75 border-secondary-65 hover:bg-secondary/85 text-foreground">
 			<div className="partner">
 				<h2 className="flex">
 					<img
