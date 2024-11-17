@@ -5,6 +5,9 @@ import { Partner } from '@/types/other/Partner';
 import { Icon } from '@iconify/react';
 import { Metadata } from 'next';
 
+import { CiGlobe } from 'react-icons/ci';
+import { FaDiscord } from 'react-icons/fa';
+
 export const metadata: Metadata = {
 	title: `About Us - ${title}`,
 	description: description,
@@ -45,20 +48,20 @@ const BotFeatures = () => {
 			{features.map((p, index) => (
 				<div
 					key={index}
-					className="block bg-secondary/65 hover:bg-secondary/45 px-2 py-4 rounded-md"
+					className="block bg-white bg-opacity-5 border border-white border-opacity-5 px-4 py-4 rounded-md"
 				>
 					<dt>
 						<div className="absolute flex h-12 w-12 items-center justify-center rounded-md bg-primary/45 text-foreground">
 							<Icon icon={p.Icon} className="text-2xl" />
 						</div>
-						<p className="ml-16 text-xl font-cabin font-extrabold leading-6 text-foreground">
+						<p className="ml-16 text-xl font-cabin text-left font-extrabold leading-6 text-foreground">
 							{p.Title}
 						</p>
 					</dt>
 
-					<dd className="mt-2 ml-16 text-foreground text-monster">
+					<dd className="mt-3 ml-16 text-foreground text-monster">
 						<p
-							className="text-xs/4 md:text-sm lg:text-base font-medium font-monster tracking-tight"
+							className="text-xs/4 md:text-sm lg:text-md font-normal font-inter opacity-80 text-justify"
 							dangerouslySetInnerHTML={{ __html: p.Description }}
 						></p>
 					</dd>
@@ -72,7 +75,8 @@ const Partners = () => {
 	const partners: Partner[] = [
 		{
 			name: 'NetSocial',
-			description: 'Connect, Share, Grow.',
+			description:
+				'Connect, Share, Grow. NetSocial empowers communities to be who they want to be.',
 			long_description:
 				'NetSocial empowers communities to be who they want to be, no more bots, paywalls and obscene content!',
 			logo: 'https://cdn.netsocial.app/logos/netsocial.png',
@@ -83,12 +87,12 @@ const Partners = () => {
 			links: [
 				{
 					name: 'Website',
-					emoji: '👀',
+					icon: <CiGlobe size={25} />,
 					link: 'https://netsocial.app/'
 				},
 				{
 					name: 'Discord',
-					emoji: 'fa-brands fa-discord',
+					icon: <FaDiscord size={25} />,
 					link: 'https://discord.gg/Tf6PCgDwa5'
 				}
 			]
@@ -107,12 +111,12 @@ const Partners = () => {
 			links: [
 				{
 					name: 'Website',
-					emoji: '👀',
+					icon: <CiGlobe size={25} />,
 					link: 'https://infinitybots.gg/'
 				},
 				{
 					name: 'Discord',
-					emoji: 'fa-brands fa-discord',
+					icon: <FaDiscord size={25} />,
 					link: 'https://discord.com/invite/KBCRuBKrHe'
 				}
 			]
@@ -121,7 +125,7 @@ const Partners = () => {
 
 	return (
 		<>
-			<div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
+			<div className="flex flex-row flex-wrap gap-5 ">
 				{partners.map((partner) => (
 					<PartnerCard key={partner.name} partner={partner} />
 				))}
@@ -150,11 +154,11 @@ const TeamMembers = () => {
 
 	return (
 		<>
-			<div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+			<div className="mt-5 flex flex-row flex-wrap w-full gap-4">
 				{members.map((member, index) => (
 					<div
 						key={index}
-						className="inline-block p-2 max-w-sm mx-5 bg-secondary/90 hover:bg-secondary/50 overflow-hidden rounded-l-full rounded-r-md"
+						className=" flex grow p-2 bg-white bg-opacity-5  overflow-hidden rounded-md border border-white border-opacity-5"
 					>
 						<div className="flex items-center">
 							<img
@@ -166,11 +170,9 @@ const TeamMembers = () => {
 								<h3 className="text-lg font-monster font-semibold leading-7 overflow-clip tracking-tight text-foreground">
 									{member.DisplayName}
 								</h3>
-								<p className="text-sm font-monster font-semibold text-foreground">
-									@{member.Username}
-								</p>
-								<p className="text-md font-cabin font-semibold leading-6 text-purple-600">
-									{member.Role}
+								<p className="text-sm font-inter  text-foreground">
+									<span className="font-normal opacity-80">@{member.Username}</span> -{' '}
+									<span className="text-primary font-semibold">{member.Role}</span>
 								</p>
 							</div>
 						</div>
@@ -185,7 +187,7 @@ const TeamMembers = () => {
 const AboutPage = () => {
 	return (
 		<>
-			<section>
+			<section className="flex flex-col gap-8 mx-4">
 				<div className="text-center md:text-left">
 					<h1 className="text-4xl font-monster font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
 						<span className="block text-foreground xl:inline">&#128075; About Us</span>
@@ -196,9 +198,9 @@ const AboutPage = () => {
 					</p>
 				</div>
 
-				<div className="p-4" />
+				{/* <div className="p-4" /> */}
 
-				<p className="text-md md:text-xl text-foreground font-cabin font-semibold text-center md:text-left">
+				<p className="text-md md:text-md text-foreground font-cabin opacity-80 text-center md:text-left">
 					AntiRaid offers powerful, automated protection for your Discord server. Designed to combat
 					spam, harmful bots, and disruptive behavior, our advanced moderation technology ensures a
 					safe and welcoming environment. With AntiRaid, you can focus on engaging with your
@@ -215,7 +217,7 @@ const AboutPage = () => {
 					<div className="p-2" />
 
 					<center>
-						<dl className="mx-2.5 space-y-4 md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-10 md:space-y-0">
+						<dl className="space-y-4 md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-10 md:space-y-0">
 							<BotFeatures />
 						</dl>
 					</center>
@@ -224,7 +226,7 @@ const AboutPage = () => {
 				<div className="p-3" />
 
 				{/* Partners Section */}
-				<section id="partners">
+				<section id="partners" className="w-full">
 					<Breadcrumb
 						Title="Partners"
 						Description="Take a look at our amazing partners, that help us stand where we are today!"

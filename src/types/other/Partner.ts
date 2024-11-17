@@ -1,7 +1,8 @@
 export interface PartnerLink {
-	name: string;
-	emoji: string;
+	name?: string;
+	emoji?: string;
 	link: string;
+	icon: React.ReactNode;
 }
 
 export interface Partner {
