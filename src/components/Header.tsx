@@ -67,8 +67,8 @@ const NavButton: React.FC<NavButtonProps> = ({
 }) => {
 	const classes = useMemo(() => {
 		const baseClasses = current
-			? ' py-2 text-sm font-light opacity-70 hover:opacity-100 hover:underline text-center text-foreground rounded-lg cursor-pointer bg-slate-700 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-white'
-			: ' py-2 text-sm font-light opacity-70 hover:opacity-100 hover:underline text-left text-foreground transition-colors duration-150 bg-transparent rounded-lg cursor-pointer  focus:outline-none focus:ring-1 focus:ring-inset focus:ring-white';
+			? ' py-2 text-sm font-light opacity-70 hover:opacity-100 hover:underline text-center text-foreground rounded-lg cursor-pointer bg-slate-700 focus:outline-none  focus:ring-inset focus:ring-white'
+			: ' py-2 text-sm font-light opacity-70 hover:opacity-100 hover:underline text-left text-foreground transition-colors duration-150 bg-transparent rounded-lg cursor-pointer  focus:outline-none  focus:ring-inset focus:ring-white';
 
 		// Add disabled state classes if disabled
 		const disabledClasses = disabled ? ' opacity-50 cursor-not-allowed' : '';
@@ -402,7 +402,7 @@ const Header = () => {
 						<button
 							type="button"
 							onClick={loginUser}
-							className="px-5 py-2 text-sm font-medium text-left text-gray-50 rounded-sm cursor-pointer bg-indigo-600 hover:bg-indigo-800 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-white"
+							className="px-5 py-2 text-sm font-medium text-left text-gray-50 rounded-sm cursor-pointer bg-indigo-600 hover:bg-indigo-800 focus:outline-none  focus:ring-inset focus:ring-white"
 						>
 							Login
 						</button>
