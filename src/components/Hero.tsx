@@ -111,10 +111,10 @@ const Hero = () => {
 								Invite now
 								<ArrowUpRight className="ml-2 h-4 w-4" />
 							</button>
-							<button className="inline-flex items-center justify-center px-6 py-3 bg-gray-800 hover:bg-gray-700 text-foreground rounded-lg font-medium transition-colors border border-gray-600 border-opacity-30">
+							<a href="/about" className="inline-flex items-center justify-center px-6 py-3 bg-gray-800 hover:bg-gray-700 text-foreground rounded-lg font-medium transition-colors border border-gray-600 border-opacity-30">
 								Learn more
 								<ArrowUpRight className="ml-2 h-4 w-4" />
-							</button>
+							</a>
 						</div>
 					</div>
 
