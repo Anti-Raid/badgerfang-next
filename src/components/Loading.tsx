@@ -54,7 +54,7 @@ const Loading: React.FC<LoadingProps> = ({ onClose }) => {
 	}, []);
 
 	return (
-		<div className="bg-purple-600/75 grid place-items-center min-h-screen overflow-none">
+		<div className="bg-purple-600/50 grid place-items-center min-h-screen overflow-none">
 			<ol className="list-disc">
 				<li className="text-foreground font-cursive non-italic font-extrabold text-5xl">{word}</li>
 			</ol>
