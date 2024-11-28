@@ -31,6 +31,9 @@
 	--secondary: 0 0% 96%;
 	--secondary-foreground: 0 0% 5%;
 
+	--extra: 244, 84%, 61%;
+	--extra-foreground: 0 0% 5%;
+
 	--muted: 0 0% 96%;
 	--muted-foreground: 0 0% 45%;
 
@@ -62,6 +65,9 @@
 
 	--secondary: 270 5% 15%;
 	--secondary-foreground: 0 0% 98%;
+
+	--extra: 244, 84%, 61%;
+	--extra-foreground: 0 0% 5%;
 
 	--muted: 280 5% 22%;
 	--muted-foreground: 280 5% 49%;
@@ -96,7 +102,7 @@
 	h5,
 	h6,
 	div {
-		@apply text-foreground font-semibold font-cabin;
+		@apply text-foreground font-cabin;
 	}
 
 	.table tr td {
