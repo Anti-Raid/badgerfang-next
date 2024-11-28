@@ -5,6 +5,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import React, { useEffect, useState } from 'react';
+import ToastProvider from '@/components/ToastProvider';
 
 export default function RootLayout({
 	children
@@ -38,20 +39,22 @@ export default function RootLayout({
 
 			<body className="min-h-screen bg-background">
 				<ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-					{isLoading ? (
-						<Loading onClose={handleLoadingClose} />
-					) : (
-						<>
-							<Header></Header>
-							<article className="min-h-screen flex-col justify-between overflow-x-hidden">
-								<main className="mt-9 p-1 w-full md:max-w-7xl mx-auto h-full min-h-screen">
-									{children}
-								</main>
+					<ToastProvider>
+						{isLoading ? (
+							<Loading onClose={handleLoadingClose} />
+						) : (
+							<>
+								<Header></Header>
+								<article className="min-h-screen flex-col justify-between overflow-x-hidden">
+									<main className="mt-9 p-1 w-full md:max-w-7xl mx-auto h-full min-h-screen">
+										{children}
+									</main>
 
-								<Footer />
-							</article>
-						</>
-					)}
+									<Footer />
+								</article>
+							</>
+						)}
+					</ToastProvider>
 				</ThemeProvider>
 			</body>
 		</html>
