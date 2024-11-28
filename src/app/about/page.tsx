@@ -4,7 +4,6 @@ import PartnerCard from '@/components/PartnerCard';
 import { Partner } from '@/types/other/Partner';
 import { Icon } from '@iconify/react';
 import { Metadata } from 'next';
-
 import { CiGlobe } from 'react-icons/ci';
 import { FaDiscord } from 'react-icons/fa';
 
