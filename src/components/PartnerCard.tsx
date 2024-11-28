@@ -2,7 +2,6 @@
 import Link from 'next/link';
 import { Partner } from '../types/other/Partner';
 import { useRouter } from 'next/navigation';
-
 import { MdOpenInNew } from 'react-icons/md';
 
 const ImageLoadError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
