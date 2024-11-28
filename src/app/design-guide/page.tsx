@@ -1,23 +1,27 @@
+'use client';
+import Breadcrumb from '@/components/Breadcrumb';
+import { Ghost, Primary, Secondary } from '@/components/Buttons';
+import { toast } from 'react-toastify';
+
+const ButtonFunc = (button: string): void => {
+	toast(`You have pushed the "${button}" button!`);
+};
+
 export default function designGuide() {
 	return (
 		<>
 			<section className="flex flex-col gap-10 max-w-[80%] mx-auto max-[360px]:max-w-[90%]">
-				<div className="text-center md:text-left">
-					<h1 className="text-4xl font-monster font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
-						<span className="block text-foreground xl:inline">[Project] Style Guide</span>
-					</h1>
-					<p className="mt-3 text-base text-center md:text-left text-foreground font-semibold font-cabin ml-3 sm:mt-5 sm:text-lg md:ml-0 md:mt-5 md:text-xl lg:ml-0 lg:mx-0">
-						Information about project{' '}
-						<span className="text-purple-600 font-bold">Styling and Designing</span>.
-					</p>
-				</div>
+				<Breadcrumb
+					Title="Style Guide"
+					Description="Information about our <span class='text-purple-600 font-bold'>Styling and Designing</span>."
+				></Breadcrumb>
 
 				<div className="w-full h-[1px] bg-white opacity-15"></div>
 
 				<div className="flex flex-col gap-10">
 					<div className="flex justify-between flex-wrap  gap-10">
 						<div className="flex flex-1 flex-col gap-10">
-							{/* color palette */}
+							{/* Color Palette */}
 							<div className="flex flex-col gap-3">
 								<h2 className="text-2xl font-inter font-semibold">Color Palette</h2>
 								<div className="flex flex-col gap-3 ml-[1rem]">
@@ -44,10 +48,11 @@ export default function designGuide() {
 								</div>
 							</div>
 
-							{/* fonts */}
+							{/* Fonts */}
 							<div className="flex flex-col gap-3">
 								<h2 className="text-2xl font-inter font-semibold">Fonts</h2>
 								<div className="flex flex-col gap-3  ml-[1rem]">
+									{/* Inter */}
 									<p className="flex flex-col font-inter font-normal">
 										1. Inter
 										<span className="ml-7">
@@ -69,6 +74,8 @@ export default function designGuide() {
 											</span>
 										</span>
 									</p>
+
+									{/* Monster */}
 									<p className="flex flex-col font-monster font-normal">
 										2. Monster
 										<span className="ml-7">
@@ -90,6 +97,8 @@ export default function designGuide() {
 											</span>
 										</span>
 									</p>
+
+									{/* Cabin*/}
 									<p className="flex flex-col font-cabin font-normal">
 										3. Cabin
 										<span className="ml-7">
@@ -170,7 +179,7 @@ export default function designGuide() {
 								<h2 className="text-2xl font-monster font-semibold">Ordered List</h2>
 								<p className="text-sm font-normal">Font: Monster, Regular, 14px, color: Text</p>
 								<div className="flex flex-col gap-3  ml-[1rem]">
-									<ol className="list-decimal font-monster  font-normal ml-5">
+									<ol className="list-decimal font-monster font-normal ml-5">
 										<li>Ordered List Item</li>
 										<li>Ordered List Item</li>
 										<li>Ordered List Item</li>
@@ -185,36 +194,31 @@ export default function designGuide() {
 					<div className="flex flex-col gap-5">
 						<h2 className="text-2xl font-monster font-semibold">Buttons</h2>
 						<div className="flex flex-row flex-wrap justify-between gap-5">
+							{/* Primary */}
 							<div className="flex flex-col gap-3">
 								<p className="text-sm font-normal">Font: Monster, Semibold, 18px, color: Text</p>
 								<div className="flex flex-col gap-3">
 									<div>
-										<button className="bg-extra px-4 py-2 rounded-sm text-foreground font-semibold text-[18px] border border-white border-opacity-5 hover:brightness-[80%] transition-all">
-											Primary Button
-										</button>
+										<Primary Title="Primary Button" onClick={() => ButtonFunc('Primary')} />
 									</div>
 								</div>
 							</div>
 
+							{/* Secondary */}
 							<div className="flex flex-col gap-3">
 								<p className="text-sm font-normal">Font: Monster, Semibold, 18px, color: Text</p>
 								<div className="flex flex-col gap-3">
 									<div>
-										<button className="bg-secondary px-4 py-2 rounded-sm text-foreground font-semibold text-[18px] border border-white border-opacity-5 hover:brightness-[80%] transition-all">
-											Secondary Button
-										</button>
+										<Secondary Title="Secondary Button" onClick={() => ButtonFunc('Secondary')} />
 									</div>
 								</div>
 							</div>
 
-							{/* ghost */}
-
+							{/* Ghost */}
 							<div className="flex flex-col gap-3">
 								<p className="text-sm font-normal">Font: Monster, Semibold, 18px, color: Text</p>
 								<div>
-									<button className="bg-transparent px-4 py-2 rounded-sm text-foreground font-semibold text-[18px] hover:brightness-[80%] hover:bg-secondary hover:border hover:border-white hover:border-opacity-5 transition-all">
-										Ghost Button
-									</button>
+									<Ghost Title="Ghost Button" onClick={() => ButtonFunc('Ghost')} />
 								</div>
 							</div>
 						</div>
