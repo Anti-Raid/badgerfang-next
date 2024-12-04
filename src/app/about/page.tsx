@@ -1,17 +1,12 @@
 import Breadcrumb from '@/components/Breadcrumb';
-import { title, description, logo } from '@/components/common';
+import { title, description, logo, image, website_url } from '@/components/common';
 import PartnerCard from '@/components/PartnerCard';
 import { Partner } from '@/types/other/Partner';
 import { Icon } from '@iconify/react';
 import { Metadata } from 'next';
 import { CiGlobe } from 'react-icons/ci';
 import { FaDiscord } from 'react-icons/fa';
-
-export const metadata: Metadata = {
-	title: `About Us - ${title}`,
-	description: description,
-	icons: [logo, '/favicon.ico']
-};
+import { SEO } from '@/components/SEO';
 
 // Internal Components
 const BotFeatures = () => {
@@ -44,6 +39,40 @@ const BotFeatures = () => {
 
 	return (
 		<>
+			<SEO
+				title="About | Anti Raid"
+				description={description}
+				canonical={website_url}
+				image={{
+					url: `${image}`,
+					width: 1920,
+					height: 1080,
+					alt: `${description}`
+				}}
+				robotsConfig={{
+					index: true,
+					follow: false,
+					additional: ['noarchive']
+				}}
+				social={{
+					og: {
+						type: 'website',
+						site_name: `About | Anti Raid`,
+						locale: 'en_US'
+					},
+					twitter: {
+						card: 'summary_large_image',
+						site: `@About | Anti Raid`
+					}
+				}}
+				structuredData={{
+					'@context': 'https://schema.org',
+					'@type': 'WebPage',
+					name: `About | Anti Raid`,
+					description: `${description}`
+				}}
+				additionalMetaTags={[{ name: 'copyright', content: '© 2024 Purrquinox' }]}
+			/>
 			{features.map((p, index) => (
 				<div
 					key={index}

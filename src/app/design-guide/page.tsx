@@ -2,6 +2,8 @@
 import Breadcrumb from '@/components/Breadcrumb';
 import { Ghost, Primary, Secondary } from '@/components/Buttons';
 import { toast } from 'react-toastify';
+import { title, description, logo, image, website_url } from '@/components/common';
+import { SEO } from '@/components/SEO';
 
 const ButtonFunc = (button: string): void => {
 	toast(`You have pushed the "${button}" button!`);
@@ -10,6 +12,41 @@ const ButtonFunc = (button: string): void => {
 export default function designGuide() {
 	return (
 		<>
+			{' '}
+			<SEO
+				title="Design Scheme | Anti Raid"
+				description={description}
+				canonical={website_url}
+				image={{
+					url: `${image}`,
+					width: 1920,
+					height: 1080,
+					alt: `${description}`
+				}}
+				robotsConfig={{
+					index: true,
+					follow: false,
+					additional: ['noarchive']
+				}}
+				social={{
+					og: {
+						type: 'website',
+						site_name: `Design Scheme | Anti Raid`,
+						locale: 'en_US'
+					},
+					twitter: {
+						card: 'summary_large_image',
+						site: `@Design Scheme | Anti Raid`
+					}
+				}}
+				structuredData={{
+					'@context': 'https://schema.org',
+					'@type': 'WebPage',
+					name: `Design Scheme | Anti Raid`,
+					description: `${description}`
+				}}
+				additionalMetaTags={[{ name: 'copyright', content: '© 2024 Purrquinox' }]}
+			/>
 			<section className="flex flex-col gap-10 max-w-[80%] mx-auto max-[360px]:max-w-[90%]">
 				<Breadcrumb
 					Title="Style Guide"

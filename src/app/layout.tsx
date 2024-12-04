@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import React, { useEffect, useState } from 'react';
 import ToastProvider from '@/components/ToastProvider';
+import { HelmetProvider } from 'react-helmet-async';
 
 export default function RootLayout({
 	children
@@ -36,27 +37,33 @@ export default function RootLayout({
 					rel="stylesheet"
 				/>
 			</head>
+			<HelmetProvider>
+				<body className="min-h-screen bg-background">
+					<ThemeProvider
+						attribute="class"
+						defaultTheme="dark"
+						enableSystem
+						disableTransitionOnChange
+					>
+						<ToastProvider>
+							{isLoading ? (
+								<Loading onClose={handleLoadingClose} />
+							) : (
+								<>
+									<Header></Header>
+									<article className="min-h-screen flex-col justify-between overflow-x-hidden">
+										<main className="mt-9 p-1 w-full md:max-w-7xl mx-auto h-full min-h-screen">
+											{children}
+										</main>
 
-			<body className="min-h-screen bg-background">
-				<ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-					<ToastProvider>
-						{isLoading ? (
-							<Loading onClose={handleLoadingClose} />
-						) : (
-							<>
-								<Header></Header>
-								<article className="min-h-screen flex-col justify-between overflow-x-hidden">
-									<main className="mt-9 p-1 w-full md:max-w-7xl mx-auto h-full min-h-screen">
-										{children}
-									</main>
-
-									<Footer />
-								</article>
-							</>
-						)}
-					</ToastProvider>
-				</ThemeProvider>
-			</body>
+										<Footer />
+									</article>
+								</>
+							)}
+						</ToastProvider>
+					</ThemeProvider>
+				</body>
+			</HelmetProvider>
 		</html>
 	);
 }
