@@ -1,4 +1,4 @@
-import CommandsComponent from '@/components/Commands';
+import CommandInterface from '@/components/Commands';
 import { title, description, logo, image, website_url } from '@/components/common';
 import { SEO } from '@/components/SEO';
 
@@ -40,7 +40,7 @@ const Commands = () => {
 					}}
 					additionalMetaTags={[{ name: 'copyright', content: '© 2024 Purrquinox' }]}
 				/>
-				<CommandsComponent />
+				<CommandInterface />
 			</main>
 		</>
 	);
