@@ -40,18 +40,18 @@ export default function RootLayout({
 					rel="stylesheet"
 				/>
 			</head>
-			<SWRConfig
-				value={{
-					fetcher
-				}}
-			>
-				<HelmetProvider>
-					<body className="min-h-screen bg-background">
-						<ThemeProvider
-							attribute="class"
-							defaultTheme="dark"
-							enableSystem
-							disableTransitionOnChange
+			<HelmetProvider>
+				<body className="min-h-screen bg-background">
+					<ThemeProvider
+						attribute="class"
+						defaultTheme="dark"
+						enableSystem={false}
+						disableTransitionOnChange
+					>
+						<SWRConfig
+							value={{
+								fetcher
+							}}
 						>
 							<ToastProvider>
 								{isLoading ? (
@@ -69,10 +69,10 @@ export default function RootLayout({
 									</>
 								)}
 							</ToastProvider>
-						</ThemeProvider>
-					</body>
-				</HelmetProvider>
-			</SWRConfig>
+						</SWRConfig>
+					</ThemeProvider>
+				</body>
+			</HelmetProvider>
 		</html>
 	);
 }
