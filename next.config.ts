@@ -28,6 +28,13 @@ const nextConfig: NextConfig = {
 		NEXT_PUBLIC_COMMIT: getGitCommitHash(),
 		NEXT_PUBLIC_VERSION: version,
 		NEXT_PUBLIC_LASTMOD: getLastMod()
+	},
+	images: {
+		remotePatterns: [
+			{
+				hostname: '**'
+			}
+		]
 	}
 };
 
