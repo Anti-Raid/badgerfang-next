@@ -1,6 +1,6 @@
 'use client';
 import Breadcrumb from '@/components/Breadcrumb';
-import { description, image, website_url } from '@/components/common';
+import { api_url, description, image, main_server_id, website_url } from '@/components/common';
 import PartnerCard from '@/components/PartnerCard';
 import { Partner } from '@/types/other/Partner';
 import { Icon } from '@iconify/react';
@@ -9,6 +9,7 @@ import { toast } from 'react-toastify';
 import { CiGlobe } from 'react-icons/ci';
 import { FaDiscord } from 'react-icons/fa';
 import { SEO } from '@/components/SEO';
+import useSWR from 'swr';
 
 const ButtonFunc = (button: string): void => {
 	toast(`You have pushed the "${button}" button!`);
@@ -169,49 +170,91 @@ const Partners = () => {
 };
 
 const TeamMembers = () => {
-	const members = [
-		{
-			DisplayName: 'KANG HAE-RIN',
-			Username: 'haerin',
-			Role: 'OWNER',
-			DisplayRoles: [['OWNER', 1]],
-			Avatar: 'https://i.pinimg.com/originals/23/70/0c/23700c1a59c3c0a77c1745d732e0a7d3.jpg'
-		},
-		{
-			DisplayName: 'DANIELLE MARSH',
-			Username: 'danielle',
-			Role: 'CO-OWNER',
-			DisplayRoles: [['CO-OWNER', 2]],
-			Avatar: 'https://th.bing.com/th/id/OIP.RmQ7EeISagCf7bKtKLeeCQHaJ4?rs=1&pid=ImgDetMain'
+	interface APIResponse {
+		members: any[];
+		roles: any[];
+	}
+
+	interface TeamMember {
+		DisplayName: string | undefined;
+		Username: string | undefined;
+		Role: string;
+		DisplayRoles: [string, number][];
+		Avatar: string | undefined;
+	}
+
+	const { data, error, isLoading } = useSWR<APIResponse>(
+		`${api_url}/guilds/${main_server_id}/staff-team`
+	);
+	if (isLoading) return toast('Loading data...');
+	if (error) return toast('There was an error loading Team Members: ', error);
+
+	let teamMembers: TeamMember[] = [];
+	if (data) {
+		for (let member of data.members) {
+			let display_roles: [string, number][] = [];
+
+			for (let role of member.role) {
+				let roleData = data.roles.find((r: any) => r.role_id === role);
+				if (roleData) display_roles.push([roleData.display_name?.toString() || '', roleData.index]);
+			}
+
+			display_roles.sort((a, b) => a[1] - b[1]);
+
+			teamMembers.push({
+				DisplayName: member.user?.display_name,
+				Username: member.user?.username,
+				Role: display_roles.map((x) => x[0]).join(', '),
+				DisplayRoles: display_roles,
+				Avatar: member?.user?.avatar
+			});
 		}
-	];
+
+		teamMembers = teamMembers.sort((a, b) => {
+			let highestIndexA = a.DisplayRoles[0][1];
+			let highestIndexB = b.DisplayRoles[0][1];
+
+			for (let i = 1; i < a.DisplayRoles.length; i++) {
+				if (a.DisplayRoles[i][1] < highestIndexA) highestIndexA = a.DisplayRoles[i][1];
+			}
+			for (let i = 1; i < b.DisplayRoles.length; i++) {
+				if (b.DisplayRoles[i][1] < highestIndexB) highestIndexB = b.DisplayRoles[i][1];
+			}
+
+			return 10 * (highestIndexA - highestIndexB) - (a.DisplayRoles.length - b.DisplayRoles.length);
+		});
+	}
 
 	return (
 		<>
 			<div className="mt-5 flex flex-row flex-wrap w-full gap-4">
-				{members.map((member, index) => (
-					<div
-						key={index}
-						className=" flex grow p-2 bg-white bg-opacity-5  overflow-hidden rounded-md border border-white border-opacity-5"
-					>
-						<div className="flex items-center">
-							<img
-								className="h-16 w-16 rounded-full"
-								src={member.Avatar || '/logo.webp'}
-								alt={`${member.DisplayName}'s Avatar`}
-							/>
-							<div className="inline-block ml-3">
-								<h3 className="text-lg font-monster font-semibold leading-7 overflow-clip tracking-tight text-foreground">
-									{member.DisplayName}
-								</h3>
-								<p className="text-sm font-inter  text-foreground">
-									<span className="font-normal opacity-80">@{member.Username}</span> -{' '}
-									<span className="text-primary font-semibold">{member.Role}</span>
-								</p>
+				{teamMembers.length > 0 ? (
+					teamMembers.map((member, index) => (
+						<div
+							key={index}
+							className="flex grow p-2 bg-white bg-opacity-5 overflow-hidden rounded-md border border-white border-opacity-5"
+						>
+							<div className="flex items-center">
+								<img
+									className="h-16 w-16 rounded-full"
+									src={member.Avatar || '/logo.webp'}
+									alt={`${member.DisplayName}'s Avatar`}
+								/>
+								<div className="inline-block ml-3">
+									<h3 className="text-lg font-monster font-semibold leading-7 overflow-clip tracking-tight text-foreground">
+										{member.DisplayName}
+									</h3>
+									<p className="text-sm font-inter text-foreground">
+										<span className="font-normal opacity-80">@{member.Username}</span> -{' '}
+										<span className="text-primary font-semibold">{member.Role}</span>
+									</p>
+								</div>
 							</div>
 						</div>
-					</div>
-				))}
+					))
+				) : (
+					<p className="text-center text-foreground opacity-75">No team members found.</p>
+				)}
 			</div>
 		</>
 	);

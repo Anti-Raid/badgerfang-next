@@ -5,9 +5,10 @@ const description =
 const logo = '/logo.webp';
 const api_url = 'https://splashtail-staging.antiraid.xyz';
 const website_url = 'https://antiraid.xyz';
+const main_server_id = '1064135068928454766';
 const image = '/og_image.png';
 const twitter = '@heypurrquinox';
 const owner = 'Purrquinox';
 
 // Export variables
-export { title, description, logo, api_url, website_url, twitter, owner, image };
+export { title, description, logo, api_url, website_url, main_server_id, twitter, owner, image };
