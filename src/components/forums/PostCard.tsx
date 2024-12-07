@@ -29,7 +29,6 @@ const PostCard: React.FC<posts> = (post: posts) => {
 			}
 		} else {
 			if (voted) {
-				// Change vote
 				if (type === 'up') {
 					setDownvotes((prev) => prev - 1);
 					setUpvotes((prev) => prev + 1);
@@ -55,8 +54,8 @@ const PostCard: React.FC<posts> = (post: posts) => {
 
 	const createUpvoteParticles = (e: React.MouseEvent) => {
 		const rect = e.currentTarget.getBoundingClientRect();
-		const particles = Array.from({ length: 8 }, (_, index) => ({
-			id: Date.now() + index, // Numeric id
+		const particles = Array.from({ length: 20 }, (_, index) => ({
+			id: Date.now() + index,
 			x: e.clientX - rect.left,
 			y: e.clientY - rect.top,
 			color: '#22c55e'
@@ -69,8 +68,8 @@ const PostCard: React.FC<posts> = (post: posts) => {
 
 	const createDownvoteParticles = (e: React.MouseEvent) => {
 		const rect = e.currentTarget.getBoundingClientRect();
-		const particles = Array.from({ length: 8 }, (_, index) => ({
-			id: Date.now() + index, // Numeric id
+		const particles = Array.from({ length: 20 }, (_, index) => ({
+			id: Date.now() + index,
 			x: e.clientX - rect.left,
 			y: e.clientY - rect.top,
 			color: '#ef4444'
