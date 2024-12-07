@@ -7,12 +7,10 @@ export default async function DebugForumPostCard() {
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+			<div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 p-4">
 				{data.map((post: posts, index: number) => (
-					<div className="col-span-1 h-auto p-0 m-0" key={index}>
-						<div className="self-auto h-auto p-0 m-0">
-							<PostCard {...post} key={index} />
-						</div>
+					<div className="break-inside-avoid mb-4" key={index}>
+						<PostCard {...post} key={index} />
 					</div>
 				))}
 			</div>
