@@ -1,6 +1,6 @@
 'use client';
 import { Hero } from '@/components/Hero';
-import { title, description, logo, image, website_url } from '@/components/common';
+import { title, description, image, website_url } from '@/components/common';
 import { SEO } from '@/components/SEO';
 
 export default function Home() {
