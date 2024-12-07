@@ -1,6 +1,9 @@
 // Packages
 import * as types from '@/types/forums/types';
 
+// Potsypaw URI
+const url = "https://potsypaw.antiraid.xyz/";
+
 // Types
 type Response<T> = Promise<
 	| T
@@ -44,7 +47,16 @@ class Users {
 }
 
 // Posts
-class Posts {}
+class Posts {
+    // List Posts
+    static async listPosts(): Promise<types.posts[]> {
+        const data: Promise<types.posts[]> = await fetch(`${url}/posts/list`).then(async (p) => {
+            return await p.json();
+        });
+
+        return data;
+    }
+}
 
 // Applications
 class Applications {}

@@ -5,8 +5,7 @@ import { ChevronDown, Search, Menu, X } from 'lucide-react';
 import {
 	CanonicalModule,
 	CanonicalCommand,
-	CommandExtendedData,
-	PermissionCheck
+	CommandExtendedData
 } from '../types/splashtail/silverpelt';
 
 const permissionNames: { [key: string]: string } = {
@@ -133,6 +132,10 @@ const CustomSelect: React.FC<{
 	);
 };
 
+const randomizeArray = (obj: any) => {
+	return obj.sort(() => Math.random() - 0.5);
+};
+
 export default function CommandInterface() {
 	const [modules, setModules] = useState<CanonicalModule[]>([]);
 	const [selectedModule, setSelectedModule] = useState<string>('all');
@@ -224,7 +227,7 @@ export default function CommandInterface() {
 	}, [allCommands, searchQuery, selectedModule]);
 
 	const paginatedCommands = useMemo(() => {
-		return filteredCommands.slice(0, parseInt(showCount));
+		return randomizeArray(filteredCommands).slice(0, parseInt(showCount));
 	}, [filteredCommands, showCount]);
 
 	if (loading) {
@@ -259,6 +262,7 @@ export default function CommandInterface() {
 				>
 					All Modules
 				</CustomButton>
+
 				{modules.map((module) => (
 					<CustomButton
 						key={module.id}
@@ -369,7 +373,7 @@ export default function CommandInterface() {
 					</div>
 
 					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-						{paginatedCommands.map((cmd, index) => (
+						{paginatedCommands.map((cmd: any, index: any) => (
 							<div
 								key={`${cmd.moduleId}-${cmd.name}-${cmd.qualified_name || ''}-${index}`}
 								className="bg-[#1f1b2e] p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow"
@@ -389,7 +393,7 @@ export default function CommandInterface() {
 								<div className="text-sm text-gray-400 mb-2">
 									Arguments:
 									<ul className="text-gray-300 list-disc pl-4">
-										{cmd.arguments.map((arg) => (
+										{cmd.arguments.map((arg: any) => (
 											<li key={arg.name}>
 												{arg.name} {arg.description && `: ${arg.description}`}
 											</li>
@@ -406,7 +410,7 @@ export default function CommandInterface() {
 												{cmd.extendedData.default_perms.native_perms.length > 0 && (
 													<li>
 														Native Permissions:{' '}
-														{cmd.extendedData.default_perms.native_perms.map((perm) => (
+														{cmd.extendedData.default_perms.native_perms.map((perm: any) => (
 															<span key={perm} className="mr-1">
 																{permissionNames[perm] || 'UNKNOWN'} ({perm}){', '}
 															</span>
@@ -416,7 +420,7 @@ export default function CommandInterface() {
 												{cmd.extendedData.default_perms.kittycat_perms.length > 0 && (
 													<li>
 														Kittycat Permissions:{' '}
-														{cmd.extendedData.default_perms.kittycat_perms.map((perm) => (
+														{cmd.extendedData.default_perms.kittycat_perms.map((perm: any) => (
 															<span key={perm} className="mr-1">
 																{perm}
 																{', '}

@@ -1,5 +1,5 @@
 import CommandInterface from '@/components/Commands';
-import { title, description, logo, image, website_url } from '@/components/common';
+import { title, description, image, website_url } from '@/components/common';
 import { SEO } from '@/components/SEO';
 
 const Commands = () => {
@@ -7,7 +7,7 @@ const Commands = () => {
 		<>
 			<main>
 				<SEO
-					title="Commands | Anti Raid"
+					title="Commands | AntiRaid"
 					description={description}
 					canonical={website_url}
 					image={{
@@ -24,18 +24,18 @@ const Commands = () => {
 					social={{
 						og: {
 							type: 'website',
-							site_name: `Commands | Anti Raid`,
+							site_name: `Commands | AntiRaid`,
 							locale: 'en_US'
 						},
 						twitter: {
 							card: 'summary_large_image',
-							site: `@Commands | Anti Raid`
+							site: `@Commands | AntiRaid`
 						}
 					}}
 					structuredData={{
 						'@context': 'https://schema.org',
 						'@type': 'WebPage',
-						name: `Commands | Anti Raid`,
+						name: `Commands | AntiRaid`,
 						description: `${description}`
 					}}
 					additionalMetaTags={[{ name: 'copyright', content: '© 2024 Purrquinox' }]}

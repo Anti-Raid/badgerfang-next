@@ -62,7 +62,7 @@ export interface following {
 
 export interface posts {
 	userid: string;
-	user: users;
+	user?: users;
 	caption: string;
 	image?: string;
 	plugins: plugins[];
