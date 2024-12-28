@@ -148,7 +148,7 @@ export default function CommandInterface() {
 	useEffect(() => {
 		const fetchModules = async () => {
 			try {
-				const response = await fetch('https://splashtail-staging.antiraid.xyz/modules');
+				const response = await fetch('https://splashtail-staging.antiraid.xyz/bot-state');
 				if (!response.ok) {
 					throw new Error('Failed to fetch modules');
 				}
