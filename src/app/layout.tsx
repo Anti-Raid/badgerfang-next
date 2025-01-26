@@ -8,8 +8,46 @@ import React, { useEffect, useState } from 'react';
 import ToastProvider from '@/components/ToastProvider';
 import { HelmetProvider } from 'react-helmet-async';
 import { SWRConfig } from 'swr';
-import axios from 'axios';
-const fetcher = (url: any) => axios.get(url).then((res) => res.data);
+import { getAuthCreds } from '@/lib/auth/getAuthCreds';
+import { logoutUser } from '@/lib/auth/logoutUser';
+
+const fetcher = async (url: string, onRetryAfter: (retryAfter: number) => {} | null) => {
+	let authData = getAuthCreds();
+
+	let res: Response;
+	if (authData) {
+		res = await fetch(url, {
+			headers: {
+				'Authorization': authData.token
+			}
+		})
+	} else {
+		res = await fetch(url);
+	}
+
+	if (res.status == 401) {
+		logoutUser();
+		setTimeout(() => window.location.reload(), 1000);
+		throw new Error("Your session has expired. Re-login to continue.");
+	}
+
+	if ([408, 502, 503, 504].includes(res.status)) {
+		throw new Error('Server currently undergoing maintenance');
+	}
+
+	if (res.headers.get("Retry-After")) {
+		let retryAfter = parseFloat(res.headers.get("Retry-After") || "0");
+		onRetryAfter(retryAfter);
+
+		// Wait for the retry after time
+		await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
+
+		// Retry the request
+		return await fetcher(url, onRetryAfter);
+	}
+
+	return await res.json();
+}
 
 export default function RootLayout({
 	children

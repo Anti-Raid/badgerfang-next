@@ -13,4 +13,4 @@ export default function ToastProvider({ children }: ToastProviderProps) {
 			<ToastContainer theme="dark" />
 		</>
 	);
-}
+} 
