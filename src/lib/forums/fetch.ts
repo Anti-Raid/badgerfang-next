@@ -2,7 +2,7 @@
 import * as types from '@/types/forums/types';
 
 // Potsypaw URI
-const url = 'https://potsypaw.antiraid.xyz/';
+const url = 'https://potsypaw.purrquinox.com/';
 
 // Types
 type Response<T> = Promise<
