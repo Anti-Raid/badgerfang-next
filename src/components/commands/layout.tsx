@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { ChevronDown, Search, Menu, X } from 'lucide-react';
-import { CanonicalModule, CanonicalCommand, CommandExtendedData } from '@/types/splashtail/types';
+import type { CanonicalCommand, CanonicalConfigOption, BotState } from "../../types/splashtail/types";
 
 const permissionNames: { [key: string]: string } = {
 	'1': 'CREATE_INSTANT_INVITE',
@@ -93,7 +93,7 @@ const CustomSelect: React.FC<{
 			<div>
 				<CustomButton
 					type="button"
-					className="inline-flex justify-center w-full rounded-md px-4 py-2 bg-[#2d2640] text-sm font-medium text-white  	shadow-md hover:shadow-lg transition-shadow"
+					className="inline-flex justify-center w-full rounded-md px-4 py-2 bg-[#2d2640] text-sm font-medium text-white shadow-md hover:shadow-lg transition-shadow"
 					onClick={() => setIsOpen(!isOpen)}
 				>
 					{options.find((option) => option.value === value)?.label || 'Select...'}
@@ -102,7 +102,7 @@ const CustomSelect: React.FC<{
 			</div>
 
 			{isOpen && (
-				<div className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-[#2d2640] ring-1 ring-black ring-opacity-5">
+				<div className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-[#2d2640] ring-1 ring-black ring-opacity-5 z-10">
 					<div
 						className="py-1"
 						role="menu"
@@ -128,12 +128,17 @@ const CustomSelect: React.FC<{
 	);
 };
 
-const randomizeArray = (obj: any) => {
-	return obj.sort(() => Math.random() - 0.5);
+const randomizeArray = <T,>(arr: T[]): T[] => {
+	return [...arr].sort(() => Math.random() - 0.5);
 };
 
+interface CommandWithModule extends CanonicalCommand {
+	moduleName: string;
+	moduleId: string;
+}
+
 export default function CommandInterface() {
-	const [modules, setModules] = useState<CanonicalModule[]>([]);
+	const [botState, setBotState] = useState<BotState | null>(null);
 	const [selectedModule, setSelectedModule] = useState<string>('all');
 	const [searchQuery, setSearchQuery] = useState('');
 	const [showCount, setShowCount] = useState('20');
@@ -142,79 +147,75 @@ export default function CommandInterface() {
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
 	useEffect(() => {
-		const fetchModules = async () => {
+		const fetchBotState = async () => {
 			try {
 				const response = await fetch('https://splashtail-staging.antiraid.xyz/bot-state');
 				if (!response.ok) {
-					throw new Error('Failed to fetch modules');
+					throw new Error('Failed to fetch bot state');
 				}
-				const data: CanonicalModule[] = await response.json();
-				setModules(data);
+				const data: BotState = await response.json();
+				setBotState(data);
 				setLoading(false);
 			} catch (error) {
-				console.error('Error fetching modules:', error);
+				console.error('Error fetching bot state:', error);
 				setError('Failed to load commands. Please try again later.');
 				setLoading(false);
 			}
 		};
 
-		fetchModules();
+		fetchBotState();
 	}, []);
 
+	const processCommand = (cmd: CanonicalCommand, moduleName: string, moduleId: string): CommandWithModule[] => {
+		// Process the main command
+		const mainCommand: CommandWithModule = {
+			...cmd,
+			moduleName,
+			moduleId
+		};
+
+		// If the command has no subcommands, return it as-is
+		if (!cmd.subcommands || cmd.subcommands.length === 0) {
+			return [mainCommand];
+		}
+
+		// If the command has subcommands, process and return both the main command and its subcommands
+		const subcommands = cmd.subcommands.map((subCmd): CommandWithModule => ({
+			...subCmd,
+			moduleName,
+			moduleId
+		}));
+
+		return [mainCommand, ...subcommands];
+	};
+
 	const allCommands = useMemo(() => {
-		return modules.flatMap((module) =>
-			module.commands.flatMap((cmd: CanonicalCommand) => {
-				const findExtendedData = (name: string): CommandExtendedData => {
-					if (cmd.extended_data && cmd.extended_data[name]) {
-						return cmd.extended_data[name];
-					}
+		if (!botState) return [];
 
-					if (cmd.extended_data && cmd.extended_data['']) {
-						return cmd.extended_data[''];
-					}
+		// Process all commands and their subcommands
+		const commands: CommandWithModule[] = [];
 
-					return {
-						default_perms: {
-							native_perms: [],
-							kittycat_perms: [],
-							inner_and: false
-						},
-						is_default_enabled: false,
-						web_hidden: false,
-						virtual_command: false
-					};
-				};
+		botState.commands.forEach(cmd => {
+			// For each command category (like "backups", "kick", etc.)
+			// Get module name from command
+			const moduleName = cmd.name;
+			const moduleId = cmd.qualified_name;
 
-				const baseCommand = {
-					...cmd.command,
-					moduleName: module.name,
-					moduleId: module.id,
-					extendedData: findExtendedData(cmd.command.name || '')
-				};
+			// Process the command and its subcommands
+			const processedCommands = processCommand(cmd, moduleName, moduleId);
+			commands.push(...processedCommands);
+		});
 
-				const commands =
-					baseCommand.arguments && baseCommand.arguments.length > 0 ? [baseCommand] : [];
-
-				const subcommands = cmd.command.subcommands
-					? cmd.command.subcommands.map((sub) => ({
-							...sub,
-							moduleName: module.name,
-							moduleId: module.id,
-							extendedData: findExtendedData(sub.name || '')
-						}))
-					: [];
-
-				return [...commands, ...subcommands];
-			})
-		);
-	}, [modules]);
+		return commands;
+	}, [botState]);
 
 	const filteredCommands = useMemo(() => {
 		return allCommands.filter((cmd) => {
 			const matchesSearch =
 				cmd.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-				cmd.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-				cmd.arguments.some((arg) => arg.name.toLowerCase().includes(searchQuery.toLowerCase()));
+				(cmd.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false) ||
+				cmd.arguments.some((arg) => arg.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                            (arg.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false));
 
 			const matchesModule = selectedModule === 'all' || cmd.moduleId === selectedModule;
 
@@ -225,6 +226,22 @@ export default function CommandInterface() {
 	const paginatedCommands = useMemo(() => {
 		return randomizeArray(filteredCommands).slice(0, parseInt(showCount));
 	}, [filteredCommands, showCount]);
+
+	const modules = useMemo(() => {
+		if (!botState) return [];
+
+		// Create a unique list of modules based on command categories
+		const uniqueModules = new Map<string, {id: string, name: string}>();
+
+		botState.commands.forEach(cmd => {
+			uniqueModules.set(cmd.qualified_name, {
+				id: cmd.qualified_name,
+				name: cmd.name
+			});
+		});
+
+		return Array.from(uniqueModules.values());
+	}, [botState]);
 
 	if (loading) {
 		return (
@@ -369,17 +386,29 @@ export default function CommandInterface() {
 					</div>
 
 					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-						{paginatedCommands.map((cmd: any, index: any) => (
+						{paginatedCommands.map((cmd, index) => (
 							<div
 								key={`${cmd.moduleId}-${cmd.name}-${cmd.qualified_name || ''}-${index}`}
 								className="bg-[#1f1b2e] p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow"
 							>
 								<div className="text-white font-bold text-lg mb-2">
-									{cmd.qualified_name ? `${cmd.moduleName} - ${cmd.qualified_name}` : cmd.name}
+									{cmd.qualified_name || cmd.name}
 								</div>
 								<div className="text-sm text-gray-400 mb-2">
 									Module: <span className="text-gray-300">{cmd.moduleName}</span>
 								</div>
+								{cmd.subcommands && cmd.subcommands.length > 0 && (
+									<div className="text-sm text-gray-400 mb-2">
+										Subcommands:
+										<ul className="text-gray-300 list-disc pl-4">
+											{cmd.subcommands.map((subCmd) => (
+												<li key={subCmd.name}>
+													{subCmd.name}{subCmd.description && `: ${subCmd.description}`}
+												</li>
+											))}
+										</ul>
+									</div>
+								)}
 								<div className="text-sm text-gray-400 mb-2">
 									Description:{' '}
 									<span className="text-gray-300">
@@ -389,51 +418,34 @@ export default function CommandInterface() {
 								<div className="text-sm text-gray-400 mb-2">
 									Arguments:
 									<ul className="text-gray-300 list-disc pl-4">
-										{cmd.arguments.map((arg: any) => (
+										{cmd.arguments.map((arg) => (
 											<li key={arg.name}>
-												{arg.name} {arg.description && `: ${arg.description}`}
+												{arg.name}{arg.required ? ' (Required)' : ' (Optional)'}
+												{arg.description && `: ${arg.description}`}
+												{arg.choices && arg.choices.length > 0 && (
+													<span> - Options: {arg.choices.join(', ')}</span>
+												)}
 											</li>
 										))}
 										{cmd.arguments.length === 0 && <li>No arguments</li>}
 									</ul>
 								</div>
-								<div className="text-sm text-gray-400">
-									{' '}
-									Permissions:
-									<ul className="text-gray-300 list-disc pl-4">
-										{cmd.extendedData?.default_perms ? (
-											<>
-												{cmd.extendedData.default_perms.native_perms.length > 0 && (
-													<li>
-														Native Permissions:{' '}
-														{cmd.extendedData.default_perms.native_perms.map((perm: any) => (
-															<span key={perm} className="mr-1">
-																{permissionNames[perm] || 'UNKNOWN'} ({perm}){', '}
-															</span>
-														))}
+								{botState?.command_permissions && (
+									<div className="text-sm text-gray-400">
+										Permissions:
+										<ul className="text-gray-300 list-disc pl-4">
+											{botState.command_permissions[cmd.qualified_name || cmd.name] ? (
+												botState.command_permissions[cmd.qualified_name || cmd.name].map((perm, i) => (
+													<li key={i}>
+														{permissionNames[perm] || perm}
 													</li>
-												)}
-												{cmd.extendedData.default_perms.kittycat_perms.length > 0 && (
-													<li>
-														Kittycat Permissions:{' '}
-														{cmd.extendedData.default_perms.kittycat_perms.map((perm: any) => (
-															<span key={perm} className="mr-1">
-																{perm}
-																{', '}
-															</span>
-														))}
-													</li>
-												)}
-												{cmd.extendedData.default_perms.native_perms.length === 0 &&
-													cmd.extendedData.default_perms.kittycat_perms.length === 0 && (
-														<li>No permissions defined</li>
-													)}
-											</>
-										) : (
-											<li>No permissions data available</li>
-										)}
-									</ul>
-								</div>
+												))
+											) : (
+												<li>No specific permissions required</li>
+											)}
+										</ul>
+									</div>
+								)}
 							</div>
 						))}
 					</div>
