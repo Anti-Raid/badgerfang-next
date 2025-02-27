@@ -12,4 +12,15 @@ const twitter = '@heypurrquinox';
 const owner = 'Purrquinox';
 
 // Export variables
-export { title, version, description, logo, api_url, website_url, main_server_id, twitter, owner, image };
+export {
+	title,
+	version,
+	description,
+	logo,
+	api_url,
+	website_url,
+	main_server_id,
+	twitter,
+	owner,
+	image
+};

@@ -1,11 +1,11 @@
 'use client';
 import './globals.css';
 import Loading from '@/components/Loading';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import { ThemeProvider } from '@/components/ThemeProvider';
+import Header from '@/components/static/Header';
+import Footer from '@/components/static/Footer';
+import { ThemeProvider } from '@/components/ui/ThemeProvider';
 import React, { useEffect, useState } from 'react';
-import ToastProvider from '@/components/ToastProvider';
+import ToastProvider from '@/components/ui/ToastProvider';
 import { HelmetProvider } from 'react-helmet-async';
 import { SWRConfig } from 'swr';
 import { getAuthCreds } from '@/lib/auth/getAuthCreds';
@@ -18,9 +18,9 @@ const fetcher = async (url: string, onRetryAfter: (retryAfter: number) => {} | n
 	if (authData) {
 		res = await fetch(url, {
 			headers: {
-				'Authorization': authData.token
+				Authorization: authData.token
 			}
-		})
+		});
 	} else {
 		res = await fetch(url);
 	}
@@ -28,26 +28,26 @@ const fetcher = async (url: string, onRetryAfter: (retryAfter: number) => {} | n
 	if (res.status == 401) {
 		logoutUser();
 		setTimeout(() => window.location.reload(), 1000);
-		throw new Error("Your session has expired. Re-login to continue.");
+		throw new Error('Your session has expired. Re-login to continue.');
 	}
 
 	if ([408, 502, 503, 504].includes(res.status)) {
 		throw new Error('Server currently undergoing maintenance');
 	}
 
-	if (res.headers.get("Retry-After")) {
-		let retryAfter = parseFloat(res.headers.get("Retry-After") || "0");
+	if (res.headers.get('Retry-After')) {
+		let retryAfter = parseFloat(res.headers.get('Retry-After') || '0');
 		onRetryAfter(retryAfter);
 
 		// Wait for the retry after time
-		await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
+		await new Promise((resolve) => setTimeout(resolve, retryAfter * 1000));
 
 		// Retry the request
 		return await fetcher(url, onRetryAfter);
 	}
 
 	return await res.json();
-}
+};
 
 export default function RootLayout({
 	children

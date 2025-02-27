@@ -1,10 +1,10 @@
 'use client';
-import Breadcrumb from '@/components/Breadcrumb';
-import { api_url, description, image, main_server_id, website_url } from '@/components/common';
+import Breadcrumb from '@/components/ui/Breadcrumb';
+import { api_url, title, description, image, main_server_id, website_url } from '@/components/common';
 import PartnerCard from '@/components/PartnerCard';
 import { Partner } from '@/types/other/Partner';
 import { Icon } from '@iconify/react';
-import { Ghost, Primary, Secondary } from '@/components/Buttons';
+import { Ghost, Primary, Secondary } from '@/components/ui/Buttons';
 import { toast } from 'react-toastify';
 import { CiGlobe } from 'react-icons/ci';
 import { FaDiscord } from 'react-icons/fa';
@@ -47,7 +47,7 @@ const BotFeatures = () => {
 	return (
 		<>
 			<SEO
-				title="About | AntiRaid"
+				title={`About | ${title}`}
 				description={description}
 				canonical={website_url}
 				image={{

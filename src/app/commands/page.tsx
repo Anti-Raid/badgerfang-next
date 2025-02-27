@@ -1,4 +1,4 @@
-import CommandInterface from '@/components/Commands';
+import CommandInterface from '@/components/commands/layout';
 import { title, description, image, website_url } from '@/components/common';
 import { SEO } from '@/components/SEO';
 
@@ -7,7 +7,7 @@ const Commands = () => {
 		<>
 			<main>
 				<SEO
-					title="Commands | AntiRaid"
+					title={`Commands | ${title}`}
 					description={description}
 					canonical={website_url}
 					image={{

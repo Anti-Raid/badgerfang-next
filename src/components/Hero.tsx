@@ -2,29 +2,9 @@
 import { ArrowUpRight } from 'lucide-react';
 import { api_url } from './common';
 import { useEffect, useState } from 'react';
+import type { StatisticsData } from '@/types/home/StatisticsData';
 
 const Hero = () => {
-	interface StatisticsData {
-		resp: {
-			uptime: number;
-			managers: {
-				display_name: string;
-				shard_groups: {
-					shards: Array<[number, number, number, number, number, number]>; // shards' data structure
-				}[];
-			}[];
-		};
-		shard_conns: {
-			[key: number]: {
-				status: 'MarkedForClosure' | 'Active';
-				real_latency: number;
-				guilds: number;
-				uptime: number;
-				total_uptime: number;
-			};
-		};
-		total_guilds: number;
-	}
 
 	const [serverCount, setServerCount] = useState(0);
 	const [stats, setStats] = useState<StatisticsData | null>(null);

@@ -7,7 +7,7 @@ export default function Home() {
 	return (
 		<>
 			<SEO
-				title={title}
+				title={`Home | ${title}`}
 				description={description}
 				canonical={website_url}
 				image={{
