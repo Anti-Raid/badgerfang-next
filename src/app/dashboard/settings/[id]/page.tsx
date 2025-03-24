@@ -3,6 +3,8 @@
 import { SEO } from '@/components/SEO';
 import { title, description, image, website_url } from '@/components/common';
 
+export const runtime = 'edge';
+
 export default function Settings() {
 	return (
 		<div className="min-h-screen">

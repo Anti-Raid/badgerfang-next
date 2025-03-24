@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { FaDiscord } from 'react-icons/fa';
 import Head from 'next/head';
 
+export const runtime = 'edge';
+
 export default function DiscordRedirect() {
 	const DISCORD_URL = 'https://discord.gg/rCtD9RqWJf';
 

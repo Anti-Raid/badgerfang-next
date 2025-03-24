@@ -8,36 +8,7 @@ import type { TemplateShopProps } from '@/types/script';
 import { title, description, image, website_url } from '@/components/common';
 import { motion } from 'framer-motion';
 
-// Mock data for demonstration
 const mockData: TemplateShopProps[] = [
-	{
-		id: '1',
-		name: 'Discord Moderation Suite',
-		version: '1.0.0',
-		description: 'i love my gf',
-		owner_guild: 'RSEnterprises',
-		created_at: '2025-12-15T10:30:00Z',
-		created_by: 'RS',
-		last_updated_at: '2025-12-01T15:45:00Z',
-		last_updated_by: 'RS',
-		tags: ['moderation', 'auto-mod', 'logs'],
-		downloads: 3542,
-		rating: 4.8
-	},
-	{
-		id: '2',
-		name: 'Welcome System Pro',
-		version: '2.1.0',
-		description: 'pls dont bite me',
-		owner_guild: 'RSEnterprises',
-		created_at: '2025-12-20T08:15:00Z',
-		created_by: 'RS',
-		last_updated_at: '2025-12-28T12:00:00Z',
-		last_updated_by: 'RS',
-		tags: ['welcome', 'onboarding', 'verification'],
-		downloads: 7821,
-		rating: 4.6
-	},
 	{
 		id: '3',
 		name: 'Hoover Max Extract Pressure Pro model 60',
@@ -53,6 +24,8 @@ const mockData: TemplateShopProps[] = [
 		rating: 4.9
 	}
 ];
+
+export const runtime = 'edge';
 
 export default function TemplateShopPage() {
 	const [templates, setTemplates] = useState<TemplateShopProps[]>([]);
