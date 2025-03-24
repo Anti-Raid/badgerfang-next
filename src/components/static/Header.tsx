@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Icon } from '@iconify/react';
 import { logo } from '../common';
+import { motion } from 'framer-motion'; 
 
 interface NavButtonProps {
 	current: boolean;
@@ -172,6 +173,7 @@ const Header = () => {
 		themeMenu: { open: false }
 	});
 	const [userData, setUserData] = useState<UserData | null>(null);
+	const [isHovered, setIsHovered] = useState<boolean>(false);
 
 	const navigation = [
 		{ name: 'Home', href: '/' },
@@ -262,12 +264,27 @@ const Header = () => {
 		});
 	}, [usePathname()]);
 
+	// Animation variants for the logo
+	const logoAnimationVariants = {
+		normal: { rotate: 0 },
+		spinning: { rotate: 360, transition: { duration: 1, ease: "easeInOut" } }
+	};
+
 	return (
 		<header className="bg-transparent top-0 w-full my-3">
 			<div className="max-w-7xl px-3 mx-auto py-3 flex items-center justify-between">
 				<Link href="/">
-					<div className="flex items-center space-x-1">
-						<img className="h-8 w-auto" src={logo} alt="AntiRaid" />
+					<div 
+						className="flex items-center space-x-1 cursor-pointer"
+						onMouseEnter={() => setIsHovered(true)}
+						onMouseLeave={() => setIsHovered(false)}
+					>
+						<motion.div
+							animate={isHovered ? "spinning" : "normal"}
+							variants={logoAnimationVariants}
+						>
+							<img className="h-8 w-auto" src={logo} alt="AntiRaid" />
+						</motion.div>
 						<p className="text-md text-foreground font-monster font-semibold tracking-tight">
 							AntiRaid
 						</p>

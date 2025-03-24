@@ -1,5 +1,5 @@
 'use client';
-import { Hero } from '@/components/Hero';
+import { Hero } from '@/components/Hero/index';
 import { title, description, image, website_url } from '@/components/common';
 import { SEO } from '@/components/SEO';
 

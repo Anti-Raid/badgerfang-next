@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import axios from 'axios';
 import { SEO } from '@/components/SEO';
 import { title, description, image, website_url } from '@/components/common';
 import { ScriptLayout } from '@/components/scripts/scriptLayout';
@@ -41,6 +40,7 @@ export default function ScriptPage() {
 			try {
 				setIsLoading(true);
 
+				// Use mock data if scriptName exists in mockScripts
 				const scriptData = mockScripts[scriptName] || {
 					id: scriptName,
 					name: scriptName.charAt(0).toUpperCase() + scriptName.slice(1).replace(/-/g, ' '),
@@ -58,11 +58,24 @@ export default function ScriptPage() {
 
 				setScript(scriptData);
 
-				const repoResponse = await axios.get(
-					`https://api.github.com/repos/Anti-Raid/auto-slowdown/contents`
+				// Fetch repository files
+				const repoResponse = await fetch(
+					`https://api.github.com/repos/Anti-Raid/auto-slowdown/contents`,
+					{
+						headers: {
+							Accept: 'application/vnd.github.v3+json'
+						}
+					}
 				);
 
-				const filePromises = repoResponse.data
+				if (!repoResponse.ok) {
+					throw new Error('GitHub API request failed');
+				}
+
+				const repoData = await repoResponse.json();
+
+				// Filter relevant files
+				const filePromises = repoData
 					.filter(
 						(item: any) =>
 							item.type === 'file' &&
@@ -70,24 +83,13 @@ export default function ScriptPage() {
 								item.name.endsWith('.luau') ||
 								item.name.endsWith('.json')) &&
 							!item.name.startsWith('README') &&
-							!item.name.startsWith('LICENSE') &&
-							!item.name.startsWith('CONTRIBUTING') &&
-							!item.name.startsWith('CHANGELOG') &&
-							!item.name.startsWith('CODE_OF_CONDUCT') &&
-							!item.name.startsWith('SECURITY') &&
-							item.name.endsWith('.luau')
+							!item.name.startsWith('LICENSE')
 					)
 					.slice(0, 5)
 					.map(async (file: any) => {
-						const fileResponse = await axios.get(file.download_url);
-						return {
-							name: file.name,
-							path: file.path,
-							content:
-								typeof fileResponse.data === 'string'
-									? fileResponse.data
-									: JSON.stringify(fileResponse.data, null, 2)
-						};
+						const fileResponse = await fetch(file.download_url);
+						const content = await fileResponse.text();
+						return { name: file.name, path: file.path, content };
 					});
 
 				const fileContents = await Promise.all(filePromises);

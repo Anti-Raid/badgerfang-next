@@ -1,9 +1,12 @@
 'use client';
-import { ArrowUpRight } from 'lucide-react';
-import { api_url } from './common';
+import { api_url } from '../common';
 import { useEffect, useState } from 'react';
 import type { StatisticsData } from '@/types/home/StatisticsData';
 import { TemplateCarousel } from './scriptCarosel';
+import Breadcrumb from '../ui/Breadcrumb';
+import { Primary, Secondary } from '../ui/Buttons';
+import { FaArrowRight } from 'react-icons/fa';
+import { GoArrowUpRight } from 'react-icons/go';
 
 const Hero = () => {
 	const [serverCount, setServerCount] = useState(0);
@@ -23,7 +26,6 @@ const Hero = () => {
 				console.error('Error fetching stats:', error);
 			}
 		};
-
 		fetchStats();
 	}, []);
 
@@ -44,15 +46,35 @@ const Hero = () => {
 		};
 
 		const intervalId = setInterval(updateCount, 10);
-
 		return () => clearInterval(intervalId);
 	}, [stats?.total_guilds]);
+
+	useEffect(() => {
+		if (!document.querySelector("script[src='https://climateclock.world/widget-v2.js']")) {
+			const script = document.createElement('script');
+			script.src = 'https://climateclock.world/widget-v2.js';
+			script.async = true;
+			script.onload = () => {
+				const container = document.getElementById('climate-clock-container');
+				if (container && !container.querySelector('climate-clock')) {
+					const clockElement = document.createElement('climate-clock');
+					container.appendChild(clockElement);
+				}
+			};
+			document.body.appendChild(script);
+		} else {
+			const container = document.getElementById('climate-clock-container');
+			if (container && !container.querySelector('climate-clock')) {
+				const clockElement = document.createElement('climate-clock');
+				container.appendChild(clockElement);
+			}
+		}
+	}, []);
 
 	return (
 		<>
 			<section>
 				<main className="container mx-auto px-4 py-16">
-					{/* Top label */}
 					<div className="text-center mb-8 opacity-80">
 						<span className="text-gray-400 inline-flex items-center gap-4 font-inter text-xs font-normal">
 							<span className="h-px w-14 bg-gradient-to-r to-gray-500 relative from-transparent">
@@ -86,21 +108,19 @@ const Hero = () => {
 						</p>
 
 						{/* CTA Buttons */}
-						<div className="flex flex-row max-[380px]:flex-col gap-4 justify-center">
-							<button className="inline-flex items-center justify-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-foreground rounded-lg font-medium transition-colors border border-gray-600 border-opacity-30">
-								Invite now
-								<ArrowUpRight className="ml-2 h-4 w-4" />
-							</button>
-							<a
-								href="/about"
-								className="inline-flex items-center justify-center px-6 py-3 bg-gray-800 hover:bg-gray-700 text-foreground rounded-lg font-medium transition-colors border border-gray-600 border-opacity-30"
-							>
-								Learn more
-								<ArrowUpRight className="ml-2 h-4 w-4" />
-							</a>
+						<div className="flex flex-row gap-3 justify-center">
+							<Primary
+								Title="Invite now"
+								onClick={() => (window.location.href = '/invite')}
+								icon={GoArrowUpRight}
+							/>
+							<Secondary
+								Title="Learn more"
+								onClick={() => (window.location.href = '/about')}
+								icon={GoArrowUpRight}
+							/>
 						</div>
 					</div>
-
 					{/* Trusted By Section */}
 					<div className="mt-8 text-center">
 						<div className="text-center mb-8 opacity-80">
@@ -131,6 +151,21 @@ const Hero = () => {
 					</div>
 				</main>
 				<TemplateCarousel />
+
+				<section id="climateclock" className="text-center mt-8">
+					<Breadcrumb
+						Title="Climate Clock"
+						Description="Time is running out for our planet! At AntiRaid, we contribute 0.5% of our revenue to initiatives focused on reducing emissions. Join us in creating a positive change!"
+					/>
+					<Primary
+						Title="Learn More"
+						onClick={() => (window.location.href = 'https://climate.purrquinox.com/')}
+						icon={FaArrowRight}
+					/>
+					<div className="mt-5">
+						<div id="climate-clock-container" className="mt-5"></div>
+					</div>
+				</section>
 			</section>
 		</>
 	);

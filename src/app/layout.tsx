@@ -49,6 +49,9 @@ const fetcher = async (url: string, onRetryAfter: (retryAfter: number) => {} | n
 	return await res.json();
 };
 
+export const runtime = "edge";
+
+
 export default function RootLayout({
 	children
 }: Readonly<{

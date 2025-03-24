@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiChevronLeft, FiChevronRight, FiBox } from 'react-icons/fi';
-import { CommonCard } from './scripts/ScriptCard';
+import { CommonCard } from '../scripts/ScriptCard';
 import axios from 'axios';
 import type { TemplateShopProps } from '@/types/script';
 

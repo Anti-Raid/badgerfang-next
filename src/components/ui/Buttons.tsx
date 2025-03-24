@@ -1,43 +1,45 @@
 'use client';
 import React from 'react';
+import { IconType } from 'react-icons';
 
 interface ButtonProps {
 	Title: string;
 	onClick: () => void;
+	icon?: IconType;
 }
 
-export const Primary: React.FC<ButtonProps> = ({ Title, onClick }) => {
+export const Primary: React.FC<ButtonProps> = ({ Title, onClick, icon: Icon }) => {
 	return (
 		<button
-			className="bg-extra px-4 py-2 rounded-sm text-foreground font-semibold text-[18px] border border-white border-opacity-5 hover:brightness-[80%] transition-all"
+			className="bg-extra px-5 py-2.5 w-full max-w-[160px] rounded-sm text-foreground font-medium text-[16px] border border-white border-opacity-5 hover:brightness-[80%] transition-all inline-flex justify-center items-center gap-2"
 			type="button"
 			onClick={onClick}
 		>
-			{Title}
+			{Icon && <Icon className="text-[18px]" />} {Title}
 		</button>
 	);
 };
 
-export const Secondary: React.FC<ButtonProps> = ({ Title, onClick }) => {
+export const Secondary: React.FC<ButtonProps> = ({ Title, onClick, icon: Icon }) => {
 	return (
 		<button
-			className="bg-secondary px-4 py-2 rounded-sm text-foreground font-semibold text-[18px] border border-white border-opacity-5 hover:brightness-[80%] transition-all"
+			className="bg-secondary px-5 py-2.5 w-full max-w-[160px] rounded-sm text-foreground font-medium text-[16px] border border-white border-opacity-5 hover:brightness-[80%] transition-all inline-flex justify-center items-center gap-2"
 			type="button"
 			onClick={onClick}
 		>
-			{Title}
+			{Icon && <Icon className="text-[18px]" />} {Title}
 		</button>
 	);
 };
 
-export const Ghost: React.FC<ButtonProps> = ({ Title, onClick }) => {
+export const Ghost: React.FC<ButtonProps> = ({ Title, onClick, icon: Icon }) => {
 	return (
 		<button
-			className="bg-transparent px-4 py-2 rounded-sm text-foreground font-semibold text-[18px] hover:brightness-[80%] hover:bg-secondary hover:border hover:border-white hover:border-opacity-5 transition-all"
+			className="bg-transparent px-4 py-2 rounded-sm text-foreground font-semibold text-[16px] hover:brightness-[80%] hover:bg-secondary hover:border hover:border-white hover:border-opacity-5 transition-all flex items-center gap-2"
 			type="button"
 			onClick={onClick}
 		>
-			{Title}
+			{Icon && <Icon className="text-[18px]" />} {Title}
 		</button>
 	);
 };

@@ -1,12 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import { SEO } from '@/components/SEO';
 import { TemplateShop } from '@/components/scripts/scriptShop';
 import type { TemplateShopProps } from '@/types/script';
 import { title, description, image, website_url } from '@/components/common';
 import { motion } from 'framer-motion';
+
+export const runtime = 'edge';
 
 const mockData: TemplateShopProps[] = [
 	{
@@ -25,8 +26,6 @@ const mockData: TemplateShopProps[] = [
 	}
 ];
 
-export const runtime = 'edge';
-
 export default function TemplateShopPage() {
 	const [templates, setTemplates] = useState<TemplateShopProps[]>([]);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -36,32 +35,29 @@ export default function TemplateShopPage() {
 		const fetchTemplates = async () => {
 			try {
 				setIsLoading(true);
-				// Fetch repository info (not individual files)
-				const response = await axios.get('https://api.github.com/repos/Anti-Raid/auto-slowdown');
+				const response = await fetch('https://api.github.com/repos/Anti-Raid/auto-slowdown');
+				if (!response.ok) throw new Error('Failed to fetch repository data');
 
-				// Create a single template entry for the repository itself
+				const repoData = await response.json();
 				const repoTemplate: TemplateShopProps = {
-					id: '4', // Add after mock data
-					name: response.data.name || 'Auto Slowdown',
+					id: '4',
+					name: repoData.name || 'Auto Slowdown',
 					version: 'v1.0.0',
-					description: response.data.description || 'Luau template for Discord server management',
+					description: repoData.description || 'Luau template for Discord server management',
 					owner_guild: 'Anti-Raid',
-					created_at: response.data.created_at || new Date().toISOString(),
+					created_at: repoData.created_at || new Date().toISOString(),
 					created_by: 'Anti-Raid',
-					last_updated_at: response.data.updated_at || new Date().toISOString(),
+					last_updated_at: repoData.updated_at || new Date().toISOString(),
 					last_updated_by: 'Anti-Raid',
 					tags: ['automation', 'discord', 'luau'],
-					downloads: 8423, // Random number for demonstration
+					downloads: 8423,
 					rating: 4.5
 				};
 
-				// Combine mock data with the repository data
 				setTemplates([...mockData, repoTemplate]);
 			} catch (err) {
 				console.error('Error fetching repository:', err);
 				setError('Failed to fetch repository data. Using fallback data.');
-
-				// Fallback to just mock data if fetch fails
 				setTemplates(mockData);
 			} finally {
 				setIsLoading(false);
@@ -113,27 +109,13 @@ export default function TemplateShopPage() {
 					<div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-primary/5 to-transparent" />
 					<motion.div
 						className="absolute -top-40 -left-40 w-80 h-80 bg-primary/10 rounded-full blur-3xl"
-						animate={{
-							x: [0, 30, 0],
-							y: [0, 20, 0]
-						}}
-						transition={{
-							repeat: Infinity,
-							duration: 15,
-							ease: 'easeInOut'
-						}}
+						animate={{ x: [0, 30, 0], y: [0, 20, 0] }}
+						transition={{ repeat: Infinity, duration: 15, ease: 'easeInOut' }}
 					/>
 					<motion.div
 						className="absolute -bottom-40 -right-40 w-80 h-80 bg-accent/10 rounded-full blur-3xl"
-						animate={{
-							x: [0, -30, 0],
-							y: [0, -20, 0]
-						}}
-						transition={{
-							repeat: Infinity,
-							duration: 12,
-							ease: 'easeInOut'
-						}}
+						animate={{ x: [0, -30, 0], y: [0, -20, 0] }}
+						transition={{ repeat: Infinity, duration: 12, ease: 'easeInOut' }}
 					/>
 				</div>
 
