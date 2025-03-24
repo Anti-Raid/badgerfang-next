@@ -177,7 +177,7 @@ const Header = () => {
 		{ name: 'Home', href: '/' },
 		{ name: 'About', href: '/about' },
 		{ name: 'Invite', href: '/invite' },
-		{ name: 'Template Shop', href: '/templates/shop' },
+		{ name: 'Script Shop', href: '/script/shop' },
 		{ name: 'Commands', href: '/commands' },
 		{ name: 'Forums', href: '/forums' }
 	];

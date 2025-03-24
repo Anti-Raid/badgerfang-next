@@ -1,6 +1,13 @@
 'use client';
 import Breadcrumb from '@/components/ui/Breadcrumb';
-import { api_url, title, description, image, main_server_id, website_url } from '@/components/common';
+import {
+	api_url,
+	title,
+	description,
+	image,
+	main_server_id,
+	website_url
+} from '@/components/common';
 import PartnerCard from '@/components/PartnerCard';
 import { Partner } from '@/types/other/Partner';
 import { Icon } from '@iconify/react';

@@ -8,8 +8,8 @@ import React, { useEffect, useState } from 'react';
 import ToastProvider from '@/components/ui/ToastProvider';
 import { HelmetProvider } from 'react-helmet-async';
 import { SWRConfig } from 'swr';
-import { getAuthCreds } from '@/lib/auth/getAuthCreds';
 import { logoutUser } from '@/lib/auth/logoutUser';
+import { getAuthCreds } from '@/lib/auth/getAuthCreds';
 
 const fetcher = async (url: string, onRetryAfter: (retryAfter: number) => {} | null) => {
 	let authData = getAuthCreds();

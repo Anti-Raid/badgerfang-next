@@ -5,7 +5,7 @@ import { SEO } from '@/components/SEO';
 import { title, description, image, website_url } from '@/components/common';
 
 export default function Dashboard() {
-	const servers  = [
+	const servers = [
 		{
 			name: 'Rovel Stars',
 			icon: '/placeholder.svg?height=40&width=40',

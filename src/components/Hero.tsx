@@ -3,9 +3,9 @@ import { ArrowUpRight } from 'lucide-react';
 import { api_url } from './common';
 import { useEffect, useState } from 'react';
 import type { StatisticsData } from '@/types/home/StatisticsData';
+import { TemplateCarousel } from './scriptCarosel';
 
 const Hero = () => {
-
 	const [serverCount, setServerCount] = useState(0);
 	const [stats, setStats] = useState<StatisticsData | null>(null);
 
@@ -130,6 +130,7 @@ const Hero = () => {
 						</div>
 					</div>
 				</main>
+				<TemplateCarousel />
 			</section>
 		</>
 	);

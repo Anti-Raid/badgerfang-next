@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { ChevronDown, Search, Menu, X } from 'lucide-react';
-import type { CanonicalCommand, CanonicalConfigOption, BotState } from "../../types/splashtail/types";
+import type { CanonicalCommand, BotState } from '../../types/splashtail/types';
 
 const permissionNames: { [key: string]: string } = {
 	'1': 'CREATE_INSTANT_INVITE',
@@ -166,7 +166,11 @@ export default function CommandInterface() {
 		fetchBotState();
 	}, []);
 
-	const processCommand = (cmd: CanonicalCommand, moduleName: string, moduleId: string): CommandWithModule[] => {
+	const processCommand = (
+		cmd: CanonicalCommand,
+		moduleName: string,
+		moduleId: string
+	): CommandWithModule[] => {
 		// Process the main command
 		const mainCommand: CommandWithModule = {
 			...cmd,
@@ -180,11 +184,13 @@ export default function CommandInterface() {
 		}
 
 		// If the command has subcommands, process and return both the main command and its subcommands
-		const subcommands = cmd.subcommands.map((subCmd): CommandWithModule => ({
-			...subCmd,
-			moduleName,
-			moduleId
-		}));
+		const subcommands = cmd.subcommands.map(
+			(subCmd): CommandWithModule => ({
+				...subCmd,
+				moduleName,
+				moduleId
+			})
+		);
 
 		return [mainCommand, ...subcommands];
 	};
@@ -195,7 +201,7 @@ export default function CommandInterface() {
 		// Process all commands and their subcommands
 		const commands: CommandWithModule[] = [];
 
-		botState.commands.forEach(cmd => {
+		botState.commands.forEach((cmd) => {
 			// For each command category (like "backups", "kick", etc.)
 			// Get module name from command
 			const moduleName = cmd.name;
@@ -214,8 +220,11 @@ export default function CommandInterface() {
 			const matchesSearch =
 				cmd.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
 				(cmd.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false) ||
-				cmd.arguments.some((arg) => arg.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                            (arg.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false));
+				cmd.arguments.some(
+					(arg) =>
+						arg.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+						(arg.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
+				);
 
 			const matchesModule = selectedModule === 'all' || cmd.moduleId === selectedModule;
 
@@ -231,9 +240,9 @@ export default function CommandInterface() {
 		if (!botState) return [];
 
 		// Create a unique list of modules based on command categories
-		const uniqueModules = new Map<string, {id: string, name: string}>();
+		const uniqueModules = new Map<string, { id: string; name: string }>();
 
-		botState.commands.forEach(cmd => {
+		botState.commands.forEach((cmd) => {
 			uniqueModules.set(cmd.qualified_name, {
 				id: cmd.qualified_name,
 				name: cmd.name
@@ -403,7 +412,8 @@ export default function CommandInterface() {
 										<ul className="text-gray-300 list-disc pl-4">
 											{cmd.subcommands.map((subCmd) => (
 												<li key={subCmd.name}>
-													{subCmd.name}{subCmd.description && `: ${subCmd.description}`}
+													{subCmd.name}
+													{subCmd.description && `: ${subCmd.description}`}
 												</li>
 											))}
 										</ul>
@@ -420,7 +430,8 @@ export default function CommandInterface() {
 									<ul className="text-gray-300 list-disc pl-4">
 										{cmd.arguments.map((arg) => (
 											<li key={arg.name}>
-												{arg.name}{arg.required ? ' (Required)' : ' (Optional)'}
+												{arg.name}
+												{arg.required ? ' (Required)' : ' (Optional)'}
 												{arg.description && `: ${arg.description}`}
 												{arg.choices && arg.choices.length > 0 && (
 													<span> - Options: {arg.choices.join(', ')}</span>
@@ -435,11 +446,9 @@ export default function CommandInterface() {
 										Permissions:
 										<ul className="text-gray-300 list-disc pl-4">
 											{botState.command_permissions[cmd.qualified_name || cmd.name] ? (
-												botState.command_permissions[cmd.qualified_name || cmd.name].map((perm, i) => (
-													<li key={i}>
-														{permissionNames[perm] || perm}
-													</li>
-												))
+												botState.command_permissions[cmd.qualified_name || cmd.name].map(
+													(perm, i) => <li key={i}>{permissionNames[perm] || perm}</li>
+												)
 											) : (
 												<li>No specific permissions required</li>
 											)}

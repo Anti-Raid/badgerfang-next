@@ -81,7 +81,7 @@ const AllServers: React.FC<AllServersProps> = ({ servers }) => {
 						<motion.button
 							whileHover={{ scale: 1.02 }}
 							whileTap={{ scale: 0.98 }}
-							className="flex items-center gap-2 bg-[#6d28d9] text-white px-4 py-2 rounded-md w-full justify-center hover:bg-[#7c3aed] transition-colors"
+							className="flex items-center gap-2 bg-[#8100BD] text-white px-4 py-2 rounded-md w-full justify-center hover:bg-[#7c3aed] transition-colors"
 						>
 							<FiEye />
 							View

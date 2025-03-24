@@ -30,8 +30,8 @@ const nextConfig: NextConfig = {
 		NEXT_PUBLIC_LASTMOD: getLastMod()
 	},
 	experimental: {
-    viewTransition: true,
-  },
+		viewTransition: true
+	},
 	images: {
 		remotePatterns: [
 			{
