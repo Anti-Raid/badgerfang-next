@@ -29,9 +29,6 @@ const nextConfig: NextConfig = {
 		NEXT_PUBLIC_VERSION: version,
 		NEXT_PUBLIC_LASTMOD: getLastMod()
 	},
-	experimental: {
-		viewTransition: true
-	},
 	images: {
 		remotePatterns: [
 			{
