@@ -1,5 +1,3 @@
-'use client';
-
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
@@ -131,19 +129,10 @@ export function ScriptLayout({ script, files }: ScriptLayoutProps) {
     const getLanguage = (fileName: string): string => {
         const extension = fileName.split('.').pop()?.toLowerCase();
         switch (extension) {
-            case 'js': return 'javascript';
-            case 'ts': return 'typescript';
-            case 'tsx': return 'typescript';
-            case 'jsx': return 'jsx';
-            case 'json': return 'json';
-            case 'json5': return 'json';
             case 'md': return 'markdown';
             case 'lua': return 'lua';
             case 'luau': return 'lua';
             case 'luaurc': return 'lua';
-            case 'py': return 'python';
-            case 'css': return 'css';
-            case 'html': return 'html';
             case 'yml':
             case 'yaml': return 'yaml';
             case 'cmd': return 'batch';

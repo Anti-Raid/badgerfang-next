@@ -31,9 +31,35 @@ export default function ScriptPage() {
     const scriptName = params.name as string;
 
     const [script, setScript] = useState<TemplateShopProps | null>(null);
-    const [files, setFiles] = useState<{ name: string; path: string; content: string; type: 'file' | 'dir' }[]>([]);
+    const [files, setFiles] = useState<
+        { name: string; path: string; content: string; type: 'file' | 'dir' }[]
+    >([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    const fetchDirectoryContents = async (path: string = '') => {
+        const response = await fetch(
+            `https://api.github.com/repos/anti-raid/auto-slowdown/contents/${path}`,
+            {
+                headers: {
+                    Accept: 'application/vnd.github.v3+json'
+                }
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch contents for path: ${path}`);
+        }
+
+        return await response.json();
+    };
+
+    const isAllowedFile = (name: string) => {
+        const allowedExtensions = ['.lua', '.luau', '.json', '.luaurc', '.md', 'LICENSE', '.gitignore', '.gitmodules'];
+        
+        
+        return allowedExtensions.some(ext => name.endsWith(ext))
+    };
 
     useEffect(() => {
         const fetchScriptData = async () => {
@@ -57,67 +83,41 @@ export default function ScriptPage() {
 
                 setScript(scriptData);
 
-                const repoResponse = await fetch(
-                    `https://api.github.com/repos/Anti-Raid/auto-slowdown/contents`,
-                    {
-                        headers: {
-                            Accept: 'application/vnd.github.v3+json'
-                        }
-                    }
-                );
+                const directoryQueue: string[] = [''];
+                const processedFiles: { name: string; path: string; content: string; type: 'file' | 'dir' }[] = [];
 
-                if (!repoResponse.ok) {
-                    throw new Error('GitHub API request failed');
-                }
+                while (directoryQueue.length > 0) {
+                    const currentPath = directoryQueue.shift()!;
+                    const contents = await fetchDirectoryContents(currentPath);
 
-                const repoData = await repoResponse.json();
-
-                const filePromises = repoData
-                    .filter((item: any) => {
-                        const isAllowedFile =
-                            item.type === 'file' &&
-                            (item.name.endsWith('.lua') ||
-                                item.name.endsWith('.luau') ||
-                                item.name.endsWith('.json') ||
-                                item.name.endsWith('.luaurc') ||
-                                item.name.endsWith('.md')) &&
-                            item.download_url &&
-                            !['LICENSE', '.gitignore', '.gitmodules'].includes(item.name);
-
-                        const isAllowedDir = item.type === 'dir';
-
-                        return isAllowedFile || isAllowedDir;
-                    })
-                    .slice(0, 5)
-                    .map(async (item: any) => {
-                        try {
-                            if (item.type === 'file') {
+                    for (const item of contents) {
+                        if (item.type === 'dir') {
+                            directoryQueue.push(item.path);
+                            processedFiles.push({
+                                name: item.name,
+                                path: item.path,
+                                type: 'dir',
+                                content: ''
+                            });
+                        } else if (item.type === 'file' && isAllowedFile(item.name)) {
+                            try {
                                 const fileResponse = await fetch(item.download_url);
                                 if (!fileResponse.ok) throw new Error('Failed to fetch file content');
                                 const content = await fileResponse.text();
-                                return {
+                                processedFiles.push({
                                     name: item.name,
                                     path: item.path,
                                     content: content,
-                                    type: 'file',
-                                    sha: item.sha
-                                };
-                            } else {
-                                return {
-                                    name: item.name,
-                                    path: item.path,
-                                    type: 'dir',
-                                    content: ''
-                                };
+                                    type: 'file'
+                                });
+                            } catch (err) {
+                                console.error(`Error fetching ${item.name}:`, err);
                             }
-                        } catch (err) {
-                            console.error(`Error fetching ${item.name}:`, err);
-                            return null;
                         }
-                    });
+                    }
+                }
 
-                const fileContents = (await Promise.all(filePromises)).filter(Boolean);
-                setFiles(fileContents);
+                setFiles(processedFiles);
             } catch (err) {
                 console.error('Error fetching script data:', err);
                 setError('Failed to fetch script data. Please try again later.');
