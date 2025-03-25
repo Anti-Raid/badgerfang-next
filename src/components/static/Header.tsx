@@ -5,10 +5,10 @@ import { usePathname } from 'next/navigation';
 import { Icon } from '@iconify/react';
 import { logo } from '../common';
 import { motion } from 'framer-motion';
-import { loginUser } from '@/lib/auth/login'; 
+import { loginUser } from '@/lib/auth/login';
 import { logoutUser } from '@/lib/auth/logoutUser';
-import { getAuthCreds } from '@/lib/auth/getAuthCreds'; 
-import { getUser } from '@/lib/auth/getUser'; 
+import { getAuthCreds } from '@/lib/auth/getAuthCreds';
+import { getUser } from '@/lib/auth/getUser';
 
 interface NavButtonProps {
 	current: boolean;
@@ -241,7 +241,10 @@ const Header = () => {
 						}
 					}
 				],
-				user
+				user: {
+					avatar: user.user?.avatar || '',
+					name: user.user?.display_name || user.user?.username || ''
+				}
 			};
 			setUserData(data);
 		};
@@ -380,7 +383,7 @@ const Header = () => {
 												<div key={item.name}>
 													{item.href ? (
 														<Link href={item.href} passHref legacyBehavior={true}>
-															<a 
+															<a
 																onClick={() =>
 																	setOpenElements((prev) => ({
 																		...prev,
