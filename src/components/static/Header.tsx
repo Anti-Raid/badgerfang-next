@@ -1,450 +1,368 @@
 'use client';
-import { useState, useEffect, useMemo } from 'react';
+
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Icon } from '@iconify/react';
-import { logo } from '../common';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Home, Info, ShoppingCart, Terminal, MessageCircle, PaletteIcon, Plus, LogOut, LayoutDashboard, User, Menu, X } from 'lucide-react';
 import { loginUser } from '@/lib/auth/login';
 import { logoutUser } from '@/lib/auth/logoutUser';
 import { getAuthCreds } from '@/lib/auth/getAuthCreds';
 import { getUser } from '@/lib/auth/getUser';
 
-interface NavButtonProps {
-	current: boolean;
-	title: string;
-	href?: string;
-	onClick?: () => void;
-	disabled?: boolean;
-	extClass?: string;
-}
-
-interface ProfileNavigationItem {
-	name: string;
-	href?: string;
-	onclick?: () => void;
-}
-
-interface UserData {
-	user: {
-		avatar: string;
-		name: string;
-	};
-	profileNavigation: ProfileNavigationItem[];
-}
-
-interface OpenElementsState {
-	mobileMenu: { open: boolean };
-	profileMenu: { open: boolean };
-	themeMenu: { open: boolean };
+interface NavItem {
+  name: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
 }
 
 interface Theme {
-	id: string;
-	color: string;
-	label: string;
+  id: string;
+  label: string;
+  color: string;
 }
 
-interface ThemerProps {
-	isOpen: boolean;
-}
-
-const themes: Theme[] = [
-	{ id: 'rocket', color: 'rocket', label: 'Rocket' },
-	{ id: 'skeleton', color: 'skeleton', label: 'Skeleton' },
-	{ id: 'wintry', color: 'wintry', label: 'Wintry' },
-	{ id: 'modern', color: 'modern', label: 'Modern' },
-	{ id: 'seafoam', color: 'seafoam', label: 'Seafoam' },
-	{ id: 'vintage', color: 'vintage', label: 'Vintage' },
-	{ id: 'sahara', color: 'sahara', label: 'Sahara' },
-	{ id: 'hamlindigo', color: 'hamlindigo', label: 'Hamlindigo' },
-	{ id: 'gold-nouveau', color: 'gold-nouveau', label: 'Gold Nouveau' },
-	{ id: 'crimson', color: 'crimson', label: 'Crimson' }
+const NavItems: NavItem[] = [
+  { name: 'Home', href: '/', icon: Home },
+  { name: 'About', href: '/about', icon: Info },
+  { name: 'Invite', href: '/invite', icon: Plus },
+  { name: 'Script Shop', href: '/script/shop', icon: ShoppingCart },
+  { name: 'Commands', href: '/commands', icon: Terminal },
+  { name: 'Forums', href: '/forums', icon: MessageCircle }
 ];
 
-const NavButton: React.FC<NavButtonProps> = ({
-	current,
-	title,
-	href = '',
-	onClick,
-	disabled = false,
-	extClass = ''
-}) => {
-	const classes = useMemo(() => {
-		const baseClasses = current
-			? ' py-2 text-sm font-light opacity-70 hover:opacity-100 hover:underline text-center text-foreground rounded-lg cursor-pointer bg-slate-700 focus:outline-none  focus:ring-inset focus:ring-white'
-			: ' py-2 text-sm font-light opacity-70 hover:opacity-100 hover:underline text-left text-foreground transition-colors duration-150 bg-transparent rounded-lg cursor-pointer  focus:outline-none  focus:ring-inset focus:ring-white';
+const Themes: Theme[] = [
+  { id: 'modern', label: 'Modern', color: 'bg-gradient-to-r from-primary to-extra' },
+  { id: 'vintage', label: 'Vintage', color: 'bg-gradient-to-r from-secondary to-accent' },
+  { id: 'seafoam', label: 'Seafoam', color: 'bg-gradient-to-r from-muted to-green-500' },
+  { id: 'crimson', label: 'Crimson', color: 'bg-gradient-to-r from-destructive to-red-500' }
+];
 
-		// Add disabled state classes if disabled
-		const disabledClasses = disabled ? ' opacity-50 cursor-not-allowed' : '';
+const NavBar: React.FC = () => {
+  const [currentPath, setCurrentPath] = useState<string>('/');
+  const [isThemeOpen, setIsThemeOpen] = useState<boolean>(false);
+  const [isProfileOpen, setIsProfileOpen] = useState<boolean>(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
+  const [userData, setUserData] = useState<any>(null);
+  const pathname = usePathname();
 
-		return baseClasses + disabledClasses + (extClass ? ` ${extClass}` : '');
-	}, [current, disabled, extClass]);
+  // Refs for dropdown containers
+  const themeRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
 
-	if (href) {
-		return (
-			<a
-				href={href}
-				aria-current={current ? 'page' : undefined}
-				onClick={onClick}
-				className={classes}
-			>
-				{title}
-			</a>
-		);
-	}
+  useEffect(() => {
+    setCurrentPath(pathname || '/');
+  }, [pathname]);
 
-	return (
-		<button
-			aria-current={current ? 'page' : undefined}
-			disabled={disabled}
-			onClick={onClick}
-			className={classes}
-		>
-			{title}
-		</button>
-	);
+  // Handle clicks outside of dropdowns
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        themeRef.current && !themeRef.current.contains(event.target as Node) &&
+        profileRef.current && !profileRef.current.contains(event.target as Node)
+      ) {
+        setIsThemeOpen(false);
+        setIsProfileOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const authCreds = getAuthCreds();
+      if (!authCreds) return;
+
+      try {
+        const cachedUser = localStorage.getItem('authUser');
+        const user = cachedUser
+          ? JSON.parse(cachedUser)
+          : await getUser(authCreds.user_id);
+
+        localStorage.setItem('authUser', JSON.stringify(user));
+        setUserData(user);
+      } catch (error) {
+        console.error('Failed to fetch user data', error);
+        logoutUser();
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  const handleThemeChange = (themeId: string) => {
+    document.documentElement.setAttribute('data-theme', themeId);
+    localStorage.setItem('theme', themeId);
+    setIsThemeOpen(false);
+  };
+
+  const toggleMobileDropdown = (dropdown: 'theme' | 'profile') => {
+    if (dropdown === 'theme') {
+      setIsProfileOpen(false);
+      setIsThemeOpen(prev => !prev);
+    } else {
+      setIsThemeOpen(false);
+      setIsProfileOpen(prev => !prev);
+    }
+  };
+
+  const ProfileMenu = () => (
+    <AnimatePresence>
+      {(isProfileOpen || isMobileMenuOpen) && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className="absolute right-0 top-full mt-2 w-64 bg-card rounded-lg shadow-xl ring-1 ring-border z-50"
+          ref={profileRef}
+        >
+          <div className="py-1">
+            {[
+              {
+                name: 'Dashboard',
+                href: '/dashboard',
+                icon: LayoutDashboard
+              },
+              {
+                name: 'Developer',
+                href: '/dashboard/developers',
+                icon: User
+              },
+              {
+                name: 'Logout',
+                onClick: () => {
+                  logoutUser();
+                  window.location.reload();
+                },
+                icon: LogOut
+              }
+            ].map((item) => (
+              item.href ? (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className="flex items-center px-4 py-2 text-sm text-foreground hover:bg-accent transition-colors"
+                  onClick={() => {
+                    setIsProfileOpen(false);
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  <item.icon className="mr-3 h-5 w-5 text-muted-foreground" />
+                  {item.name}
+                </Link>
+              ) : (
+                <button
+                  key={item.name}
+                  onClick={item.onClick}
+                  className="w-full text-left flex items-center px-4 py-2 text-sm text-foreground hover:bg-accent transition-colors"
+                >
+                  <item.icon className="mr-3 h-5 w-5 text-muted-foreground" />
+                  {item.name}
+                </button>
+              )
+            ))}
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+
+  const ThemeMenu = () => (
+    <AnimatePresence>
+      {(isThemeOpen || isMobileMenuOpen) && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className="absolute right-0 top-full mt-2 w-64 bg-card rounded-lg shadow-xl ring-1 ring-border z-50"
+          ref={themeRef}
+        >
+          <div className="grid grid-cols-2 gap-2 p-3">
+            {Themes.map((theme) => (
+              <button
+                key={theme.id}
+                onClick={() => {
+                  handleThemeChange(theme.id);
+                  setIsMobileMenuOpen(false);
+                }}
+                className={`rounded-lg p-3 text-white ${theme.color} hover:scale-105 transition-transform flex items-center justify-center`}
+              >
+                {theme.label}
+              </button>
+            ))}
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+
+  return (
+    <header className="sticky top-0 z-50 backdrop-blur-md shadow-sm bg-background/75">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav className="flex items-center justify-between h-16">
+          {/* Logo Section */}
+          <div className="flex items-center space-x-2">
+            <Link href="/" className="flex items-center">
+              <img
+                src="/logo.webp"
+                alt="AntiRaid Logo"
+                className="h-8 w-auto rounded-full mr-2"
+              />
+              <span className="text-xl font-bold text-foreground">
+                AntiRaid
+              </span>
+            </Link>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden flex items-center space-x-2">
+            <button
+              onClick={() => {
+                setIsMobileMenuOpen(!isMobileMenuOpen);
+                setIsThemeOpen(false);
+                setIsProfileOpen(false);
+              }}
+              className="p-2 rounded-full hover:bg-accent transition-colors"
+            >
+              {isMobileMenuOpen ? (
+                <X className="h-6 w-6 text-muted-foreground" />
+              ) : (
+                <Menu className="h-6 w-6 text-muted-foreground" />
+              )}
+            </button>
+            <div className="relative">
+              <button
+                onClick={() => toggleMobileDropdown('theme')}
+                className="p-2 rounded-full hover:bg-accent transition-colors"
+              >
+                <PaletteIcon className="h-5 w-5 text-muted-foreground" />
+              </button>
+              <ThemeMenu />
+            </div>
+            <div className="relative">
+              {userData ? (
+                <button
+                  onClick={() => toggleMobileDropdown('profile')}
+                  className="flex items-center space-x-2"
+                >
+                  <img
+                    src={userData.user?.avatar || '/logo.webp'}
+                    alt="User Avatar"
+                    className="h-8 w-8 rounded-full ring-2 ring-primary"
+                  />
+                </button>
+              ) : (
+                <button
+                  onClick={loginUser}
+                  className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+                >
+                  Login
+                </button>
+              )}
+              <ProfileMenu />
+            </div>
+          </div>
+
+          {/* Navigation Links */}
+          <div className={`hidden md:flex space-x-4`}>
+            {NavItems.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`
+                  flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200
+                  ${currentPath === item.href
+                    ? 'bg-primary/10 text-primary'
+                    : 'text-muted-foreground hover:bg-accent'}
+                `}
+              >
+                <motion.div whileHover={{ x: 5 }} transition={{ type: "spring", stiffness: 300 }}>
+                  <item.icon className="h-4 w-4 mr-2" />
+                </motion.div>
+                {item.name}
+              </Link>
+            ))}
+          </div>
+
+          {/* Mobile Menu */}
+          <AnimatePresence>
+            {isMobileMenuOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="md:hidden absolute top-full left-0 w-full bg-card rounded-lg shadow-xl ring-1 ring-border z-50"
+              >
+                <div className="py-1">
+                  {NavItems.map((item) => (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className="flex items-center px-4 py-2 text-sm text-foreground hover:bg-accent transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <motion.div whileHover={{ x: 5 }} transition={{ type: "spring", stiffness: 300 }}>
+                        <item.icon className="mr-3 h-5 w-5 text-muted-foreground" />
+                      </motion.div>
+                      {item.name}
+                    </Link>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Action Buttons */}
+          <div className="hidden md:flex items-center space-x-4">
+            {/* Theme Switcher */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setIsThemeOpen(!isThemeOpen);
+                  setIsProfileOpen(false);
+                }}
+                className="p-2 rounded-full hover:bg-accent transition-colors"
+              >
+                <PaletteIcon className="h-5 w-5 text-muted-foreground" />
+              </button>
+              <ThemeMenu />
+            </div>
+
+            {/* Profile/Login Section */}
+            <div className="relative">
+              {userData ? (
+                <button
+                  onClick={() => {
+                    setIsProfileOpen(!isProfileOpen);
+                    setIsThemeOpen(false);
+                  }}
+                  className="flex items-center space-x-2"
+                >
+                  <img
+                    src={userData.user?.avatar || '/logo.webp'}
+                    alt="User Avatar"
+                    className="h-8 w-8 rounded-full ring-2 ring-primary"
+                  />
+                </button>
+              ) : (
+                <button
+                  onClick={loginUser}
+                  className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+                >
+                  Login
+                </button>
+              )}
+              <ProfileMenu />
+            </div>
+          </div>
+        </nav>
+      </div>
+    </header>
+  );
 };
 
-const Themer: React.FC<ThemerProps> = ({ isOpen }) => {
-	const [theme, setTheme] = useState<string>('gold-nouveau');
-
-	// Load theme from localStorage on component mount
-	useEffect(() => {
-		if (typeof window !== 'undefined') {
-			const savedTheme = localStorage.getItem('theme->antiraid');
-			if (savedTheme) {
-				setTheme(savedTheme);
-				document.querySelector('#antiraid')?.setAttribute('data-theme', savedTheme);
-			} else {
-				// Set default theme if no theme is saved in localStorage
-				document.querySelector('#antiraid')?.setAttribute('data-theme', 'gold-nouveau');
-			}
-		}
-	}, []);
-
-	// Change theme and save to localStorage
-	const changeColor = (th: string) => {
-		setTheme(th);
-		document.querySelector('#antiraid')?.setAttribute('data-theme', th);
-		localStorage.setItem('theme->antiraid', th);
-	};
-
-	return (
-		<>
-			{isOpen && (
-				<div className="absolute z-50 transition transform translate-y-0 opacity-100 w-56 lg:w-72 -right-5 md:right-0 sm:px-0">
-					<div className="overflow-x-hidden overflow-y-scroll bg-background text-foreground rounded-lg shadow-lg dropdown-container ring-1 ring-primary ring-opacity-5">
-						<div className="px-1 py-2 space-y-1">
-							{themes.map((th) => (
-								<button
-									key={th.id}
-									onClick={() => changeColor(th.id)}
-									className={`group flex rounded-md items-center w-full px-3 py-2 transition-all duration-150 ${
-										theme === th.id
-											? `text-foreground bg-secondary shadow-md shadow-violet-500/10 hover:bg-primary/75`
-											: 'text-foreground/75 hover:text-foreground/100 hover:bg-primary-800/20'
-									}`}
-								>
-									<div data-theme={th.color} className="flex items-center justify-between w-full">
-										<span
-											className={`text-foreground font-bold font-cabin tracking-tight hover:bg-background-500`}
-										>
-											{th.label}
-										</span>
-										<Icon
-											icon="ic:round-circle"
-											className={`${
-												theme === th.id ? 'border-white dark:border-black' : 'border-black/0'
-											} border-2 rounded-full bg-secondary/80 mr-1`}
-										/>
-									</div>
-								</button>
-							))}
-						</div>
-					</div>
-				</div>
-			)}
-		</>
-	);
-};
-
-const Header = () => {
-	const [open, setOpen] = useState<string>('');
-	const [openElements, setOpenElements] = useState<OpenElementsState>({
-		mobileMenu: { open: false },
-		profileMenu: { open: false },
-		themeMenu: { open: false }
-	});
-	const [userData, setUserData] = useState<UserData | null>(null);
-	const [isHovered, setIsHovered] = useState<boolean>(false);
-
-	const navigation = [
-		{ name: 'Home', href: '/' },
-		{ name: 'About', href: '/about' },
-		{ name: 'Invite', href: '/invite' },
-		{ name: 'Script Shop', href: '/script/shop' },
-		{ name: 'Commands', href: '/commands' },
-		{ name: 'Forums', href: '/forums' }
-	];
-
-	useEffect(() => {
-		const handleOutsideClick = (e: MouseEvent) => {
-			for (let key in openElements) {
-				if (!e.target) return;
-				if (
-					openElements[key as keyof OpenElementsState].open &&
-					!(e.target as HTMLElement).closest(`#${key}-menu`)
-				) {
-					setOpenElements((prevState) => ({
-						...prevState,
-						[key]: { open: false }
-					}));
-				}
-			}
-		};
-
-		document.addEventListener('mousedown', handleOutsideClick);
-		return () => {
-			document.removeEventListener('mousedown', handleOutsideClick);
-		};
-	}, [openElements]);
-
-	useEffect(() => {
-		const getLoginData = async () => {
-			const authCreds = getAuthCreds();
-			if (!authCreds) return null;
-
-			let cachedAuthUser = localStorage.getItem('authUser');
-			if (!cachedAuthUser) {
-				const userRes = await getUser(authCreds.user_id);
-				cachedAuthUser = JSON.stringify(userRes);
-				localStorage.setItem('authUser', cachedAuthUser);
-			}
-
-			const user = JSON.parse(cachedAuthUser);
-
-			if (!user) {
-				logoutUser();
-				return;
-			}
-
-			const data: UserData = {
-				profileNavigation: [
-					{ name: 'Dashboard', href: '/dashboard' },
-					{ name: 'Developers', href: '/dashboard/developers' },
-					{
-						name: 'Logout',
-						onclick: () => {
-							logoutUser();
-							window.location.reload();
-						}
-					}
-				],
-				user: {
-					avatar: user.user?.avatar || '',
-					name: user.user?.display_name || user.user?.username || ''
-				}
-			};
-			setUserData(data);
-		};
-
-		getLoginData();
-	}, []);
-
-	useEffect(() => {
-		navigation.map((p) => {
-			if (p.href === window.location.href) setOpen(p.name);
-		});
-	}, [usePathname()]);
-
-	// Animation variants for the logo
-	const logoAnimationVariants = {
-		normal: { rotate: 0 },
-		spinning: { rotate: 360, transition: { duration: 1, ease: "easeInOut" } }
-	};
-
-	return (
-		<header className="bg-transparent top-0 w-full my-3">
-			<div className="max-w-7xl px-3 mx-auto py-3 flex items-center justify-between">
-				<Link href="/">
-					<div
-						className="flex items-center space-x-1 cursor-pointer"
-						onMouseEnter={() => setIsHovered(true)}
-						onMouseLeave={() => setIsHovered(false)}
-					>
-						<motion.div
-							animate={isHovered ? "spinning" : "normal"}
-							variants={logoAnimationVariants}
-						>
-							<img className="h-8 w-auto" src={logo} alt="AntiRaid" />
-						</motion.div>
-						<p className="text-md text-foreground font-monster font-semibold tracking-tight">
-							AntiRaid
-						</p>
-					</div>
-				</Link>
-
-				<div className="flex items-center space-x-2 relative">
-					<div className="flex items-center justify-center space-x-8">
-						{navigation.map((item) => (
-							<NavButton
-								key={item.name}
-								title={item.name}
-								href={item.href}
-								current={item.name === open}
-								onClick={() =>
-									setOpenElements((prev) => ({
-										...prev,
-										mobileMenu: { open: false }
-									}))
-								}
-								extClass="hidden md:block"
-							/>
-						))}
-					</div>
-				</div>
-
-				<div className="flex items-center space-x-2">
-					<button
-						type="button"
-						className="block md:hidden rounded-md p-2 font-medium text-left text-foreground focus:outline-none"
-						onClick={() =>
-							setOpenElements((prev) => ({
-								...prev,
-								mobileMenu: { open: !prev.mobileMenu.open }
-							}))
-						}
-						aria-controls="mobile-menu"
-						aria-expanded={openElements.mobileMenu.open}
-					>
-						<span className="sr-only">Open main menu</span>
-						{openElements.mobileMenu.open ? (
-							<Icon icon="fa-solid:times" width="15px" />
-						) : (
-							<Icon icon="fa-solid:bars" width="16px" />
-						)}
-					</button>
-
-					<span className="relative">
-						<button
-							name="themer-pane"
-							aria-label="View Themes"
-							onClick={() =>
-								setOpenElements((prev) => ({
-									...prev,
-									themeMenu: { open: !prev.themeMenu.open }
-								}))
-							}
-							className={
-								openElements.themeMenu.open
-									? 'px-3 py-2 text-center text-foreground rounded-md bg-secondary bg-opacity-20'
-									: 'px-3 py-2 text-center text-foreground bg-transparent rounded-md hover:text-foreground/50'
-							}
-						>
-							<Icon
-								icon="mdi:palette"
-								className="text-2xl text-foreground hover:text-foreground/50"
-							/>
-						</button>
-						<div id="theme-menu" className="themer-div text-left">
-							<Themer isOpen={openElements.themeMenu.open} />
-						</div>
-					</span>
-
-					{userData ? (
-						<div className="w-full">
-							<button
-								type="button"
-								className="flex rounded-full hover:bg-background-200 text-foreground hover:text-foreground/50 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-								onClick={() =>
-									setOpenElements((prev) => ({
-										...prev,
-										profileMenu: { open: !prev.profileMenu.open }
-									}))
-								}
-							>
-								<span className="sr-only">Open user menu</span>
-								<img
-									className="h-8 w-8 rounded-full"
-									src={userData.user.avatar}
-									alt="User Avatar"
-								/>
-							</button>
-
-							{openElements.profileMenu.open && (
-								<div
-									id="profile-menu"
-									className="absolute right-0 z-50 w-96 max-w-sm px-4 mt-3 transform -right-0 opacity-100 translate-y-0"
-								>
-									<div className="dropdown-container overflow-hidden rounded-lg shadow-lg ring-1 ring-black bg-black ring-opacity-5">
-										<div className="relative w-full">
-											{userData.profileNavigation.map((item) => (
-												<div key={item.name}>
-													{item.href ? (
-														<Link href={item.href} passHref legacyBehavior={true}>
-															<a
-																onClick={() =>
-																	setOpenElements((prev) => ({
-																		...prev,
-																		profileMenu: { open: false }
-																	}))
-																}
-																className="block hover:bg-slate-800 p-7"
-															>
-																{item.name}
-															</a>
-														</Link>
-													) : (
-														<button
-															onClick={() => item.onclick && item.onclick()}
-															className="text-left block w-full hover:bg-slate-800 p-7"
-														>
-															{item.name}
-														</button>
-													)}
-												</div>
-											))}
-										</div>
-									</div>
-								</div>
-							)}
-						</div>
-					) : (
-						<button
-							type="button"
-							onClick={loginUser}
-							className="px-5 py-2 text-sm font-medium text-left text-gray-50 rounded-sm cursor-pointer bg-indigo-600 hover:bg-indigo-800 focus:outline-none  focus:ring-inset focus:ring-white"
-						>
-							Login
-						</button>
-					)}
-				</div>
-			</div>
-
-			{openElements.mobileMenu.open && (
-				<div id="mobile-menu" className="md:hidden">
-					<div className="space-y-1 px-2 pt-2 pb-3 mx-5">
-						{navigation.map((item) => (
-							<NavButton
-								key={item.name}
-								title={item.name}
-								href={item.href}
-								current={item.name === open}
-								onClick={() =>
-									setOpenElements((prev) => ({
-										...prev,
-										mobileMenu: { open: false }
-									}))
-								}
-								extClass="block"
-							/>
-						))}
-					</div>
-				</div>
-			)}
-		</header>
-	);
-};
-
-export default Header;
+export default NavBar;
