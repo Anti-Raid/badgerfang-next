@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { FiEye } from 'react-icons/fi';
+import { FiEye, FiRefreshCcw } from 'react-icons/fi';
 import { FaDiscord } from 'react-icons/fa'
 import { getUserServers } from '@/lib/api'; 
 import { Server } from "@/types/dashboard/servers"
@@ -17,30 +17,29 @@ const AllServers: React.FC = () => {
 	const [yourSearchTerm, setYourSearchTerm] = useState('');
 
 	useEffect(() => {
-		// Retrieve authUser data from local storage
 		const authUser = localStorage.getItem('authUser');
 		if (authUser) {
 			setUserData(JSON.parse(authUser));
 		}
+	}, []);
 
-		// Fetch server data
-		const fetchServers = async () => {
-			try {
-				const response = await getUserServers();
-				const { guilds } = response;
-				setServers(guilds);
+	const fetchServers = async () => {
+		try {
+			const response = await getUserServers();
+			const { guilds } = response;
+			setServers(guilds);
 
-				// Separate managed servers and your servers
-				const managed = guilds.filter(server => server.has_bot);
-				const yours = guilds.filter(server => !server.has_bot);
+			const managed = guilds.filter(server => server.has_bot);
+			const yours = guilds.filter(server => !server.has_bot);
 
-				setManagedServers(managed);
-				setYourServers(yours);
-			} catch (error) {
-				console.error('Failed to fetch servers:', error);
-			}
-		};
+			setManagedServers(managed);
+			setYourServers(yours);
+		} catch (error) {
+			console.error('Failed to fetch servers:', error);
+		}
+	};
 
+	useEffect(() => {
 		fetchServers();
 	}, []);
 
@@ -61,6 +60,19 @@ const AllServers: React.FC = () => {
 					<h2 className="text-white text-lg font-semibold">{userData.user.display_name || userData.user.username}</h2>
 					<p className="text-gray-400 text-sm">{userData.user.username}</p>
 				</div>
+			</div>
+
+			{/* Refresh Button */}
+			<div className="flex justify-end mb-6">
+				<motion.button
+					whileHover={{ scale: 1.05 }}
+					whileTap={{ scale: 0.95 }}
+					className="flex items-center gap-2 bg-[#3c2854] text-white px-4 py-2 rounded-md hover:bg-[#4c3266] transition-colors"
+					onClick={fetchServers}
+				>
+					<FiRefreshCcw className="text-lg" />
+					Refresh Server List
+				</motion.button>
 			</div>
 
 			{/* Managed Servers */}
