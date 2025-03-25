@@ -4,7 +4,11 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Icon } from '@iconify/react';
 import { logo } from '../common';
-import { motion } from 'framer-motion'; 
+import { motion } from 'framer-motion';
+import { loginUser } from '@/lib/auth/login'; 
+import { logoutUser } from '@/lib/auth/logoutUser';
+import { getAuthCreds } from '@/lib/auth/getAuthCreds'; 
+import { getUser } from '@/lib/auth/getUser'; 
 
 interface NavButtonProps {
 	current: boolean;
@@ -184,19 +188,6 @@ const Header = () => {
 		{ name: 'Forums', href: '/forums' }
 	];
 
-	const getAuthCreds = (): any => {
-		/* Implementation */
-	};
-	const getUser = async (userId: string): Promise<any> => {
-		/* Implementation */
-	};
-	const logoutUser = (): void => {
-		/* Implementation */
-	};
-	const loginUser = (): void => {
-		/* Implementation */
-	};
-
 	useEffect(() => {
 		const handleOutsideClick = (e: MouseEvent) => {
 			for (let key in openElements) {
@@ -274,7 +265,7 @@ const Header = () => {
 		<header className="bg-transparent top-0 w-full my-3">
 			<div className="max-w-7xl px-3 mx-auto py-3 flex items-center justify-between">
 				<Link href="/">
-					<div 
+					<div
 						className="flex items-center space-x-1 cursor-pointer"
 						onMouseEnter={() => setIsHovered(true)}
 						onMouseLeave={() => setIsHovered(false)}
@@ -388,8 +379,8 @@ const Header = () => {
 											{userData.profileNavigation.map((item) => (
 												<div key={item.name}>
 													{item.href ? (
-														<Link href={item.href} passHref>
-															<a
+														<Link href={item.href} passHref legacyBehavior={true}>
+															<a 
 																onClick={() =>
 																	setOpenElements((prev) => ({
 																		...prev,

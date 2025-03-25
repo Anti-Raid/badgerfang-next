@@ -4,7 +4,7 @@ import logger from '@/lib/logger';
 import { CreateUserSessionResponse } from '@/types/splashtail/types';
 import { SWRResponse } from 'swr';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://splashtail.antiraid.xyz';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://splashtail-staging.antiraid.xyz';
 
 export interface AuthData {
 	authorized: boolean;

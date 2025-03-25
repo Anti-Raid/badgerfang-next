@@ -3,7 +3,7 @@ import axios from 'axios';
 import logger from '@/lib/logger';
 import { User } from '@/types/splashtail/types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://splashtail.antiraid.xyz';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://splashtail-staging.antiraid.xyz';
 
 // SWR fetcher for users
 const userFetcher = async (url: string): Promise<User> => {

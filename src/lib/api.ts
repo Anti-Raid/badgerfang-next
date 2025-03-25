@@ -2,7 +2,7 @@ import axios from 'axios';
 import { ApiConfig, BotState, GuildStaffTeam } from '@/types/splashtail/types';
 import useSWR from 'swr';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://splashtail.antiraid.xyz';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://splashtail-staging.antiraid.xyz';
 
 const fetcher = async (url: string) => {
 	const response = await axios.get(url);
