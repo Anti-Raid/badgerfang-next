@@ -1,95 +1,148 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { FiRefreshCcw, FiEye } from 'react-icons/fi';
-import type { Servers } from '@/types/dashboard/servers';
+import { FiEye } from 'react-icons/fi';
+import { FaDiscord } from 'react-icons/fa'
+import { getUserServers } from '@/lib/api'; 
+import { Server } from "@/types/dashboard/servers"
+import { AuthUser} from "@/types/user"
 
-interface AllServersProps {
-	servers: Servers[];
-}
+const AllServers: React.FC = () => {
+	const [userData, setUserData] = useState<AuthUser | null>(null);
+	const [servers, setServers] = useState<Server[]>([]);
+	const [managedServers, setManagedServers] = useState<Server[]>([]);
+	const [yourServers, setYourServers] = useState<Server[]>([]);
+	const [managedSearchTerm, setManagedSearchTerm] = useState('');
+	const [yourSearchTerm, setYourSearchTerm] = useState('');
 
-const AllServers: React.FC<AllServersProps> = ({ servers }) => {
-	const [searchTerm, setSearchTerm] = useState('');
+	useEffect(() => {
+		// Retrieve authUser data from local storage
+		const authUser = localStorage.getItem('authUser');
+		if (authUser) {
+			setUserData(JSON.parse(authUser));
+		}
+
+		// Fetch server data
+		const fetchServers = async () => {
+			try {
+				const response = await getUserServers();
+				const { guilds } = response;
+				setServers(guilds);
+
+				// Separate managed servers and your servers
+				const managed = guilds.filter(server => server.has_bot);
+				const yours = guilds.filter(server => !server.has_bot);
+
+				setManagedServers(managed);
+				setYourServers(yours);
+			} catch (error) {
+				console.error('Failed to fetch servers:', error);
+			}
+		};
+
+		fetchServers();
+	}, []);
+
+	if (!userData) {
+		return <div>Loading...</div>;
+	}
 
 	return (
 		<main className="container mx-auto p-4">
 			{/* User Info */}
 			<div className="flex items-center mb-6 gap-4">
 				<img
-					src="/user-pfp.webp"
-					onError={(e) => (e.currentTarget.src = './logo.webp')}
+					src={userData.user.avatar}
 					alt="User Avatar"
 					className="w-20 h-20 rounded-full border-2 border-purple-500"
 				/>
 				<div>
-					<h2 className="text-white text-lg font-semibold">Ranveer Soni</h2>
-					<p className="text-gray-400 text-sm">ranveersoni</p>
+					<h2 className="text-white text-lg font-semibold">{userData.user.display_name || userData.user.username}</h2>
+					<p className="text-gray-400 text-sm">{userData.user.username}</p>
 				</div>
 			</div>
 
-			{/* Header */}
-			<div className="flex items-center justify-between mb-6">
-				<h1 className="text-white text-2xl font-bold flex items-center gap-2">
-					Servers With AntiRaid <span className="text-gray-400">(9)</span>
-				</h1>
-				<motion.button
-					whileHover={{ scale: 1.05 }}
-					whileTap={{ scale: 0.95 }}
-					className="flex items-center gap-2 bg-[#3c2854] text-white px-4 py-2 rounded-md hover:bg-[#4c3266] transition-colors"
-				>
-					<FiRefreshCcw className="text-lg" />
-					Refresh Server List
-				</motion.button>
-			</div>
-
-			{/* Notice */}
-			<p className="text-red-400 mb-6">
-				You may or may not have permission to view or modify these servers...
-			</p>
-
-			{/* Search Input */}
+			{/* Managed Servers */}
 			<div className="mb-8">
+				<h2 className="text-white text-xl font-bold mb-4">Managed Servers</h2>
 				<input
 					type="text"
 					placeholder="Search for a server"
-					className="w-full bg-[#3c2854] text-white px-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder-gray-400"
-					value={searchTerm}
-					onChange={(e) => setSearchTerm(e.target.value)}
+					className="w-full bg-[#3c2854] text-white px-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder-gray-400 mb-4"
+					value={managedSearchTerm}
+					onChange={(e) => setManagedSearchTerm(e.target.value)}
 				/>
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+					{managedServers
+						.filter((server) => server.name.toLowerCase().includes(managedSearchTerm.toLowerCase()))
+						.map((server, index) => (
+							<ServerCard key={server.id} server={server} showViewButton={true} />
+						))}
+				</div>
 			</div>
 
-			{/* Server Card */}
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-				{servers.map((server, index) => (
-					<motion.div
-						key={index}
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ delay: index * 0.1 }}
-						className="bg-[#1a1225] rounded-lg p-6 border border-[#3c2854]"
-					>
-						<div className="flex items-center gap-3 mb-4">
-							<img
-								src={server.icon || '/placeholder.svg'}
-								alt={`${server.name} icon`}
-								className="w-10 h-10 rounded-lg"
+			{/* Your Server List */}
+			<div className="mb-8">
+				<h2 className="text-white text-xl font-bold mb-4">Your Server List</h2>
+				<input
+					type="text"
+					placeholder="Search for a server"
+					className="w-full bg-[#3c2854] text-white px-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder-gray-400 mb-4"
+					value={yourSearchTerm}
+					onChange={(e) => setYourSearchTerm(e.target.value)}
+				/>
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+					{yourServers
+						.filter((server) => server.name.toLowerCase().includes(yourSearchTerm.toLowerCase()))
+						.map((server, index) => (
+							<ServerCard
+								key={server.id}
+								server={server}
+								showViewButton={managedServers.some(managedServer => managedServer.id === server.id)}
 							/>
-							<h3 className="text-white font-semibold">{server.name}</h3>
-						</div>
-						<p className="text-green-400 text-sm mb-4">{server.status}</p>
-						<motion.button
-							whileHover={{ scale: 1.02 }}
-							whileTap={{ scale: 0.98 }}
-							className="flex items-center gap-2 bg-[#8100BD] text-white px-4 py-2 rounded-md w-full justify-center hover:bg-[#7c3aed] transition-colors"
-						>
-							<FiEye />
-							View
-						</motion.button>
-					</motion.div>
-				))}
+						))}
+				</div>
 			</div>
 		</main>
+	);
+};
+
+const ServerCard: React.FC<{ server: Server; showViewButton: boolean }> = ({ server, showViewButton }) => {
+	return (
+		<motion.div
+			initial={{ opacity: 0, y: 20 }}
+			animate={{ opacity: 1, y: 0 }}
+			transition={{ delay: 0.1 }}
+			className="bg-[#1a1225] rounded-lg p-6 border border-[#3c2854]"
+		>
+			<div className="flex items-center gap-3 mb-4">
+				<img
+					src={server.avatar || '/placeholder.svg'}
+					alt={`${server.name} icon`}
+					className="w-10 h-10 rounded-lg"
+				/>
+				<h3 className="text-white font-semibold">{server.name}</h3>
+			</div>
+			<p className="text-green-400 text-sm mb-4">Permissions: {server.permissions}</p>
+			<motion.button
+				whileHover={{ scale: 1.02 }}
+				whileTap={{ scale: 0.98 }}
+				className="flex items-center gap-2 bg-[#8100BD] text-white px-4 py-2 rounded-md w-full justify-center hover:bg-[#7c3aed] transition-colors"
+			>
+				{showViewButton ? (
+					<>
+						<FiEye />
+						View
+					</>
+				) : (
+					<>
+						<FaDiscord />
+						Invite
+					</>
+				)}
+			</motion.button>
+		</motion.div>
 	);
 };
 

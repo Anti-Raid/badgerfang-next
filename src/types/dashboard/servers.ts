@@ -1,5 +1,7 @@
-export interface Servers {
-	icon: string;
+export interface Server {
+	id: string;
 	name: string;
-	status: string;
+	avatar: string;
+	has_bot: boolean;
+	permissions: number;
 }
