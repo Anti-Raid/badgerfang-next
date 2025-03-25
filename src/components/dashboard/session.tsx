@@ -16,39 +16,39 @@ const SessionCard: React.FC<{
   onRevoke: (sessionId: string) => void;
 }> = ({ title, description, icon, sessions, onRevoke }) => (
   <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.4 }}
-    className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-800 h-full col-span-2"
+    initial={{ opacity: 0, scale: 0.95 }}
+    animate={{ opacity: 1, scale: 1 }}
+    transition={{ duration: 0.3, type: 'spring' }}
+    className="bg-white dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-100/50 dark:border-gray-800/50 overflow-hidden"
   >
-    <div className="bg-gradient-to-br from-primary via-primary/90 to-primary/80 p-10">
-      <div className="flex items-center gap-6 mb-6">
-        <div className="p-4 bg-white/10 rounded-2xl text-white">
-          {icon}
+    <div className="bg-gradient-to-br from-primary/90 via-primary/80 to-primary/70 p-6 md:p-8">
+      <div className="flex items-center gap-4 md:gap-6 mb-4 md:mb-6">
+        <div className="p-3 md:p-4 bg-white/20 rounded-xl text-white">
+          {React.cloneElement(icon as React.ReactElement, { size: 28 })}
         </div>
         <div>
-          <h2 className="text-3xl font-bold text-white mb-2">{title}</h2>
-          <p className="text-white/80 text-lg">{description}</p>
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-1 md:mb-2">{title}</h2>
+          <p className="text-white/80 text-base md:text-lg">{description}</p>
         </div>
       </div>
     </div>
 
-    <div className="p-8">
+    <div className="p-4 md:p-6">
       {sessions.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-8">
-            <p className="text-gray-500 dark:text-gray-400 text-xl">No active sessions found</p>
+        <div className="text-center py-8">
+          <div className="bg-gray-50 dark:bg-gray-800/30 rounded-xl p-6">
+            <p className="text-gray-500 dark:text-gray-400 text-base md:text-xl">No active sessions found</p>
           </div>
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[800px]">
+          <table className="w-full">
             <thead>
-              <tr className="border-b-2 dark:border-gray-700">
-                <th className="text-left py-6 px-8 text-base font-semibold text-gray-600 dark:text-gray-300 w-1/3">Session ID</th>
-                <th className="text-left py-6 px-8 text-base font-semibold text-gray-600 dark:text-gray-300 w-1/6">Type</th>
-                <th className="text-left py-6 px-8 text-base font-semibold text-gray-600 dark:text-gray-300 w-1/3">Created</th>
-                <th className="text-right py-6 px-8 text-base font-semibold text-gray-600 dark:text-gray-300 w-1/6">Actions</th>
+              <tr className="border-b dark:border-gray-700/50">
+                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600 dark:text-gray-300">Session ID</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600 dark:text-gray-300 hidden md:table-cell">Type</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600 dark:text-gray-300 hidden md:table-cell">Created</th>
+                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-600 dark:text-gray-300">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -59,40 +59,42 @@ const SessionCard: React.FC<{
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="border-b last:border-b-0 dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors"
+                    className="border-b last:border-b-0 dark:border-gray-700/30 hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors"
                   >
-                    <td className="py-6 px-8">
-                      <div className="flex items-center gap-3">
-                        <code className="text-base bg-gray-100 dark:bg-gray-800 px-4 py-2 rounded-lg min-w-[180px]">
-                          {session.id.slice(0, 12)}...
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-2">
+                        <code className="text-xs md:text-sm bg-gray-100 dark:bg-gray-800/50 px-2 py-1 rounded-md">
+                          {session.id.slice(0, 8)}...
                         </code>
                         <button
                           onClick={() => {
                             navigator.clipboard.writeText(session.id);
                             toast.success('Copied to clipboard');
                           }}
-                          className="text-gray-400 hover:text-primary transition-colors p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+                          className="text-gray-400 hover:text-primary transition-colors p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
                         >
-                          <FaClipboard size={18} />
+                          <FaClipboard size={14} />
                         </button>
                       </div>
                     </td>
-                    <td className="py-6 px-8">
-                      <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-primary/10 text-primary">
+                    <td className="py-3 px-4 hidden md:table-cell">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
                         {session.type}
                       </span>
                     </td>
-                    <td className="py-6 px-8 text-base text-gray-600 dark:text-gray-400">
-                      {new Date(session.created_at).toLocaleDateString()} at{' '}
-                      {new Date(session.created_at).toLocaleTimeString()}
+                    <td className="py-3 px-4 text-xs text-gray-600 dark:text-gray-400 hidden md:table-cell">
+                      {new Date(session.created_at).toLocaleDateString()} 
+                      <span className="ml-1">
+                        {new Date(session.created_at).toLocaleTimeString()}
+                      </span>
                     </td>
-                    <td className="py-6 px-8 text-right">
+                    <td className="py-3 px-4 text-right">
                       <button
                         onClick={() => onRevoke(session.id)}
-                        className="inline-flex items-center justify-center p-3 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                        className="inline-flex items-center justify-center p-2 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
                         title="Revoke Session"
                       >
-                        <FaTrash size={20} />
+                        <FaTrash size={16} />
                       </button>
                     </td>
                   </motion.tr>
@@ -127,26 +129,26 @@ const CreateSessionForm: React.FC<{ onSessionCreated: () => void }> = ({ onSessi
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-800 h-full"
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.3, type: 'spring' }}
+      className="bg-white dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-100/50 dark:border-gray-800/50 overflow-hidden"
     >
-      <div className="bg-gradient-to-br from-primary via-primary/90 to-primary/80 p-10">
-        <div className="flex items-center gap-6 mb-6">
-          <div className="p-4 bg-white/10 rounded-2xl text-white">
-            <FaPlus size={32} />
+      <div className="bg-gradient-to-br from-extra/90 via-extra/80 to-extra/70 p-6 md:p-8">
+        <div className="flex items-center gap-4 md:gap-6 mb-4 md:mb-6">
+          <div className="p-3 md:p-4 bg-white/20 rounded-xl text-white">
+            <FaPlus size={28} />
           </div>
           <div>
-            <h2 className="text-3xl font-bold text-white mb-2">Create New Session</h2>
-            <p className="text-white/80 text-lg">Generate a new API token with custom settings</p>
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-1 md:mb-2">Create New Session</h2>
+            <p className="text-white/80 text-base md:text-lg">Generate a new API token</p>
           </div>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="p-10 space-y-8">
-        <div className="space-y-3">
-          <label htmlFor="name" className="block text-lg font-medium text-gray-700 dark:text-gray-300">
+      <form onSubmit={handleSubmit} className="p-4 md:p-6 space-y-4 md:space-y-6">
+        <div className="space-y-2">
+          <label htmlFor="name" className="block text-sm md:text-base font-medium text-gray-700 dark:text-gray-300">
             Session Name
           </label>
           <input
@@ -154,28 +156,28 @@ const CreateSessionForm: React.FC<{ onSessionCreated: () => void }> = ({ onSessi
             id="name"
             value={sessionData.name}
             onChange={(e) => setSessionData({ ...sessionData, name: e.target.value })}
-            className="w-full px-6 py-4 rounded-2xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-4 focus:ring-primary/30 transition-all text-lg"
+            className="w-full px-3 py-2 md:px-4 md:py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 focus:ring-2 focus:ring-extra/30 transition-all text-sm md:text-base"
             placeholder="Enter a descriptive name"
             required
           />
         </div>
 
-        <div className="space-y-3">
-          <label htmlFor="type" className="block text-lg font-medium text-gray-700 dark:text-gray-300">
+        <div className="space-y-2">
+          <label htmlFor="type" className="block text-sm md:text-base font-medium text-gray-700 dark:text-gray-300">
             Session Type
           </label>
           <select
             id="type"
             value={sessionData.type}
             onChange={(e) => setSessionData({ ...sessionData, type: e.target.value as 'api' })}
-            className="w-full px-6 py-4 rounded-2xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-4 focus:ring-primary/30 transition-all text-lg"
+            className="w-full px-3 py-2 md:px-4 md:py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 focus:ring-2 focus:ring-extra/30 transition-all text-sm md:text-base"
           >
             <option value="api">API Token</option>
           </select>
         </div>
 
-        <div className="space-y-3">
-          <label htmlFor="expiry" className="block text-lg font-medium text-gray-700 dark:text-gray-300">
+        <div className="space-y-2">
+          <label htmlFor="expiry" className="block text-sm md:text-base font-medium text-gray-700 dark:text-gray-300">
             Expiry (seconds)
           </label>
           <input
@@ -184,17 +186,17 @@ const CreateSessionForm: React.FC<{ onSessionCreated: () => void }> = ({ onSessi
             value={sessionData.expiry}
             onChange={(e) => setSessionData({ ...sessionData, expiry: parseInt(e.target.value) })}
             min={3600}
-            className="w-full px-6 py-4 rounded-2xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-4 focus:ring-primary/30 transition-all text-lg"
+            className="w-full px-3 py-2 md:px-4 md:py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 focus:ring-2 focus:ring-extra/30 transition-all text-sm md:text-base"
             placeholder="Minimum 3600 seconds"
           />
         </div>
 
         <button
           type="submit"
-          className="w-full bg-primary text-white py-5 rounded-2xl hover:bg-primary/90 transition-all flex items-center justify-center gap-3 font-medium text-lg shadow-xl hover:shadow-2xl"
+          className="w-full bg-extra text-white py-3 rounded-xl hover:bg-extra/90 transition-all flex items-center justify-center gap-2 font-medium text-sm md:text-base shadow-xl hover:shadow-2xl"
         >
-          <FaPlus size={20} />
-          Create New Session
+          <FaPlus size={16} />
+          Create Session
         </button>
       </form>
     </motion.div>
@@ -237,50 +239,56 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <div className="max-w-[1600px] mx-auto px-6 xl:px-8 py-16">
-        <ToastContainer
-          position="bottom-right"
-          theme="colored"
-          hideProgressBar={false}
-        />
+    <div className="min-h-screen bg-gray-50/80 dark:bg-gray-950/90 backdrop-blur-xl">
+      <ToastContainer 
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+        className="toast-container"
+      />
 
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-16"
+          transition={{ duration: 0.4 }}
+          className="mb-10 md:mb-16"
         >
-          <div className="flex items-center gap-6 mb-6">
-            <div className="p-4 bg-primary/10 rounded-2xl text-primary">
-              <FaShieldAlt size={48} />
+          <div className="flex items-center gap-4 md:gap-6 mb-4 md:mb-6">
+            <div className="p-3 md:p-4 bg-extra/10 rounded-xl text-extra">
+              <FaShieldAlt size={36} />
             </div>
             <div>
-              <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-3">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-2">
                 Sessions Management
               </h1>
-              <p className="text-gray-600 dark:text-gray-400 text-xl">
+              <p className="text-gray-600 dark:text-gray-400 text-base md:text-xl">
                 Manage your active sessions and API tokens securely
               </p>
             </div>
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-3 gap-10 min-h-[calc(100vh-300px)]">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           <SessionCard
             title="Login Sessions"
-            description="Active browser sessions and login tokens"
-            icon={<FaKey size={32} />}
+            description="Active browser sessions"
+            icon={<FaKey />}
             sessions={sessions.loginSessions}
             onRevoke={handleRevokeSession}
           />
           <CreateSessionForm onSessionCreated={fetchSessions} />
-        </div>
-        <div className="mt-10 grid grid-cols-3 gap-10">
           <SessionCard
             title="API Tokens"
-            description="Active API tokens for application access"
-            icon={<FaCog size={32} />}
+            description="Active API access tokens"
+            icon={<FaCog />}
             sessions={sessions.apiSessions}
             onRevoke={handleRevokeSession}
           />

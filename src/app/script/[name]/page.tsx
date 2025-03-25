@@ -56,13 +56,19 @@ export default function ScriptPage() {
 
     const isAllowedFile = (name: string) => {
         const allowedExtensions = ['.lua', '.luau', '.json', '.luaurc', '.md', 'LICENSE', '.gitignore', '.gitmodules'];
-        
-        
+
         return allowedExtensions.some(ext => name.endsWith(ext))
     };
 
     useEffect(() => {
         const fetchScriptData = async () => {
+            // Check if the scriptName is 'auto-slowdown'
+            if (scriptName !== 'auto-slowdown') {
+                setError('Script not found');
+                setIsLoading(false);
+                return;
+            }
+
             try {
                 setIsLoading(true);
 
