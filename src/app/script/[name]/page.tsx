@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { SEO } from '@/components/SEO';
 import { title, description, image, website_url } from '@/components/common';
 import { ScriptLayout } from '@/components/scripts/scriptLayout';
 import type { TemplateShopProps } from '@/types/script';
@@ -156,52 +155,6 @@ export default function ScriptPage() {
 
     return (
         <div className="min-h-screen">
-            <SEO
-                title={`${script.name} | ${title}`}
-                description={script.description || description}
-                canonical={`${website_url}/script/${scriptName}`}
-                image={{
-                    url: image,
-                    width: 1920,
-                    height: 1080,
-                    alt: script.description || description
-                }}
-                robotsConfig={{
-                    index: true,
-                    follow: false,
-                    additional: ['noarchive']
-                }}
-                social={{
-                    og: {
-                        type: 'website',
-                        site_name: `${script.name} | AntiRaid`,
-                        locale: 'en_US'
-                    },
-                    twitter: {
-                        card: 'summary_large_image',
-                        site: `@${script.name} | AntiRaid`
-                    }
-                }}
-                structuredData={{
-                    '@context': 'https://schema.org',
-                    '@type': 'SoftwareApplication',
-                    name: script.name,
-                    description: script.description,
-                    applicationCategory: 'UtilitiesApplication',
-                    operatingSystem: 'Discord',
-                    offers: {
-                        '@type': 'Offer',
-                        price: '0',
-                        priceCurrency: 'USD'
-                    },
-                    aggregateRating: {
-                        '@type': 'AggregateRating',
-                        ratingValue: script.rating?.toString() || '4.5',
-                        ratingCount: script.downloads?.toString() || '100'
-                    }
-                }}
-                additionalMetaTags={[{ name: 'copyright', content: '© 2024 Purrquinox' }]}
-            />
 
             <ScriptLayout script={script} files={files} />
         </div>

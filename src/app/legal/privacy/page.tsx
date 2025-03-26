@@ -4,8 +4,6 @@ import { useState, useEffect } from "react"
 import { FaShieldAlt, FaInfoCircle, FaCookieBite, FaUserShield, FaChild, FaGavel, FaHistory } from "react-icons/fa"
 import { MdSecurity } from "react-icons/md"
 import Link from "next/link"
-import { title, description, image, website_url } from '@/components/common';
-import { SEO } from '@/components/SEO';
 import TableOfContents from "@/components/legal/TableOfContents"
 
 export default function PrivacyPolicy() {
@@ -60,40 +58,6 @@ export default function PrivacyPolicy() {
 
   return (
     <div className="bg-background text-foreground">
-      <SEO
-        title={`Privacy Policy | Legal | ${title}`}
-        description={description}
-        canonical={website_url}
-        image={{
-          url: image,
-          width: 1920,
-          height: 1080,
-          alt: description
-        }}
-        robotsConfig={{
-          index: true,
-          follow: false,
-          additional: ['noarchive']
-        }}
-        social={{
-          og: {
-            type: 'website',
-            site_name: 'Privacy Policy | Legal | AntiRaid',
-            locale: 'en_US'
-          },
-          twitter: {
-            card: 'summary_large_image',
-            site: '@Privacy Policy | AntiRaid'
-          }
-        }}
-        structuredData={{
-          '@context': 'https://schema.org',
-          '@type': 'WebPage',
-          name: 'Privacy Policy | Legal | AntiRaid',
-          description: description
-        }}
-        additionalMetaTags={[{ name: 'copyright', content: '© 2024 Purrquinox' }]}
-      />
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold flex items-center text-primary">
           <FaShieldAlt className="mr-3" />

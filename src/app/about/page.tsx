@@ -15,7 +15,6 @@ import { Ghost, Primary, Secondary } from '@/components/ui/Buttons';
 import { toast } from 'react-toastify';
 import { CiGlobe } from 'react-icons/ci';
 import { FaDiscord } from 'react-icons/fa';
-import { SEO } from '@/components/SEO';
 import useSWR from 'swr';
 
 const ButtonFunc = (button: string): void => {
@@ -53,40 +52,7 @@ const BotFeatures = () => {
 
 	return (
 		<>
-			<SEO
-				title={`About | ${title}`}
-				description={description}
-				canonical={website_url}
-				image={{
-					url: `${image}`,
-					width: 1920,
-					height: 1080,
-					alt: `${description}`
-				}}
-				robotsConfig={{
-					index: true,
-					follow: false,
-					additional: ['noarchive']
-				}}
-				social={{
-					og: {
-						type: 'website',
-						site_name: `About | AntiRaid`,
-						locale: 'en_US'
-					},
-					twitter: {
-						card: 'summary_large_image',
-						site: `@About | AntiRaid`
-					}
-				}}
-				structuredData={{
-					'@context': 'https://schema.org',
-					'@type': 'WebPage',
-					name: `About | AntiRaid`,
-					description: `${description}`
-				}}
-				additionalMetaTags={[{ name: 'copyright', content: '© 2024 Purrquinox' }]}
-			/>
+
 			{features.map((p, index) => (
 				<div
 					key={index}

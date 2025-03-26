@@ -12,7 +12,6 @@ import {
   FaGavel,
 } from "react-icons/fa"
 import { MdGavel, MdSecurity } from "react-icons/md"
-import { SEO } from '@/components/SEO';
 import { title, description, image, website_url } from '@/components/common';
 import TableOfContents from "@/components/legal/TableOfContents"
 
@@ -65,40 +64,6 @@ export default function TermsOfService() {
 
   return (
     <div className="bg-background text-foreground">
-      <SEO
-        title={`Terms of Service |  Legal  | ${title}`}
-        description={description}
-        canonical={website_url}
-        image={{
-          url: image,
-          width: 1920,
-          height: 1080,
-          alt: description
-        }}
-        robotsConfig={{
-          index: true,
-          follow: false,
-          additional: ['noarchive']
-        }}
-        social={{
-          og: {
-            type: 'website',
-            site_name: 'Terms of Service | AntiRaid',
-            locale: 'en_US'
-          },
-          twitter: {
-            card: 'summary_large_image',
-            site: '@Terms of Service | AntiRaid'
-          }
-        }}
-        structuredData={{
-          '@context': 'https://schema.org',
-          '@type': 'WebPage',
-          name: 'Terms of Service | AntiRaid',
-          description: description
-        }}
-        additionalMetaTags={[{ name: 'copyright', content: '© 2024 Purrquinox' }]}
-      />
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold flex items-center text-primary">
           <FaScroll className="mr-3" />

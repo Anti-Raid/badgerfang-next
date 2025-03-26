@@ -130,7 +130,7 @@ const ServerCard: React.FC<{ server: Server; showViewButton: boolean }> = ({ ser
 		>
 			<div className="flex items-center gap-3 mb-4">
 				<img
-					src={server.avatar || '/placeholder.svg'}
+					src={server.avatar || '/logo.webp'}
 					alt={`${server.name} icon`}
 					className="w-10 h-10 rounded-lg"
 				/>

@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { SEO } from '@/components/SEO';
 import { TemplateShop } from '@/components/scripts/scriptShop';
 import type { TemplateShopProps } from '@/types/script';
 import { title, description, image, website_url } from '@/components/common';
@@ -69,40 +68,6 @@ export default function TemplateShopPage() {
 
 	return (
 		<div className="min-h-screen">
-			<SEO
-				title={`Script Shop | ${title}`}
-				description={description}
-				canonical={website_url}
-				image={{
-					url: image,
-					width: 1920,
-					height: 1080,
-					alt: description
-				}}
-				robotsConfig={{
-					index: true,
-					follow: false,
-					additional: ['noarchive']
-				}}
-				social={{
-					og: {
-						type: 'website',
-						site_name: 'Script Shop | AntiRaid',
-						locale: 'en_US'
-					},
-					twitter: {
-						card: 'summary_large_image',
-						site: '@Script Shop | AntiRaid'
-					}
-				}}
-				structuredData={{
-					'@context': 'https://schema.org',
-					'@type': 'WebPage',
-					name: 'Script Shop | AntiRaid',
-					description: description
-				}}
-				additionalMetaTags={[{ name: 'copyright', content: '© 2024 Purrquinox' }]}
-			/>
 			<div className="relative overflow-hidden">
 				<div className="absolute inset-0 -z-10">
 					<div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-primary/5 to-transparent" />
