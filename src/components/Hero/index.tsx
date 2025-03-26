@@ -3,9 +3,7 @@ import { api_url } from '../common';
 import { useEffect, useState } from 'react';
 import type { StatisticsData } from '@/types/home/StatisticsData';
 import { TemplateCarousel } from './scriptCarosel';
-import Breadcrumb from '../ui/Breadcrumb';
 import { Primary, Secondary } from '../ui/Buttons';
-import { FaArrowRight } from 'react-icons/fa';
 import { GoArrowUpRight } from 'react-icons/go';
 
 const Hero = () => {
@@ -48,28 +46,6 @@ const Hero = () => {
 		const intervalId = setInterval(updateCount, 10);
 		return () => clearInterval(intervalId);
 	}, [stats?.total_guilds]);
-
-	useEffect(() => {
-		if (!document.querySelector("script[src='https://climateclock.world/widget-v2.js']")) {
-			const script = document.createElement('script');
-			script.src = 'https://climateclock.world/widget-v2.js';
-			script.async = true;
-			script.onload = () => {
-				const container = document.getElementById('climate-clock-container');
-				if (container && !container.querySelector('climate-clock')) {
-					const clockElement = document.createElement('climate-clock');
-					container.appendChild(clockElement);
-				}
-			};
-			document.body.appendChild(script);
-		} else {
-			const container = document.getElementById('climate-clock-container');
-			if (container && !container.querySelector('climate-clock')) {
-				const clockElement = document.createElement('climate-clock');
-				container.appendChild(clockElement);
-			}
-		}
-	}, []);
 
 	return (
 		<>
@@ -151,21 +127,6 @@ const Hero = () => {
 					</div>
 				</main>
 				<TemplateCarousel />
-
-				<section id="climateclock" className="text-center mt-8">
-					<Breadcrumb
-						Title="Climate Clock"
-						Description="Time is running out for our planet! At AntiRaid, we contribute 0.5% of our revenue to initiatives focused on reducing emissions. Join us in creating a positive change!"
-					/>
-					<Primary
-						Title="Learn More"
-						onClick={() => (window.location.href = 'https://climate.purrquinox.com/')}
-						icon={FaArrowRight}
-					/>
-					<div className="mt-5">
-						<div id="climate-clock-container" className="mt-5"></div>
-					</div>
-				</section>
 			</section>
 		</>
 	);

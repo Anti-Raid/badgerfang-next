@@ -2,20 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getAuthCreds } from "@/lib/auth/getAuthCreds";
 import { getUser } from "@/lib/auth/getUser";
 import { fetchClient } from "@/lib/fetchClient";
-import {
-  AuthorizeRequest,
-  CreateUserSessionResponse,
-} from "@/types/splashtail/types";
-import logger from "@/lib/logger";
+import { AuthorizeRequest, CreateUserSessionResponse } from "@/types/splashtail/types";
 
 export default function AuthorizePage() {
   const [error, setError] = useState<string | null>(null);
-  const [status, setStatus] = useState<"loading" | "success" | "error">(
-    "loading"
-  );
+  const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const router = useRouter();
 
   const createSession = async () => {
@@ -26,8 +19,6 @@ export default function AuthorizePage() {
         throw new Error("No code in URL");
       }
 
-      const guildId = searchParams.get("guild_id"); // Given if user has invited bot using full auth flow
-
       const json: AuthorizeRequest = {
         protocol: "a1",
         scope: "normal",
@@ -35,13 +26,10 @@ export default function AuthorizePage() {
         redirect_uri: `${window.location.origin}/authorize`,
       };
 
-      const res = await fetchClient(
-        `https://splashtail-staging.antiraid.xyz/oauth2`,
-        {
-          method: "POST",
-          body: JSON.stringify(json),
-        }
-      );
+      const res = await fetchClient("https://splashtail-staging.antiraid.xyz/oauth2", {
+        method: "POST",
+        body: JSON.stringify(json),
+      });
 
       if (!res.ok) {
         const err = await res.error("Create session", "markdown");
@@ -49,8 +37,6 @@ export default function AuthorizePage() {
       }
 
       const data: CreateUserSessionResponse = await res.json();
-
-      // Fetch authUser from API
       const user = await getUser(data.user_id);
 
       if (!user) {
@@ -62,15 +48,11 @@ export default function AuthorizePage() {
 
       setStatus("success");
 
-      // Reload the page after 1.5 seconds
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
+      // Redirect to the dashboard instead of reloading the page
+      router.push("/dashboard");
     } catch (err) {
       setStatus("error");
-      setError(
-        err instanceof Error ? err.message : "An unknown error occurred"
-      );
+      setError(err instanceof Error ? err.message : "An unknown error occurred");
     }
   };
 
@@ -78,7 +60,6 @@ export default function AuthorizePage() {
     createSession();
   }, []);
 
-  // Tailwind-styled message components
   const renderMessage = () => {
     switch (status) {
       case "loading":
@@ -95,19 +76,11 @@ export default function AuthorizePage() {
           <div className="flex items-center justify-center min-h-screen bg-background">
             <div className="text-center">
               <div className="w-16 h-16 mx-auto mb-4 text-green-500">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z"
-                    clipRule="evenodd"
-                  />
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clipRule="evenodd" />
                 </svg>
               </div>
-              <p className="text-xl text-foreground">Authorized!</p>
+              <p className="text-xl text-foreground">Authorized! Redirecting...</p>
             </div>
           </div>
         );
@@ -116,21 +89,11 @@ export default function AuthorizePage() {
           <div className="flex items-center justify-center min-h-screen bg-background">
             <div className="text-center">
               <div className="w-16 h-16 mx-auto mb-4 text-destructive">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 10-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z"
-                    clipRule="evenodd"
-                  />
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 10-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z" clipRule="evenodd" />
                 </svg>
               </div>
-              <p className="text-xl text-destructive">
-                {error || "Authorization Failed"}
-              </p>
+              <p className="text-xl text-destructive">{error || "Authorization Failed"}</p>
             </div>
           </div>
         );

@@ -101,3 +101,14 @@ export const createSession = async (session: CreateUserSession): Promise<CreateU
     throw error;
   }
 };
+
+// New routes
+export const getUserGuildBaseInfo = async (guildId: string): Promise<any> => {
+	const response = await axiosInstance.get(`/users/@me/guilds/${guildId}`);
+	return response.data;
+};
+
+export const executeSettings = async (guildId: string, payload: any): Promise<any> => {
+	const response = await axiosInstance.post(`/guilds/${guildId}/settings`, payload);
+	return response.data;
+};
