@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description: `${description}`,
   openGraph: {
     type: "website",
-    locale: "en_US",
+    //locale: "en_US",
     url: "https://antiraid.xyz",
     title: `${title} - ${description}`,
     description: `${description}`,
@@ -24,10 +24,10 @@ export const metadata: Metadata = {
     site: "@heyantiraid",
     creator: "@heypurrquinox",
   },
-  robots: {
+  /*robots: {
     index: true,
     follow: true,
-  },
+  },*/
   appleWebApp: {
     title: `${title} - ${description}`,
     statusBarStyle: "default",
