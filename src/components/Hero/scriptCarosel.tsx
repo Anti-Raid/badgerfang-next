@@ -14,82 +14,31 @@ export const TemplateCarousel = () => {
 	const [currentPage, setCurrentPage] = useState(0);
 	const [viewportWidth, setViewportWidth] = useState(0);
 
-	// Mock data for templates
-	const mockData: TemplateShopProps[] = [
-		{
-			id: '1',
-			name: 'Discord Moderation Suite',
-			version: '1.0.0',
-			description: 'i love my gf',
-			owner_guild: 'RSEnterprises',
-			created_at: '2025-12-15T10:30:00Z',
-			created_by: 'RS',
-			last_updated_at: '2025-12-01T15:45:00Z',
-			last_updated_by: 'RS',
-			tags: ['moderation', 'auto-mod', 'logs'],
-			downloads: 3542,
-			rating: 4.8
-		},
-		{
-			id: '2',
-			name: 'Welcome System Pro',
-			version: '2.1.0',
-			description: 'pls dont bite me',
-			owner_guild: 'RSEnterprises',
-			created_at: '2025-12-20T08:15:00Z',
-			created_by: 'RS',
-			last_updated_at: '2025-12-28T12:00:00Z',
-			last_updated_by: 'RS',
-			tags: ['welcome', 'onboarding', 'verification'],
-			downloads: 7821,
-			rating: 4.6
-		},
-		{
-			id: '3',
-			name: 'Hoover Max Extract Pressure Pro model 60',
-			version: '1.0.1',
-			description: 'dommy mommy',
-			owner_guild: 'RSEnterprises',
-			created_at: '2025-12-01T14:20:00Z',
-			created_by: 'RS',
-			last_updated_at: '2025-12-05T09:30:00Z',
-			last_updated_by: 'RS',
-			tags: ['analytics', 'data', 'automation'],
-			downloads: 2135,
-			rating: 4.9
-		}
-	];
-
 	useEffect(() => {
 		const fetchTemplates = async () => {
 			try {
 				setIsLoading(true);
-				// Fetch repository info (not individual files)
 				const response = await axios.get('https://api.github.com/repos/Anti-Raid/auto-slowdown');
 
-				// Create a single template entry for the repository itself
 				const repoTemplate: TemplateShopProps = {
-					id: '4', // Add after mock data
+					id: '4',
 					name: response.data.name || 'Auto Slowdown',
 					version: 'v1.0.0',
-					description: response.data.description || 'Luau template for Discord server management',
+					description: response.data.description,
 					owner_guild: 'Anti-Raid',
 					created_at: response.data.created_at || new Date().toISOString(),
-					created_by: 'Anti-Raid',
+					created_by: 'Anti-Raid Devs',
 					last_updated_at: response.data.updated_at || new Date().toISOString(),
 					last_updated_by: 'Anti-Raid',
 					tags: ['automation', 'discord', 'luau'],
-					downloads: 8423, // Random number for demonstration
+					downloads: 0,
 					rating: 4.5
 				};
 
-				// Combine mock data with the repository data
-				setTemplates([...mockData, repoTemplate]);
+				setTemplates([repoTemplate]);
 			} catch (err) {
 				console.error('Error fetching repository:', err);
 				setError('Failed to fetch repository data. Using fallback data.');
-				// Fallback to just mock data if fetch fails
-				setTemplates(mockData);
 			} finally {
 				setIsLoading(false);
 			}

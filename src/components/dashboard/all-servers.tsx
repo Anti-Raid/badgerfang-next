@@ -26,11 +26,11 @@ const AllServers: React.FC = () => {
 	const fetchServers = async () => {
 		try {
 			const response = await getUserServers();
-			const { guilds } = response;
+			const { guilds, has_bot } = response;
 			setServers(guilds);
 
-			const managed = guilds.filter(server => server.has_bot);
-			const yours = guilds.filter(server => !server.has_bot);
+			const managed = guilds.filter(server => has_bot.includes(server.id));
+			const yours = guilds.filter(server => !has_bot.includes(server.id));
 
 			setManagedServers(managed);
 			setYourServers(yours);
@@ -88,7 +88,7 @@ const AllServers: React.FC = () => {
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 					{managedServers
 						.filter((server) => server.name.toLowerCase().includes(managedSearchTerm.toLowerCase()))
-						.map((server, index) => (
+						.map((server) => (
 							<ServerCard key={server.id} server={server} showViewButton={true} />
 						))}
 				</div>
@@ -107,11 +107,11 @@ const AllServers: React.FC = () => {
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 					{yourServers
 						.filter((server) => server.name.toLowerCase().includes(yourSearchTerm.toLowerCase()))
-						.map((server, index) => (
+						.map((server) => (
 							<ServerCard
 								key={server.id}
 								server={server}
-								showViewButton={managedServers.some(managedServer => managedServer.id === server.id)}
+								showViewButton={false}
 							/>
 						))}
 				</div>

@@ -3,6 +3,7 @@ export interface SupportConfig {
 		permissions: string;
 		no_bot: string;
 		basic: string;
+		client_id: string;
 		full: string;
 	};
 }
