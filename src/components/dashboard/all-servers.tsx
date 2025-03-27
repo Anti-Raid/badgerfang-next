@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { FiEye, FiRefreshCcw } from 'react-icons/fi';
 import { FaDiscord } from 'react-icons/fa'
 import { getUserServers } from '@/lib/api'; 
-import { Server } from "@/types/dashboard/servers"
+import { Server, ApiResponse } from "@/types/dashboard/servers";
 import { AuthUser} from "@/types/user"
 
 const AllServers: React.FC = () => {
@@ -25,13 +25,13 @@ const AllServers: React.FC = () => {
 
 	const fetchServers = async () => {
 		try {
-			const response = await getUserServers();
-			const { guilds } = response;
+			const response: ApiResponse = await getUserServers();
+			const { guilds, has_bot } = response;
 			setServers(guilds);
-
-			const managed = guilds.filter(server => server.has_bot);
-			const yours = guilds.filter(server => !server.has_bot);
-
+	
+			const managed = guilds.filter(server => has_bot.includes(server.id));
+			const yours = guilds.filter(server => !has_bot.includes(server.id));
+	
 			setManagedServers(managed);
 			setYourServers(yours);
 		} catch (error) {
@@ -86,11 +86,11 @@ const AllServers: React.FC = () => {
 					onChange={(e) => setManagedSearchTerm(e.target.value)}
 				/>
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-					{managedServers
-						.filter((server) => server.name.toLowerCase().includes(managedSearchTerm.toLowerCase()))
-						.map((server, index) => (
-							<ServerCard key={server.id} server={server} showViewButton={true} />
-						))}
+				{managedServers
+    .filter((server: Server) => server.name.toLowerCase().includes(managedSearchTerm.toLowerCase()))
+    .map((server: Server) => (
+        <ServerCard key={server.id} server={server} showViewButton={true} />
+    ))}
 				</div>
 			</div>
 
@@ -105,15 +105,15 @@ const AllServers: React.FC = () => {
 					onChange={(e) => setYourSearchTerm(e.target.value)}
 				/>
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-					{yourServers
-						.filter((server) => server.name.toLowerCase().includes(yourSearchTerm.toLowerCase()))
-						.map((server, index) => (
-							<ServerCard
-								key={server.id}
-								server={server}
-								showViewButton={managedServers.some(managedServer => managedServer.id === server.id)}
-							/>
-						))}
+				{yourServers
+    .filter((server: Server) => server.name.toLowerCase().includes(yourSearchTerm.toLowerCase()))
+    .map((server: Server) => (
+        <ServerCard
+            key={server.id}
+            server={server}
+            showViewButton={false}
+        />
+    ))}
 				</div>
 			</div>
 		</main>

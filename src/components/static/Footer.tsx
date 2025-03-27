@@ -26,11 +26,15 @@ const categories: Category[] = [
 		items: [
 			{
 				name: 'API Documentation',
-				href: 'https://splashtail-staging.antiraid.xyz'
+				href: 'https://splashtail-staging.antiraid.xyz/docs/splashtail'
 			},
 			{
 				name: 'Developer Portal',
 				href: 'https://antiraid.xyz/dashboard/developers'
+			},
+			{
+				name: 'Status',
+				href: '/status'
 			}
 		]
 	},

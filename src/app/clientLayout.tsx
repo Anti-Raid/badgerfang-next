@@ -1,0 +1,55 @@
+"use client"
+
+import type React from "react"
+import { useEffect, useState } from "react"
+import Loading from "@/components/Loading"
+import Header from "@/components/static/Header"
+import Footer from "@/components/static/Footer"
+import { ThemeProvider } from "@/components/ui/ThemeProvider"
+import ToastProvider from "@/components/ui/ToastProvider"
+import { HelmetProvider } from "react-helmet-async"
+import { SWRConfig } from "swr"
+
+export default function ClientLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const [isLoading, setIsLoading] = useState(false)
+  const handleLoadingClose = () => setIsLoading(false)
+
+  useEffect(() => {
+    if (typeof window !== "undefined") setIsLoading(window.location.pathname === "/")
+    const timer = setTimeout(() => setIsLoading(false), 2000)
+    return () => clearTimeout(timer)
+  }, [])
+
+  return (
+    <HelmetProvider>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="dark"
+        forcedTheme="dark"
+        enableSystem={false}
+        disableTransitionOnChange
+      >
+        <SWRConfig>
+          <ToastProvider>
+            {isLoading ? (
+              <Loading onClose={handleLoadingClose} />
+            ) : (
+              <>
+                <Header />
+                <article className="min-h-screen flex-col justify-between overflow-x-hidden">
+                  <main className="mt-9 p-1 w-full md:max-w-7xl mx-auto h-full min-h-screen">{children}</main>
+                  <Footer />
+                </article>
+              </>
+            )}
+          </ToastProvider>
+        </SWRConfig>
+      </ThemeProvider>
+    </HelmetProvider>
+  )
+}
+
