@@ -24,7 +24,6 @@ export const metadata: Metadata = {
     site: "@heyantiraid",
     creator: "@heypurrquinox",
   },
-  keywords: `${keywords}`,
   robots: {
     index: true,
     follow: true,
