@@ -86,11 +86,11 @@ const AllServers: React.FC = () => {
 					onChange={(e) => setManagedSearchTerm(e.target.value)}
 				/>
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-					{managedServers
-						.filter((server) => server.name.toLowerCase().includes(managedSearchTerm.toLowerCase()))
-						.map((server) => (
-							<ServerCard key={server.id} server={server} showViewButton={true} />
-						))}
+				{managedServers
+    .filter((server: Server) => server.name.toLowerCase().includes(managedSearchTerm.toLowerCase()))
+    .map((server: Server) => (
+        <ServerCard key={server.id} server={server} showViewButton={true} />
+    ))}
 				</div>
 			</div>
 
