@@ -89,9 +89,7 @@ const NavBar: React.FC = () => {
         setUserData(user);
         console.log('User data fetched:', user);
 
-        if (user && pathname !== '/dashboard') {
-          router.push('/dashboard');
-        }
+
       } catch (error) {
         console.error('Failed to fetch user data', error);
         logoutUser();
