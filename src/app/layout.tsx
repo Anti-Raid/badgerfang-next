@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     },
     description: `${description}`,
     siteName: `${title}`,
-    image: '/logo.webp'
+    image: '/logo.webp',
   },
   twitter: {
     card: "summary_large_image",
