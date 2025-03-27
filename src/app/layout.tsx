@@ -3,6 +3,7 @@
 import './globals.css';
 import Loading from '@/components/Loading';
 import Header from '@/components/static/Header';
+import  { metadata } from './metadata'
 import Footer from '@/components/static/Footer';
 import { ThemeProvider } from '@/components/ui/ThemeProvider';
 import React, { useEffect, useState } from 'react';
@@ -17,6 +18,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   const [isLoading, setIsLoading] = useState(false);
   const handleLoadingClose = () => setIsLoading(false);
 
@@ -41,6 +43,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
+      <Metadata />
       <HelmetProvider>
         <body className="min-h-screen bg-background">
           <ThemeProvider
