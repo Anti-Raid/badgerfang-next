@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { FiEye, FiRefreshCcw } from 'react-icons/fi';
 import { FaDiscord } from 'react-icons/fa'
 import { getUserServers } from '@/lib/api'; 
-import { Server } from "@/types/dashboard/servers"
+import { Server, ApiResponse } from "@/types/dashboard/servers";
 import { AuthUser} from "@/types/user"
 
 const AllServers: React.FC = () => {
@@ -105,15 +105,15 @@ const AllServers: React.FC = () => {
 					onChange={(e) => setYourSearchTerm(e.target.value)}
 				/>
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-					{yourServers
-						.filter((server) => server.name.toLowerCase().includes(yourSearchTerm.toLowerCase()))
-						.map((server) => (
-							<ServerCard
-								key={server.id}
-								server={server}
-								showViewButton={false}
-							/>
-						))}
+				{yourServers
+    .filter((server: Server) => server.name.toLowerCase().includes(yourSearchTerm.toLowerCase()))
+    .map((server: Server) => (
+        <ServerCard
+            key={server.id}
+            server={server}
+            showViewButton={false}
+        />
+    ))}
 				</div>
 			</div>
 		</main>
