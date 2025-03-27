@@ -38,3 +38,7 @@ const BotStatusPage: React.FC = () => {
 };
 
 export default BotStatusPage;
+function setLoading(arg0: boolean) {
+  throw new Error("Function not implemented.");
+}
+
