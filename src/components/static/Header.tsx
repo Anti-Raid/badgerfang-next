@@ -1,14 +1,14 @@
-'use client';
-
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Home, Info, ShoppingCart, Terminal, MessageCircle, PaletteIcon, Plus, LogOut, LayoutDashboard, User, Menu, X } from 'lucide-react';
 import { loginUser } from '@/lib/auth/login';
 import { logoutUser } from '@/lib/auth/logoutUser';
 import { getAuthCreds } from '@/lib/auth/getAuthCreds';
 import { getUser } from '@/lib/auth/getUser';
+import { useAuthCheck } from '@/lib/auth/checkAuthCreds'
 
 interface NavItem {
   name: string;
@@ -45,10 +45,12 @@ const NavBar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const [userData, setUserData] = useState<any>(null);
   const pathname = usePathname();
+  const router = useRouter();
 
-  // Refs for dropdown containers
   const themeRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
+
+  const { authData, mutateAuth } = useAuthCheck(getAuthCreds());
 
   useEffect(() => {
     setCurrentPath(pathname || '/');
@@ -85,6 +87,11 @@ const NavBar: React.FC = () => {
 
         localStorage.setItem('authUser', JSON.stringify(user));
         setUserData(user);
+        console.log('User data fetched:', user);
+
+        if (user && pathname !== '/dashboard') {
+          router.push('/dashboard');
+        }
       } catch (error) {
         console.error('Failed to fetch user data', error);
         logoutUser();
@@ -92,7 +99,7 @@ const NavBar: React.FC = () => {
     };
 
     fetchUserData();
-  }, []);
+  }, [authData, pathname, router]);
 
   const handleThemeChange = (themeId: string) => {
     document.documentElement.setAttribute('data-theme', themeId);
@@ -136,7 +143,7 @@ const NavBar: React.FC = () => {
                 name: 'Logout',
                 onClick: () => {
                   logoutUser();
-                  window.location.reload();
+                  router.push('/');
                 },
                 icon: LogOut
               }
@@ -257,7 +264,10 @@ const NavBar: React.FC = () => {
                 </button>
               ) : (
                 <button
-                  onClick={loginUser}
+                  onClick={() => {
+                    loginUser();
+                    router.push('/dashboard');
+                  }}
                   className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
                 >
                   Login
@@ -350,7 +360,10 @@ const NavBar: React.FC = () => {
                 </button>
               ) : (
                 <button
-                  onClick={loginUser}
+                  onClick={() => {
+                    loginUser();
+                    router.push('/dashboard');
+                  }}
                   className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
                 >
                   Login
