@@ -5,7 +5,7 @@ export interface Server {
 	permissions: number;
 }
 
-interface ApiResponse {
+export interface ApiResponse {
 	guilds: Server[];
 	has_bot: string[];
 }

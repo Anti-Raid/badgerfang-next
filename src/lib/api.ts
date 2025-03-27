@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { ApiConfig, BotState, GuildStaffTeam, UserSessionList, CreateUserSession, CreateUserSessionResponse } from '@/types/splashtail/types';
 import useSWR from 'swr';
-import { Server } from "@/types/dashboard/servers"
+import { ApiResponse } from "@/types/dashboard/servers"
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://splashtail-staging.antiraid.xyz';
 
@@ -63,7 +63,7 @@ export const getBotState = async (): Promise<BotState> => {
 	return response.data;
 };
 
-export const getUserServers = async (): Promise<{ guilds: Server[] }> => {
+export const getUserServers = async (): Promise<ApiResponse> => {
 	const response = await axiosInstance.get('/users/@me/guilds?refresh=false');
 	return response.data;
 };
