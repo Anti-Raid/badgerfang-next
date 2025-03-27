@@ -43,7 +43,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <Metadata />
+      <metadata />
       <HelmetProvider>
         <body className="min-h-screen bg-background">
           <ThemeProvider
