@@ -13,7 +13,10 @@ export const metadata: Metadata = {
     //type: "website",
     //locale: "en_US",
     url: "https://antiraid.xyz",
-    title: `${title} - ${description}`,
+    title: {
+      template: `${title} - ${description}`,
+      default: "Anti Raid Discord Bot"
+    },
     description: `${description}`,
     siteName: `${title} - ${description}`,
   },
