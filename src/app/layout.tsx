@@ -18,7 +18,7 @@ export const metadata: Metadata = {
       default: "Anti Raid Discord Bot"
     },
     description: `${description}`,
-    siteName: `${title} - ${description}`,
+    siteName: "https://antiraid.xyz",
   },
   /*twitter: {
     card: "summary_large_image",
