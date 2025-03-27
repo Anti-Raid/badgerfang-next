@@ -1,33 +1,53 @@
-"use client";
+import type React from "react"
+import "./globals.css"
+import type { Metadata } from "next"
+import { title, description, keywords } from "@/components/common"
 
-import './globals.css';
-import Loading from '@/components/Loading';
-import Header from '@/components/static/Header';
-import  { metadata } from './metadata'
-import Footer from '@/components/static/Footer';
-import { ThemeProvider } from '@/components/ui/ThemeProvider';
-import React, { useEffect, useState } from 'react';
-import ToastProvider from '@/components/ui/ToastProvider';
-import { HelmetProvider } from 'react-helmet-async';
-import { SWRConfig } from 'swr';
+export const metadata: Metadata = {
+  title: {
+    template: `%s | ${title}`,
+    default: `${title} - ${description}`,
+  },
+  description: `${description}`,
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://antiraid.xyz",
+    title: `${title} - ${description}`,
+    description: `${description}`,
+    siteName: `${title} - ${description}`,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${title} - ${description}`,
+    description: `${description}`,
+    site: "@heyantiraid",
+    creator: "@heypurrquinox",
+  },
+  keywords: `${keywords}`,
+  robots: {
+    index: true,
+    follow: true,
+  },
+  appleWebApp: {
+    title: `${title} - ${description}`,
+    statusBarStyle: "default",
+  },
+  icons: {
+    icon: "/logo.webp",
+    shortcut: "/logo.webp",
+  },
+}
 
-export const runtime = "edge";
+export const runtime = "edge"
+
+import ClientLayout from "./clientLayout"
 
 export default function RootLayout({
-  children
+  children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
-
-  const [isLoading, setIsLoading] = useState(false);
-  const handleLoadingClose = () => setIsLoading(false);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') setIsLoading(window.location.pathname === '/');
-    const timer = setTimeout(() => setIsLoading(false), 2000);
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -43,36 +63,10 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <metadata />
-      <HelmetProvider>
-        <body className="min-h-screen bg-background">
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            forcedTheme="dark"
-            enableSystem={false}
-            disableTransitionOnChange
-          >
-            <SWRConfig>
-              <ToastProvider>
-                {isLoading ? (
-                  <Loading onClose={handleLoadingClose} />
-                ) : (
-                  <>
-                    <Header />
-                    <article className="min-h-screen flex-col justify-between overflow-x-hidden">
-                      <main className="mt-9 p-1 w-full md:max-w-7xl mx-auto h-full min-h-screen">
-                        {children}
-                      </main>
-                      <Footer />
-                    </article>
-                  </>
-                )}
-              </ToastProvider>
-            </SWRConfig>
-          </ThemeProvider>
-        </body>
-      </HelmetProvider>
+      <body className="min-h-screen bg-background">
+        <ClientLayout>{children}</ClientLayout>
+      </body>
     </html>
-  );
+  )
 }
+
