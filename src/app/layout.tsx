@@ -17,13 +17,13 @@ export const metadata: Metadata = {
     description: `${description}`,
     siteName: `${title} - ${description}`,
   },
-  twitter: {
+  /*twitter: {
     card: "summary_large_image",
     title: `${title} - ${description}`,
     description: `${description}`,
     site: "@heyantiraid",
     creator: "@heypurrquinox",
-  },
+  },*/
   /*robots: {
     index: true,
     follow: true,
