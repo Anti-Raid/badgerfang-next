@@ -29,7 +29,6 @@ export const ServerMembers: React.FC<ServerMembersProps> = ({ guildId }) => {
 
     try {
       const result = await executeSettings(guildId, payload)
-      console.log("Server member added:", result)
     } catch (error) {
       console.error("Failed to add server member:", error)
     }

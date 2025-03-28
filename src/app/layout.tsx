@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     siteName: `${title}`,
     images: [
       {
-        url: "/opengraph-image.jpg",
+        url: "/og-image.webp",
         width: 1200,
         height: 630,
         alt: "AntiRaid by Purrquinox",

@@ -7,6 +7,8 @@ import { FaDiscord } from 'react-icons/fa'
 import { getUserServers } from '@/lib/api'; 
 import { Server, ApiResponse } from "@/types/dashboard/servers";
 import { AuthUser} from "@/types/user"
+import { useRouter } from 'next/navigation';
+import { supportConfig } from '@/lib/data/support';
 
 const AllServers: React.FC = () => {
 	const [userData, setUserData] = useState<AuthUser | null>(null);
@@ -121,6 +123,17 @@ const AllServers: React.FC = () => {
 };
 
 const ServerCard: React.FC<{ server: Server; showViewButton: boolean }> = ({ server, showViewButton }) => {
+	const router = useRouter();
+
+	const handleViewClick = () => {
+		router.push(`/dashboard/guilds/?id=${server.id}`);
+	};
+
+	const handleInviteClick = () => {
+		const inviteUrl = supportConfig.invite.full.replace('{guild_id}', server.id);
+		window.location.href = inviteUrl;
+	};
+
 	return (
 		<motion.div
 			initial={{ opacity: 0, y: 20 }}
@@ -141,6 +154,7 @@ const ServerCard: React.FC<{ server: Server; showViewButton: boolean }> = ({ ser
 				whileHover={{ scale: 1.02 }}
 				whileTap={{ scale: 0.98 }}
 				className="flex items-center gap-2 bg-[#8100BD] text-white px-4 py-2 rounded-md w-full justify-center hover:bg-[#7c3aed] transition-colors"
+				onClick={showViewButton ? handleViewClick : handleInviteClick}
 			>
 				{showViewButton ? (
 					<>

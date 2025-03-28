@@ -87,8 +87,6 @@ const NavBar: React.FC = () => {
 
         localStorage.setItem('authUser', JSON.stringify(user));
         setUserData(user);
-        console.log('User data fetched:', user);
-
 
       } catch (error) {
         console.error('Failed to fetch user data', error);

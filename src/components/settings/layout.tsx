@@ -4,7 +4,7 @@ import { Shield, User, Code, Database, FileCode, Lock } from "lucide-react"
 import { Section } from "./components/section"
 import { RoleManager } from "./components/role-manager"
 import { ServerMembers } from "./components/server-members"
-import { Scripts } from "./components/scripts"
+import { Scripts } from "./components/NewScript"
 import { KeyValueDB } from "./components/key-value-db"
 import { PublishedScripts } from "./components/published-scripts"
 import { LockdownSettings } from "./components/lockdown-settings"
@@ -33,7 +33,6 @@ export default function Settings({ guildId }: { guildId: string }) {
     try {
       const payload = { operation, setting, fields };
       const result = await executeSettings(guildId, payload);
-      console.log("Settings executed:", result);
     } catch (error) {
       console.error("Failed to execute settings:", error);
     }
@@ -68,7 +67,7 @@ export default function Settings({ guildId }: { guildId: string }) {
         icon={<Shield className="w-5 h-5" />}
         defaultOpen={true}
       >
-        <RoleManager />
+        <RoleManager guildId={guildId} />
       </Section>
 
       <Section title="Server Members" description="Manage server members" icon={<User className="w-5 h-5" />}>
@@ -76,7 +75,7 @@ export default function Settings({ guildId }: { guildId: string }) {
       </Section>
 
       <Section title="Scripts" description="Configure your servers' custom scripts" icon={<Code className="w-5 h-5" />}>
-        <Scripts />
+        <Scripts guildId={guildId} />
       </Section>
 
       <Section

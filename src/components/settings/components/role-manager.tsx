@@ -1,53 +1,89 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, Reorder } from "framer-motion"
 import { GripVertical, Plus, Settings, Trash2 } from "lucide-react"
 import { Primary } from "../../ui/Buttons"
 import { InputField } from "./form-elements"
+import { executeSettings } from "@/lib/api"
 
 interface Role {
-  id: string
-  name: string
-  color: string
-  position: number
-  premission: number
+  role_id: string
+  display_name: string
+  index: number
 }
 
-export const RoleManager: React.FC = () => {
-  const [roles, setRoles] = useState<Role[]>([
-    { id: "1", name: "Admin", color: "#ff0000", position: 1, premission: 1 },
-    { id: "2", name: "Moderator", color: "#00ff00", position: 2, premission: 2 },
-    { id: "3", name: "Member", color: "#0000ff", position: 3, premission: 3 },
-  ])
+interface RoleManagerProps {
+  guildId: string
+}
 
+export const RoleManager: React.FC<RoleManagerProps> = ({ guildId }) => {
+  const [roles, setRoles] = useState<Role[]>([])
   const [newRole, setNewRole] = useState({
-    name: "",
-    color: "#7289da",
-    premission: 0,
+    role_id: "",
+    display_name: "",
+    index: roles.length + 1,
   })
-
   const [showNewRoleForm, setShowNewRoleForm] = useState(false)
 
-  const handleAddRole = () => {
-    if (newRole.name.trim()) {
-      const newRoleObj: Role = {
-        id: Date.now().toString(),
-        name: newRole.name,
-        color: newRole.color,
-        position: roles.length + 1,
-        premission: newRole.premission, // Ensure premission is included
+  useEffect(() => {
+    const fetchRoles = async () => {
+      const payload = {
+        operation: "View",
+        setting: "roles",
+        fields: {},
       }
 
-      setRoles([...roles, newRoleObj])
-      setNewRole({ name: "", color: "#7289da", premission: 0 })
-      setShowNewRoleForm(false)
+      try {
+        const result = await executeSettings(guildId, payload)
+        setRoles(result.fields || [])
+      } catch (error) {
+        console.error("Failed to fetch roles:", error)
+      }
+    }
+
+    fetchRoles()
+  }, [guildId])
+
+  const handleAddRole = async () => {
+    if (newRole.display_name.trim() && newRole.role_id.trim()) {
+      const newRoleObj: Role = {
+        role_id: newRole.role_id,
+        display_name: newRole.display_name,
+        index: roles.length + 1,
+      }
+
+      const payload = {
+        operation: "Create",
+        setting: "roles",
+        fields: newRoleObj,
+      }
+
+      try {
+        await executeSettings(guildId, payload)
+        setRoles([...roles, newRoleObj])
+        setNewRole({ role_id: "", display_name: "", index: roles.length + 2 })
+        setShowNewRoleForm(false)
+      } catch (error) {
+        console.error("Failed to add role:", error)
+      }
     }
   }
 
-  const handleDeleteRole = (id: string) => {
-    setRoles(roles.filter((role) => role.id !== id))
+  const handleDeleteRole = async (roleId: string) => {
+    const payload = {
+      operation: "Delete",
+      setting: "roles",
+      fields: { role_id: roleId },
+    }
+
+    try {
+      await executeSettings(guildId, payload)
+      setRoles(roles.filter((role) => role.role_id !== roleId))
+    } catch (error) {
+      console.error("Failed to delete role:", error)
+    }
   }
 
   return (
@@ -70,30 +106,17 @@ export const RoleManager: React.FC = () => {
           className="bg-background border border-primary border-opacity-20 rounded-md p-4 mb-4"
         >
           <InputField
-            label="Role Name"
-            placeholder="Enter role name"
-            value={newRole.name}
-            onChange={(e) => setNewRole({ ...newRole, name: e.target.value })}
+            label="Role ID"
+            placeholder="Enter role ID"
+            value={newRole.role_id}
+            onChange={(e) => setNewRole({ ...newRole, role_id: e.target.value })}
           />
 
-          <div className="mb-4">
-            <label className="block text-foreground mb-1">Role Color</label>
-            <div className="flex items-center gap-2">
-              <input
-                type="color"
-                value={newRole.color}
-                onChange={(e) => setNewRole({ ...newRole, color: e.target.value })}
-                className="w-10 h-10 rounded cursor-pointer"
-              />
-              <span className="text-foreground">{newRole.color}</span>
-            </div>
-          </div>
-
           <InputField
-            label="Premission"
-            placeholder="What permissions does this role have?"
-            value={newRole.premission.toString()}
-            onChange={(e) => setNewRole({ ...newRole, premission: Number(e.target.value) })}
+            label="Role Name"
+            placeholder="Enter role name"
+            value={newRole.display_name}
+            onChange={(e) => setNewRole({ ...newRole, display_name: e.target.value })}
           />
 
           <div className="flex gap-2">
@@ -109,23 +132,17 @@ export const RoleManager: React.FC = () => {
       )}
 
       <div className="bg-background border border-primary border-opacity-20 rounded-md overflow-hidden">
-        <Reorder.Group
-          axis="y"
-          values={roles}
-          onReorder={setRoles}
-          className="divide-y divide-primary divide-opacity-10"
-        >
+        <Reorder.Group axis="y" values={roles} onReorder={setRoles} className="divide-y divide-primary divide-opacity-10">
           {roles.map((role) => (
-            <Reorder.Item key={role.id} value={role} className="p-3">
+            <Reorder.Item key={role.role_id} value={role} className="p-3">
               <div className="flex items-center gap-3">
                 <GripVertical className="w-5 h-5 text-muted-foreground cursor-grab active:cursor-grabbing" />
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: role.color }} />
-                <span className="font-medium text-foreground">{role.name}</span>
+                <span className="font-medium text-foreground">{role.display_name}</span>
                 <div className="ml-auto flex items-center gap-2">
                   <button className="p-1 rounded-md hover:bg-accent/50">
                     <Settings className="w-4 h-4 text-muted-foreground" />
                   </button>
-                  <button className="p-1 rounded-md hover:bg-accent/50" onClick={() => handleDeleteRole(role.id)}>
+                  <button className="p-1 rounded-md hover:bg-accent/50" onClick={() => handleDeleteRole(role.role_id)}>
                     <Trash2 className="w-4 h-4 text-muted-foreground" />
                   </button>
                 </div>

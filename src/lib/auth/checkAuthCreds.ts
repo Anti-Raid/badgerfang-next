@@ -26,29 +26,22 @@ interface UseAuthCheckResponse {
 	mutateAuth: () => Promise<AuthData | undefined>;
 }
 
-const authFetcher = async (url: string, userId: string, token: string): Promise<AuthData> => {
-	const response = await axios.post(url, {
-		auth_type: 'User',
-		target_id: userId,
-		token: token
-	});
-
+const authFetcher = async (url: string, payload: { auth_type: string; target_id: string; token: string; }): Promise<AuthData> => {
+	const response = await axios.post(url, payload);
 	return response.data;
 };
 
 export const useAuthCheck = (sessionData: CreateUserSessionResponse | null) => {
 	const { data, error, mutate }: SWRResponse<AuthData, any> = useSWR(
-		sessionData ? [`${API_BASE_URL}/auth/test`, sessionData.user_id, sessionData.token] : null,
-		(url: string, userId: string, token: string) => authFetcher(url, userId, token),
+		sessionData ? `${API_BASE_URL}/auth/test` : null,
+		(url) => authFetcher(url, {
+			auth_type: 'User',
+			target_id: sessionData!.user_id,
+			token: sessionData!.token
+		}),
 		{
 			revalidateOnFocus: false,
 			dedupingInterval: 300000, // 5 minutes
-			onSuccess: () => {
-				logger.info('Auth', 'Auth token validated successfully');
-			},
-			onError: (err: any) => {
-				logger.error('Auth', 'Auth token validation failed', err);
-			}
 		}
 	);
 
@@ -60,15 +53,6 @@ export const useAuthCheck = (sessionData: CreateUserSessionResponse | null) => {
 		isBanned: data?.banned || false,
 		mutateAuth: mutate
 	} as UseAuthCheckResponse;
-
-	return {
-		authData: data,
-		isLoading: !error && !data,
-		isError: error,
-		isAuthorized: data?.authorized || false,
-		isBanned: data?.banned || false,
-		mutateAuth: mutate
-	};
 };
 
 // Non-hook version for server components or outside React

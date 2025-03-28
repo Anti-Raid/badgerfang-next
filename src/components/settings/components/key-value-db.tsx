@@ -26,7 +26,6 @@ export const KeyValueDB: React.FC<KeyValueDBProps> = ({ guildId }) => {
 
     try {
       const result = await executeSettings(guildId, payload)
-      console.log("Key-value added:", result)
     } catch (error) {
       console.error("Failed to add key-value:", error)
     }
