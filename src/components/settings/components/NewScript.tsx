@@ -78,7 +78,7 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
             (column: any) => column.id === "events"
           );
   
-          if (eventsColumn) {
+          if (eventsColumn && eventsColumn.column_type?.Array?.inner?.String?.allowed_values) {
             const eventsData = eventsColumn.column_type.Array.inner.String.allowed_values.map(
               (event: string) => ({
                 value: event,
@@ -86,7 +86,10 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
               })
             );
             setEventsOptions(eventsData);
+          } else {
+            console.error("Expected properties are undefined");
           }
+          
         }
       } catch (error) {
         console.error("Failed to fetch events:", error);
