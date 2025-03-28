@@ -1,31 +1,28 @@
-"use client"
-
-import type React from "react"
-import { useState, useEffect } from "react"
-import { motion, Reorder } from "framer-motion"
-import { GripVertical, Plus, Settings, Trash2 } from "lucide-react"
-import { Primary } from "../../ui/Buttons"
-import { InputField } from "./form-elements"
-import { executeSettings } from "@/lib/api"
+import React, { useState, useEffect } from "react";
+import { motion, Reorder } from "framer-motion";
+import { GripVertical, Plus, Settings, Trash2 } from "lucide-react";
+import { Primary } from "../../ui/Buttons";
+import { InputField } from "./form-elements";
+import { executeSettings } from "@/lib/api";
 
 interface Role {
-  role_id: string
-  display_name: string
-  index: number
+  role_id: string;
+  display_name: string;
+  index: number;
 }
 
 interface RoleManagerProps {
-  guildId: string
+  guildId: string;
 }
 
 export const RoleManager: React.FC<RoleManagerProps> = ({ guildId }) => {
-  const [roles, setRoles] = useState<Role[]>([])
+  const [roles, setRoles] = useState<Role[]>([]);
   const [newRole, setNewRole] = useState({
     role_id: "",
     display_name: "",
     index: roles.length + 1,
-  })
-  const [showNewRoleForm, setShowNewRoleForm] = useState(false)
+  });
+  const [showNewRoleForm, setShowNewRoleForm] = useState(false);
 
   useEffect(() => {
     const fetchRoles = async () => {
@@ -33,18 +30,18 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId }) => {
         operation: "View",
         setting: "roles",
         fields: {},
-      }
+      };
 
       try {
-        const result = await executeSettings(guildId, payload)
-        setRoles(result.fields || [])
+        const result = await executeSettings(guildId, payload);
+        setRoles(result.fields || []);
       } catch (error) {
-        console.error("Failed to fetch roles:", error)
+        console.error("Failed to fetch roles:", error);
       }
-    }
+    };
 
-    fetchRoles()
-  }, [guildId])
+    fetchRoles();
+  }, [guildId]);
 
   const handleAddRole = async () => {
     if (newRole.display_name.trim() && newRole.role_id.trim()) {
@@ -52,39 +49,39 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId }) => {
         role_id: newRole.role_id,
         display_name: newRole.display_name,
         index: roles.length + 1,
-      }
+      };
 
       const payload = {
         operation: "Create",
         setting: "roles",
         fields: newRoleObj,
-      }
+      };
 
       try {
-        await executeSettings(guildId, payload)
-        setRoles([...roles, newRoleObj])
-        setNewRole({ role_id: "", display_name: "", index: roles.length + 2 })
-        setShowNewRoleForm(false)
+        await executeSettings(guildId, payload);
+        setRoles([...roles, newRoleObj]);
+        setNewRole({ role_id: "", display_name: "", index: roles.length + 2 });
+        setShowNewRoleForm(false);
       } catch (error) {
-        console.error("Failed to add role:", error)
+        console.error("Failed to add role:", error);
       }
     }
-  }
+  };
 
   const handleDeleteRole = async (roleId: string) => {
     const payload = {
       operation: "Delete",
       setting: "roles",
       fields: { role_id: roleId },
-    }
+    };
 
     try {
-      await executeSettings(guildId, payload)
-      setRoles(roles.filter((role) => role.role_id !== roleId))
+      await executeSettings(guildId, payload);
+      setRoles(roles.filter((role) => role.role_id !== roleId));
     } catch (error) {
-      console.error("Failed to delete role:", error)
+      console.error("Failed to delete role:", error);
     }
-  }
+  };
 
   return (
     <div className="space-y-4">
@@ -154,5 +151,5 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId }) => {
 
       <p className="text-sm text-muted-foreground">Drag to reorder roles. Higher roles have more permissions.</p>
     </div>
-  )
-}
+  );
+};

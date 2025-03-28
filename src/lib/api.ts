@@ -93,7 +93,7 @@ export const getBotState = async (): Promise<BotState> => {
 };
 
 export const getUserServers = async (): Promise<ApiResponse> => {
-  const response = await axiosInstance.get('/users/@me/guilds?refresh=false');
+  const response = await axiosInstance.get('/users/@me/guilds');
   return response.data;
 };
 
