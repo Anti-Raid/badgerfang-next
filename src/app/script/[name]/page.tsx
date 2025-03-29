@@ -6,8 +6,6 @@ import { title, description, image, website_url } from '@/components/common';
 import { ScriptLayout } from '@/components/scripts/scriptLayout';
 import type { TemplateShopProps } from '@/types/script';
 
-export const runtime = 'edge';
-
 const mockScripts: Record<string, TemplateShopProps> = {
     'auto-slowdown': {
         id: '4',

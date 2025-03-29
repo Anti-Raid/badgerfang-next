@@ -3,8 +3,6 @@
 import Settings from '@/components/settings/layout';
 import { useSearchParams } from 'next/navigation';
 
-export const runtime = 'edge';
-
 export default function Guild() {
   const searchParams = useSearchParams();
   const guildId = searchParams.get('id');

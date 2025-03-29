@@ -34,7 +34,7 @@ export const LockdownSettings: React.FC<LockdownSettingsProps> = ({ guildId }) =
       try {
         const result = await executeSettings(guildId, payload)
         const settingsData = result.fields.map((setting: any, index: number) => ({
-          id: index.toString(), // Use index as a temporary ID
+          id: index.toString(),
           require_correct_layout: setting.require_correct_layout,
           member_roles: setting.member_roles,
         }))
@@ -70,7 +70,6 @@ export const LockdownSettings: React.FC<LockdownSettingsProps> = ({ guildId }) =
     try {
       const result = await executeSettings(guildId, payload)
       console.log("Lockdown settings added:", result)
-      // Optionally, update the existing settings list
     } catch (error) {
       console.error("Failed to add lockdown settings:", error)
     }

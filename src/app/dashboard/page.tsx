@@ -4,8 +4,6 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Servers from '@/components/dashboard/all-servers';
 
-export const runtime = 'edge';
-
 export default function Dashboard() {
     const searchParams = useSearchParams();
     const router = useRouter();

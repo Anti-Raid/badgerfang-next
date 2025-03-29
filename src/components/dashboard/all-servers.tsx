@@ -27,13 +27,13 @@ const AllServers: React.FC = () => {
 
     const fetchServers = async (refetch = false) => {
         try {
-            const response: ApiResponse = await getUserServers(refetch ? '?refresh=true' : '');
+            const response: ApiResponse = await getUserServers(refetch);
             const { guilds, has_bot } = response;
             setServers(guilds);
-
+    
             const managed = guilds.filter(server => has_bot.includes(server.id));
             const yours = guilds.filter(server => !has_bot.includes(server.id));
-
+    
             setManagedServers(managed);
             setYourServers(yours);
         } catch (error) {

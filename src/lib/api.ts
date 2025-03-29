@@ -92,8 +92,9 @@ export const getBotState = async (): Promise<BotState> => {
   return response.data;
 };
 
-export const getUserServers = async (): Promise<ApiResponse> => {
-  const response = await axiosInstance.get('/users/@me/guilds');
+export const getUserServers = async (refetch: boolean = false): Promise<ApiResponse> => {
+  const url = refetch ? '/users/@me/guilds?refresh=true' : '/users/@me/guilds';
+  const response = await axiosInstance.get(url);
   return response.data;
 };
 

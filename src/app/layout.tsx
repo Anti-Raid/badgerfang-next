@@ -48,8 +48,6 @@ export const metadata: Metadata = {
         : new URL("https://antiraid.xyz")
 }
 
-export const runtime = "edge"
-
 import ClientLayout from "./clientLayout"
 
 export default function RootLayout({
