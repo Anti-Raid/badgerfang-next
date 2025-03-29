@@ -1,5 +1,6 @@
-"use client";
+'use client';
 
+import { Suspense } from 'react';
 import Settings from '@/components/settings/layout';
 import { useSearchParams } from 'next/navigation';
 
@@ -12,8 +13,10 @@ export default function Guild() {
   }
 
   return (
-    <div className="min-h-screen">
-      <Settings guildId={guildId} />
-    </div>
+    <Suspense fallback={<div>Loading...</div>}>
+      <div className="min-h-screen">
+        <Settings guildId={guildId} />
+      </div>
+    </Suspense>
   );
 }
