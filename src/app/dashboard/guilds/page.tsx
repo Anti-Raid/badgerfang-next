@@ -1,22 +1,26 @@
-'use client';
+"use client";
 
 import { Suspense } from 'react';
 import Settings from '@/components/settings/layout';
 import { useSearchParams } from 'next/navigation';
 
-export default function Guild() {
+function GuildContent() {
   const searchParams = useSearchParams();
   const guildId = searchParams.get('id');
-
+  
   if (!guildId) {
     return <div>Guild ID is missing.</div>;
   }
+  
+  return <Settings guildId={guildId} />;
+}
 
+export default function Guild() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <div className="min-h-screen">
-        <Settings guildId={guildId} />
-      </div>
-    </Suspense>
+    <div className="min-h-screen">
+      <Suspense fallback={<div>Loading...</div>}>
+        <GuildContent />
+      </Suspense>
+    </div>
   );
 }
