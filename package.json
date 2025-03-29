@@ -12,11 +12,15 @@
 		"build": "next build",
 		"start": "next start",
 		"lint": "next lint",
+		"preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+		"deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+		"cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
 		"format": "prettier --write ."
 	},
 	"dependencies": {
 		"@hextastudio/ui": "^1.4.7",
 		"@iconify/react": "^5.0.2",
+		"@opennextjs/cloudflare": "^0.6.5",
 		"@skyra/discord-components-core": "^3.6.1",
 		"@skyra/discord-components-react": "^3.6.1",
 		"@tailwindcss/forms": "^0.5.9",
