@@ -14,6 +14,6 @@ export const supportConfig: SupportConfig = {
     client_id,
     no_bot: `https://discord.com/api/oauth2/authorize?client_id={client_id}&response_type=code&redirect_uri={redirect_url}&scope=guilds+identify&prompt=none`,
     basic: `https://discord.com/api/oauth2/authorize?client_id=${client_id}&permissions=${permissions}&scope=bot%20applications.commands`,
-    full: `https://discord.com/api/oauth2/authorize?client_id=${client_id}&permissions=${permissions}&response_type=code&redirect_uri=${redirect_url}&scope=bot+applications.commands+guilds+identify`,
+    full: `https://discord.com/api/oauth2/authorize?client_id=${client_id}&permissions=${permissions}&response_type=code&redirect_uri=${redirect_url}&guild_id={guild_id}&scope=bot+applications.commands+guilds+identify`,
   },
 };

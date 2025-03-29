@@ -6,14 +6,12 @@ import type { TemplateShopProps } from '@/types/script';
 import { title, description, image, website_url } from '@/components/common';
 import { motion } from 'framer-motion';
 
-export const runtime = 'edge';
-
 const mockData: TemplateShopProps[] = [
 	{
 		id: '3',
 		name: 'Hoover Max Extract Pressure Pro model 60',
 		version: '1.0.1',
-		description: 'dommy mommy',
+		description: '',
 		owner_guild: 'RSEnterprises',
 		created_at: '2025-12-01T14:20:00Z',
 		created_by: 'RS',

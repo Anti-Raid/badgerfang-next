@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     siteName: `${title}`,
     images: [
       {
-        url: "/opengraph-image.jpg",
+        url: "/og-image.webp",
         width: 1200,
         height: 630,
         alt: "AntiRaid by Purrquinox",
@@ -47,8 +47,6 @@ export const metadata: Metadata = {
         ? new URL("http://localhost:3000")
         : new URL("https://antiraid.xyz")
 }
-
-export const runtime = "edge"
 
 import ClientLayout from "./clientLayout"
 

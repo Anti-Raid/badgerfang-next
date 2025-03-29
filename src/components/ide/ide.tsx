@@ -488,31 +488,34 @@ export function ScriptIDE({ files = [], isContentEditable = false, height = 'aut
                                             <span className="sr-only">Copy code</span>
                                         </button>
                                     </div>
-                                    <div className="max-h-[70vh] overflow-y-auto">
-                                        {isContentEditable ? (
-                                            <textarea
-                                                className="w-full h-full p-4 bg-transparent text-foreground outline-none resize-none"
-                                                value={getFileContent(activeTab)}
-                                                onChange={(e) => handleContentChange(activeTab, e.target.value)}
-                                            />
-                                        ) : (
-                                            <SyntaxHighlighter
-                                                language={getLanguage(activeTab)}
-                                                style={vscDarkPlus}
-                                                customStyle={{
-                                                    margin: 0,
-                                                    borderRadius: 0,
-                                                    background: 'transparent',
-                                                    fontSize: '0.875rem'
-                                                }}
-                                                showLineNumbers={true}
-                                                wrapLines={true}
-                                                wrapLongLines={false}
-                                            >
-                                                {getFileContent(activeTab)}
-                                            </SyntaxHighlighter>
-                                        )}
-                                    </div>
+                                    <div className="h-[600px] w-full">
+  {isContentEditable ? (
+    <textarea
+      className="w-full h-full p-4 text-foreground outline-none resize-none"
+      value={getFileContent(activeTab)}
+      onChange={(e) => handleContentChange(activeTab, e.target.value)}
+      style={{ minHeight: '500px' }}
+    />
+  ) : (
+    <SyntaxHighlighter
+      language={getLanguage(activeTab)}
+      style={vscDarkPlus}
+      customStyle={{
+        margin: 0,
+        borderRadius: 0,
+        fontSize: '0.875rem',
+        width: '100%',
+        height: '100%',
+      }}
+      showLineNumbers={true}
+      wrapLines={true}
+      wrapLongLines={false}
+    >
+      {getFileContent(activeTab)}
+    </SyntaxHighlighter>
+  )}
+</div>
+
                                 </div>
                             ) : (
                                 <div className="p-20 flex flex-col items-center justify-center text-center text-muted-foreground">

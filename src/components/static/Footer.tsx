@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { FaGithub } from 'react-icons/fa';
+import { RiTwitterXFill } from "react-icons/ri";
 import { logo } from '../common';
 
 interface Category {
@@ -8,7 +10,7 @@ interface Category {
 
 interface Social {
 	name: string;
-	icon: string;
+	icon: JSX.Element;
 	href: string;
 }
 
@@ -57,8 +59,13 @@ const categories: Category[] = [
 const socials: Social[] = [
 	{
 		name: 'Github',
-		icon: 'fa-brands fa-github fa-lg',
+		icon: <FaGithub size={20} />,
 		href: 'https://github.com/Anti-Raid'
+	},
+	{
+		name: 'Twitter',
+		icon: <RiTwitterXFill size={20} />,
+		href: 'https://x.com/HeyAntiRaid'
 	}
 ];
 
@@ -114,9 +121,9 @@ const Footer = () => {
 								<Link
 									key={social.name}
 									href={social.href}
-									className="text-foreground hover:text-foreground/75"
+									className="text-foreground hover:text-foreground/75 flex items-center gap-2"
 								>
-									<i className={social.icon} />
+									{social.icon}
 									<span className="sr-only">{social.name}</span>
 								</Link>
 							))}

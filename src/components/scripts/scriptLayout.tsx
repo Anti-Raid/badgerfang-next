@@ -36,7 +36,7 @@ export function ScriptLayout({ script, files }: ScriptLayoutProps) {
             <div className="grid grid-cols-1 gap-8">
                 <ScriptIDE 
                     files={files} 
-                    isContentEditable={false} 
+                    isContentEditable={true} 
                     height="800px" 
                     width="2000%"
                 />

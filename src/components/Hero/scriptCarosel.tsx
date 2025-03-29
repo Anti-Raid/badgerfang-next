@@ -99,16 +99,16 @@ export const TemplateCarousel = () => {
 	};
 
 	return (
-		<section className="py-20 bg-gradient-to-b from-background to-accent/5 relative overflow-hidden">
+		<section className="py-20 relative overflow-hidden">
 			{/* Background decorative elements */}
-			<div className="absolute -top-24 -left-24 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
-			<div className="absolute bottom-0 right-0 w-96 h-96 bg-accent/5 rounded-full blur-3xl"></div>
+			<div className="absolute -top-24 -left-24 w-64 h-64 rounded-full blur-3xl"></div>
+			<div className="absolute bottom-0 right-0 w-96 h-96 rounded-full blur-3xl"></div>
 
 			<div className="container mx-auto px-4 relative">
 				{/* Section Header with Decorative Elements */}
 				<div className="text-center mb-16 relative">
-					<div className="absolute top-1/2 left-1/4 w-32 h-32 bg-primary/10 rounded-full blur-3xl -z-10"></div>
-					<div className="absolute top-1/2 right-1/4 w-32 h-32 bg-accent/10 rounded-full blur-3xl -z-10"></div>
+					<div className="absolute top-1/2 left-1/4 w-32 h-32 rounded-full blur-3xl -z-10"></div>
+					<div className="absolute top-1/2 right-1/4 w-32 h-32 rounded-full blur-3xl -z-10"></div>
 
 					<div className="inline-flex items-center gap-4 mb-4">
 						<span className="h-px w-8 bg-gradient-to-r to-primary from-transparent"></span>

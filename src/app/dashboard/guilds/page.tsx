@@ -1,21 +1,26 @@
 "use client";
 
+import { Suspense } from 'react';
 import Settings from '@/components/settings/layout';
 import { useSearchParams } from 'next/navigation';
 
-export const runtime = 'edge';
-
-export default function Guild() {
+function GuildContent() {
   const searchParams = useSearchParams();
   const guildId = searchParams.get('id');
-
+  
   if (!guildId) {
     return <div>Guild ID is missing.</div>;
   }
+  
+  return <Settings guildId={guildId} />;
+}
 
+export default function Guild() {
   return (
     <div className="min-h-screen">
-      <Settings guildId={guildId} />
+      <Suspense fallback={<div>Loading...</div>}>
+        <GuildContent />
+      </Suspense>
     </div>
   );
 }
