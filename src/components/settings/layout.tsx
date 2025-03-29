@@ -9,7 +9,6 @@ import { KeyValueDB } from "./components/key-value-db"
 import { PublishedScripts } from "./components/published-scripts"
 import { LockdownSettings } from "./components/lockdown-settings"
 import { Lockdowns } from "./components/lockdowns"
-import { ShopExplorer } from "./components/shop-explorer"
 import { useEffect, useState } from "react";
 import { getUserGuildBaseInfo, executeSettings } from "@/lib/api";
 
@@ -106,7 +105,6 @@ export default function Settings({ guildId }: { guildId: string }) {
         <Lockdowns guildId={guildId} />
       </Section>
 
-      <ShopExplorer guildId={guildId} />
     </div>
   );
 }
