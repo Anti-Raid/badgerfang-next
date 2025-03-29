@@ -1,10 +1,10 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import Servers from '@/components/dashboard/all-servers';
 
-export default function Dashboard() {
+function DashboardContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
 
@@ -23,9 +23,15 @@ export default function Dashboard() {
         }
     }, [refresh, searchParams, router]);
 
+    return <Servers key={key} />;
+}
+
+export default function Dashboard() {
     return (
         <div className="min-h-screen">
-            <Servers key={key} />
+            <Suspense fallback={<p>Loading...</p>}>
+                <DashboardContent />
+            </Suspense>
         </div>
     );
 }
