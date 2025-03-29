@@ -143,94 +143,59 @@ const Partners = () => {
 };
 
 const TeamMembers = () => {
-	interface APIResponse {
-		members: any[];
-		roles: any[];
-	}
+  const userIds = [
+    '728871946456137770',
+    '510065483693817867',
+    '775855009421066262',
+    '202560656883449856',
+    '1300319559844364338',
+		"564164277251080208",
+		"1275832535615537277",
+    '787241442770419722'
+  ];
 
-	interface TeamMember {
-		DisplayName: string | undefined;
-		Username: string | undefined;
-		Role: string;
-		DisplayRoles: [string, number][];
-		Avatar: string | undefined;
-	}
+  const fetcher = async (userIds: string[]) => {
+    const data = await Promise.all(
+      userIds.map(async (id) => {
+        const response = await fetch(`https://japi.rest/discord/v1/user/${id}`);
+        const json = await response.json();
+        return json.data;
+      })
+    );
+    return data;
+  };
 
-	const { data, error, isLoading } = useSWR<APIResponse>(
-		`${api_url}/guilds/${main_server_id}/staff-team`
-	);
-	if (isLoading) return toast('Loading data...');
-	if (error) return toast('There was an error loading Team Members: ', error);
+  const { data: usersData, error, isLoading } = useSWR(userIds, fetcher);
 
-	let teamMembers: TeamMember[] = [];
-	if (data) {
-		for (let member of data.members) {
-			let display_roles: [string, number][] = [];
+  if (isLoading) return <div className="text-foreground">Loading team members...</div>;
+  if (error) return <div className="text-rose-500">Error loading team members</div>;
 
-			for (let role of member.role) {
-				let roleData = data.roles.find((r: any) => r.role_id === role);
-				if (roleData) display_roles.push([roleData.display_name?.toString() || '', roleData.index]);
-			}
-
-			display_roles.sort((a, b) => a[1] - b[1]);
-
-			teamMembers.push({
-				DisplayName: member.user?.display_name,
-				Username: member.user?.username,
-				Role: display_roles.map((x) => x[0]).join(', '),
-				DisplayRoles: display_roles,
-				Avatar: member?.user?.avatar
-			});
-		}
-
-		teamMembers = teamMembers.sort((a, b) => {
-			let highestIndexA = a.DisplayRoles[0][1];
-			let highestIndexB = b.DisplayRoles[0][1];
-
-			for (let i = 1; i < a.DisplayRoles.length; i++) {
-				if (a.DisplayRoles[i][1] < highestIndexA) highestIndexA = a.DisplayRoles[i][1];
-			}
-			for (let i = 1; i < b.DisplayRoles.length; i++) {
-				if (b.DisplayRoles[i][1] < highestIndexB) highestIndexB = b.DisplayRoles[i][1];
-			}
-
-			return 10 * (highestIndexA - highestIndexB) - (a.DisplayRoles.length - b.DisplayRoles.length);
-		});
-	}
-
-	return (
-		<>
-			<div className="mt-5 flex flex-row flex-wrap w-full gap-4">
-				{teamMembers.length > 0 ? (
-					teamMembers.map((member, index) => (
-						<div
-							key={index}
-							className="flex grow p-2 bg-white bg-opacity-5 overflow-hidden rounded-md border border-white border-opacity-5"
-						>
-							<div className="flex items-center">
-								<img
-									className="h-16 w-16 rounded-full"
-									src={member.Avatar || '/logo.webp'}
-									alt={`${member.DisplayName}'s Avatar`}
-								/>
-								<div className="inline-block ml-3">
-									<h3 className="text-lg font-monster font-semibold leading-7 overflow-clip tracking-tight text-foreground">
-										{member.DisplayName}
-									</h3>
-									<p className="text-sm font-inter text-foreground">
-										<span className="font-normal opacity-80">@{member.Username}</span> -{' '}
-										<span className="text-primary font-semibold">{member.Role}</span>
-									</p>
-								</div>
-							</div>
-						</div>
-					))
-				) : (
-					<p className="text-center text-foreground opacity-75">No team members found.</p>
-				)}
-			</div>
-		</>
-	);
+  return (
+    <div className="mt-5 flex flex-row flex-wrap w-full gap-4">
+      {usersData?.map((user, index) => (
+        <div
+          key={index}
+          className="flex grow p-2 bg-white bg-opacity-5 overflow-hidden rounded-md border border-white border-opacity-5"
+        >
+          <div className="flex items-center">
+            <img
+              className="h-16 w-16 rounded-full"
+              src={user.avatarURL || '/logo.webp'}
+              alt={`${user.global_name || user.username}'s Avatar`}
+            />
+            <div className="inline-block ml-3">
+              <h3 className="text-lg font-monster font-semibold leading-7 overflow-clip tracking-tight text-foreground">
+                {user.global_name || user.username}
+              </h3>
+              <p className="text-sm font-inter text-foreground">
+                <span className="font-normal opacity-80">@{user.username}</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 };
 
 // Page
