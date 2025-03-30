@@ -17,6 +17,7 @@
 	"dependencies": {
 		"@hextastudio/ui": "^1.4.7",
 		"@iconify/react": "^5.0.2",
+		"@monaco-editor/react": "^4.7.0",
 		"@opennextjs/cloudflare": "^0.6.5",
 		"@skyra/discord-components-core": "^3.6.1",
 		"@skyra/discord-components-react": "^3.6.1",

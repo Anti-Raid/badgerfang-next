@@ -15,6 +15,7 @@ import {
 } from 'react-icons/fi';
 import { SiLua } from 'react-icons/si';
 import Link from 'next/link';
+import Editor from '@monaco-editor/react';
 
 interface FileStructure {
     name: string;
@@ -35,9 +36,16 @@ interface ScriptIDEProps {
     isContentEditable: boolean;
     height?: string; 
     width?: string;
+    onContentChange?: (content: Record<string, string>) => void;
 }
 
-export function ScriptIDE({ files = [], isContentEditable = false, height = 'auto', width = '100%' }: ScriptIDEProps) {
+export function ScriptIDE({ 
+  files = [], 
+  isContentEditable = false, 
+  height = 'auto', 
+  width = '100%',
+  onContentChange 
+}: ScriptIDEProps) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [activeTabs, setActiveTabs] = useState<string[]>([]);
     const [activeTab, setActiveTab] = useState('');
@@ -46,6 +54,27 @@ export function ScriptIDE({ files = [], isContentEditable = false, height = 'aut
     const [flattenedFiles, setFlattenedFiles] = useState<{ [key: string]: { content: string, path: string } }>({});
     const [editedContent, setEditedContent] = useState<{ [key: string]: string }>({});
     const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    const handleContentChange = (path: string, content: string) => {
+      setEditedContent(prev => {
+        const newContent = { ...prev, [path]: content };
+        onContentChange?.(combineContent(newContent));
+        return newContent;
+      });
+    };
+  
+    const combineContent = (edits: Record<string, string>) => {
+      const combined: Record<string, string> = {};
+      files.forEach(file => {
+        combined[file.path] = edits[file.path] || file.content;
+      });
+      Object.entries(edits).forEach(([path, content]) => {
+        if (!files.find(f => f.path === path)) {
+          combined[path] = content;
+        }
+      });
+      return combined;
+    };
 
     useEffect(() => {
         const fileMap: { [key: string]: { content: string, path: string } } = {};
@@ -205,10 +234,6 @@ export function ScriptIDE({ files = [], isContentEditable = false, height = 'aut
 
         const file = files.find(f => f.path === path);
         return file ? file.content : '';
-    };
-
-    const handleContentChange = (path: string, content: string) => {
-        setEditedContent(prev => ({ ...prev, [path]: content }));
     };
 
     const TreeItem = ({ item, depth = 0 }: { item: FileStructure; depth?: number }) => {
@@ -489,31 +514,37 @@ export function ScriptIDE({ files = [], isContentEditable = false, height = 'aut
                                         </button>
                                     </div>
                                     <div className="h-[600px] w-full">
-  {isContentEditable ? (
-    <textarea
-      className="w-full h-full p-4 text-foreground outline-none resize-none"
-      value={getFileContent(activeTab)}
-      onChange={(e) => handleContentChange(activeTab, e.target.value)}
-      style={{ minHeight: '500px' }}
-    />
-  ) : (
-    <SyntaxHighlighter
-      language={getLanguage(activeTab)}
-      style={vscDarkPlus}
-      customStyle={{
-        margin: 0,
-        borderRadius: 0,
-        fontSize: '0.875rem',
-        width: '100%',
-        height: '100%',
-      }}
-      showLineNumbers={true}
-      wrapLines={true}
-      wrapLongLines={false}
-    >
-      {getFileContent(activeTab)}
-    </SyntaxHighlighter>
-  )}
+                                    {isContentEditable ? (
+  <Editor
+    height="600px"
+    language={getLanguage(activeTab)}
+    value={getFileContent(activeTab)}
+    onChange={(value: string | undefined) => handleContentChange(activeTab, value || '')}
+    theme="vs-dark"
+    options={{
+      minimap: { enabled: false },
+      fontSize: 14,
+      automaticLayout: true,
+    }}
+  />
+) : (
+  <SyntaxHighlighter
+    language={getLanguage(activeTab)}
+    style={vscDarkPlus}
+    customStyle={{
+      margin: 0,
+      borderRadius: 0,
+      fontSize: '0.875rem',
+      width: '100%',
+      height: '100%',
+    }}
+    showLineNumbers={true}
+    wrapLines={true}
+    wrapLongLines={false}
+  >
+    {getFileContent(activeTab)}
+  </SyntaxHighlighter>
+)}
 </div>
 
                                 </div>
