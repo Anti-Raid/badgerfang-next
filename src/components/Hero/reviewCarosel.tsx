@@ -196,12 +196,12 @@ export const ReviewsCarousel = () => {
                   <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center space-x-4">
                       <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-primary/20 shadow-lg shadow-primary/10">
-                        <Image
-                          src={authorData.avatar}
-                          alt={authorData.name}
-                          fill
-                          className="object-cover"
-                        />
+                      <Image
+                   src={authorData.avatar || "/logo.webp"}
+                   alt={authorData.name || "User Avatar"}
+                   fill
+                   className="object-cover"
+                             />
                       </div>
                       <div>
                         <h3 className="font-bold text-lg font-monster">{authorData.name}</h3>
