@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaDiscord, FaQuoteLeft, FaQuoteRight } from 'react-icons/fa';
@@ -25,30 +27,33 @@ export const ReviewsCarousel = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const [authorData, setAuthorData] = useState<Record<string, { name: string; avatar: string }>>({});
+  const [authorData, setAuthorData] = useState({ name: '', avatar: '' });
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const authorCache = useRef<{ [key: string]: { name: string; avatar: string } }>({});
 
   useEffect(() => {
     const fetchAuthorData = async (authorId: string) => {
-      if (authorData[authorId]) return;
+      if (authorCache.current[authorId]) {
+        setAuthorData(authorCache.current[authorId]);
+        return;
+      }
 
       try {
         const response = await fetch(`https://japi.rest/discord/v1/user/${authorId}`);
         const data = await response.json();
-        setAuthorData((prev) => ({
-          ...prev,
-          [authorId]: {
-            name: data.data.global_name || data.data.username,
-            avatar: data.data.avatarURL,
-          },
-        }));
+        const authorInfo = {
+          name: data.data.global_name || data.data.username,
+          avatar: data.data.avatarURL
+        };
+        authorCache.current[authorId] = authorInfo;
+        setAuthorData(authorInfo);
       } catch (error) {
         console.error('Error fetching author data:', error);
       }
     };
 
     fetchAuthorData(reviews[currentIndex].authorId);
-  }, [currentIndex, reviews, authorData]);
+  }, [currentIndex, reviews]);
 
   useEffect(() => {
     const startInterval = () => {
@@ -192,14 +197,14 @@ export const ReviewsCarousel = () => {
                     <div className="flex items-center space-x-4">
                       <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-primary/20 shadow-lg shadow-primary/10">
                         <Image
-                          src={authorData[reviews[currentIndex].authorId]?.avatar || '/placeholder.png'}
-                          alt={authorData[reviews[currentIndex].authorId]?.name || 'Author avatar'}
+                          src={authorData.avatar}
+                          alt={authorData.name}
                           fill
                           className="object-cover"
                         />
                       </div>
                       <div>
-                        <h3 className="font-bold text-lg font-monster">{authorData[reviews[currentIndex].authorId]?.name || 'Unknown'}</h3>
+                        <h3 className="font-bold text-lg font-monster">{authorData.name}</h3>
                         <div className="flex items-center space-x-3">
                           {reviews[currentIndex].date && <span className="text-xs text-muted-foreground">{reviews[currentIndex].date}</span>}
                           {reviews[currentIndex].rating && renderStars(reviews[currentIndex].rating)}
