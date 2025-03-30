@@ -23,7 +23,7 @@ export default function Settings({ guildId }: { guildId: string }) {
         const data = await getUserGuildBaseInfo(guildId);
         setGuildData(data);
       } catch (error) {
-        const errorMessage = error.response?.data?.message || "Failed to fetch guild data. Please try again later.";
+        const errorMessage = response.data.message || "Failed to fetch guild data. Please try again later.";
         setError(errorMessage);
       } finally {
         setLoading(false);

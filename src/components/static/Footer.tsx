@@ -1,10 +1,12 @@
 import Link from 'next/link';
-import { FaGithub } from 'react-icons/fa';
-import { RiTwitterXFill } from "react-icons/ri";
+import { FaGithub, FaDiscord, FaForumbee } from 'react-icons/fa';
+import { RiTwitterXFill, RiTeamFill, RiBook2Fill, RiShieldCheckFill } from 'react-icons/ri';
+import { TbApi } from "react-icons/tb";
 import { logo } from '../common';
 
 interface Category {
 	name: string;
+	icon: JSX.Element;
 	items: { name: string; href: string }[];
 }
 
@@ -17,6 +19,7 @@ interface Social {
 const categories: Category[] = [
 	{
 		name: 'About',
+		icon: <RiTeamFill size={20} />,
 		items: [
 			{ name: 'About Us', href: '/about' },
 			{ name: 'Our Team', href: '/about#staff' },
@@ -25,6 +28,7 @@ const categories: Category[] = [
 	},
 	{
 		name: 'Developers',
+		icon: <TbApi size={20} />,
 		items: [
 			{
 				name: 'API Documentation',
@@ -42,6 +46,7 @@ const categories: Category[] = [
 	},
 	{
 		name: 'Community',
+		icon: <FaDiscord size={20} />,
 		items: [
 			{ name: 'Discord Server', href: '/discord' },
 			{ name: 'AntiRaid Forums', href: '/forums' }
@@ -49,6 +54,7 @@ const categories: Category[] = [
 	},
 	{
 		name: 'Legal',
+		icon: <RiShieldCheckFill size={20} />,
 		items: [
 			{ name: 'Terms of Service', href: '/legal/terms' },
 			{ name: 'Privacy Policy', href: '/legal/privacy' }
@@ -71,9 +77,9 @@ const socials: Social[] = [
 
 const Footer = () => {
 	return (
-		<footer className="bg-transparent text-foreground mt-20 ">
+		<footer className="bg-transparent text-foreground mt-20">
 			<div className="mx-auto w-full max-w-screen-xl p-4 py-6 lg:py-8">
-				<div className="md:flex md:justify-between md:gap-9 ">
+				<div className="md:flex md:justify-between md:gap-9">
 					<div className="mb-6 md:mb-0">
 						<a
 							href="https://antiraid.xyz/"
@@ -86,18 +92,18 @@ const Footer = () => {
 						</a>
 					</div>
 
-					<div className="flex flex-row gap-5 flex-wrap ">
+					<div className="flex flex-row gap-5 flex-wrap">
 						{categories.map((category) => (
 							<div key={category.name}>
-								<h2 className="mb-4 text-md font-bold text-foreground uppercase">
-									{category.name}
+								<h2 className="mb-4 text-md font-bold text-foreground uppercase flex items-center gap-2">
+									{category.icon} {category.name}
 								</h2>
-								<ul className="text-foreground/75 ">
+								<ul className="text-foreground/75">
 									{category.items.map((item) => (
 										<li key={item.name} className="mb-2">
 											<Link
 												href={item.href}
-												className=" opacity-90 text-foreground hover:opacity-100 font-light text-sm hover:underline"
+												className="opacity-90 text-foreground hover:opacity-100 font-light text-sm hover:underline"
 											>
 												{item.name}
 											</Link>
