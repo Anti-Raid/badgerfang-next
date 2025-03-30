@@ -23,21 +23,28 @@ export default function Settings({ guildId }: { guildId: string }) {
         const data = await getUserGuildBaseInfo(guildId);
         setGuildData(data);
       } catch (error) {
-        const errorMessage = response.data.message || "Failed to fetch guild data. Please try again later.";
-        setError(errorMessage);
+        if (isAxiosError(error)) {
+          const errorMessage = error.response?.data?.message || "Failed to fetch guild data. Please try again later.";
+          setError(errorMessage);
+        } else {
+          setError("An unexpected error occurred. Please try again later.");
+        }
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchData();
   }, [guildId]);
+  
+  function isAxiosError(error: any): error is { response?: { data?: { message?: string } } } {
+    return error && error.response;
+  }
 
   const handleExecuteSettings = async (operation: string, setting: string, fields: any) => {
     try {
       const payload = { operation, setting, fields };
       const result = await executeSettings(guildId, payload);
-      console.log("Settings executed successfully:", result);
     } catch (error) {
       console.error("Failed to execute settings:", error);
     }
