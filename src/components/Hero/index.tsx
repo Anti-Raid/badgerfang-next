@@ -5,6 +5,7 @@ import type { StatisticsData } from '@/types/home/StatisticsData';
 import { TemplateCarousel } from './scriptCarosel';
 import { Primary, Secondary } from '../ui/Buttons';
 import { GoArrowUpRight } from 'react-icons/go';
+import { ReviewsCarousel } from './reviewCarosel';
 
 const Hero = () => {
 	const [serverCount, setServerCount] = useState(0);
@@ -127,6 +128,7 @@ const Hero = () => {
 					</div>
 				</main>
 				<TemplateCarousel />
+				<ReviewsCarousel />
 			</section>
 		</>
 	);
