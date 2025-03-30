@@ -1,19 +1,21 @@
-"use client"
+"use client";
 
-import { Shield, User, Code, Database, FileCode, Lock } from "lucide-react"
-import { Section } from "./components/section"
-import { RoleManager } from "./components/role-manager"
-import { ServerMembers } from "./components/server-members"
-import { Scripts } from "./components/NewScript"
-import { KeyValueDB } from "./components/key-value-db"
-import { PublishedScripts } from "./components/published-scripts"
-import { LockdownSettings } from "./components/lockdown-settings"
-import { Lockdowns } from "./components/lockdowns"
+import { Shield, User, Code, Database, FileCode, Lock } from "lucide-react";
+import { Section } from "./components/section";
+import { RoleManager } from "./components/role-manager";
+import { ServerMembers } from "./components/server-members";
+import { Scripts } from "./components/NewScript";
+import { KeyValueDB } from "./components/key-value-db";
+import { PublishedScripts } from "./components/published-scripts";
+import { LockdownSettings } from "./components/lockdown-settings";
+import { Lockdowns } from "./components/lockdowns";
 import { useEffect, useState } from "react";
 import { getUserGuildBaseInfo, executeSettings } from "@/lib/api";
 
 export default function Settings({ guildId }: { guildId: string }) {
   const [guildData, setGuildData] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -21,7 +23,10 @@ export default function Settings({ guildId }: { guildId: string }) {
         const data = await getUserGuildBaseInfo(guildId);
         setGuildData(data);
       } catch (error) {
-        console.error("Failed to fetch guild data:", error);
+        const errorMessage = error.response?.data?.message || "Failed to fetch guild data. Please try again later.";
+        setError(errorMessage);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -32,13 +37,18 @@ export default function Settings({ guildId }: { guildId: string }) {
     try {
       const payload = { operation, setting, fields };
       const result = await executeSettings(guildId, payload);
+      console.log("Settings executed successfully:", result);
     } catch (error) {
       console.error("Failed to execute settings:", error);
     }
   };
 
-  if (!guildData) {
+  if (loading) {
     return <div>Loading guild data...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
   }
 
   return (
@@ -104,7 +114,6 @@ export default function Settings({ guildId }: { guildId: string }) {
       <Section title="Lockdowns" description="Lockdowns" icon={<Lock className="w-5 h-5" />}>
         <Lockdowns guildId={guildId} />
       </Section>
-
     </div>
   );
 }
