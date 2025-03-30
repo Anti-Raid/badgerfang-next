@@ -7,12 +7,12 @@ import { useSearchParams } from 'next/navigation';
 function GuildContent() {
   const searchParams = useSearchParams();
   const guildId = searchParams.get('id');
-  
+
   if (!guildId) {
     return <div>Guild ID is missing.</div>;
   }
-  
-  return <Settings guildId={guildId} />;
+
+  return <Settings guildId={guildId as string} />;
 }
 
 export default function Guild() {
