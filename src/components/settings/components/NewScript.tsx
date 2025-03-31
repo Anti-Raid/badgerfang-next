@@ -1,5 +1,3 @@
-'use client';
-
 import type React from 'react';
 import { useState, useEffect } from 'react';
 import { Primary } from '../../ui/Buttons';
@@ -356,7 +354,10 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
 									e.target.selectedOptions,
 									(option) => option.value
 								);
-								handleEventChange(selectedEvents);
+								setNewScript((prevScript) => ({
+									...prevScript,
+									events: Array.from(new Set([...prevScript.events, ...selectedEvents])) // Prevent duplicates
+								}));
 							}}
 							className="w-full bg-background border border-primary border-opacity-20 rounded-md p-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50"
 						>
@@ -366,6 +367,30 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
 								</option>
 							))}
 						</select>
+
+						{newScript.events.length > 0 && (
+							<div className="mt-2 flex flex-wrap gap-2">
+								{newScript.events.map((event, index) => (
+									<div
+										key={index}
+										className="bg-primary text-primary-foreground px-3 py-1 rounded-full flex items-center"
+									>
+										<span>{event}</span>
+										<button
+											onClick={() => {
+												setNewScript((prevScript) => ({
+													...prevScript,
+													events: prevScript.events.filter((e) => e !== event)
+												}));
+											}}
+											className="ml-2 text-background hover:text-destructive"
+										>
+											&times;
+										</button>
+									</div>
+								))}
+							</div>
+						)}
 					</div>
 
 					<InputField

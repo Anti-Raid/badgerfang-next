@@ -114,7 +114,6 @@ const NavBar: React.FC = () => {
 	}, [authData, pathname, router]);
 
 	const getLogoPath = () => {
-		if (theme === 'blue-theme') return '/logo-blue.webp';
 		if (theme === 'dark-red-theme') return '/AR_Logo_Red.webp';
 		if (theme === 'green-theme') return '/AR_Logo_Green.webp';
 		return '/logo.webp';
