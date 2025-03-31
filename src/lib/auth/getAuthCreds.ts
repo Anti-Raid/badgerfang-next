@@ -5,7 +5,7 @@ export const getAuthCreds = () => {
 	logger.info('Auth', 'Loading auth data');
 
 	if (typeof window === 'undefined') {
-			return null;
+		return null;
 	}
 
 	let token = localStorage.getItem('wistala');
@@ -13,29 +13,27 @@ export const getAuthCreds = () => {
 	let data: CreateUserSessionResponse | null = null;
 
 	if (token) {
-			try {
-					data = JSON.parse(token);
-					if (data?.expiry) {
-							let expiry = new Date(data.expiry);
-							let current = new Date();
-							if (expiry < current) {
-									logger.info('Auth', 'Auth data expired');
-									localStorage.removeItem('wistala');
-									return null;
-							}
-					}
-
-					if (!data?.user_id || !data?.token) {
-							return null;
-					}
-
-					return data;
-			} catch (err) {
-					logger.error('Layout', 'Auth data invalid', err);
+		try {
+			data = JSON.parse(token);
+			if (data?.expiry) {
+				let expiry = new Date(data.expiry);
+				let current = new Date();
+				if (expiry < current) {
+					logger.info('Auth', 'Auth data expired');
+					localStorage.removeItem('wistala');
+					return null;
+				}
 			}
+
+			if (!data?.user_id || !data?.token) {
+				return null;
+			}
+
+			return data;
+		} catch (err) {
+			logger.error('Layout', 'Auth data invalid', err);
+		}
 	}
 
 	return null;
 };
-
-

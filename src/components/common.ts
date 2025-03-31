@@ -266,7 +266,7 @@ const keywords = [
 	'discord admin automation',
 	'automated security features',
 	'customizable bot'
-]
+];
 
 // Export variables
 export {

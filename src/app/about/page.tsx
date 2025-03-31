@@ -52,7 +52,6 @@ const BotFeatures = () => {
 
 	return (
 		<>
-
 			{features.map((p, index) => (
 				<div
 					key={index}
@@ -143,59 +142,59 @@ const Partners = () => {
 };
 
 const TeamMembers = () => {
-  const userIds = [
-    '728871946456137770',
-    '510065483693817867',
-    '775855009421066262',
-    '202560656883449856',
-    '1300319559844364338',
-		"564164277251080208",
-		"1275832535615537277",
-    '787241442770419722'
-  ];
+	const userIds = [
+		'728871946456137770',
+		'510065483693817867',
+		'775855009421066262',
+		'202560656883449856',
+		'1300319559844364338',
+		'564164277251080208',
+		'1275832535615537277',
+		'787241442770419722'
+	];
 
-  const fetcher = async (userIds: string[]) => {
-    const data = await Promise.all(
-      userIds.map(async (id) => {
-        const response = await fetch(`https://japi.rest/discord/v1/user/${id}`);
-        const json = await response.json();
-        return json.data;
-      })
-    );
-    return data;
-  };
+	const fetcher = async (userIds: string[]) => {
+		const data = await Promise.all(
+			userIds.map(async (id) => {
+				const response = await fetch(`https://japi.rest/discord/v1/user/${id}`);
+				const json = await response.json();
+				return json.data;
+			})
+		);
+		return data;
+	};
 
-  const { data: usersData, error, isLoading } = useSWR(userIds, fetcher);
+	const { data: usersData, error, isLoading } = useSWR(userIds, fetcher);
 
-  if (isLoading) return <div className="text-foreground">Loading team members...</div>;
-  if (error) return <div className="text-rose-500">Error loading team members</div>;
+	if (isLoading) return <div className="text-foreground">Loading team members...</div>;
+	if (error) return <div className="text-rose-500">Error loading team members</div>;
 
-  return (
-    <div className="mt-5 flex flex-row flex-wrap w-full gap-4">
-      {usersData?.map((user, index) => (
-        <div
-          key={index}
-          className="flex grow p-2 bg-white bg-opacity-5 overflow-hidden rounded-md border border-white border-opacity-5"
-        >
-          <div className="flex items-center">
-            <img
-              className="h-16 w-16 rounded-full"
-              src={user.avatarURL || '/logo.webp'}
-              alt={`${user.global_name || user.username}'s Avatar`}
-            />
-            <div className="inline-block ml-3">
-              <h3 className="text-lg font-monster font-semibold leading-7 overflow-clip tracking-tight text-foreground">
-                {user.global_name || user.username}
-              </h3>
-              <p className="text-sm font-inter text-foreground">
-                <span className="font-normal opacity-80">@{user.username}</span>
-              </p>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
+	return (
+		<div className="mt-5 flex flex-row flex-wrap w-full gap-4">
+			{usersData?.map((user, index) => (
+				<div
+					key={index}
+					className="flex grow p-2 bg-white bg-opacity-5 overflow-hidden rounded-md border border-white border-opacity-5"
+				>
+					<div className="flex items-center">
+						<img
+							className="h-16 w-16 rounded-full"
+							src={user.avatarURL || '/logo.webp'}
+							alt={`${user.global_name || user.username}'s Avatar`}
+						/>
+						<div className="inline-block ml-3">
+							<h3 className="text-lg font-monster font-semibold leading-7 overflow-clip tracking-tight text-foreground">
+								{user.global_name || user.username}
+							</h3>
+							<p className="text-sm font-inter text-foreground">
+								<span className="font-normal opacity-80">@{user.username}</span>
+							</p>
+						</div>
+					</div>
+				</div>
+			))}
+		</div>
+	);
 };
 
 // Page

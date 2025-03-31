@@ -6,7 +6,6 @@ import Head from 'next/head';
 import { supportConfig } from '@/lib/data/support';
 
 export default function DiscordRedirect() {
-
 	useEffect(() => {
 		const timer = setTimeout(() => {
 			window.location.href = supportConfig.invite.basic;
