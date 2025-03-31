@@ -1,11 +1,10 @@
-"use client"
+"use client";
 
-import type React from "react"
-
-import { useState, useRef, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
-import { vscDarkPlus } from "react-syntax-highlighter/dist/cjs/styles/prism"
+import type React from "react";
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import {
   FiCode,
   FiCopy,
@@ -18,38 +17,38 @@ import {
   FiFolderPlus,
   FiFilePlus,
   FiSettings,
-} from "react-icons/fi"
-import { SiLua } from "react-icons/si"
-import dynamic from "next/dynamic"
-import * as monaco from "monaco-editor"
+} from "react-icons/fi";
+import { SiLua } from "react-icons/si";
+import dynamic from "next/dynamic";
+import * as monaco from "monaco-editor";
 
 // Dynamically import the Monaco Editor with SSR disabled
-const Editor = dynamic(() => import("@monaco-editor/react"), { 
+const Editor = dynamic(() => import("@monaco-editor/react"), {
   ssr: false,
-  loading: () => <div>Loading Editor...</div>
-})
+  loading: () => <div>Loading Editor...</div>,
+});
 
 interface FileStructure {
-  name: string
-  path: string
-  type: "file" | "folder"
-  content?: string
-  children?: FileStructure[]
-  expanded?: boolean
-  parent?: FileStructure // Add parent property
+  name: string;
+  path: string;
+  type: "file" | "folder";
+  content?: string;
+  children?: FileStructure[];
+  expanded?: boolean;
+  parent?: FileStructure; // Add parent property
 }
 
 interface ScriptIDEProps {
   files?: {
-    name: string
-    path: string
-    content: string
-    type: "file" | "dir"
-  }[]
-  isContentEditable: boolean
-  height?: string
-  width?: string
-  onContentChange?: (content: Record<string, string>) => void
+    name: string;
+    path: string;
+    content: string;
+    type: "file" | "dir";
+  }[];
+  isContentEditable: boolean;
+  height?: string;
+  width?: string;
+  onContentChange?: (content: Record<string, string>) => void;
 }
 
 // Tooltip component for icon buttons
@@ -61,8 +60,8 @@ const Tooltip = ({ children, text }: { children: React.ReactNode; text: string }
         {text}
       </div>
     </div>
-  )
-}
+  );
+};
 
 export function ScriptIDE({
   files = [],
@@ -71,105 +70,112 @@ export function ScriptIDE({
   width = "100%",
   onContentChange,
 }: ScriptIDEProps) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const [activeTabs, setActiveTabs] = useState<string[]>([])
-  const [activeTab, setActiveTab] = useState("")
-  const [showToast, setShowToast] = useState(false)
-  const [fileStructure, setFileStructure] = useState<FileStructure[]>([])
-  const [flattenedFiles, setFlattenedFiles] = useState<{ [key: string]: { content: string; path: string } }>({})
-  const [editedContent, setEditedContent] = useState<{ [key: string]: string }>({})
-  const [currentFiles, setCurrentFiles] = useState(files)
-  const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const dropZoneRef = useRef<HTMLDivElement>(null)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [activeTabs, setActiveTabs] = useState<string[]>([]);
+  const [activeTab, setActiveTab] = useState("");
+  const [showToast, setShowToast] = useState(false);
+  const [fileStructure, setFileStructure] = useState<FileStructure[]>([]);
+  const [flattenedFiles, setFlattenedFiles] = useState<{ [key: string]: { content: string; path: string } }>({});
+  const [editedContent, setEditedContent] = useState<{ [key: string]: string }>({});
+  const [currentFiles, setCurrentFiles] = useState(files);
+  const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const dropZoneRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Ensure this code runs only on the client side
     if (typeof window !== "undefined") {
       // Register Luau language support
-      monaco.languages.register({ id: "luau" })
+      let isMounted = true;
+      import("monaco-editor").then((monacoModule) => {
+        if (!isMounted) return;
+        monaco.languages.register({ id: "luau" });
+        try {
+          // Register a tokens provider for the language
+          monaco.languages.setMonarchTokensProvider("luau", {
+            tokenizer: {
+              root: [
+                [/\[error.*/, "custom-error"],
+                [/\[warning.*/, "custom-warning"],
+                [/\[info.*/, "custom-info"],
+                [/\[debug.*/, "custom-debug"],
+                [/\[trace.*/, "custom-trace"],
+                [/\[verbose.*/, "custom-verbose"],
+                [/\b(function|local|end|if|then|else|elseif|while|do|for|in|repeat|until|return|break)\b/, "keyword"],
+                [/\b(true|false|nil)\b/, "keyword"],
+                [/\b[A-Za-z_][A-Za-z0-9_]*\b/, "identifier"],
+                [/\b[0-9]+\b/, "number"],
+                [/"([^"\\]|\\.)*$/, "string.invalid"],
+                [/"([^"\\]|\\.)*"/, "string"],
+              ],
+              string: [
+                [/[^\\"]+/, "string"],
+                [/\\./, "string.escape"],
+                [/"/, "string", "@pop"],
+              ],
+            },
+          });
 
-      // Register a tokens provider for the language
-      monaco.languages.setMonarchTokensProvider("luau", {
-        tokenizer: {
-          root: [
-            [/\[error.*/, "custom-error"],
-            [/\[warning.*/, "custom-warning"],
-            [/\[info.*/, "custom-info"],
-            [/\[debug.*/, "custom-debug"],
-            [/\[trace.*/, "custom-trace"],
-            [/\[verbose.*/, "custom-verbose"],
-            [/\b(function|local|end|if|then|else|elseif|while|do|for|in|repeat|until|return|break)\b/, "keyword"],
-            [/\b(true|false|nil)\b/, "keyword"],
-            [/\b[A-Za-z_][A-Za-z0-9_]*\b/, "identifier"],
-            [/\b[0-9]+\b/, "number"],
-            [/"([^"\\]|\\.)*$/, "string.invalid"],
-            [/"([^"\\]|\\.)*"/, "string"],
-          ],
-          string: [
-            [/[^\\"]+/, "string"],
-            [/\\./, "string.escape"],
-            [/"/, "string", "@pop"],
-          ],
-        },
-      })
+          // Register a completion item provider for the new language
+          monaco.languages.registerCompletionItemProvider("luau", {
+            provideCompletionItems: (model, position) => {
+              const word = model.getWordUntilPosition(position);
+              const range = {
+                startLineNumber: position.lineNumber,
+                startColumn: word.startColumn,
+                endLineNumber: position.lineNumber,
+                endColumn: word.endColumn,
+              };
 
-      // Register a completion item provider for the new language
-      monaco.languages.registerCompletionItemProvider("luau", {
-        provideCompletionItems: (model, position) => {
-          const word = model.getWordUntilPosition(position)
-          const range = {
-            startLineNumber: position.lineNumber,
-            startColumn: word.startColumn,
-            endLineNumber: position.lineNumber,
-            endColumn: word.endColumn,
-          }
-
-          const suggestions = [
-            {
-              label: "print",
-              kind: monaco.languages.CompletionItemKind.Function,
-              insertText: "print(${1:value})",
-              range: range,
+              const suggestions = [
+                {
+                  label: "print",
+                  kind: monaco.languages.CompletionItemKind.Function,
+                  insertText: "print(${1:value})",
+                  range: range,
+                },
+                {
+                  label: "if",
+                  kind: monaco.languages.CompletionItemKind.Keyword,
+                  insertText: "if ${1:condition} then\n\t$0\nend",
+                  range: range,
+                },
+                {
+                  label: "for",
+                  kind: monaco.languages.CompletionItemKind.Keyword,
+                  insertText: "for ${1:i} = ${2:start}, ${3:end} do\n\t$0\nend",
+                  range: range,
+                },
+                {
+                  label: "while",
+                  kind: monaco.languages.CompletionItemKind.Keyword,
+                  insertText: "while ${1:condition} do\n\t$0\nend",
+                  range: range,
+                },
+                {
+                  label: "function",
+                  kind: monaco.languages.CompletionItemKind.Function,
+                  insertText: "function ${1:name}(${2:args})\n\t$0\nend",
+                  range: range,
+                },
+              ];
+              return { suggestions };
             },
-            {
-              label: "if",
-              kind: monaco.languages.CompletionItemKind.Keyword,
-              insertText: "if ${1:condition} then\n\t$0\nend",
-              range: range,
-            },
-            {
-              label: "for",
-              kind: monaco.languages.CompletionItemKind.Keyword,
-              insertText: "for ${1:i} = ${2:start}, ${3:end} do\n\t$0\nend",
-              range: range,
-            },
-            {
-              label: "while",
-              kind: monaco.languages.CompletionItemKind.Keyword,
-              insertText: "while ${1:condition} do\n\t$0\nend",
-              range: range,
-            },
-            {
-              label: "function",
-              kind: monaco.languages.CompletionItemKind.Function,
-              insertText: "function ${1:name}(${2:args})\n\t$0\nend",
-              range: range,
-            },
-          ]
-          return { suggestions }
-        },
-      })
-      return () => {
-        isMounted = false
-      }
+          });
+        } catch (error) {
+          console.error("Error registering language support:", error);
+        }
+        return () => {
+          isMounted = false;
+        };
+      });
     }
-  }, [])
+  }, []);
 
   // Update currentFiles when files prop changes
   useEffect(() => {
-    setCurrentFiles(files)
-  }, [files])
+    setCurrentFiles(files);
+  }, [files]);
 
   useEffect(() => {
     if (onContentChange) {
@@ -180,322 +186,321 @@ export function ScriptIDE({
   // Setup drag and drop handlers
   useEffect(() => {
     const handleDragOver = (e: DragEvent) => {
-      e.preventDefault()
-      e.stopPropagation()
+      e.preventDefault();
+      e.stopPropagation();
       if (dropZoneRef.current) {
-        dropZoneRef.current.classList.add("bg-primary/10")
+        dropZoneRef.current.classList.add("bg-primary/10");
       }
-    }
+    };
 
     const handleDragLeave = (e: DragEvent) => {
-      e.preventDefault()
-      e.stopPropagation()
+      e.preventDefault();
+      e.stopPropagation();
       if (dropZoneRef.current) {
-        dropZoneRef.current.classList.remove("bg-primary/10")
+        dropZoneRef.current.classList.remove("bg-primary/10");
       }
-    }
+    };
 
     const handleDrop = (e: DragEvent) => {
       e.preventDefault();
       e.stopPropagation();
-    
+
       if (dropZoneRef.current) {
         dropZoneRef.current.classList.remove("bg-primary/10");
       }
-    
+
       if (!e.dataTransfer || !isContentEditable) return;
-    
+
       const files = e.dataTransfer.files;
       handleFiles(files);
     };
 
-    const element = dropZoneRef.current
+    const element = dropZoneRef.current;
     if (element) {
-      element.addEventListener("dragover", handleDragOver)
-      element.addEventListener("dragleave", handleDragLeave)
-      element.addEventListener("drop", handleDrop)
+      element.addEventListener("dragover", handleDragOver);
+      element.addEventListener("dragleave", handleDragLeave);
+      element.addEventListener("drop", handleDrop);
     }
 
     return () => {
       if (element) {
-        element.removeEventListener("dragover", handleDragOver)
-        element.removeEventListener("dragleave", handleDragLeave)
-        element.removeEventListener("drop", handleDrop)
+        element.removeEventListener("dragover", handleDragOver);
+        element.removeEventListener("dragleave", handleDragLeave);
+        element.removeEventListener("drop", handleDrop);
       }
-    }
-  }, [isContentEditable])
-
-// Update the handleFiles function to handle null case
-const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-  const files = event.target.files;
-  if (files) {
-    handleFiles(files);
-  }
-  // Reset the file input
-  if (event.target) {
-    event.target.value = "";
-  }
-};
-
-const handleFiles = (files: FileList | null) => {
-  if (!files) return;
-
-  Array.from(files).forEach((file) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const content = e.target?.result as string;
-      const newFile = {
-        name: file.name,
-        path: file.name,
-        content: content,
-        type: "file" as const,
-      };
-      setCurrentFiles((prev) => {
-        const newFiles = [...prev];
-        const existingFileIndex = newFiles.findIndex((f) => f.path === file.name);
-        if (existingFileIndex >= 0) {
-          newFiles[existingFileIndex] = newFile;
-        } else {
-          newFiles.push(newFile);
-        }
-        return newFiles;
-      });
-      setEditedContent((prev) => ({ ...prev, [file.name]: content }));
-      setActiveTab(file.name);
-      setActiveTabs((prev) => {
-        if (!prev.includes(file.name)) {
-          return [...prev, file.name];
-        }
-        return prev;
-      });
     };
-    reader.readAsText(file);
-  });
-};
+  }, [isContentEditable]);
+
+  // Update the handleFiles function to handle null case
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files) {
+      handleFiles(files);
+    }
+    // Reset the file input
+    if (event.target) {
+      event.target.value = "";
+    }
+  };
+
+  const handleFiles = (files: FileList | null) => {
+    if (!files) return;
+
+    Array.from(files).forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target?.result as string;
+        const newFile = {
+          name: file.name,
+          path: file.name,
+          content: content,
+          type: "file" as const,
+        };
+        setCurrentFiles((prev) => {
+          const newFiles = [...prev];
+          const existingFileIndex = newFiles.findIndex((f) => f.path === file.name);
+          if (existingFileIndex >= 0) {
+            newFiles[existingFileIndex] = newFile;
+          } else {
+            newFiles.push(newFile);
+          }
+          return newFiles;
+        });
+        setEditedContent((prev) => ({ ...prev, [file.name]: content }));
+        setActiveTab(file.name);
+        setActiveTabs((prev) => {
+          if (!prev.includes(file.name)) {
+            return [...prev, file.name];
+          }
+          return prev;
+        });
+      };
+      reader.readAsText(file);
+    });
+  };
 
   const handleContentChange = (path: string, content: string) => {
     setEditedContent((prev: Record<string, string>) => {
-      const newContent = { ...prev, [path]: content }
+      const newContent = { ...prev, [path]: content };
 
       // Update the current files array to reflect changes
       setCurrentFiles((currentFiles) => {
         return currentFiles.map((file) => {
           if (file.path === path) {
-            return { ...file, content }
+            return { ...file, content };
           }
-          return file
-        })
-      })
+          return file;
+        });
+      });
 
       // Call the parent's onContentChange with the combined content
       if (onContentChange) {
-        onContentChange(combineContent(newContent))
+        onContentChange(combineContent(newContent));
       }
 
-      return newContent
-    })
-  }
+      return newContent;
+    });
+  };
 
   const combineContent = (edits: Record<string, string>) => {
     const combined: Record<string, string> = {};
-  
+
     currentFiles.forEach((file) => {
       combined[file.path] = edits[file.path] !== undefined ? edits[file.path] : file.content;
     });
-  
+
     Object.entries(edits).forEach(([path, content]) => {
       if (!combined[path]) {
         combined[path] = content;
       }
     });
-  
+
     return combined;
   };
-  
 
   useEffect(() => {
-    const fileMap: { [key: string]: { content: string; path: string } } = {}
+    const fileMap: { [key: string]: { content: string; path: string } } = {};
     currentFiles.forEach((file) => {
       fileMap[file.name] = {
         content: file.content,
         path: file.path,
-      }
-    })
-    setFlattenedFiles(fileMap)
-  }, [currentFiles])
+      };
+    });
+    setFlattenedFiles(fileMap);
+  }, [currentFiles]);
 
   useEffect(() => {
     const buildFileTree = (items: any[]): FileStructure[] => {
-      const tree: FileStructure[] = []
+      const tree: FileStructure[] = [];
 
       items.forEach((item) => {
-        if (item.type !== "file" && item.type !== "dir") return
+        if (item.type !== "file" && item.type !== "dir") return;
 
-        const pathParts = item.path.split("/")
-        let currentLevel = tree
+        const pathParts = item.path.split("/");
+        let currentLevel = tree;
 
         pathParts.forEach((part: string, index: number) => {
-          const existing = currentLevel.find((entry) => entry.name === part)
+          const existing = currentLevel.find((entry) => entry.name === part);
 
           if (existing) {
             if (existing.type === "folder") {
-              currentLevel = existing.children || []
+              currentLevel = existing.children || [];
             }
           } else {
-            const isFolder = item.type === "dir" || index < pathParts.length - 1
+            const isFolder = item.type === "dir" || index < pathParts.length - 1;
             const newEntry: FileStructure = {
               name: part,
               path: pathParts.slice(0, index + 1).join("/"),
               type: isFolder ? "folder" : "file",
               children: [],
               expanded: false,
-            }
+            };
 
             if (!isFolder) {
-              newEntry.content = item.content || ""
+              newEntry.content = item.content || "";
             }
 
-            currentLevel.push(newEntry)
-            currentLevel = isFolder ? newEntry.children! : currentLevel
+            currentLevel.push(newEntry);
+            currentLevel = isFolder ? newEntry.children! : currentLevel;
           }
-        })
-      })
+        });
+      });
 
-      return tree
-    }
+      return tree;
+    };
 
-    const fileTree = buildFileTree(currentFiles)
-    setFileStructure(fileTree)
+    const fileTree = buildFileTree(currentFiles);
+    setFileStructure(fileTree);
 
     const readmeFile = currentFiles.find(
       (f) =>
-        f.name.toLowerCase() === "readme.md" || f.name === "README.md" || f.name.toLowerCase() === "readme.markdown",
-    )
+        f.name.toLowerCase() === "readme.md" || f.name === "README.md" || f.name.toLowerCase() === "readme.markdown"
+    );
 
     if (readmeFile) {
-      setActiveTab(readmeFile.path)
-      setActiveTabs([readmeFile.path])
+      setActiveTab(readmeFile.path);
+      setActiveTabs([readmeFile.path]);
     } else if (currentFiles.length > 0) {
-      setActiveTab(currentFiles[0].path)
-      setActiveTabs([currentFiles[0].path])
+      setActiveTab(currentFiles[0].path);
+      setActiveTabs([currentFiles[0].path]);
     }
-  }, [currentFiles])
+  }, [currentFiles]);
 
   const copyToClipboard = (content: string) => {
-    navigator.clipboard.writeText(content)
-    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current)
-    setShowToast(true)
-    toastTimeoutRef.current = setTimeout(() => setShowToast(false), 3000)
-  }
+    navigator.clipboard.writeText(content);
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+    setShowToast(true);
+    toastTimeoutRef.current = setTimeout(() => setShowToast(false), 3000);
+  };
 
   const getLanguage = (fileName: string): string => {
-    const extension = fileName.split(".").pop()?.toLowerCase()
+    const extension = fileName.split(".").pop()?.toLowerCase();
     switch (extension) {
       case "md":
-        return "markdown"
+        return "markdown";
       case "lua":
-        return "lua"
+        return "lua";
       case "luau":
-        return "luau"
+        return "luau";
       case "luaurc":
-        return "lua"
+        return "lua";
       case "yml":
       case "yaml":
-        return "yaml"
+        return "yaml";
       case "cmd":
-        return "batch"
+        return "batch";
       case "sh":
-        return "bash"
+        return "bash";
       case "makefile":
       case "make":
-        return "makefile"
+        return "makefile";
       case "gitignore":
-        return "plaintext"
+        return "plaintext";
       case "gitmodules":
-        return "plaintext"
+        return "plaintext";
       default:
-        return "plaintext"
+        return "plaintext";
     }
-  }
+  };
 
   const FileIcon = ({ fileName }: { fileName: string }) => {
     if (fileName.startsWith(".")) {
-      return <FiFile className="w-4 h-4 text-gray-400" />
+      return <FiFile className="w-4 h-4 text-gray-400" />;
     }
 
-    const ext = fileName.split(".").pop()?.toLowerCase()
+    const ext = fileName.split(".").pop()?.toLowerCase();
     if (ext === "lua" || ext === "luau") {
-      return <SiLua className="w-4 h-4 text-blue-400" />
+      return <SiLua className="w-4 h-4 text-blue-400" />;
     }
     if (ext === "md" || fileName.toLowerCase() === "readme") {
-      return <FiFile className="w-4 h-4 text-green-400" />
+      return <FiFile className="w-4 h-4 text-green-400" />;
     }
     if (ext === "json" || ext === "json5") {
-      return <FiFile className="w-4 h-4 text-yellow-400" />
+      return <FiFile className="w-4 h-4 text-yellow-400" />;
     }
     if (fileName.toLowerCase() === "license") {
-      return <FiFile className="w-4 h-4 text-purple-400" />
+      return <FiFile className="w-4 h-4 text-purple-400" />;
     }
     if (ext === "cmd" || ext === "sh" || fileName.toLowerCase() === "makefile") {
-      return <FiFile className="w-4 h-4 text-red-400" />
+      return <FiFile className="w-4 h-4 text-red-400" />;
     }
 
-    return <FiFile className="w-4 h-4" />
-  }
+    return <FiFile className="w-4 h-4" />;
+  };
 
   const closeTab = (tabName: string, event?: React.MouseEvent) => {
     if (event) {
-      event.stopPropagation()
+      event.stopPropagation();
     }
 
-    const newTabs = activeTabs.filter((t) => t !== tabName)
-    setActiveTabs(newTabs)
+    const newTabs = activeTabs.filter((t) => t !== tabName);
+    setActiveTabs(newTabs);
 
     if (activeTab === tabName) {
       if (newTabs.length > 0) {
-        setActiveTab(newTabs[newTabs.length - 1])
+        setActiveTab(newTabs[newTabs.length - 1]);
       } else {
-        setActiveTab("")
+        setActiveTab("");
       }
     }
-  }
+  };
 
   const openFile = (file: FileStructure) => {
-    if (file.type === "folder") return
+    if (file.type === "folder") return;
 
     if (!activeTabs.includes(file.path)) {
-      setActiveTabs((prev) => [...prev, file.path])
+      setActiveTabs((prev) => [...prev, file.path]);
     }
-    setActiveTab(file.path)
-  }
+    setActiveTab(file.path);
+  };
 
   const getFileContent = (path: string) => {
     if (editedContent[path]) {
-      return editedContent[path]
+      return editedContent[path];
     }
     if (flattenedFiles[path]?.content) {
-      return flattenedFiles[path].content
+      return flattenedFiles[path].content;
     }
 
-    const file = currentFiles.find((f) => f.path === path)
-    return file ? file.content : ""
-  }
+    const file = currentFiles.find((f) => f.path === path);
+    return file ? file.content : "";
+  };
 
   const TreeItem = ({ item, depth = 0 }: { item: FileStructure; depth?: number }) => {
-    const [isExpanded, setIsExpanded] = useState(item.expanded || false)
+    const [isExpanded, setIsExpanded] = useState(item.expanded || false);
 
     const toggleExpand = (e: React.MouseEvent) => {
-      e.stopPropagation()
-      setIsExpanded(!isExpanded)
-    }
+      e.stopPropagation();
+      setIsExpanded(!isExpanded);
+    };
 
     const handleClick = () => {
       if (item.type === "folder") {
-        setIsExpanded(!isExpanded)
+        setIsExpanded(!isExpanded);
       } else {
-        openFile(item)
+        openFile(item);
       }
-    }
+    };
 
     return (
       <div className="space-y-1">
@@ -537,38 +542,38 @@ const handleFiles = (files: FileList | null) => {
           </div>
         )}
       </div>
-    )
-  }
+    );
+  };
 
   const addFile = (parentPath: string) => {
-    const newFileName = prompt("Enter new file name:")
+    const newFileName = prompt("Enter new file name:");
     if (newFileName) {
-      const newFilePath = parentPath ? `${parentPath}/${newFileName}` : newFileName
+      const newFilePath = parentPath ? `${parentPath}/${newFileName}` : newFileName;
       const newFile: FileStructure = {
         name: newFileName,
         path: newFilePath,
         type: "file",
         content: "",
         expanded: false,
-      }
+      };
       setFileStructure((prev) => {
-        const updatedStructure = [...prev]
+        const updatedStructure = [...prev];
         const addFileToStructure = (structure: FileStructure[], path: string) => {
           for (const item of structure) {
             if (item.path === path && item.type === "folder") {
-              item.children = item.children || []
-              item.children.push(newFile)
-              return
+              item.children = item.children || [];
+              item.children.push(newFile);
+              return;
             }
             if (item.children) {
-              addFileToStructure(item.children, path)
+              addFileToStructure(item.children, path);
             }
           }
-        }
-        addFileToStructure(updatedStructure, parentPath || "")
-        return updatedStructure
-      })
-      setFlattenedFiles((prev) => ({ ...prev, [newFilePath]: { content: "", path: newFilePath } }))
+        };
+        addFileToStructure(updatedStructure, parentPath || "");
+        return updatedStructure;
+      });
+      setFlattenedFiles((prev) => ({ ...prev, [newFilePath]: { content: "", path: newFilePath } }));
 
       // Add to currentFiles
       const newFileObj = {
@@ -576,48 +581,48 @@ const handleFiles = (files: FileList | null) => {
         path: newFilePath,
         content: "",
         type: "file" as const,
-      }
-      setCurrentFiles((prev) => [...prev, newFileObj])
+      };
+      setCurrentFiles((prev) => [...prev, newFileObj]);
 
       // Add to editedContent to ensure it's saved
       setEditedContent((prev) => ({
         ...prev,
         [newFilePath]: "",
-      }))
+      }));
 
-      setActiveTab(newFilePath)
-      setActiveTabs((prev) => [...prev, newFilePath])
+      setActiveTab(newFilePath);
+      setActiveTabs((prev) => [...prev, newFilePath]);
     }
-  }
+  };
 
   const addFolder = (parentPath: string) => {
-    const newFolderName = prompt("Enter new folder name:")
+    const newFolderName = prompt("Enter new folder name:");
     if (newFolderName) {
-      const newFolderPath = parentPath ? `${parentPath}/${newFolderName}` : newFolderName
+      const newFolderPath = parentPath ? `${parentPath}/${newFolderName}` : newFolderName;
       const newFolder: FileStructure = {
         name: newFolderName,
         path: newFolderPath,
         type: "folder",
         children: [],
         expanded: false,
-      }
+      };
       setFileStructure((prev) => {
-        const updatedStructure = [...prev]
+        const updatedStructure = [...prev];
         const addFolderToStructure = (structure: FileStructure[], path: string) => {
           for (const item of structure) {
             if (item.path === path && item.type === "folder") {
-              item.children = item.children || []
-              item.children.push(newFolder)
-              return
+              item.children = item.children || [];
+              item.children.push(newFolder);
+              return;
             }
             if (item.children) {
-              addFolderToStructure(item.children, path)
+              addFolderToStructure(item.children, path);
             }
           }
-        }
-        addFolderToStructure(updatedStructure, parentPath || "")
-        return updatedStructure
-      })
+        };
+        addFolderToStructure(updatedStructure, parentPath || "");
+        return updatedStructure;
+      });
 
       // Add to currentFiles
       const newFolderObj = {
@@ -625,35 +630,35 @@ const handleFiles = (files: FileList | null) => {
         path: newFolderPath,
         content: "",
         type: "dir" as const,
-      }
-      setCurrentFiles((prev) => [...prev, newFolderObj])
+      };
+      setCurrentFiles((prev) => [...prev, newFolderObj]);
     }
-  }
+  };
 
   const importFromGitHub = async () => {
-    const repoUrl = prompt("Enter GitHub repository URL:")
+    const repoUrl = prompt("Enter GitHub repository URL:");
     if (repoUrl) {
       try {
-        const response = await fetch(`https://api.github.com/repos/${repoUrl}/contents`)
-        const data = await response.json()
+        const response = await fetch(`https://api.github.com/repos/${repoUrl}/contents`);
+        const data = await response.json();
         const newFiles = data.map((file: any) => ({
           name: file.name,
           path: file.path,
           content: atob(file.content),
           type: file.type === "file" ? "file" : "dir",
-        }))
-        setCurrentFiles((prev) => [...prev, ...newFiles])
+        }));
+        setCurrentFiles((prev) => [...prev, ...newFiles]);
       } catch (error) {
-        console.error("Error importing from GitHub:", error)
+        console.error("Error importing from GitHub:", error);
       }
     }
-  }
+  };
 
   const triggerFileUpload = () => {
     if (fileInputRef.current) {
-      fileInputRef.current.click()
+      fileInputRef.current.click();
     }
-  }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8" style={{ height, width }} ref={dropZoneRef}>
@@ -938,6 +943,5 @@ const handleFiles = (files: FileList | null) => {
         </motion.div>
       </div>
     </div>
-  )
+  );
 }
-

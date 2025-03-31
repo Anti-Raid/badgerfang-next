@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, Reorder } from "framer-motion";
-import { GripVertical, Plus, Settings, Trash2 } from "lucide-react";
+import { GripVertical, Plus, Settings, Trash2, Edit } from "lucide-react";
 import { Primary } from "../../ui/Buttons";
 import { InputField } from "./form-elements";
 import { executeSettings } from "@/lib/api";
@@ -9,6 +9,7 @@ interface Role {
   role_id: string;
   display_name: string;
   index: number;
+  perms?: string[];
 }
 
 interface RoleManagerProps {
@@ -23,6 +24,7 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId }) => {
     index: roles.length + 1,
   });
   const [showNewRoleForm, setShowNewRoleForm] = useState(false);
+  const [editingRole, setEditingRole] = useState<Role | null>(null);
 
   useEffect(() => {
     const fetchRoles = async () => {
@@ -83,6 +85,28 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId }) => {
     }
   };
 
+  const handleEditRole = (role: Role) => {
+    setEditingRole(role);
+  };
+
+  const handleSaveEdit = async () => {
+    if (editingRole) {
+      const payload = {
+        operation: "Edit",
+        setting: "roles",
+        fields: [editingRole],
+      };
+
+      try {
+        await executeSettings(guildId, payload);
+        setRoles(roles.map((role) => (role.role_id === editingRole.role_id ? editingRole : role)));
+        setEditingRole(null);
+      } catch (error) {
+        console.error("Failed to edit role:", error);
+      }
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center mb-4">
@@ -128,6 +152,45 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId }) => {
         </motion.div>
       )}
 
+      {editingRole && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-background border border-primary border-opacity-20 rounded-md p-4 mb-4"
+        >
+          <InputField
+            label="Role ID"
+            placeholder="Enter role ID"
+            value={editingRole.role_id}
+            onChange={(e) => setEditingRole({ ...editingRole, role_id: e.target.value })}
+          />
+
+          <InputField
+            label="Role Name"
+            placeholder="Enter role name"
+            value={editingRole.display_name}
+            onChange={(e) => setEditingRole({ ...editingRole, display_name: e.target.value })}
+          />
+
+<InputField
+  label="Index"
+  placeholder="Enter index"
+  value={String(editingRole.index)}
+  onChange={(e) => setEditingRole({ ...editingRole, index: Number(e.target.value) })}
+/>
+
+          <div className="flex gap-2">
+            <Primary Title="Save" onClick={handleSaveEdit} />
+            <button
+              className="px-4 py-2 border border-primary border-opacity-20 rounded-md text-foreground hover:bg-accent/50"
+              onClick={() => setEditingRole(null)}
+            >
+              Cancel
+            </button>
+          </div>
+        </motion.div>
+      )}
+
       <div className="bg-background border border-primary border-opacity-20 rounded-md overflow-hidden">
         <Reorder.Group axis="y" values={roles} onReorder={setRoles} className="divide-y divide-primary divide-opacity-10">
           {roles.map((role) => (
@@ -136,8 +199,8 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId }) => {
                 <GripVertical className="w-5 h-5 text-muted-foreground cursor-grab active:cursor-grabbing" />
                 <span className="font-medium text-foreground">{role.display_name}</span>
                 <div className="ml-auto flex items-center gap-2">
-                  <button className="p-1 rounded-md hover:bg-accent/50">
-                    <Settings className="w-4 h-4 text-muted-foreground" />
+                  <button className="p-1 rounded-md hover:bg-accent/50" onClick={() => handleEditRole(role)}>
+                    <Edit className="w-4 h-4 text-muted-foreground" />
                   </button>
                   <button className="p-1 rounded-md hover:bg-accent/50" onClick={() => handleDeleteRole(role.role_id)}>
                     <Trash2 className="w-4 h-4 text-muted-foreground" />
