@@ -1,30 +1,30 @@
-import type React from "react";
-import { useState, useEffect } from "react";
-import { Primary } from "../../ui/Buttons";
-import { Toggle, InputField } from "./form-elements";
-import { executeSettings, getBotState } from "@/lib/api";
-import { FaTrash } from "react-icons/fa";
-import { ScriptModal } from "./ScriptModal";
-import { ScriptIDE } from "@/components/ide/ide";
+"use client"
 
+import type React from "react"
+import { useState, useEffect } from "react"
+import { Primary } from "../../ui/Buttons"
+import { Toggle, InputField } from "./form-elements"
+import { executeSettings, getBotState } from "@/lib/api"
+import { FaTrash, FaCode } from "react-icons/fa"
+import { ScriptModal } from "./ScriptModal"
 
 interface Script {
-  id: string;
-  name: string;
-  language: string;
-  content: Record<string, string>;
-  paused: boolean;
-  error_channel: string;
-  allowed_caps: string[];
-  events: string[];
+  id: string
+  name: string
+  language: string
+  content: Record<string, string>
+  paused: boolean
+  error_channel: string
+  allowed_caps: string[]
+  events: string[]
 }
 
 interface ScriptsProps {
-  guildId: string;
+  guildId: string
 }
 
 export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
-  const [scripts, setScripts] = useState<Script[]>([]);
+  const [scripts, setScripts] = useState<Script[]>([])
   const [newScript, setNewScript] = useState<Script>({
     id: "",
     name: "",
@@ -34,25 +34,26 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
     error_channel: "",
     allowed_caps: [],
     events: [],
-  });
-  const [showScriptForm, setShowScriptForm] = useState(false);
-  const [selectedScript, setSelectedScript] = useState<Script | null>(null);
-  const [eventsOptions, setEventsOptions] = useState<{ value: string; label: string }[]>([]);
-  const [capabilitiesOptions, setCapabilitiesOptions] = useState<{ value: string; label: string }[]>([]);
-  const [customCapability, setCustomCapability] = useState("");
-  const [editScriptContent, setEditScriptContent] = useState<Record<string, string>>({});
-  const [isEditingScript, setIsEditingScript] = useState(false);
+  })
+  const [showScriptForm, setShowScriptForm] = useState(false)
+  const [selectedScript, setSelectedScript] = useState<Script | null>(null)
+  const [eventsOptions, setEventsOptions] = useState<{ value: string; label: string }[]>([])
+  const [capabilitiesOptions, setCapabilitiesOptions] = useState<{ value: string; label: string }[]>([])
+  const [customCapability, setCustomCapability] = useState("")
+  const [editScriptContent, setEditScriptContent] = useState<Record<string, string>>({})
+  const [isEditingScript, setIsEditingScript] = useState(false)
+  const [isEditingNewScriptContent, setIsEditingNewScriptContent] = useState(false)
 
   const handleContentChange = (newContent: Record<string, string>) => {
     if (selectedScript) {
-      setEditScriptContent(newContent);
+      setEditScriptContent(newContent)
     } else {
-      setNewScript(prev => ({
+      setNewScript((prev) => ({
         ...prev,
-        content: newContent
-      }));
+        content: newContent,
+      }))
     }
-  };
+  }
 
   useEffect(() => {
     const fetchScripts = async () => {
@@ -60,10 +61,10 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
         operation: "View",
         setting: "scripts",
         fields: {},
-      };
+      }
 
       try {
-        const result = await executeSettings(guildId, payload);
+        const result = await executeSettings(guildId, payload)
         const scriptsData = result.fields.map((script: any, index: number) => ({
           id: index.toString(),
           name: script.name,
@@ -73,57 +74,47 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
           error_channel: script.error_channel,
           allowed_caps: script.allowed_caps,
           events: script.events,
-        }));
-        setScripts(scriptsData);
+        }))
+        setScripts(scriptsData)
       } catch (error) {
-        console.error("Failed to fetch scripts:", error);
+        console.error("Failed to fetch scripts:", error)
       }
-    };
+    }
 
     const fetchEventsAndCapabilities = async () => {
       try {
-        const result = await getBotState();
-        const scriptShopSetting = result.settings.find(
-          (setting: any) => setting.id === "script_shop"
-        );
+        const result = await getBotState()
+        const scriptShopSetting = result.settings.find((setting: any) => setting.id === "script_shop")
 
         if (scriptShopSetting) {
-          const eventsColumn = scriptShopSetting.columns.find(
-            (column: any) => column.id === "events"
-          );
+          const eventsColumn = scriptShopSetting.columns.find((column: any) => column.id === "events")
 
           if (eventsColumn?.column_type?.Array?.inner?.String?.allowed_values) {
-            const eventsData = eventsColumn.column_type.Array.inner.String.allowed_values.map(
-              (event: string) => ({
-                value: event,
-                label: event,
-              })
-            );
-            setEventsOptions(eventsData);
+            const eventsData = eventsColumn.column_type.Array.inner.String.allowed_values.map((event: string) => ({
+              value: event,
+              label: event,
+            }))
+            setEventsOptions(eventsData)
           }
 
-          const capabilitiesColumn = scriptShopSetting.columns.find(
-            (column: any) => column.id === "allowed_caps"
-          );
+          const capabilitiesColumn = scriptShopSetting.columns.find((column: any) => column.id === "allowed_caps")
 
           if (capabilitiesColumn?.suggestions?.Static?.suggestions) {
-            const capabilitiesData = capabilitiesColumn.suggestions.Static.suggestions.map(
-              (capability: string) => ({
-                value: capability,
-                label: capability,
-              })
-            );
-            setCapabilitiesOptions(capabilitiesData);
+            const capabilitiesData = capabilitiesColumn.suggestions.Static.suggestions.map((capability: string) => ({
+              value: capability,
+              label: capability,
+            }))
+            setCapabilitiesOptions(capabilitiesData)
           }
         }
       } catch (error) {
-        console.error("Failed to fetch events and capabilities:", error);
+        console.error("Failed to fetch events and capabilities:", error)
       }
-    };
+    }
 
-    fetchScripts();
-    fetchEventsAndCapabilities();
-  }, [guildId]);
+    fetchScripts()
+    fetchEventsAndCapabilities()
+  }, [guildId])
 
   const handleAddScript = async () => {
     const payload = {
@@ -139,11 +130,11 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
         allowed_caps: newScript.allowed_caps,
         events: newScript.events,
       },
-    };
+    }
 
     try {
-      await executeSettings(guildId, payload);
-      setScripts([...scripts, { ...newScript, id: scripts.length.toString() }]);
+      await executeSettings(guildId, payload)
+      setScripts([...scripts, { ...newScript, id: scripts.length.toString() }])
       setNewScript({
         id: "",
         name: "",
@@ -153,12 +144,12 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
         error_channel: "",
         allowed_caps: [],
         events: [],
-      });
-      setShowScriptForm(false);
+      })
+      setShowScriptForm(false)
     } catch (error) {
-      console.error("Failed to add script:", error);
+      console.error("Failed to add script:", error)
     }
-  };
+  }
 
   const handleDeleteScript = async (name: string) => {
     const payload = {
@@ -167,47 +158,47 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
       fields: {
         name: name,
       },
-    };
+    }
 
     try {
-      await executeSettings(guildId, payload);
-      setScripts(scripts.filter((script) => script.name !== name));
+      await executeSettings(guildId, payload)
+      setScripts(scripts.filter((script) => script.name !== name))
     } catch (error) {
-      console.error("Failed to delete script:", error);
+      console.error("Failed to delete script:", error)
     }
-  };
+  }
 
   const handleCapabilityClick = (cap: string) => {
     setNewScript((prevScript) => ({
       ...prevScript,
       allowed_caps: [...new Set([...prevScript.allowed_caps, cap])],
-    }));
-  };
+    }))
+  }
 
   const handleCapabilityRemove = (cap: string) => {
     setNewScript((prevScript) => ({
       ...prevScript,
       allowed_caps: prevScript.allowed_caps.filter((c) => c !== cap),
-    }));
-  };
+    }))
+  }
 
   const handleCustomCapabilityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCustomCapability(e.target.value);
-  };
+    setCustomCapability(e.target.value)
+  }
 
   const addCustomCapability = () => {
     if (customCapability.trim()) {
       setNewScript((prevScript) => ({
         ...prevScript,
         allowed_caps: [...new Set([...prevScript.allowed_caps, customCapability.trim()])],
-      }));
-      setCustomCapability("");
+      }))
+      setCustomCapability("")
     }
-  };
+  }
 
   const handleEditScript = async () => {
-    if (!selectedScript) return;
-    
+    if (!selectedScript) return
+
     const payload = {
       operation: "Update",
       setting: "scripts",
@@ -215,19 +206,26 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
         ...selectedScript,
         content: editScriptContent,
       },
-    };
-    
-    try {
-      await executeSettings(guildId, payload);
-      setScripts(scripts.map(script => 
-        script.id === selectedScript.id ? {...script, content: editScriptContent} : script
-      ));
-      setIsEditingScript(false);
-      setSelectedScript(null);
-    } catch (error) {
-      console.error("Failed to update script:", error);
     }
-  };
+
+    try {
+      await executeSettings(guildId, payload)
+      setScripts(
+        scripts.map((script) => (script.id === selectedScript.id ? { ...script, content: editScriptContent } : script)),
+      )
+      setIsEditingScript(false)
+      setSelectedScript(null)
+    } catch (error) {
+      console.error("Failed to update script:", error)
+    }
+  }
+
+  const handleEventChange = (selectedEvents: string[]) => {
+    setNewScript((prevScript) => ({
+      ...prevScript,
+      events: selectedEvents,
+    }))
+  }
 
   return (
     <>
@@ -250,19 +248,27 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
           />
 
           <div className="mb-5">
-            <label className="block text-foreground">Script Content</label>
-            <ScriptIDE
-              files={Object.entries(newScript.content).map(([name, content]) => ({
-                name,
-                path: name,
-                content,
-                type: "file"
-              }))}
-              isContentEditable={true}
-              onContentChange={handleContentChange}
-              height="100%"
-              width="150%"
-            />
+            <label className="block text-foreground mb-2">Script Content</label>
+            <div className="flex items-center">
+              <span className="text-sm text-muted-foreground mr-2">
+                {Object.keys(newScript.content).length === 0
+                  ? "No files added yet"
+                  : `${Object.keys(newScript.content).length} file(s) added`}
+              </span>
+              <Primary Title="Edit Content" icon={FaCode} onClick={() => setIsEditingNewScriptContent(true)} />
+            </div>
+            {Object.keys(newScript.content).length > 0 && (
+              <div className="mt-2 p-2 bg-muted/20 rounded-md">
+                <p className="font-medium">Files:</p>
+                <ul className="list-disc list-inside">
+                  {Object.keys(newScript.content).map((filename) => (
+                    <li key={filename} className="text-sm text-muted-foreground">
+                      {filename}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
 
           <Toggle
@@ -296,7 +302,7 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
               />
               <Primary Title="Add" onClick={addCustomCapability} />
             </div>
-            
+
             {newScript.allowed_caps.length > 0 && (
               <div className="mt-4">
                 <strong className="block mb-2">Selected Capabilities:</strong>
@@ -304,7 +310,10 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
                   {newScript.allowed_caps.map((cap, index) => (
                     <li key={index} className="flex items-center justify-between text-foreground">
                       {cap}
-                      <button onClick={() => handleCapabilityRemove(cap)} className="text-destructive hover:text-destructive-foreground">
+                      <button
+                        onClick={() => handleCapabilityRemove(cap)}
+                        className="text-destructive hover:text-destructive-foreground"
+                      >
                         <FaTrash />
                       </button>
                     </li>
@@ -314,17 +323,25 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
             )}
           </div>
 
-          <InputField
-            label="Events"
-            description="The events that this script can be executed on."
-            type="select"
-            value={newScript.events.join(", ")}
-            onChange={(e) => {
-              const selectedEvents = e.target.value.split(", ");
-              setNewScript({ ...newScript, events: selectedEvents });
-            }}
-            options={eventsOptions}
-          />
+          <div className="mb-4">
+            <label className="block text-foreground mb-1">Events</label>
+            <p className="text-sm text-muted-foreground mb-2">Select the events that this script can be executed on.</p>
+            <select
+              multiple
+              value={newScript.events}
+              onChange={(e) => {
+                const selectedEvents = Array.from(e.target.selectedOptions, (option) => option.value)
+                handleEventChange(selectedEvents)
+              }}
+              className="w-full bg-background border border-primary border-opacity-20 rounded-md p-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50"
+            >
+              {eventsOptions.map((event) => (
+                <option key={event.value} value={event.value}>
+                  {event.label}
+                </option>
+              ))}
+            </select>
+          </div>
 
           <InputField
             label="Error Channel"
@@ -350,6 +367,14 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
                 <p className="text-muted-foreground">Files: {Object.keys(script.content).join(", ")}</p>
               </div>
               <div className="flex space-x-2">
+                <Primary
+                  Title="Edit Code"
+                  onClick={() => {
+                    setSelectedScript(script)
+                    setEditScriptContent(script.content)
+                    setIsEditingScript(true)
+                  }}
+                />
                 <Primary Title="View Code" onClick={() => setSelectedScript(script)} />
                 <Primary Title="Delete" onClick={() => handleDeleteScript(script.name)} icon={FaTrash} />
               </div>
@@ -358,22 +383,23 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
         ))}
       </div>
 
-      {/* Edit Script Modal */}
+      {/* Edit Script Modal for existing scripts */}
       {selectedScript && isEditingScript && (
         <ScriptModal
           isOpen={true}
           onClose={() => {
-            setIsEditingScript(false);
-            setSelectedScript(null);
+            setIsEditingScript(false)
+            setSelectedScript(null)
           }}
           content={editScriptContent}
           scriptName={selectedScript.name}
           isEditMode={true}
           onContentChange={handleContentChange}
+          onSave={handleEditScript}
         />
       )}
 
-      {/* View Script Modal */}
+      {/* View Script Modal for existing scripts */}
       {selectedScript && !isEditingScript && (
         <ScriptModal
           isOpen={!!selectedScript}
@@ -382,6 +408,20 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
           scriptName={selectedScript.name}
         />
       )}
+
+      {/* Edit Content Modal for new script */}
+      {isEditingNewScriptContent && (
+        <ScriptModal
+          isOpen={true}
+          onClose={() => setIsEditingNewScriptContent(false)}
+          content={newScript.content}
+          scriptName="New Script"
+          isEditMode={true}
+          onContentChange={handleContentChange}
+          onSave={() => setIsEditingNewScriptContent(false)}
+        />
+      )}
     </>
-  );
-};
+  )
+}
+

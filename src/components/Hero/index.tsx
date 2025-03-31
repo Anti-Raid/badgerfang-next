@@ -1,11 +1,10 @@
-'use client';
-import { api_url } from '../common';
 import { useEffect, useState } from 'react';
 import type { StatisticsData } from '@/types/home/StatisticsData';
 import { TemplateCarousel } from './scriptCarosel';
 import { Primary, Secondary } from '../ui/Buttons';
 import { GoArrowUpRight } from 'react-icons/go';
 import { ReviewsCarousel } from './reviewCarosel';
+import { api_url } from '../common';
 
 const Hero = () => {
 	const [serverCount, setServerCount] = useState(0);
@@ -46,7 +45,7 @@ const Hero = () => {
 
 		const intervalId = setInterval(updateCount, 10);
 		return () => clearInterval(intervalId);
-	}, [stats?.total_guilds]);
+	}, [stats]); // Ensure the dependency array includes 'stats'
 
 	return (
 		<>

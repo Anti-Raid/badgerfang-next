@@ -26,13 +26,7 @@ export default function ClientLayout({
 
   return (
     <HelmetProvider>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="dark"
-        forcedTheme="dark"
-        enableSystem={false}
-        disableTransitionOnChange
-      >
+        <ThemeProvider>
         <SWRConfig>
           <ToastProvider>
             {isLoading ? (

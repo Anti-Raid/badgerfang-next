@@ -1,14 +1,16 @@
+'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTheme } from 'next-themes';
 import { Home, Info, ShoppingCart, Terminal, MessageCircle, PaletteIcon, Plus, LogOut, LayoutDashboard, User, Menu, X } from 'lucide-react';
 import { loginUser } from '@/lib/auth/login';
 import { logoutUser } from '@/lib/auth/logoutUser';
 import { getAuthCreds } from '@/lib/auth/getAuthCreds';
 import { getUser } from '@/lib/auth/getUser';
-import { useAuthCheck } from '@/lib/auth/checkAuthCreds'
+import { useAuthCheck } from '@/lib/auth/checkAuthCreds';
 
 interface NavItem {
   name: string;
@@ -32,10 +34,11 @@ const NavItems: NavItem[] = [
 ];
 
 const Themes: Theme[] = [
-  { id: 'modern', label: 'Modern', color: 'bg-gradient-to-r from-primary to-extra' },
-  { id: 'vintage', label: 'Vintage', color: 'bg-gradient-to-r from-secondary to-accent' },
-  { id: 'seafoam', label: 'Seafoam', color: 'bg-gradient-to-r from-muted to-green-500' },
-  { id: 'crimson', label: 'Crimson', color: 'bg-gradient-to-r from-destructive to-red-500' }
+  { id: 'light', label: 'Light', color: 'bg-gradient-to-r from-primary to-extra' },
+  { id: 'dark', label: 'Dark', color: 'bg-gradient-to-r from-secondary to-accent' },
+  { id: 'blue-theme', label: 'Blue', color: 'bg-gradient-to-r from-blue-500 to-cyan-500' },
+  { id: 'dark-red-theme', label: 'Dark Red', color: 'bg-gradient-to-r from-red-800 to-red-500' },
+  { id: 'green-theme', label: 'Green', color: 'bg-gradient-to-r from-green-600 to-teal-500' }
 ];
 
 const NavBar: React.FC = () => {
@@ -44,6 +47,7 @@ const NavBar: React.FC = () => {
   const [isProfileOpen, setIsProfileOpen] = useState<boolean>(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const [userData, setUserData] = useState<any>(null);
+  const { theme, setTheme } = useTheme();
   const pathname = usePathname();
   const router = useRouter();
 
@@ -87,7 +91,6 @@ const NavBar: React.FC = () => {
 
         localStorage.setItem('authUser', JSON.stringify(user));
         setUserData(user);
-
       } catch (error) {
         console.error('Failed to fetch user data', error);
         logoutUser();
@@ -97,10 +100,11 @@ const NavBar: React.FC = () => {
     fetchUserData();
   }, [authData, pathname, router]);
 
-  const handleThemeChange = (themeId: string) => {
-    document.documentElement.setAttribute('data-theme', themeId);
-    localStorage.setItem('theme', themeId);
-    setIsThemeOpen(false);
+  const getLogoPath = () => {
+    if (theme === 'blue-theme') return '/logo-blue.webp';
+    if (theme === 'dark-red-theme') return '/AR_Logo_Red.webp';
+    if (theme === 'green-theme') return '/AR_Logo_Green.webp';
+    return '/logo.webp';
   };
 
   const toggleMobileDropdown = (dropdown: 'theme' | 'profile') => {
@@ -189,7 +193,8 @@ const NavBar: React.FC = () => {
               <button
                 key={theme.id}
                 onClick={() => {
-                  handleThemeChange(theme.id);
+                  setTheme(theme.id);
+                  setIsThemeOpen(false);
                   setIsMobileMenuOpen(false);
                 }}
                 className={`rounded-lg p-3 text-white ${theme.color} hover:scale-105 transition-transform flex items-center justify-center`}
@@ -211,7 +216,7 @@ const NavBar: React.FC = () => {
           <div className="flex items-center space-x-2">
             <Link href="/" className="flex items-center">
               <img
-                src="/logo.webp"
+                src={getLogoPath()}
                 alt="AntiRaid Logo"
                 className="h-8 w-auto rounded-full mr-2"
               />
@@ -253,7 +258,7 @@ const NavBar: React.FC = () => {
                   className="flex items-center space-x-2"
                 >
                   <img
-                    src={userData.user?.avatar || '/logo.webp'}
+                    src={userData.user?.avatar || getLogoPath()}
                     alt="User Avatar"
                     className="h-8 w-8 rounded-full ring-2 ring-primary"
                   />
@@ -349,7 +354,7 @@ const NavBar: React.FC = () => {
                   className="flex items-center space-x-2"
                 >
                   <img
-                    src={userData.user?.avatar || '/logo.webp'}
+                    src={userData.user?.avatar || getLogoPath()}
                     alt="User Avatar"
                     className="h-8 w-8 rounded-full ring-2 ring-primary"
                   />

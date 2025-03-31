@@ -1,16 +1,19 @@
-"use client";
-import React from "react";
-import { ScriptIDE } from "@/components/ide/ide";
-import { motion, AnimatePresence } from "framer-motion";
-import { FiX } from "react-icons/fi";
+"use client"
+
+import type React from "react"
+import { useEffect, useState } from "react"
+import { FiX } from "react-icons/fi"
+import { ScriptIDE } from "@/components/ide/ide"
+import { Primary } from "../../ui/Buttons"
 
 interface ScriptModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  content: Record<string, string>;
-  scriptName: string;
-  isEditMode?: boolean;
-  onContentChange?: (content: Record<string, string>) => void;
+  isOpen: boolean
+  onClose: () => void
+  content: Record<string, string>
+  scriptName: string
+  isEditMode?: boolean
+  onContentChange?: (content: Record<string, string>) => void
+  onSave?: () => void
 }
 
 export const ScriptModal: React.FC<ScriptModalProps> = ({
@@ -20,48 +23,74 @@ export const ScriptModal: React.FC<ScriptModalProps> = ({
   scriptName,
   isEditMode = false,
   onContentChange,
+  onSave,
 }) => {
-  const files: { name: string; path: string; content: string; type: "file" }[] =
-  Object.entries(content).map(([filename, fileContent]) => ({
-    name: filename,
-    path: filename,
-    content: fileContent,
-    type: "file",
-  }));
+  const [localContent, setLocalContent] = useState<Record<string, string>>(content)
+
+  // Update local content when the content prop changes
+  useEffect(() => {
+    setLocalContent(content)
+  }, [content])
+
+  if (!isOpen) return null
+
+  // Convert content object to files array for ScriptIDE
+  const contentToFiles = (content: Record<string, string>) => {
+    return Object.entries(content).map(([name, content]) => ({
+      name,
+      path: name,
+      content,
+      type: "file" as const,
+    }))
+  }
+
+  const handleContentChange = (newContent: Record<string, string>) => {
+    setLocalContent(newContent)
+    if (onContentChange) {
+      onContentChange(newContent)
+    }
+  }
+
+  const handleSave = () => {
+    if (onSave) {
+      onSave();
+    } else {
+      onClose();
+    }
+  };
+  
+
+  const modalTitle = isEditMode
+    ? scriptName === "New Script"
+      ? "Add Script Content"
+      : `Edit Script: ${scriptName}`
+    : `View Script: ${scriptName}`
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.9 }}
-          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
-        >
-          <div className="bg-background border border-primary border-opacity-20 h-[700px] w-full max-w-4xl rounded-xl shadow-2xl relative flex flex-col">
-            <button
-              onClick={onClose}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-200 transition-all duration-200 p-2 rounded-full bg-gray-700/50 hover:bg-gray-700"
-            >
-              <FiX size={22} />
-            </button>
-
-            <h3 className="text-xl font-semibold p-4 text-gray-100">
-              {scriptName}
-            </h3>
-
-            <div className="flex-1 overflow-hidden">
-              <ScriptIDE
-                files={files}
-                isContentEditable={isEditMode}
-                height="100%"
-                width="100%"
-                onContentChange={onContentChange}
-              />
-            </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-background rounded-lg shadow-xl w-11/12 max-w-6xl max-h-[90vh] flex flex-col">
+        <div className="flex justify-between items-center p-4 border-b border-border">
+          <h3 className="text-lg font-semibold">{modalTitle}</h3>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+            <FiX className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="overflow-auto p-4">
+          <ScriptIDE
+            files={contentToFiles(localContent)}
+            isContentEditable={isEditMode}
+            onContentChange={handleContentChange}
+            height="500px"
+            width="290%"
+          />
+        </div>
+        {isEditMode && (
+          <div className="p-4 border-t border-border flex justify-end">
+            <Primary Title="Save Changes" onClick={handleSave} />
           </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-};
+        )}
+      </div>
+    </div>
+  )
+}
+

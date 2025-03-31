@@ -49,7 +49,7 @@ export default function AuthorizePage() {
       setStatus("success");
 
       // Redirect to the dashboard instead of reloading the page
-      router.push("/dashboard?refresh=true");
+      router.push("/dashboard");
     } catch (err) {
       setStatus("error");
       setError(err instanceof Error ? err.message : "An unknown error occurred");
