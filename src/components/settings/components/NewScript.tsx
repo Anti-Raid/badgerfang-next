@@ -421,7 +421,7 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
 									Files: {Object.keys(script.content).join(', ')}
 								</p>
 							</div>
-							<div className="flex space-x-2">
+							<div className="flex flex-wrap gap-2 mt-3 sm:flex-nowrap">
 								<Primary
 									Title="Edit Code"
 									onClick={() => {
