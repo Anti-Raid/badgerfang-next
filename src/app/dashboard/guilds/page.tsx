@@ -1,18 +1,22 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import Settings from '@/components/settings/layout';
 import { useSearchParams } from 'next/navigation';
 
 function GuildContent() {
 	const searchParams = useSearchParams();
-	const guildId = searchParams.get('id');
+	const [guildId, setGuildId] = useState<string | null>(null);
+
+	useEffect(() => {
+		setGuildId(searchParams.get('id'));
+	}, [searchParams]);
 
 	if (!guildId) {
 		return <div>Guild ID is missing.</div>;
 	}
 
-	return <Settings guildId={guildId as string} />;
+	return <Settings guildId={guildId} />;
 }
 
 export default function Guild() {
