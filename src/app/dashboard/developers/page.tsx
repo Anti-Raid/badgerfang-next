@@ -1,12 +1,11 @@
 'use client';
 
-import  Dashboard  from "@/components/dashboard/session"
+import Dashboard from '@/components/dashboard/session';
 
 export default function Settings() {
-  return (
-    <div className="min-h-screen">
-
-      <Dashboard />
-    </div>
-  );
+	return (
+		<div className="min-h-screen">
+			<Dashboard />
+		</div>
+	);
 }

@@ -87,70 +87,70 @@
 
 /* Blue Theme */
 .blue-theme {
-  --background: 210 50% 97%; /* Slightly brighter background */
-  --foreground: 210 50% 10%;
+	--background: 210 50% 97%; /* Slightly brighter background */
+	--foreground: 210 50% 10%;
 
-  --card: 210 30% 99%;
-  --card-foreground: 210 50% 10%;
+	--card: 210 30% 99%;
+	--card-foreground: 210 50% 10%;
 
-  --popover: 210 30% 99%;
-  --popover-foreground: 210 50% 10%;
+	--popover: 210 30% 99%;
+	--popover-foreground: 210 50% 10%;
 
-  --primary: 210 100% 65%; /* More vibrant primary color */
-  --primary-foreground: 0 0% 98%;
+	--primary: 210 100% 65%; /* More vibrant primary color */
+	--primary-foreground: 0 0% 98%;
 
-  --secondary: 210 30% 88%; /* Slightly brighter secondary color */
-  --secondary-foreground: 210 50% 10%;
+	--secondary: 210 30% 88%; /* Slightly brighter secondary color */
+	--secondary-foreground: 210 50% 10%;
 
-  --extra: 220 84% 70%;
-  --extra-foreground: 0 0% 98%;
+	--extra: 220 84% 70%;
+	--extra-foreground: 0 0% 98%;
 
-  --muted: 210 30% 88%;
-  --muted-foreground: 210 30% 40%;
+	--muted: 210 30% 88%;
+	--muted-foreground: 210 30% 40%;
 
-  --accent: 210 50% 90%; /* More vibrant accent color */
-  --accent-foreground: 210 50% 10%;
+	--accent: 210 50% 90%; /* More vibrant accent color */
+	--accent-foreground: 210 50% 10%;
 
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 98%;
+	--destructive: 0 84% 60%;
+	--destructive-foreground: 0 0% 98%;
 
-  --border: 210 30% 85%;
-  --input: 210 30% 80%;
-  --ring: 210 100% 65%;
+	--border: 210 30% 85%;
+	--input: 210 30% 80%;
+	--ring: 210 100% 65%;
 }
 
 /* Dark Blue Theme - More elegant and refined than dark red */
 .dark-blue-theme {
-  --background: 220 45% 7%;
-  --foreground: 210 40% 98%;
+	--background: 220 45% 7%;
+	--foreground: 210 40% 98%;
 
-  --card: 215 35% 9%;
-  --card-foreground: 210 40% 98%;
+	--card: 215 35% 9%;
+	--card-foreground: 210 40% 98%;
 
-  --popover: 215 35% 9%;
-  --popover-foreground: 210 40% 98%;
+	--popover: 215 35% 9%;
+	--popover-foreground: 210 40% 98%;
 
-  --primary: 210 90% 55%;
-  --primary-foreground: 0 0% 98%;
+	--primary: 210 90% 55%;
+	--primary-foreground: 0 0% 98%;
 
-  --secondary: 217 33% 17%;
-  --secondary-foreground: 210 40% 98%;
+	--secondary: 217 33% 17%;
+	--secondary-foreground: 210 40% 98%;
 
-  --extra: 224 76% 65%;
-  --extra-foreground: 0 0% 98%;
+	--extra: 224 76% 65%;
+	--extra-foreground: 0 0% 98%;
 
-  --muted: 215 30% 20%;
-  --muted-foreground: 215 25% 65%;
+	--muted: 215 30% 20%;
+	--muted-foreground: 215 25% 65%;
 
-  --accent: 213 50% 22%;
-  --accent-foreground: 210 40% 98%;
+	--accent: 213 50% 22%;
+	--accent-foreground: 210 40% 98%;
 
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 98%;
+	--destructive: 0 84% 60%;
+	--destructive-foreground: 0 0% 98%;
 
-  --border: 217 30% 15%;
-  --input: 215 25% 22%;
-  --ring: 210 90% 55%;
+	--border: 217 30% 15%;
+	--input: 215 25% 22%;
+	--ring: 210 90% 55%;
 }
 
 /* Dark Red Theme */
@@ -189,70 +189,70 @@
 
 /* Green Theme */
 .green-theme {
-  --background: 120 30% 97%; /* Slightly brighter background */
-  --foreground: 120 50% 10%;
+	--background: 120 30% 97%; /* Slightly brighter background */
+	--foreground: 120 50% 10%;
 
-  --card: 120 20% 99%;
-  --card-foreground: 120 50% 10%;
+	--card: 120 20% 99%;
+	--card-foreground: 120 50% 10%;
 
-  --popover: 120 20% 99%;
-  --popover-foreground: 120 50% 10%;
+	--popover: 120 20% 99%;
+	--popover-foreground: 120 50% 10%;
 
-  --primary: 142 76% 55%; /* More vibrant primary color */
-  --primary-foreground: 0 0% 98%;
+	--primary: 142 76% 55%; /* More vibrant primary color */
+	--primary-foreground: 0 0% 98%;
 
-  --secondary: 120 25% 90%; /* Slightly brighter secondary color */
-  --secondary-foreground: 120 50% 10%;
+	--secondary: 120 25% 90%; /* Slightly brighter secondary color */
+	--secondary-foreground: 120 50% 10%;
 
-  --extra: 160 84% 60%;
-  --extra-foreground: 0 0% 98%;
+	--extra: 160 84% 60%;
+	--extra-foreground: 0 0% 98%;
 
-  --muted: 120 25% 90%;
-  --muted-foreground: 120 25% 40%;
+	--muted: 120 25% 90%;
+	--muted-foreground: 120 25% 40%;
 
-  --accent: 120 40% 90%; /* More vibrant accent color */
-  --accent-foreground: 120 50% 10%;
+	--accent: 120 40% 90%; /* More vibrant accent color */
+	--accent-foreground: 120 50% 10%;
 
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 98%;
+	--destructive: 0 84% 60%;
+	--destructive-foreground: 0 0% 98%;
 
-  --border: 120 25% 85%;
-  --input: 120 25% 80%;
-  --ring: 142 76% 55%;
+	--border: 120 25% 85%;
+	--input: 120 25% 80%;
+	--ring: 142 76% 55%;
 }
 
 /* Dark Green Theme - More sophisticated and richer than dark red */
 .dark-green-theme {
-  --background: 150 40% 6%;
-  --foreground: 120 30% 98%;
+	--background: 150 40% 6%;
+	--foreground: 120 30% 98%;
 
-  --card: 145 30% 8%;
-  --card-foreground: 120 30% 98%;
+	--card: 145 30% 8%;
+	--card-foreground: 120 30% 98%;
 
-  --popover: 145 30% 8%;
-  --popover-foreground: 120 30% 98%;
+	--popover: 145 30% 8%;
+	--popover-foreground: 120 30% 98%;
 
-  --primary: 142 70% 45%;
-  --primary-foreground: 0 0% 98%;
+	--primary: 142 70% 45%;
+	--primary-foreground: 0 0% 98%;
 
-  --secondary: 150 25% 16%;
-  --secondary-foreground: 120 30% 98%;
+	--secondary: 150 25% 16%;
+	--secondary-foreground: 120 30% 98%;
 
-  --extra: 165 75% 55%;
-  --extra-foreground: 0 0% 98%;
+	--extra: 165 75% 55%;
+	--extra-foreground: 0 0% 98%;
 
-  --muted: 145 25% 18%;
-  --muted-foreground: 145 20% 65%;
+	--muted: 145 25% 18%;
+	--muted-foreground: 145 20% 65%;
 
-  --accent: 148 40% 20%;
-  --accent-foreground: 120 30% 98%;
+	--accent: 148 40% 20%;
+	--accent-foreground: 120 30% 98%;
 
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 98%;
+	--destructive: 0 84% 60%;
+	--destructive-foreground: 0 0% 98%;
 
-  --border: 150 25% 12%;
-  --input: 145 20% 20%;
-  --ring: 142 70% 45%;
+	--border: 150 25% 12%;
+	--input: 145 20% 20%;
+	--ring: 142 70% 45%;
 }
 
 @layer base {

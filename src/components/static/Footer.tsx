@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { FaGithub, FaDiscord, FaForumbee } from 'react-icons/fa';
 import { RiTwitterXFill, RiTeamFill, RiBook2Fill, RiShieldCheckFill } from 'react-icons/ri';
-import { TbApi } from "react-icons/tb";
+import { TbApi } from 'react-icons/tb';
 import { logo } from '../common';
 
 interface Category {
