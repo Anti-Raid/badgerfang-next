@@ -32,7 +32,6 @@ export const ServerMembers: React.FC<ServerMembersProps> = ({ guildId }) => {
 	};
 
 	const handleAddServerMember = async () => {
-		// Use the appropriate permission values based on the selected option
 		const permOverrides =
 			radioOption === 'addOther' ? permissionValues : [positionValue].filter(Boolean);
 
@@ -48,11 +47,8 @@ export const ServerMembers: React.FC<ServerMembersProps> = ({ guildId }) => {
 
 		try {
 			const result = await executeSettings(guildId, payload);
-			console.log('Server member added:', result);
-			// Reset form or show success message
 		} catch (error) {
 			console.error('Failed to add server member:', error);
-			// Show error message
 		}
 	};
 
