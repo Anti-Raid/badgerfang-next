@@ -369,3 +369,20 @@
 		@apply max-sm:max-w-52 max-sm:break-all max-sm:overflow-scroll;
 	}
 }
+
+.theme-transition {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+@keyframes theme-fade {
+  0% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.theme-transition * {
+  animation: theme-fade 0.3s ease-out forwards;
+}
