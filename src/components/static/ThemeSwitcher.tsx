@@ -42,7 +42,16 @@ const ThemeSelector: React.FC = () => {
     };
   }, []);
 
-  // Get color scheme based on theme ID
+  // Force re-render when theme changes
+  useEffect(() => {
+    if (theme) {
+      document.documentElement.classList.add('theme-transition');
+      setTimeout(() => {
+        document.documentElement.classList.remove('theme-transition');
+      }, 300);
+    }
+  }, [theme]);
+
   const getThemeColors = (themeId: string) => {
     switch (themeId) {
       case 'light':
@@ -80,13 +89,15 @@ const ThemeSelector: React.FC = () => {
         <div className="relative">
           <PaletteIcon className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
           {theme && (
-            <span className="absolute -bottom-1 -right-1 w-2.5 h-2.5 rounded-full bg-gradient-to-r shadow-lg border border-background"
+            <span
+              className="absolute -bottom-1 -right-1 w-2.5 h-2.5 rounded-full bg-gradient-to-r shadow-lg border border-background"
               style={{ backgroundImage: `linear-gradient(to right, var(--primary), var(--extra))` }}
+              suppressHydrationWarning
             />
           )}
         </div>
       </button>
-      
+
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -100,7 +111,7 @@ const ThemeSelector: React.FC = () => {
               <h3 className="text-sm font-medium text-foreground">Select Theme</h3>
               <p className="text-xs text-muted-foreground mt-1">Customize your interface appearance</p>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-2">
               {themes.map((themeOption) => {
                 const isActive = theme === themeOption.id;
@@ -117,7 +128,7 @@ const ThemeSelector: React.FC = () => {
                     `}
                   >
                     <div className="absolute inset-0 bg-black opacity-60 rounded-lg group-hover:opacity-50 transition-opacity" />
-                    
+
                     <div className="relative flex items-center justify-between">
                       <span className="text-white text-sm font-medium">{themeOption.label}</span>
                       {isActive && (
@@ -126,7 +137,7 @@ const ThemeSelector: React.FC = () => {
                         </span>
                       )}
                     </div>
-                    
+
                     <div className="relative mt-2 flex space-x-1">
                       <span className="w-2 h-2 rounded-full bg-white opacity-60" />
                       <span className="w-2 h-2 rounded-full bg-white opacity-80" />
