@@ -24,17 +24,12 @@ import { logoutUser } from '@/lib/auth/logoutUser';
 import { getAuthCreds } from '@/lib/auth/getAuthCreds';
 import { getUser } from '@/lib/auth/getUser';
 import { useAuthCheck } from '@/lib/auth/checkAuthCreds';
+import ThemeSelector from '@/components/static/ThemeSwitcher';
 
 interface NavItem {
 	name: string;
 	href: string;
 	icon: React.ComponentType<{ className?: string }>;
-}
-
-interface Theme {
-	id: string;
-	label: string;
-	color: string;
 }
 
 const NavItems: NavItem[] = [
@@ -44,14 +39,6 @@ const NavItems: NavItem[] = [
 	{ name: 'Script Shop', href: '/script/shop', icon: ShoppingCart },
 	{ name: 'Commands', href: '/commands', icon: Terminal },
 	{ name: 'Forums', href: '/forums', icon: MessageCircle }
-];
-
-const Themes: Theme[] = [
-	{ id: 'light', label: 'Light', color: 'bg-gradient-to-r from-primary to-extra' },
-	{ id: 'dark', label: 'Dark', color: 'bg-gradient-to-r from-secondary to-accent' },
-	{ id: 'blue-theme', label: 'Blue', color: 'bg-gradient-to-r from-blue-500 to-cyan-500' },
-	{ id: 'dark-red-theme', label: 'Dark Red', color: 'bg-gradient-to-r from-red-800 to-red-500' },
-	{ id: 'green-theme', label: 'Green', color: 'bg-gradient-to-r from-green-600 to-teal-500' }
 ];
 
 const NavBar: React.FC = () => {
@@ -190,36 +177,6 @@ const NavBar: React.FC = () => {
 		</AnimatePresence>
 	);
 
-	const ThemeMenu = () => (
-		<AnimatePresence>
-			{(isThemeOpen || isMobileMenuOpen) && (
-				<motion.div
-					initial={{ opacity: 0, y: -10 }}
-					animate={{ opacity: 1, y: 0 }}
-					exit={{ opacity: 0, y: -10 }}
-					className="absolute right-0 top-full mt-2 w-64 bg-card rounded-lg shadow-xl ring-1 ring-border z-50"
-					ref={themeRef}
-				>
-					<div className="grid grid-cols-2 gap-2 p-3">
-						{Themes.map((theme) => (
-							<button
-								key={theme.id}
-								onClick={() => {
-									setTheme(theme.id);
-									setIsThemeOpen(false);
-									setIsMobileMenuOpen(false);
-								}}
-								className={`rounded-lg p-3 text-white ${theme.color} hover:scale-105 transition-transform flex items-center justify-center`}
-							>
-								{theme.label}
-							</button>
-						))}
-					</div>
-				</motion.div>
-			)}
-		</AnimatePresence>
-	);
-
 	return (
 		<header className="sticky top-0 z-50 backdrop-blur-md shadow-sm bg-background/75">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -253,13 +210,7 @@ const NavBar: React.FC = () => {
 							)}
 						</button>
 						<div className="relative">
-							<button
-								onClick={() => toggleMobileDropdown('theme')}
-								className="p-2 rounded-full hover:bg-accent transition-colors"
-							>
-								<PaletteIcon className="h-5 w-5 text-muted-foreground" />
-							</button>
-							<ThemeMenu />
+							<ThemeSelector />
 						</div>
 						<div className="relative">
 							{userData ? (
@@ -346,16 +297,7 @@ const NavBar: React.FC = () => {
 					<div className="hidden md:flex items-center space-x-4">
 						{/* Theme Switcher */}
 						<div className="relative">
-							<button
-								onClick={() => {
-									setIsThemeOpen(!isThemeOpen);
-									setIsProfileOpen(false);
-								}}
-								className="p-2 rounded-full hover:bg-accent transition-colors"
-							>
-								<PaletteIcon className="h-5 w-5 text-muted-foreground" />
-							</button>
-							<ThemeMenu />
+							<ThemeSelector />
 						</div>
 
 						{/* Profile/Login Section */}
