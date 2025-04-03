@@ -16,7 +16,6 @@ const ThemeSelector: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const themes: Theme[] = [
-    { id: 'light', label: 'Light' },
     { id: 'dark', label: 'Dark' },
     { id: 'blue-theme', label: 'Ocean Blue' },
     { id: 'dark-blue-theme', label: 'Midnight Navy' },
@@ -28,7 +27,6 @@ const ThemeSelector: React.FC = () => {
     { id: 'sunset-amber-theme', label: 'Sunset Amber' }
   ];
 
-  // Handle clicks outside of dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -42,7 +40,6 @@ const ThemeSelector: React.FC = () => {
     };
   }, []);
 
-  // Force re-render when theme changes
   useEffect(() => {
     if (theme) {
       document.documentElement.classList.add('theme-transition');
@@ -54,8 +51,6 @@ const ThemeSelector: React.FC = () => {
 
   const getThemeColors = (themeId: string) => {
     switch (themeId) {
-      case 'light':
-        return 'from-[hsl(268,75%,55%)] to-[hsl(244,80%,65%)]';
       case 'dark':
         return 'from-[hsl(268,95%,55%)] to-[hsl(244,80%,65%)]';
       case 'blue-theme':
