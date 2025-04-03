@@ -73,7 +73,7 @@ const AllServers: React.FC = () => {
       setServers(guilds);
 
       const managed = guilds.filter((server) => has_bot.includes(server.id));
-      const yours = guilds.filter((server) => !has_bot.includes(server.id) && canManageBot(parseInt(server.permissions)));
+      const yours = guilds.filter((server) => !has_bot.includes(server.id) && canManageBot(server.permissions));
 
       setManagedServers(managed);
       setYourServers(yours);
@@ -266,7 +266,7 @@ const ServerCard: React.FC<{ server: Server; showViewButton: boolean }> = ({
   showViewButton,
 }) => {
   const router = useRouter();
-  const permissionValue = parseInt(server.permissions);
+  const permissionValue = server.permissions;
   const permissionNames = getPermissionNames(permissionValue);
   const isAdministrator = permissionNames.includes('Administrator');
 
