@@ -26,6 +26,7 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId }) => {
 	const [showNewRoleForm, setShowNewRoleForm] = useState(false);
 	const [editingRole, setEditingRole] = useState<Role | null>(null);
 	const [roleOptions, setRoleOptions] = useState<{ value: string; label: string }[]>([]);
+	const [isReordered, setIsReordered] = useState(false);
 
 	useEffect(() => {
 		const fetchRoles = async () => {
@@ -125,6 +126,23 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId }) => {
 		}
 	};
 
+	const handleSaveReorder = async () => {
+		const updatedRoles = roles.map((role, index) => ({ ...role, index: index + 1 }));
+		const payload = {
+			operation: 'Edit',
+			setting: 'roles',
+			fields: updatedRoles
+		};
+
+		try {
+			await executeSettings(guildId, payload);
+			setRoles(updatedRoles);
+			setIsReordered(false);
+		} catch (error) {
+			console.error('Failed to save reordered roles:', error);
+		}
+	};
+
 	return (
 		<div className="space-y-4">
 			<div className="flex justify-between items-center mb-4">
@@ -217,7 +235,10 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId }) => {
 				<Reorder.Group
 					axis="y"
 					values={roles}
-					onReorder={setRoles}
+					onReorder={(newRoles) => {
+						setRoles(newRoles);
+						setIsReordered(true);
+					}}
 					className="divide-y divide-primary divide-opacity-10"
 				>
 					{roles.map((role) => (
@@ -244,6 +265,12 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId }) => {
 					))}
 				</Reorder.Group>
 			</div>
+
+			{isReordered && (
+				<div className="flex justify-end">
+					<Primary Title="Save Order" onClick={handleSaveReorder} />
+				</div>
+			)}
 
 			<p className="text-sm text-muted-foreground">
 				Drag to reorder roles. Higher roles have more permissions.

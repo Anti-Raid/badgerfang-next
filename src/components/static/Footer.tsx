@@ -90,12 +90,6 @@ const Footer = () => {
                 <span className="self-center text-2xl font-semibold whitespace-nowrap text-foreground">
                   AntiRaid
                 </span>
-                <Link
-                  href="https://purrquinox.com"
-                  className="text-sm text-primary hover:underline"
-                >
-                  By Purrquinox
-                </Link>
               </div>
             </Link>
           </div>

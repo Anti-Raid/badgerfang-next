@@ -60,7 +60,6 @@ const NavBar: React.FC = () => {
 		setCurrentPath(pathname || '/');
 	}, [pathname]);
 
-	// Handle clicks outside of dropdowns
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
 			if (
@@ -93,12 +92,31 @@ const NavBar: React.FC = () => {
 				setUserData(user);
 			} catch (error) {
 				console.error('Failed to fetch user data', error);
-				logoutUser();
+				setUserData(null);
 			}
 		};
 
 		fetchUserData();
 	}, [authData, pathname, router]);
+
+	useEffect(() => {
+		const checkSessionExpiry = () => {
+			const authCreds = getAuthCreds();
+			if (!authCreds) return;
+
+			const sessionExpiryTime = Number(authCreds.expiry);
+			const currentTime = new Date().getTime();
+
+			if (currentTime >= sessionExpiryTime) {
+				handleLogout();
+			}
+		};
+
+	  // Check session every 5 minutes
+		const interval = setInterval(checkSessionExpiry, 300000);
+
+		return () => clearInterval(interval);
+	}, []);
 
 	const getLogoPath = () => {
 		if (theme === 'dark-red-theme') return '/AR_Logo_Red.webp';
@@ -114,6 +132,12 @@ const NavBar: React.FC = () => {
 			setIsThemeOpen(false);
 			setIsProfileOpen((prev) => !prev);
 		}
+	};
+
+	const handleLogout = async () => {
+		await logoutUser();
+		router.push('/');
+		setUserData(null); // Clear user data on logout
 	};
 
 	const ProfileMenu = () => (
@@ -140,10 +164,7 @@ const NavBar: React.FC = () => {
 							},
 							{
 								name: 'Logout',
-								onClick: () => {
-									logoutUser();
-									router.push('/');
-								},
+								onClick: handleLogout,
 								icon: LogOut
 							}
 						].map((item) =>
