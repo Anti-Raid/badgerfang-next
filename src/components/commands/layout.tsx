@@ -161,11 +161,15 @@ interface CommandWithModule extends CanonicalCommand {
 }
 
 // Badge component for UI elements
-const Badge: React.FC<{ children: React.ReactNode, className?: string }> = ({ 
+const Badge: React.FC<{ children: React.ReactNode, className?: string, onClick?: () => void }> = ({ 
   children, 
-  className = ''
+  className = '', 
+  onClick 
 }) => (
-  <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${className}`}>
+  <span 
+    className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${className} ${onClick ? 'cursor-pointer' : ''}`}
+    onClick={onClick}
+  >
     {children}
   </span>
 );
