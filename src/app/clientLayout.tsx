@@ -11,6 +11,15 @@ import { SWRConfig } from 'swr';
 import { useAuthCheck } from '@/lib/auth/checkAuthCreds';
 import { getAuthCreds } from '@/lib/auth/getAuthCreds';
 
+/**
+ * Provides a consistent client-side layout with integrated loading and authentication management.
+ *
+ * This component wraps its children with several context providers including theming, data fetching, and notifications,
+ * along with header and footer components. It briefly displays a loading indicator when the application starts at the
+ * root path, and it clears stale authentication data from localStorage if the user becomes unauthorized.
+ *
+ * @param children - The content to be rendered within the layout.
+ */
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
 	const [isLoading, setIsLoading] = useState(false);
 	const handleLoadingClose = () => setIsLoading(false);
