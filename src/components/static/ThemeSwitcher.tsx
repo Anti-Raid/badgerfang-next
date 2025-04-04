@@ -12,6 +12,7 @@ interface Theme {
 
 const ThemeSelector: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -27,6 +28,11 @@ const ThemeSelector: React.FC = () => {
     { id: 'sunset-amber-theme', label: 'Sunset Amber' }
   ];
 
+  // Set mounted to true once the component is mounted
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -41,13 +47,13 @@ const ThemeSelector: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (theme) {
+    if (theme && mounted) {
       document.documentElement.classList.add('theme-transition');
       setTimeout(() => {
         document.documentElement.classList.remove('theme-transition');
       }, 300);
     }
-  }, [theme]);
+  }, [theme, mounted]);
 
   const getThemeColors = (themeId: string) => {
     switch (themeId) {
@@ -83,11 +89,11 @@ const ThemeSelector: React.FC = () => {
       >
         <div className="relative">
           <PaletteIcon className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
-          {theme && (
+          {/* Only render the theme indicator if mounted */}
+          {mounted && theme && (
             <span
               className="absolute -bottom-1 -right-1 w-2.5 h-2.5 rounded-full bg-gradient-to-r shadow-lg border border-background"
               style={{ backgroundImage: `linear-gradient(to right, var(--primary), var(--extra))` }}
-              suppressHydrationWarning
             />
           )}
         </div>
