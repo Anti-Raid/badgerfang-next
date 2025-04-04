@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { MdOpenInNew } from 'react-icons/md';
 
 const ImageLoadError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-	e.currentTarget.src = '/logo.webp'; // Fallback image if load error
+	e.currentTarget.src = '/logo.webp';
 };
 
 interface PartnerCardProps {
