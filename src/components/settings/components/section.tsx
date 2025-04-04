@@ -28,7 +28,7 @@ export const Section: React.FC<SectionProps> = ({ title, description, icon, chil
         <p className="text-sm text-muted-foreground mt-1">{description}</p>
       </div>
 
-      <div className="bg-card rounded-xl border-2 border-border hover:border-primary/20 transition-colors duration-300 overflow-hidden shadow-sm">
+      <div className="bg-card rounded-xl border border-border hover:border-primary/20 transition-colors duration-300 overflow-hidden shadow-sm">
         <div
           className="p-4 flex items-center cursor-pointer transition-colors duration-200 hover:bg-accent/50"
           onClick={() => setIsOpen(!isOpen)}
