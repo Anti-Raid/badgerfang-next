@@ -174,6 +174,16 @@ const Badge: React.FC<{ children: React.ReactNode, className?: string, onClick?:
   </span>
 );
 
+/**
+ * Renders a responsive command interface for browsing and interacting with bot commands.
+ *
+ * This React component fetches the bot state from an API endpoint to retrieve the available commands,
+ * processes them to attach module information and subcommands, and implements search, module-based
+ * filtering, and pagination. It adapts its layout for both desktop and mobile views, including a toggleable
+ * sidebar on mobile devices.
+ *
+ * @returns A JSX.Element representing the command interface.
+ */
 export default function CommandInterface() {
   // State management
   const [botState, setBotState] = useState<BotState | null>(null);

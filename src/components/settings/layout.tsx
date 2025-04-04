@@ -13,6 +13,17 @@ import { useEffect, useState } from "react"
 import { getUserGuildBaseInfo, executeSettings } from "@/lib/api"
 import { motion } from "framer-motion"
 
+/**
+ * Renders the settings dashboard for a guild.
+ *
+ * This component retrieves and displays the guild's base information using the provided guild ID.
+ * While data is being fetched, a loading indicator is shown. If an error occurs, an error message with a retry option is displayed.
+ * Once loaded, the dashboard presents a sticky header with the guild's icon and name, a theme selector, and sections for managing
+ * server roles, members, scripts, key-value data, published scripts, and lockdown settings.
+ *
+ * @param guildId - Unique identifier for the guild.
+ * @returns A JSX element representing the settings dashboard.
+ */
 export default function Settings({ guildId }: { guildId: string }) {
   const [guildData, setGuildData] = useState<any>(null)
   const [loading, setLoading] = useState<boolean>(true)
