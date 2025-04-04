@@ -53,7 +53,7 @@ const Hero = () => {
 				<main className="container mx-auto px-4 py-16">
 					<div className="text-center mb-8 opacity-80">
 						<span className="text-gray-400 inline-flex items-center gap-4 font-inter text-xs font-normal">
-							<span className="h-px w-14 bg-foreground relative from-transparent">
+							<span className="h-px w-14 bg-gradient-to-r from-gray-500 to-transparent relative">
 								<span className="w-[5px] h-[5px] bg-gray-500 absolute rounded top-1/2 -translate-y-1/2 right-0"></span>
 							</span>
 							Most Trusted Security
