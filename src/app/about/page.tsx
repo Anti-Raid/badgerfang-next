@@ -408,8 +408,8 @@ const AboutPage = () => {
 											<span className="text-justify">
 												Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quam eveniet
 												repellendus et nesciunt esse sed autem, itaque deleniti dicta doloribus
-												quasi nihil molestias necessitatibus quisquam illum perferendis! Cumque,
-												dicta officia illum incidunt cum qui aliquam deserunt sint molestiae eaque,
+												quasi nihil molestias necessitatibus quisquam illum perferendis! Ranque,
+												dicta officia illum incidunt ran qui aliquam deserunt sint molestiae eaque,
 												dolorem nam soluta, suscipit dolorum veniam laborum eos repellat
 												consequuntur. Quidem laborum quos asperiores et voluptas neque suscipit qui
 												ab corrupti.
