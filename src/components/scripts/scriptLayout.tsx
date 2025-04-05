@@ -33,8 +33,13 @@ export function ScriptLayout({ script, files }: ScriptLayoutProps) {
 				<CommonCard template={script} />
 			</div>
 
-			<div className="grid grid-cols-1 gap-8">
-				<ScriptIDE files={files} isContentEditable={false} height="800px" width="2000%" />
+			<div className="w-full">
+				<ScriptIDE
+					files={files}
+					isContentEditable={false}
+					height="800px"
+					width="100%"
+				/>
 			</div>
 		</div>
 	);

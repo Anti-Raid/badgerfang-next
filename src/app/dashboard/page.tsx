@@ -3,6 +3,7 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect, useState, Suspense } from 'react';
 import Servers from '@/components/dashboard/all-servers';
+import ProtectedRoute from '@/components/authProtectedRoute';
 
 export default function Dashboard() {
 	const router = useRouter();
@@ -10,7 +11,10 @@ export default function Dashboard() {
 
 	return (
 		<div className="min-h-screen">
+			    <ProtectedRoute>
 			<Servers key={key} />
+			</ProtectedRoute>
+
 		</div>
 	);
 }

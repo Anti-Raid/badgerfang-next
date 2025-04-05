@@ -60,7 +60,7 @@ const StatusCard: React.FC<StatusCardProps> = React.memo(({ icon, title, value }
 	<motion.div
 		whileHover={{ scale: 1.05 }}
 		whileTap={{ scale: 0.95 }}
-		className="bg-card p-6 rounded-lg shadow-md flex items-center space-x-4 transition-all"
+		className="bg-card p-6 rounded-md shadow-md flex items-center space-x-4 transition-all border border-border"
 	>
 		<div className="text-3xl text-primary">{icon}</div>
 		<div>
@@ -79,16 +79,16 @@ const ShardLatencyChart: React.FC<{ data: BotStatusData }> = React.memo(({ data 
 	}));
 
 	return (
-		<div className="bg-card p-6 rounded-lg shadow-md">
+		<div className="bg-card p-6 rounded-md shadow-md border border-border">
 			<h2 className="text-xl font-bold mb-4 flex items-center">
-				<FaChartLine className="mr-2 text-primary" /> Shard Latency
+				<FaChartLine className="mr-2 text-primary" /> <span className="text-foreground">Shard Latency</span>
 			</h2>
 			<ResponsiveContainer width="100%" height={300}>
 				<LineChart data={chartData}>
 					<CartesianGrid strokeDasharray="3 3" opacity={0.5} stroke="hsl(var(--border))" />
 					<XAxis
 						dataKey="name"
-						tick={{ fill: 'hsl(var(--foreground))' }}
+						tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
 						axisLine={{ stroke: 'hsl(var(--border))' }}
 					/>
 					<YAxis
@@ -96,21 +96,23 @@ const ShardLatencyChart: React.FC<{ data: BotStatusData }> = React.memo(({ data 
 							value: 'Latency (ms)',
 							angle: -90,
 							position: 'insideLeft',
-							fill: 'hsl(var(--foreground))'
+							fill: 'hsl(var(--foreground))',
+							fontSize: 12
 						}}
-						tick={{ fill: 'hsl(var(--foreground))' }}
+						tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
 						axisLine={{ stroke: 'hsl(var(--border))' }}
 					/>
 					<Tooltip
 						contentStyle={{
 							backgroundColor: 'hsl(var(--card))',
 							borderColor: 'hsl(var(--border))',
-							borderRadius: '0.5rem'
+							borderRadius: '0.5rem',
+							padding: '0.5rem'
 						}}
 						labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: 'bold' }}
 						itemStyle={{ color: 'hsl(var(--foreground))' }}
 					/>
-					<Legend wrapperStyle={{ color: 'hsl(var(--foreground))' }} />
+					<Legend wrapperStyle={{ color: 'hsl(var(--foreground))', fontSize: 12 }} />
 					<Line
 						type="monotone"
 						dataKey="latency"
@@ -133,16 +135,16 @@ const GuildDistributionChart: React.FC<{ data: BotStatusData }> = React.memo(({ 
 	}));
 
 	return (
-		<div className="bg-card p-6 rounded-lg shadow-md">
+		<div className="bg-card p-6 rounded-md shadow-md border border-border">
 			<h2 className="text-xl font-bold mb-4 flex items-center">
-				<FaCube className="mr-2 text-extra" /> Guild Distribution
+				<FaCube className="mr-2 text-extra" /> <span className="text-foreground">Guild Distribution</span>
 			</h2>
 			<ResponsiveContainer width="100%" height={300}>
 				<LineChart data={chartData}>
 					<CartesianGrid strokeDasharray="3 3" opacity={0.5} stroke="hsl(var(--border))" />
 					<XAxis
 						dataKey="name"
-						tick={{ fill: 'hsl(var(--foreground))' }}
+						tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
 						axisLine={{ stroke: 'hsl(var(--border))' }}
 					/>
 					<YAxis
@@ -150,21 +152,23 @@ const GuildDistributionChart: React.FC<{ data: BotStatusData }> = React.memo(({ 
 							value: 'Guilds',
 							angle: -90,
 							position: 'insideLeft',
-							fill: 'hsl(var(--foreground))'
+							fill: 'hsl(var(--foreground))',
+							fontSize: 12
 						}}
-						tick={{ fill: 'hsl(var(--foreground))' }}
+						tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
 						axisLine={{ stroke: 'hsl(var(--border))' }}
 					/>
 					<Tooltip
 						contentStyle={{
 							backgroundColor: 'hsl(var(--card))',
 							borderColor: 'hsl(var(--border))',
-							borderRadius: '0.5rem'
+							borderRadius: '0.5rem',
+							padding: '0.5rem'
 						}}
 						labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: 'bold' }}
 						itemStyle={{ color: 'hsl(var(--foreground))' }}
 					/>
-					<Legend wrapperStyle={{ color: 'hsl(var(--foreground))' }} />
+					<Legend wrapperStyle={{ color: 'hsl(var(--foreground))', fontSize: 12 }} />
 					<Line
 						type="monotone"
 						dataKey="guilds"
@@ -182,20 +186,20 @@ const GuildDistributionChart: React.FC<{ data: BotStatusData }> = React.memo(({ 
 
 const ShardStatusList: React.FC<{ data: BotStatusData }> = React.memo(({ data }) => {
 	return (
-		<div className="bg-card p-6 rounded-lg shadow-md">
+		<div className="bg-card p-6 rounded-md shadow-md border border-border">
 			<h2 className="text-xl font-bold mb-4 flex items-center">
-				<FaServer className="mr-2 text-primary" /> Shard Status
+				<FaServer className="mr-2 text-primary" /> <span className="text-foreground">Shard Status</span>
 			</h2>
-			<div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
 				{Object.entries(data.resp.shard_conns).map(([shard, details]) => (
 					<motion.div
 						key={shard}
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ duration: 0.3, delay: Number(shard) * 0.05 }}
-						className="bg-secondary p-3 rounded-md"
+						className="bg-secondary p-4 rounded-md border border-border"
 					>
-						<div className="flex justify-between items-center mb-1">
+						<div className="flex justify-between items-center mb-2">
 							<span className="font-semibold text-foreground">Shard {shard}</span>
 							<span
 								className={`inline-block w-3 h-3 rounded-full ${
@@ -208,7 +212,7 @@ const ShardStatusList: React.FC<{ data: BotStatusData }> = React.memo(({ data })
 							/>
 						</div>
 						<div className="text-sm text-muted-foreground">
-							<div className="flex justify-between">
+							<div className="flex justify-between mb-1">
 								<span>Latency:</span>
 								<span className="font-medium">{details.real_latency}ms</span>
 							</div>
@@ -251,9 +255,9 @@ const BotStatusSummary: React.FC<{ data: BotStatusData }> = React.memo(({ data }
 
 const Status: React.FC<{ data: BotStatusData }> = ({ data }) => {
 	return (
-		<div className="container mx-auto p-4 md:p-6 space-y-6">
+		<div className="container mx-auto p-6 space-y-8">
 			<motion.h1
-				className="text-3xl font-bold mb-6 text-foreground"
+				className="text-3xl font-bold mb-8 text-foreground"
 				initial={{ opacity: 0, y: -20 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 0.5 }}
@@ -263,7 +267,7 @@ const Status: React.FC<{ data: BotStatusData }> = ({ data }) => {
 
 			<BotStatusSummary data={data} />
 
-			<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+			<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 				<ShardLatencyChart data={data} />
 				<GuildDistributionChart data={data} />
 			</div>

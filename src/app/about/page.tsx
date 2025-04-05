@@ -10,7 +10,7 @@ import {
 } from '@/components/common';
 import PartnerCard from '@/components/PartnerCard';
 import { Partner } from '@/types/other/Partner';
-import { Icon } from '@iconify/react';
+import { FaArchive, FaBolt, FaGlobe, FaUser } from 'react-icons/fa';
 import { Ghost, Primary, Secondary } from '@/components/ui/Buttons';
 import { toast } from 'react-toastify';
 import { CiGlobe } from 'react-icons/ci';
@@ -23,30 +23,26 @@ const ButtonFunc = (button: string): void => {
 
 // Internal Components
 const BotFeatures = () => {
-	const features: {
-		Title: string;
-		Description: string;
-		Icon: string;
-	}[] = [
+	const features = [
 		{
 			Title: 'Customizable Backups',
 			Description: `AntiRaid offers you with customizable <em>and</em> downloadable server backups allowing you to both backup exactly what you need and control your server's data if you want to including local backups and restores!`,
-			Icon: 'heroicons:archive-box-arrow-down'
+			Icon: <FaArchive size={25} />
 		},
 		{
 			Title: 'Unrivaled Scripting',
 			Description: `Our scripting system, based on Luau, a superset of Lua created by Roblox, allows you to customize AntiRaid to the specific needs of your server instead of being <em>yet another</em> generic discord bot`,
-			Icon: 'heroicons-outline:bolt'
+			Icon: <FaBolt size={25} />
 		},
 		{
 			Title: 'Raid Prevention',
 			Description: `AntiRaid offers advanced raid protection with customizable lockdown settings to secure your server during a raid. Automatically prevent new members from joining, control access to specific channels, and receive instant alerts to stay informed and manage disruptions effectively.`,
-			Icon: 'heroicons-outline:globe-alt'
+			Icon: <FaGlobe size={25} />
 		},
 		{
 			Title: 'User/Developer Friendly',
 			Description: `Unlike most other bots, AntiRaid provides an API for extensive control, allowing you to manage backups and settings, and export your data. This ensures flexibility and helps you avoid vendor-locking by easily switching to other solutions if needed.`,
-			Icon: 'mdi:user'
+			Icon: <FaUser size={25} />
 		}
 	];
 
@@ -59,7 +55,7 @@ const BotFeatures = () => {
 				>
 					<dt>
 						<div className="absolute flex h-12 w-12 items-center justify-center rounded-md bg-primary/45 text-foreground">
-							<Icon icon={p.Icon} className="text-2xl" />
+							{p.Icon}
 						</div>
 						<p className="ml-16 text-xl font-cabin text-left font-extrabold leading-6 text-foreground">
 							{p.Title}
@@ -412,8 +408,8 @@ const AboutPage = () => {
 											<span className="text-justify">
 												Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quam eveniet
 												repellendus et nesciunt esse sed autem, itaque deleniti dicta doloribus
-												quasi nihil molestias necessitatibus quisquam illum perferendis! Cumque,
-												dicta officia illum incidunt cum qui aliquam deserunt sint molestiae eaque,
+												quasi nihil molestias necessitatibus quisquam illum perferendis! Ranque,
+												dicta officia illum incidunt ran qui aliquam deserunt sint molestiae eaque,
 												dolorem nam soluta, suscipit dolorum veniam laborum eos repellat
 												consequuntur. Quidem laborum quos asperiores et voluptas neque suscipit qui
 												ab corrupti.

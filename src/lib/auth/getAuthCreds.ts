@@ -2,8 +2,6 @@ import { CreateUserSessionResponse } from '@/types/splashtail/types';
 import logger from '../logger';
 
 export const getAuthCreds = () => {
-	logger.info('Auth', 'Loading auth data');
-
 	if (typeof window === 'undefined') {
 		return null;
 	}
