@@ -12,6 +12,18 @@ import { SWRConfig } from 'swr';
 import { useAuthCheck } from '@/lib/auth/checkAuthCreds';
 import { getAuthCreds } from '@/lib/auth/getAuthCreds';
 
+/**
+ * Provides a client-side layout that manages loading and authentication states for rendering protected pages.
+ *
+ * This component checks for valid user session data and authorization. If the current route is the home page,
+ * it temporarily displays a loading spinner before rendering the main layout. If no valid session is found or the user
+ * is unauthorized, it clears session-related local storage entries and redirects to the home page.
+ * The layout wraps its children with providers for document head management, theming, data fetching, and toast notifications,
+ * and includes a header and footer.
+ *
+ * @param children - The content to be rendered within the layout.
+ * @returns The rendered layout as a JSX element.
+ */
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
 	const [isLoading, setIsLoading] = useState(false);
 	const router = useRouter();
