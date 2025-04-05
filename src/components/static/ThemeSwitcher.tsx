@@ -24,7 +24,6 @@ const ThemeSelector: React.FC = () => {
     { id: 'green-theme', label: 'Emerald' },
     { id: 'dark-green-theme', label: 'Forest Deep' },
     { id: 'electric-purple-theme', label: 'Electric Purple' },
-    { id: 'arctic-frost-theme', label: 'Arctic Frost' },
     { id: 'sunset-amber-theme', label: 'Sunset Amber' }
   ];
 

@@ -279,39 +279,6 @@
 	--ring: 275 100% 60%;
 }
 
-.arctic-frost-theme {
-	--background: 200 30% 98%;
-	--foreground: 200 80% 15%;
-
-	--card: 200 30% 100%;
-	--card-foreground: 200 80% 15%;
-
-	--popover: 200 30% 100%;
-	--popover-foreground: 200 80% 15%;
-
-	--primary: 195 100% 50%;
-	--primary-foreground: 200 80% 15%;
-
-	--secondary: 200 30% 92%;
-	--secondary-foreground: 200 80% 15%;
-
-	--extra: 185 100% 60%;
-	--extra-foreground: 200 80% 15%;
-
-	--muted: 200 30% 92%;
-	--muted-foreground: 200 40% 40%;
-
-	--accent: 195 50% 90%;
-	--accent-foreground: 200 80% 15%;
-
-	--destructive: 0 95% 65%;
-	--destructive-foreground: 0 0% 98%;
-
-	--border: 200 30% 90%;
-	--input: 200 30% 85%;
-	--ring: 195 100% 50%;
-}
-
 .sunset-amber-theme {
 	--background: 30 80% 5%;
 	--foreground: 30 20% 98%;
