@@ -16,6 +16,16 @@ interface ScriptLayoutProps {
 	}[];
 }
 
+/**
+ * Renders a layout for viewing a script's details along with its related files.
+ *
+ * This component displays a back navigation link to the Script Shop, a card with the script template details,
+ * and a non-editable code editor presenting the script's associated files.
+ *
+ * @param script - The script template information to display.
+ * @param files - An array of file objects containing details such as name, path, content, and type.
+ * @returns A React element representing the script layout.
+ */
 export function ScriptLayout({ script, files }: ScriptLayoutProps) {
 	return (
 		<div className="container mx-auto px-4 py-8 max-w-7xl">

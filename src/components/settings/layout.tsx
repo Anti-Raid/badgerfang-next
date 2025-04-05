@@ -50,6 +50,15 @@ export default function Settings({ guildId }: { guildId: string }) {
     fetchData()
   }, [guildId])
 
+  /**
+   * Determines whether the provided error object is likely an Axios error.
+   *
+   * This type guard checks if the error is non-null and contains a response property,
+   * which is characteristic of errors produced by Axios HTTP requests.
+   *
+   * @param error - The error object to evaluate.
+   * @returns True if the error object has a response property; otherwise, false.
+   */
   function isAxiosError(error: any): error is { response?: { data?: { message?: string } } } {
     return error && error.response
   }
