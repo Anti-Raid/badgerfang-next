@@ -17,27 +17,27 @@ import { getAuthCreds } from '@/lib/auth/getAuthCreds';
  */
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
-  const sessionData = getAuthCreds();
-  const { isAuthorized, isError, isLoading } = useAuthCheck(sessionData);
+	const router = useRouter();
+	const sessionData = getAuthCreds();
+	const { isAuthorized, isError, isLoading } = useAuthCheck(sessionData);
 
-  useEffect(() => {
-    if (!isAuthorized && !isError && !isLoading) {
-      router.replace('/unauthorized'); 
-    }
-  }, [isAuthorized, isError, isLoading, router]);
+	useEffect(() => {
+		if (!isAuthorized && !isError && !isLoading) {
+			router.replace('/unauthorized');
+		}
+	}, [isAuthorized, isError, isLoading, router]);
 
-  if (isLoading) {
-    return <div>Loading authorization data...</div>;
-  }
+	if (isLoading) {
+		return <div>Loading authorization data...</div>;
+	}
 
-  if (isError) {
-    return <div>Error loading authorization data. Please try again later.</div>;
-  }
+	if (isError) {
+		return <div>Error loading authorization data. Please try again later.</div>;
+	}
 
-  if (!isAuthorized) {
-    return <div>You are not authorized to view this page.</div>;
-  }
+	if (!isAuthorized) {
+		return <div>You are not authorized to view this page.</div>;
+	}
 
-  return <>{children}</>;
+	return <>{children}</>;
 }

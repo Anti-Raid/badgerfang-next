@@ -81,7 +81,8 @@ const ShardLatencyChart: React.FC<{ data: BotStatusData }> = React.memo(({ data 
 	return (
 		<div className="bg-card p-6 rounded-md shadow-md border border-border">
 			<h2 className="text-xl font-bold mb-4 flex items-center">
-				<FaChartLine className="mr-2 text-primary" /> <span className="text-foreground">Shard Latency</span>
+				<FaChartLine className="mr-2 text-primary" />{' '}
+				<span className="text-foreground">Shard Latency</span>
 			</h2>
 			<ResponsiveContainer width="100%" height={300}>
 				<LineChart data={chartData}>
@@ -137,7 +138,8 @@ const GuildDistributionChart: React.FC<{ data: BotStatusData }> = React.memo(({ 
 	return (
 		<div className="bg-card p-6 rounded-md shadow-md border border-border">
 			<h2 className="text-xl font-bold mb-4 flex items-center">
-				<FaCube className="mr-2 text-extra" /> <span className="text-foreground">Guild Distribution</span>
+				<FaCube className="mr-2 text-extra" />{' '}
+				<span className="text-foreground">Guild Distribution</span>
 			</h2>
 			<ResponsiveContainer width="100%" height={300}>
 				<LineChart data={chartData}>
@@ -188,7 +190,8 @@ const ShardStatusList: React.FC<{ data: BotStatusData }> = React.memo(({ data })
 	return (
 		<div className="bg-card p-6 rounded-md shadow-md border border-border">
 			<h2 className="text-xl font-bold mb-4 flex items-center">
-				<FaServer className="mr-2 text-primary" /> <span className="text-foreground">Shard Status</span>
+				<FaServer className="mr-2 text-primary" />{' '}
+				<span className="text-foreground">Shard Status</span>
 			</h2>
 			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
 				{Object.entries(data.resp.shard_conns).map(([shard, details]) => (
