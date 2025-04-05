@@ -1,6 +1,7 @@
 'use client';
 
 import Dashboard from '@/components/dashboard/session';
+import ProtectedRoute from '@/components/authProtectedRoute';
 
 /**
  * Renders the settings page.
@@ -12,7 +13,9 @@ import Dashboard from '@/components/dashboard/session';
 export default function Settings() {
 	return (
 		<div className="min-h-screen">
+			<ProtectedRoute>
 			 <Dashboard />
+			</ProtectedRoute>
 		</div>
 	);
 }

@@ -140,52 +140,6 @@ export default function Settings({ guildId }: { guildId: string }) {
             )}
             <h1 className="text-xl font-bold">{guildData.name}</h1>
           </div>
-
-          <div className="flex items-center gap-3">
-            <div className="relative group">
-              <button className="p-2 rounded-full hover:bg-accent transition-colors">
-                <Bell className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="relative group">
-              <button
-                className="p-2 rounded-full hover:bg-accent transition-colors flex items-center gap-2"
-                onClick={() => document.getElementById("theme-selector")?.classList.toggle("hidden")}
-              >
-                <span className="w-4 h-4 rounded-full bg-primary"></span>
-                <span className="text-sm">Theme</span>
-              </button>
-
-              <div
-                id="theme-selector"
-                className="hidden absolute right-0 mt-2 w-48 bg-card rounded-lg shadow-lg border border-border p-2 z-20"
-              >
-                <div className="grid grid-cols-2 gap-2">
-                  {[
-                    { name: "dark", label: "Dark" },
-                    { name: "blue-theme", label: "Blue" },
-                    { name: "dark-blue-theme", label: "Dark Blue" },
-                    { name: "dark-red-theme", label: "Dark Red" },
-                    { name: "green-theme", label: "Green" },
-                    { name: "dark-green-theme", label: "Dark Green" },
-                    { name: "electric-purple-theme", label: "Electric Purple" },
-                    { name: "sunset-amber-theme", label: "Sunset Amber" },
-                  ].map((theme) => (
-                    <button
-                      key={theme.name}
-                      onClick={() => changeTheme(theme.name)}
-                      className={`p-2 rounded text-sm text-left hover:bg-accent transition-colors ${
-                        activeTheme === theme.name ? "bg-primary/20 text-primary" : ""
-                      }`}
-                    >
-                      {theme.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 

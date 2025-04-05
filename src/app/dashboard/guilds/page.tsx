@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import Settings from '@/components/settings/layout';
 import { useSearchParams } from 'next/navigation';
+import ProtectedRoute from '@/components/authProtectedRoute';
 
 /**
  * Renders the guild settings page content.
@@ -37,7 +38,9 @@ export default function Guild() {
 	return (
 		<div className="min-h-screen">
 			<Suspense fallback={<div>Loading...</div>}>
+			<ProtectedRoute>
 				<GuildContent />
+			</ProtectedRoute>
 			</Suspense>
 		</div>
 	);
