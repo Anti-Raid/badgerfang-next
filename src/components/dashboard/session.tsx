@@ -4,7 +4,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { KeyRound, Trash2, Plus, Settings, Copy, Shield, Clock, AlertCircle, RefreshCw, Check } from "lucide-react"
-import { ToastContainer, toast } from "react-toastify"
+import { toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import { getUserSessions, revokeSession, createSession } from "@/lib/api"
 import type { UserSession, CreateUserSession } from "@/types/splashtail/types"
@@ -336,19 +336,6 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background/50 dark:bg-background/90 backdrop-blur-xl">
-      <ToastContainer
-        position="bottom-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-        className="toast-container"
-      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <motion.div
