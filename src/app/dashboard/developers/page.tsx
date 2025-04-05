@@ -14,7 +14,7 @@ export default function Settings() {
 	return (
 		<div className="min-h-screen">
 			<ProtectedRoute>
-			 <Dashboard />
+				<Dashboard />
 			</ProtectedRoute>
 		</div>
 	);

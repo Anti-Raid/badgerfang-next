@@ -15,19 +15,25 @@ import { ThemeProvider as NextThemesProvider, ThemeProviderProps } from 'next-th
  * @param children - The child components that receive the theme context.
  */
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
-  return (
-    <NextThemesProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      themes={[
-        'dark', 'blue-theme', 'dark-blue-theme', 'dark-red-theme',
-        'green-theme', 'dark-green-theme', 'electric-purple-theme',
-        'arctic-frost-theme', 'sunset-amber-theme'
-      ]}
-      {...props}
-    >
-      {children}
-    </NextThemesProvider>
-  );
+	return (
+		<NextThemesProvider
+			attribute="class"
+			defaultTheme="system"
+			enableSystem
+			themes={[
+				'dark',
+				'blue-theme',
+				'dark-blue-theme',
+				'dark-red-theme',
+				'green-theme',
+				'dark-green-theme',
+				'electric-purple-theme',
+				'arctic-frost-theme',
+				'sunset-amber-theme'
+			]}
+			{...props}
+		>
+			{children}
+		</NextThemesProvider>
+	);
 }

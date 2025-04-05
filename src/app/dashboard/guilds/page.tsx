@@ -38,9 +38,9 @@ export default function Guild() {
 	return (
 		<div className="min-h-screen">
 			<Suspense fallback={<div>Loading...</div>}>
-			<ProtectedRoute>
-				<GuildContent />
-			</ProtectedRoute>
+				<ProtectedRoute>
+					<GuildContent />
+				</ProtectedRoute>
 			</Suspense>
 		</div>
 	);

@@ -84,5 +84,4 @@ const PartnerCard: React.FC<PartnerCardProps> = ({ partner }) => {
 	);
 };
 
-
 export default PartnerCard;

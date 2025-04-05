@@ -20,10 +20,9 @@ export default function Dashboard() {
 
 	return (
 		<div className="min-h-screen">
-			    <ProtectedRoute>
-			<Servers key={key} />
+			<ProtectedRoute>
+				<Servers key={key} />
 			</ProtectedRoute>
-
 		</div>
 	);
 }

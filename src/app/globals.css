@@ -318,7 +318,9 @@
 	}
 
 	body {
-		font-feature-settings: 'rlig' 1, 'calt' 1;
+		font-feature-settings:
+			'rlig' 1,
+			'calt' 1;
 		@apply bg-background text-foreground;
 	}
 
@@ -338,10 +340,10 @@
 }
 
 @keyframes theme-fade {
-  0% {
-    opacity: 0.8;
-  }
-  100% {
-    opacity: 1;
-  }
+	0% {
+		opacity: 0.8;
+	}
+	100% {
+		opacity: 1;
+	}
 }
