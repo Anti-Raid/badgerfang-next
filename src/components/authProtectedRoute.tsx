@@ -8,17 +8,12 @@ import { getAuthCreds } from '@/lib/auth/getAuthCreds';
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const sessionData = getAuthCreds();
-  const { isAuthorized, isLoading, isError } = useAuthCheck(sessionData);
+  const { isAuthorized, isError } = useAuthCheck(sessionData);
 
   useEffect(() => {
-    if (!isLoading && !isAuthorized && !isError) {
-      router.push(`/unauthorized?redirect=${encodeURIComponent(window.location.pathname)}`);
+    if (!isAuthorized && !isError) {
     }
-  }, [isAuthorized, isLoading, isError, router]);
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  }, [isAuthorized, isError, router]);
 
   if (isError) {
     return <div>Error loading authorization data. Please try again later.</div>;
