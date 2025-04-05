@@ -9,8 +9,6 @@ import { ThemeProvider } from '@/components/ui/ThemeProvider';
 import ToastProvider from '@/components/ui/ToastProvider';
 import { HelmetProvider } from 'react-helmet-async';
 import { SWRConfig } from 'swr';
-import { useAuthCheck } from '@/lib/auth/checkAuthCreds';
-import { getAuthCreds } from '@/lib/auth/getAuthCreds';
 
 /**
  * Provides a client-side layout that manages loading and authentication states for rendering protected pages.
@@ -27,22 +25,12 @@ import { getAuthCreds } from '@/lib/auth/getAuthCreds';
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
 	const [isLoading, setIsLoading] = useState(false);
 	const router = useRouter();
-	const sessionData = getAuthCreds();
-	const { isAuthorized, mutateAuth } = useAuthCheck(sessionData);
 
 	useEffect(() => {
 		if (typeof window !== 'undefined') setIsLoading(window.location.pathname === '/');
 		const timer = setTimeout(() => setIsLoading(false), 2000);
 		return () => clearTimeout(timer);
 	}, []);
-
-	useEffect(() => {
-		if (!sessionData || !isAuthorized) {
-			localStorage.removeItem('wistala');
-			localStorage.removeItem('authUser');
-			router.push('/');
-		}
-	}, [isAuthorized, sessionData, router]);
 
 	return (
 		<HelmetProvider>
