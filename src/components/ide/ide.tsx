@@ -17,7 +17,7 @@ import {
 } from 'react-icons/fi';
 import { SiLua } from 'react-icons/si';
 import dynamic from 'next/dynamic';
-import * as monaco from 'monaco-editor'; // Import Monaco Editor
+import * as monaco from 'monaco-editor';
 
 // Dynamically import the Monaco Editor with SSR disabled
 const Editor = dynamic(() => import('@monaco-editor/react'), {

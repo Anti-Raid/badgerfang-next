@@ -28,7 +28,7 @@ export const TemplateShop = ({ data }: { data: TemplateShopProps[] }) => {
 					initial={{ opacity: 0, y: -20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.5 }}
-					className="font-monster font-bold text-4xl md:text-5xl lg:text-6xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-6"
+					className="font-monster font-bold text-4xl md:text-5xl lg:text-6xl text-transparent mb-6"
 				>
 					Script Shop
 				</motion.h1>

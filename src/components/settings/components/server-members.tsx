@@ -1,58 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, ChangeEvent } from 'react';
-import { LucideIcon } from 'lucide-react';
-import { IconType as ReactIconType } from 'react-icons';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Primary } from '../../ui/Buttons'; // Ensure the correct path
-import { InputField, RadioOption, Toggle } from './form-elements'; // Ensure the correct path
-import { executeSettings } from '@/lib/api'; // Ensure the correct path
+import { Primary, Ghost } from '../../ui/Buttons'
+import { InputField, RadioOption, Toggle } from './form-elements'; 
+import { executeSettings } from '@/lib/api';
 import { Trash2, User, AlertCircle, Check, X, UserPlus } from 'lucide-react';
-
-type ButtonIcon = ReactIconType | LucideIcon;
-
-interface ButtonProps {
-	label: string;
-	onClick: () => void;
-	icon?: ButtonIcon;
-	isLoading?: boolean;
-}
-
-const baseClass =
-	'px-5 py-2.5 w-full max-w-[160px] rounded-sm text-foreground font-medium text-[16px] border border-white border-opacity-5 hover:brightness-[80%] transition-all inline-flex justify-center items-center gap-2';
-
-export const PrimaryButton: React.FC<ButtonProps> = ({ label, onClick, icon: Icon, isLoading }) => {
-	return (
-		<button
-			className={`bg-extra ${baseClass}`}
-			type="button"
-			onClick={onClick}
-			disabled={isLoading}
-		>
-			{Icon && <Icon className="text-[18px]" />} {label}
-		</button>
-	);
-};
-
-export const SecondaryButton: React.FC<ButtonProps> = ({ label, onClick, icon: Icon }) => {
-	return (
-		<button className={`bg-secondary ${baseClass}`} type="button" onClick={onClick}>
-			{Icon && <Icon className="text-[18px]" />} {label}
-		</button>
-	);
-};
-
-export const GhostButton: React.FC<ButtonProps> = ({ label, onClick, icon: Icon }) => {
-	return (
-		<button
-			className="bg-transparent px-4 py-2 rounded-sm text-foreground font-semibold text-[16px] hover:brightness-[80%] hover:bg-secondary hover:border hover:border-white hover:border-opacity-5 transition-all flex items-center gap-2"
-			type="button"
-			onClick={onClick}
-		>
-			{Icon && <Icon className="text-[18px]" />} {label}
-		</button>
-	);
-};
 
 interface ServerMembersProps {
 	guildId: string;
@@ -253,7 +206,7 @@ export const ServerMembers: React.FC<ServerMembersProps> = ({ guildId }) => {
 													<div className="flex-1 bg-muted/30 px-3 py-2 rounded-l-md text-foreground">
 														{value}
 													</div>
-													<GhostButton
+													<Ghost
 														icon={X}
 														onClick={() => handleRemovePermission(index)}
 														label="Remove permission"
@@ -329,7 +282,7 @@ export const ServerMembers: React.FC<ServerMembersProps> = ({ guildId }) => {
 				)}
 
 				<div className="mt-6">
-					<PrimaryButton
+					<Primary
 						label="Add Server Member"
 						onClick={handleAddServerMember}
 						isLoading={isLoading}
@@ -410,7 +363,7 @@ export const ServerMembers: React.FC<ServerMembersProps> = ({ guildId }) => {
 												</div>
 											</div>
 										</div>
-										<GhostButton
+										<Ghost
 											icon={Trash2}
 											onClick={() => handleDeleteMember(member.id)}
 											label="Delete member"
