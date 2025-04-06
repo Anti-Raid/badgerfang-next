@@ -209,7 +209,7 @@ export const ServerMembers: React.FC<ServerMembersProps> = ({ guildId }) => {
 													<Ghost
 														icon={X}
 														onClick={() => handleRemovePermission(index)}
-														label="Remove permission"
+														Title="Remove permission"
 													/>
 												</motion.div>
 											))}
@@ -283,9 +283,8 @@ export const ServerMembers: React.FC<ServerMembersProps> = ({ guildId }) => {
 
 				<div className="mt-6">
 					<Primary
-						label="Add Server Member"
+						Title="Add Server Member"
 						onClick={handleAddServerMember}
-						isLoading={isLoading}
 						icon={UserPlus}
 					/>
 				</div>
@@ -366,7 +365,7 @@ export const ServerMembers: React.FC<ServerMembersProps> = ({ guildId }) => {
 										<Ghost
 											icon={Trash2}
 											onClick={() => handleDeleteMember(member.id)}
-											label="Delete member"
+											Title="Delete member"
 										/>
 									</div>
 								</motion.div>
