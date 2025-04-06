@@ -1,14 +1,15 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FiEye, FiRefreshCcw, FiSearch, FiServer, FiShield } from 'react-icons/fi';
-import { FaDiscord, FaCrown, FaUserShield } from 'react-icons/fa';
-import { getUserServers } from '@/lib/api';
-import { Server, ApiResponse } from '@/types/dashboard/servers';
-import { AuthUser } from '@/types/user';
+import type React from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Eye, RefreshCw, Search, Server, Shield } from 'lucide-react';
+import { toast } from 'react-toastify';
+import { FaDiscord } from 'react-icons/fa';
+import { getUserServers } from '@/lib/api';
 import { supportConfig } from '@/lib/data/support';
+import type { Server as ServerType, ApiResponse } from '@/types/dashboard/servers';
+import type { AuthUser } from '@/types/user';
 
 // Discord permission flags
 const DISCORD_PERMISSIONS = {
@@ -47,9 +48,9 @@ const getPermissionNames = (permissions: number): string[] => {
 
 const AllServers: React.FC = () => {
 	const [userData, setUserData] = useState<AuthUser | null>(null);
-	const [servers, setServers] = useState<Server[]>([]);
-	const [managedServers, setManagedServers] = useState<Server[]>([]);
-	const [yourServers, setYourServers] = useState<Server[]>([]);
+	const [servers, setServers] = useState<ServerType[]>([]);
+	const [managedServers, setManagedServers] = useState<ServerType[]>([]);
+	const [yourServers, setYourServers] = useState<ServerType[]>([]);
 	const [managedSearchTerm, setManagedSearchTerm] = useState('');
 	const [yourSearchTerm, setYourSearchTerm] = useState('');
 	const [isLoading, setIsLoading] = useState(true);
@@ -79,8 +80,13 @@ const AllServers: React.FC = () => {
 
 			setManagedServers(managed);
 			setYourServers(yours);
+
+			if (refetch) {
+				toast.success('Servers refreshed successfully');
+			}
 		} catch (error) {
 			console.error('Failed to fetch servers:', error);
+			toast.error('Failed to fetch servers');
 		} finally {
 			setIsLoading(false);
 			if (refetch) {
@@ -96,7 +102,7 @@ const AllServers: React.FC = () => {
 	if (!userData && isLoading) {
 		return (
 			<div className="flex items-center justify-center h-screen">
-				<div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+				<div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
 			</div>
 		);
 	}
@@ -104,44 +110,42 @@ const AllServers: React.FC = () => {
 	return (
 		<main className="container mx-auto p-4 max-w-7xl">
 			{/* User Profile Header */}
-			<div className="bg-card rounded-xl p-6 mb-8 shadow-lg border border-[#3c2854] backdrop-blur-sm bg-opacity-60">
+			<div className="bg-card rounded-xl p-6 mb-8 shadow-lg border border-border backdrop-blur-sm bg-opacity-60">
 				<div className="flex flex-col sm:flex-row items-center gap-6">
 					<div className="relative">
 						<img
 							src={userData?.user.avatar || '/logo.webp'}
 							alt="User Avatar"
-							className="w-20 h-20 rounded-full border-2 border-purple-500 object-cover"
+							className="w-20 h-20 rounded-full border-2 border-primary object-cover"
 						/>
 						<div className="absolute -bottom-2 -right-2 bg-green-500 w-5 h-5 rounded-full border-2 border-card"></div>
 					</div>
 					<div className="text-center sm:text-left">
-						<h2 className="text-white text-2xl font-bold">
+						<h2 className="text-foreground text-2xl font-bold">
 							{userData?.user.display_name || userData?.user.username}
 						</h2>
-						<p className="text-gray-400">@{userData?.user.username}</p>
+						<p className="text-muted-foreground">@{userData?.user.username}</p>
 					</div>
-					<motion.button
-						whileHover={{ scale: 1.05 }}
-						whileTap={{ scale: 0.95 }}
-						className="flex items-center gap-2 bg-[#3c2854] text-white px-4 py-2 rounded-md hover:bg-[#4c3266] transition-colors ml-auto"
+					<button
+						className="flex items-center gap-2 bg-accent text-accent-foreground px-4 py-2 rounded-md hover:bg-accent/80 transition-colors ml-auto"
 						onClick={() => fetchServers(true)}
 						disabled={refreshing}
 					>
-						<FiRefreshCcw className={`text-lg ${refreshing ? 'animate-spin' : ''}`} />
+						<RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
 						<span className="hidden sm:inline">
 							{refreshing ? 'Refreshing...' : 'Refresh Servers'}
 						</span>
-					</motion.button>
+					</button>
 				</div>
 			</div>
 
 			{/* Tab Navigation */}
-			<div className="flex mb-6 border-b border-[#3c2854]">
+			<div className="flex mb-6 border-b border-border">
 				<button
 					className={`px-6 py-3 font-medium text-lg transition-colors ${
 						activeTab === 'managed'
-							? 'text-purple-400 border-b-2 border-purple-500'
-							: 'text-gray-400 hover:text-white'
+							? 'text-primary border-b-2 border-primary'
+							: 'text-muted-foreground hover:text-foreground'
 					}`}
 					onClick={() => setActiveTab('managed')}
 				>
@@ -150,8 +154,8 @@ const AllServers: React.FC = () => {
 				<button
 					className={`px-6 py-3 font-medium text-lg transition-colors ${
 						activeTab === 'yours'
-							? 'text-purple-400 border-b-2 border-purple-500'
-							: 'text-gray-400 hover:text-white'
+							? 'text-primary border-b-2 border-primary'
+							: 'text-muted-foreground hover:text-foreground'
 					}`}
 					onClick={() => setActiveTab('yours')}
 				>
@@ -160,15 +164,9 @@ const AllServers: React.FC = () => {
 			</div>
 
 			{/* Active Tab Content */}
-			<AnimatePresence mode="wait">
+			<div className="transition-all duration-300">
 				{activeTab === 'managed' ? (
-					<motion.div
-						key="managed"
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						exit={{ opacity: 0, y: -20 }}
-						transition={{ duration: 0.3 }}
-					>
+					<div className="animate-[theme-fade_0.3s_ease-in-out]">
 						<ServerList
 							servers={managedServers}
 							searchTerm={managedSearchTerm}
@@ -176,15 +174,9 @@ const AllServers: React.FC = () => {
 							showViewButton={true}
 							isLoading={isLoading}
 						/>
-					</motion.div>
+					</div>
 				) : (
-					<motion.div
-						key="yours"
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						exit={{ opacity: 0, y: -20 }}
-						transition={{ duration: 0.3 }}
-					>
+					<div className="animate-[theme-fade_0.3s_ease-in-out]">
 						<ServerList
 							servers={yourServers}
 							searchTerm={yourSearchTerm}
@@ -192,15 +184,15 @@ const AllServers: React.FC = () => {
 							showViewButton={false}
 							isLoading={isLoading}
 						/>
-					</motion.div>
+					</div>
 				)}
-			</AnimatePresence>
+			</div>
 		</main>
 	);
 };
 
 const ServerList: React.FC<{
-	servers: Server[];
+	servers: ServerType[];
 	searchTerm: string;
 	setSearchTerm: (value: string) => void;
 	showViewButton: boolean;
@@ -213,11 +205,11 @@ const ServerList: React.FC<{
 	return (
 		<div>
 			<div className="relative mb-6">
-				<FiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+				<Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
 				<input
 					type="text"
 					placeholder="Search for a server"
-					className="w-full bg-[#3c2854] text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder-gray-400"
+					className="w-full bg-accent text-foreground pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary placeholder-muted-foreground"
 					value={searchTerm}
 					onChange={(e) => setSearchTerm(e.target.value)}
 				/>
@@ -228,7 +220,7 @@ const ServerList: React.FC<{
 					{[1, 2, 3, 4, 5, 6].map((i) => (
 						<div
 							key={i}
-							className="bg-card rounded-lg p-6 border border-[#3c2854] animate-pulse h-40"
+							className="bg-card rounded-lg p-6 border border-border animate-pulse h-40"
 						></div>
 					))}
 				</div>
@@ -240,9 +232,9 @@ const ServerList: React.FC<{
 				</div>
 			) : (
 				<div className="flex flex-col items-center justify-center py-12 text-center">
-					<FiServer className="text-5xl text-gray-500 mb-4" />
-					<h3 className="text-xl font-semibold text-white mb-2">No servers found</h3>
-					<p className="text-gray-400">
+					<Server className="h-16 w-16 text-muted-foreground mb-4" />
+					<h3 className="text-xl font-semibold text-foreground mb-2">No servers found</h3>
+					<p className="text-muted-foreground">
 						{searchTerm
 							? "We couldn't find any servers matching your search"
 							: showViewButton
@@ -250,14 +242,13 @@ const ServerList: React.FC<{
 								: "You don't have any servers with sufficient permissions to add the bot"}
 					</p>
 					{!showViewButton && !searchTerm && servers.length === 0 && (
-						<div className="mt-4 p-4 bg-[#3c2854] rounded-lg max-w-md text-sm">
-							<p className="text-gray-300 mb-2">
-								<strong>Note:</strong> You need{' '}
-								<span className="text-purple-300">Manage Server</span> or{' '}
-								<span className="text-purple-300">Administrator</span> permissions to add bots to a
+						<div className="mt-4 p-4 bg-accent rounded-lg max-w-md text-sm">
+							<p className="text-muted-foreground mb-2">
+								<strong>Note:</strong> You need <span className="text-primary">Manage Server</span>{' '}
+								or <span className="text-primary">Administrator</span> permissions to add bots to a
 								server.
 							</p>
-							<p className="text-gray-300">
+							<p className="text-muted-foreground">
 								If you don't see your servers, make sure you're logged in with the correct Discord
 								account.
 							</p>
@@ -269,7 +260,7 @@ const ServerList: React.FC<{
 	);
 };
 
-const ServerCard: React.FC<{ server: Server; showViewButton: boolean }> = ({
+const ServerCard: React.FC<{ server: ServerType; showViewButton: boolean }> = ({
 	server,
 	showViewButton
 }) => {
@@ -288,65 +279,59 @@ const ServerCard: React.FC<{ server: Server; showViewButton: boolean }> = ({
 	};
 
 	return (
-		<motion.div
-			initial={{ opacity: 0, y: 20 }}
-			animate={{ opacity: 1, y: 0 }}
-			transition={{ delay: 0.1 }}
-			whileHover={{ y: -5 }}
-			className="bg-card rounded-lg overflow-hidden border border-[#3c2854] shadow-lg"
-		>
-			<div className="h-16 bg-gradient-to-r from-purple-900 to-[#3c2854]"></div>
+		<div className="bg-card rounded-lg overflow-hidden border border-border shadow-lg transition-all duration-300 hover:-translate-y-1">
+			<div className="h-16 bg-gradient-to-r from-primary/80 to-accent"></div>
 			<div className="p-6 pt-0 -mt-8">
 				<div className="flex items-start gap-3 mb-4">
 					<img
 						src={server.avatar || '/logo.webp'}
 						alt={`${server.name} icon`}
-						className="w-16 h-16 rounded-lg border-4 border-card bg-[#3c2854]"
+						className="w-16 h-16 rounded-lg border-4 border-card bg-accent"
 					/>
 					<div className="mt-8">
-						<h3 className="text-white font-bold text-lg truncate max-w-[180px]">{server.name}</h3>
+						<h3 className="text-foreground font-bold text-lg truncate max-w-[180px]">
+							{server.name}
+						</h3>
 					</div>
 				</div>
 
 				<div className="flex items-center justify-between mb-4">
 					<div className="flex items-center gap-1">
 						{isAdministrator ? (
-							<div className="bg-purple-700 px-3 py-1 rounded-full text-xs text-white flex items-center gap-1">
-								<FaCrown className="text-yellow-400" />
+							<div className="bg-primary/20 px-3 py-1 rounded-full text-xs text-primary flex items-center gap-1">
+								<FaDiscord className="h-3 w-3" />
 								<span>Administrator</span>
 							</div>
 						) : (
-							<div className="bg-[#3c2854] px-3 py-1 rounded-full text-xs text-purple-300 flex items-center gap-1">
-								<FiShield />
+							<div className="bg-accent px-3 py-1 rounded-full text-xs text-muted-foreground flex items-center gap-1">
+								<Shield className="h-3 w-3" />
 								<span>{permissionNames[0]}</span>
 							</div>
 						)}
 					</div>
-					<div className="text-xs text-gray-400">ID: {server.id.slice(0, 8)}...</div>
+					<div className="text-xs text-muted-foreground">ID: {server.id.slice(0, 8)}...</div>
 				</div>
 
-				<motion.button
-					whileHover={{ scale: 1.02 }}
-					whileTap={{ scale: 0.98 }}
+				<button
 					className={`flex items-center gap-2 px-4 py-3 rounded-md w-full justify-center transition-colors ${
 						showViewButton
-							? 'bg-[#3c2854] text-white hover:bg-[#4c3266]'
-							: 'bg-purple-600 text-white hover:bg-purple-700'
+							? 'bg-accent text-foreground hover:bg-accent/80'
+							: 'bg-primary text-primary-foreground hover:bg-primary/90'
 					}`}
 					onClick={showViewButton ? handleViewClick : handleInviteClick}
 				>
 					{showViewButton ? (
 						<>
-							<FiEye className="text-lg" /> Manage Server
+							<Eye className="h-4 w-4" /> Manage Server
 						</>
 					) : (
 						<>
-							<FaDiscord className="text-lg" /> Add Bot
+							<FaDiscord className="h-4 w-4" /> Add Bot
 						</>
 					)}
-				</motion.button>
+				</button>
 			</div>
-		</motion.div>
+		</div>
 	);
 };
 

@@ -2,7 +2,7 @@
 
 import type React from 'react';
 import { useEffect, useState } from 'react';
-import { FiX } from 'react-icons/fi';
+import { X } from 'lucide-react';
 import { ScriptIDE } from '@/components/ide/ide';
 import { Primary } from '../../ui/Buttons';
 
@@ -71,7 +71,7 @@ export const ScriptModal: React.FC<ScriptModalProps> = ({
 				<div className="flex justify-between items-center p-4 border-b border-border">
 					<h3 className="text-lg font-semibold">{modalTitle}</h3>
 					<button onClick={onClose} className="text-muted-foreground hover:text-foreground">
-						<FiX className="h-5 w-5" />
+						<X className="h-5 w-5" />
 					</button>
 				</div>
 				<div className="overflow-auto p-4">

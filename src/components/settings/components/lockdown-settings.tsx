@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import type React from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Primary } from '../../ui/Buttons';
 import { RadioOption, Toggle, InputField } from './form-elements';
@@ -15,16 +16,6 @@ interface LockdownSetting {
 	id: string;
 	require_correct_layout: boolean;
 	member_roles: string[];
-}
-
-interface ButtonProps {
-	label: string;
-	onClick: () => void;
-	icon?: React.ComponentType<{ className?: string }>;
-	variant?: string;
-	tooltip?: string;
-	disabled?: boolean;
-	isLoading?: boolean;
 }
 
 export const LockdownSettings: React.FC<LockdownSettingsProps> = ({ guildId }) => {
@@ -192,11 +183,12 @@ export const LockdownSettings: React.FC<LockdownSettingsProps> = ({ guildId }) =
 										onChange={(e) => handleRoleChange(index, e.target.value)}
 									/>
 								</div>
-								<Primary
-									icon={Trash2}
-									Title="Remove role"
+								<button
 									onClick={() => handleRemoveRole(index)}
-								/>
+									className="self-end mb-6 p-2 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+								>
+									<Trash2 className="w-5 h-5" />
+								</button>
 							</motion.div>
 						))}
 					</AnimatePresence>
@@ -304,11 +296,12 @@ export const LockdownSettings: React.FC<LockdownSettingsProps> = ({ guildId }) =
 												</div>
 											</div>
 										</div>
-										<Primary
-											icon={Trash2}
-											Title="Delete setting"
+										<button
 											onClick={() => handleDeleteSetting(setting.id)}
-										/>
+											className="self-start md:self-center p-2 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+										>
+											<Trash2 className="w-5 h-5" />
+										</button>
 									</div>
 								</motion.div>
 							))}

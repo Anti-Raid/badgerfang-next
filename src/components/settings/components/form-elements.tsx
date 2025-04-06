@@ -2,6 +2,7 @@
 
 import type React from 'react';
 import { motion } from 'framer-motion';
+import { Eye } from 'lucide-react';
 
 interface InputFieldProps {
 	label: string;
@@ -11,6 +12,8 @@ interface InputFieldProps {
 	value?: string;
 	onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
 	options?: { value: string; label: string }[];
+	className?: string;
+	id?: string;
 }
 
 export const InputField: React.FC<InputFieldProps> = ({
@@ -20,15 +23,23 @@ export const InputField: React.FC<InputFieldProps> = ({
 	type = 'text',
 	value,
 	onChange,
-	options
+	options,
+	className = '',
+	id
 }) => {
 	return (
-		<div className="mb-6 group">
-			<label className="block text-foreground font-medium mb-1.5 text-sm">{label}</label>
+		<div className={`mb-6 group ${className}`}>
+			<label
+				htmlFor={id || label.toLowerCase().replace(/\s+/g, '-')}
+				className="block text-foreground font-medium mb-1.5 text-sm"
+			>
+				{label}
+			</label>
 			{description && <p className="text-sm text-muted-foreground mb-2.5">{description}</p>}
 			{type === 'select' ? (
 				<div className="relative">
 					<select
+						id={id || label.toLowerCase().replace(/\s+/g, '-')}
 						value={value}
 						onChange={onChange}
 						className="w-full bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-3 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 appearance-none"
@@ -57,8 +68,23 @@ export const InputField: React.FC<InputFieldProps> = ({
 						</svg>
 					</div>
 				</div>
+			) : type === 'password' ? (
+				<div className="relative">
+					<input
+						id={id || label.toLowerCase().replace(/\s+/g, '-')}
+						type={type}
+						placeholder={placeholder}
+						value={value}
+						onChange={onChange}
+						className="w-full bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-3 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+					/>
+					<button className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 rounded-md hover:bg-accent/50 text-muted-foreground hover:text-foreground transition-colors">
+						<Eye className="w-4 h-4" />
+					</button>
+				</div>
 			) : (
 				<input
+					id={id || label.toLowerCase().replace(/\s+/g, '-')}
 					type={type}
 					placeholder={placeholder}
 					value={value}

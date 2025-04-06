@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Primary } from '../../ui/Buttons';
 import { InputField } from './form-elements';
-import { executeSettings } from '@/lib/api';
-import { Trash2, Lock, AlertCircle, RefreshCw, Calendar, Clock, Shield } from 'lucide-react';
+import { executeSettings, getUserGuildBaseInfo } from '@/lib/api';
+import { Trash2, Lock, AlertCircle, RefreshCw, Calendar, Clock, Shield, Tv } from 'lucide-react';
 import { FaLock } from 'react-icons/fa';
 
 interface LockdownProps {
@@ -17,11 +17,20 @@ interface Lockdown {
 	type: string;
 	reason: string;
 	created_at: string;
+	channel_id?: string;
+	channel_name?: string;
+}
+
+interface Channel {
+	id: string;
+	name: string;
 }
 
 export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 	const [type, setType] = useState('qsl'); // Default to first option to avoid empty selection
 	const [reason, setReason] = useState('');
+	const [selectedChannelId, setSelectedChannelId] = useState('');
+	const [channelOptions, setChannelOptions] = useState<{ value: string; label: string }[]>([]);
 	const [lockdowns, setLockdowns] = useState<Lockdown[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -29,6 +38,39 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 	useEffect(() => {
 		fetchLockdowns();
 	}, [guildId]);
+
+	useEffect(() => {
+		// Only fetch channels if type is "scl"
+		if (type === 'scl') {
+			fetchChannelOptions();
+		}
+	}, [type, guildId]);
+
+	const fetchChannelOptions = async () => {
+		try {
+			const data = await getUserGuildBaseInfo(guildId);
+			if (data.channels && Array.isArray(data.channels)) {
+				// Extract unique channels and format them for the dropdown
+				const uniqueChannels = new Map();
+
+				data.channels.forEach((item: any) => {
+					if (item.channel && item.channel.id && item.channel.name) {
+						uniqueChannels.set(item.channel.id, {
+							value: item.channel.id,
+							label: item.channel.name
+						});
+					}
+				});
+
+				// Convert the Map values to an array
+				const options = Array.from(uniqueChannels.values());
+				setChannelOptions(options);
+			}
+		} catch (error) {
+			console.error('Failed to fetch channel options:', error);
+			setError('Failed to load channel options. Please try again.');
+		}
+	};
 
 	const fetchLockdowns = async () => {
 		setIsLoading(true);
@@ -42,13 +84,20 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 
 		try {
 			const result = await executeSettings(guildId, payload);
-			const lockdownsData = result.fields.map((lockdown: any, index: number) => ({
-				id: index.toString(),
-				type: lockdown.type,
-				reason: lockdown.reason,
-				created_at: lockdown.created_at
-			}));
-			setLockdowns(lockdownsData);
+
+			if (result.fields && Array.isArray(result.fields)) {
+				const lockdownsData = result.fields.map((lockdown: any) => ({
+					id: lockdown.id,
+					type: lockdown.type,
+					reason: lockdown.reason,
+					created_at: lockdown.created_at,
+					channel_id: lockdown.channel_id,
+					channel_name: lockdown.channel_name
+				}));
+				setLockdowns(lockdownsData);
+			} else {
+				throw new Error('Invalid response format from server');
+			}
 		} catch (error) {
 			console.error('Failed to fetch lockdowns:', error);
 			setError('Failed to load lockdowns. Please try again.');
@@ -58,9 +107,15 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 	};
 
 	const handleAddLockdown = async () => {
+		// Validate form inputs
 		if (!type || !reason) {
-			// Validate form inputs
 			setError('Please select a type and provide a reason');
+			return;
+		}
+
+		// If type is scl, validate that a channel is selected
+		if (type === 'scl' && !selectedChannelId) {
+			setError('Please select a channel for Server Channel Lockdown');
 			return;
 		}
 
@@ -69,11 +124,14 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 		setIsLoading(true);
 		setError(null);
 
+		// Create the correct type format: For SCL, it should be "scl/channelId"
+		const formattedType = type === 'scl' ? `${type}/${selectedChannelId}` : type;
+
 		const payload = {
 			operation: 'Create',
 			setting: 'lockdowns',
 			fields: {
-				type: type,
+				type: formattedType,
 				reason: reason
 			}
 		};
@@ -82,6 +140,9 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 			await executeSettings(guildId, payload);
 			// Reset form fields
 			setReason('');
+			if (type === 'scl') {
+				setSelectedChannelId('');
+			}
 			// Refresh the list
 			await fetchLockdowns();
 		} catch (error) {
@@ -94,13 +155,19 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 
 	const handleDeleteLockdown = async (id: string) => {
 		if (isLoading) return; // Prevent multiple deletions
+		if (!id || id.length < 30) {
+			setError('Invalid lockdown ID. Cannot delete this item.');
+			return;
+		}
 
 		setIsLoading(true);
+		setError(null);
+
 		const payload = {
 			operation: 'Delete',
 			setting: 'lockdowns',
 			fields: {
-				gid: id
+				id: id
 			}
 		};
 
@@ -123,12 +190,16 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 	];
 
 	const getLockdownTypeLabel = (type: string) => {
-		const lockdownType = lockdownTypes.find((lt) => lt.value === type);
-		return lockdownType ? lockdownType.label : type.toUpperCase();
+		// Extract base type for display (in case it's "scl/channelId")
+		const baseType = type.split('/')[0];
+		const lockdownType = lockdownTypes.find((lt) => lt.value === baseType);
+		return lockdownType ? lockdownType.label : baseType.toUpperCase();
 	};
 
 	const getTypeColor = (type: string) => {
-		switch (type) {
+		// Extract base type for styling (in case it's "scl/channelId")
+		const baseType = type.split('/')[0];
+		switch (baseType) {
 			case 'qsl':
 				return 'text-red-500 bg-red-500/10';
 			case 'tsl':
@@ -138,6 +209,53 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 			default:
 				return 'text-primary bg-primary/10';
 		}
+	};
+
+	const formatDate = (dateString: string) => {
+		try {
+			return new Date(dateString).toLocaleDateString();
+		} catch (e) {
+			return 'Invalid date';
+		}
+	};
+
+	const formatTime = (dateString: string) => {
+		try {
+			return new Date(dateString).toLocaleTimeString();
+		} catch (e) {
+			return 'Invalid time';
+		}
+	};
+
+	// Get channel ID from composite type string or use directly provided channel_id
+	const getChannelIdFromType = (lockdown: Lockdown): string | undefined => {
+		if (lockdown.channel_id) return lockdown.channel_id;
+
+		// If type is in format "scl/channelId", extract the channelId
+		const typeParts = lockdown.type.split('/');
+		if (typeParts.length > 1 && typeParts[0] === 'scl') {
+			return typeParts[1];
+		}
+
+		return undefined;
+	};
+
+	// Find the channel name for display in the lockdown list
+	const getChannelName = (lockdown: Lockdown) => {
+		// If channel_name is already provided, use it
+		if (lockdown.channel_name) return lockdown.channel_name;
+
+		// Otherwise try to get it from channelOptions using the extracted channel ID
+		const channelId = getChannelIdFromType(lockdown);
+		if (!channelId) return '';
+
+		const channel = channelOptions.find((option) => option.value === channelId);
+		return channel ? channel.label : 'Unknown Channel';
+	};
+
+	// Determine if a lockdown is SCL type (either "scl" or "scl/channelId")
+	const isSclType = (type: string) => {
+		return type.startsWith('scl');
 	};
 
 	return (
@@ -157,6 +275,19 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 						onChange={(e) => setType(e.target.value)}
 						options={lockdownTypes}
 					/>
+
+					{type === 'scl' && (
+						<InputField
+							label="Channel"
+							description="Select the channel to apply the lockdown to."
+							type="select"
+							value={selectedChannelId}
+							onChange={(e) => setSelectedChannelId(e.target.value)}
+							options={channelOptions}
+							placeholder="Select a channel"
+						/>
+					)}
+
 					<InputField
 						label="Reason"
 						description="The reason for starting the lockdown."
@@ -187,6 +318,7 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 						onClick={fetchLockdowns}
 						className="p-2 rounded-md hover:bg-accent/50 text-muted-foreground hover:text-foreground transition-colors"
 						disabled={isLoading}
+						aria-label="Refresh lockdowns"
 					>
 						<RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
 					</button>
@@ -232,20 +364,29 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 												<h4 className="font-medium text-foreground">Reason:</h4>
 												<p className="text-muted-foreground">{lockdown.reason}</p>
 											</div>
+											{isSclType(lockdown.type) && (
+												<div className="mb-2">
+													<h4 className="font-medium text-foreground flex items-center">
+														<Tv className="w-4 h-4 mr-1" /> Applied Channel:
+													</h4>
+													<p className="text-muted-foreground">{getChannelName(lockdown)}</p>
+												</div>
+											)}
 											<div className="flex items-center gap-3 text-xs text-muted-foreground">
 												<span className="flex items-center gap-1">
 													<Calendar className="w-3 h-3" />
-													{new Date(lockdown.created_at).toLocaleDateString()}
+													{formatDate(lockdown.created_at)}
 												</span>
 												<span className="flex items-center gap-1">
 													<Clock className="w-3 h-3" />
-													{new Date(lockdown.created_at).toLocaleTimeString()}
+													{formatTime(lockdown.created_at)}
 												</span>
 											</div>
 										</div>
 										<button
 											onClick={() => handleDeleteLockdown(lockdown.id)}
 											className="self-start md:self-center p-2 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+											aria-label="Delete lockdown"
 										>
 											<Trash2 className="w-5 h-5" />
 										</button>

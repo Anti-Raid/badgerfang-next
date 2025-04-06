@@ -156,7 +156,7 @@ export const KeyValueDB: React.FC<KeyValueDBProps> = ({ guildId }) => {
 					</div>
 				</div>
 
-				<div className="mt-2">
+				<div className="mt-4">
 					<Primary
 						Title={isLoading ? 'Adding...' : 'Add Key-Value Pair'}
 						onClick={handleAddKeyValue}
