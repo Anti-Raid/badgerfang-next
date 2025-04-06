@@ -18,32 +18,33 @@ interface RoleManagerProps {
 
 export const RoleManager: React.FC<RoleManagerProps> = ({ guildId }) => {
 	const [roles, setRoles] = useState<Role[]>([]);
-	const [newRole, setNewRole] = useState({
+	const [newRole, setNewRole] = useState<Role>({
 		role_id: '',
 		display_name: '',
-		index: roles.length + 1
+		index: roles.length + 1,
+		perms: []
 	});
 	const [showNewRoleForm, setShowNewRoleForm] = useState(false);
 	const [editingRole, setEditingRole] = useState<Role | null>(null);
 	const [roleOptions, setRoleOptions] = useState<{ value: string; label: string }[]>([]);
 	const [isReordered, setIsReordered] = useState(false);
 
-	useEffect(() => {
-		const fetchRoles = async () => {
-			const payload = {
-				operation: 'View',
-				setting: 'roles',
-				fields: {}
-			};
-
-			try {
-				const result = await executeSettings(guildId, payload);
-				setRoles(result.fields || []);
-			} catch (error) {
-				console.error('Failed to fetch roles:', error);
-			}
+	const fetchRoles = async () => {
+		const payload = {
+			operation: 'View',
+			setting: 'roles',
+			fields: {}
 		};
 
+		try {
+			const result = await executeSettings(guildId, payload);
+			setRoles(result.fields || []);
+		} catch (error) {
+			console.error('Failed to fetch roles:', error);
+		}
+	};
+
+	useEffect(() => {
 		fetchRoles();
 	}, [guildId]);
 
@@ -69,7 +70,8 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId }) => {
 			const newRoleObj: Role = {
 				role_id: newRole.role_id,
 				display_name: newRole.display_name,
-				index: roles.length + 1
+				index: roles.length + 1,
+				perms: newRole.perms
 			};
 
 			const payload = {
@@ -80,9 +82,9 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId }) => {
 
 			try {
 				await executeSettings(guildId, payload);
-				setRoles([...roles, newRoleObj]);
-				setNewRole({ role_id: '', display_name: '', index: roles.length + 2 });
+				setNewRole({ role_id: '', display_name: '', index: roles.length + 2, perms: [] });
 				setShowNewRoleForm(false);
+				fetchRoles(); // Fetch roles again after adding a new role
 			} catch (error) {
 				console.error('Failed to add role:', error);
 			}
@@ -164,18 +166,21 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId }) => {
 				>
 					<InputField
 						label="Role ID"
-						placeholder="Enter role ID"
+						placeholder="Select role ID"
+						type="select"
 						value={newRole.role_id}
-						onChange={(e) => setNewRole({ ...newRole, role_id: e.target.value })}
+						onChange={(e) => {
+							const selectedRole = roleOptions.find(option => option.value === e.target.value);
+							setNewRole({ ...newRole, role_id: e.target.value, display_name: selectedRole?.label || '' });
+						}}
+						options={roleOptions}
 					/>
 
 					<InputField
-						label="Role Name"
-						type="select"
-						placeholder="Select role name"
-						value={newRole.display_name}
-						onChange={(e) => setNewRole({ ...newRole, display_name: e.target.value })}
-						options={roleOptions}
+						label="Permissions"
+						placeholder="Enter permissions (comma-separated)"
+						value={newRole.perms?.join(',')}
+						onChange={(e) => setNewRole({ ...newRole, perms: e.target.value.split(',').map(perm => perm.trim()) })}
 					/>
 
 					<div className="flex gap-2">
@@ -198,18 +203,21 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId }) => {
 				>
 					<InputField
 						label="Role ID"
-						placeholder="Enter role ID"
+						placeholder="Select role ID"
+						type="select"
 						value={editingRole.role_id}
-						onChange={(e) => setEditingRole({ ...editingRole, role_id: e.target.value })}
+						onChange={(e) => {
+							const selectedRole = roleOptions.find(option => option.value === e.target.value);
+							setEditingRole({ ...editingRole, role_id: e.target.value, display_name: selectedRole?.label || '' });
+						}}
+						options={roleOptions}
 					/>
 
 					<InputField
-						label="Role Name"
-						type="select"
-						placeholder="Select role name"
-						value={editingRole.display_name}
-						onChange={(e) => setEditingRole({ ...editingRole, display_name: e.target.value })}
-						options={roleOptions}
+						label="Permissions"
+						placeholder="Enter permissions (comma-separated)"
+						value={editingRole.perms?.join(',')}
+						onChange={(e) => setEditingRole({ ...editingRole, perms: e.target.value.split(',').map(perm => perm.trim()) })}
 					/>
 
 					<InputField
