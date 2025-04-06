@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Primary, Ghost } from '../../ui/Buttons'
-import { InputField, RadioOption, Toggle } from './form-elements'; 
+import { Primary, Ghost } from '../../ui/Buttons';
+import { InputField, RadioOption, Toggle } from './form-elements';
 import { executeSettings } from '@/lib/api';
 import { Trash2, User, AlertCircle, Check, X, UserPlus } from 'lucide-react';
 
