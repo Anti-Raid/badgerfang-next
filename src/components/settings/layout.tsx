@@ -123,7 +123,7 @@ export default function Settings({ guildId }: { guildId: string }) {
 					<div className="flex items-center gap-3">
 						{guildData.icon ? (
 							<img
-								src={guildData.icon || '/placeholder.svg'}
+								src={guildData.icon || '/logo.webp'}
 								alt={guildData.name}
 								className="w-10 h-10 rounded-full border-2 border-primary/20"
 							/>
