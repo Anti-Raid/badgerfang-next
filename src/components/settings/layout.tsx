@@ -16,14 +16,14 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 /**
- * Renders the settings dashboard for a guild.
+ * Renders a dashboard for managing guild settings.
  *
- * This component retrieves and displays the guild's base information using the provided guild ID.
- * While data is being fetched, a loading indicator is shown. If an error occurs, an error message with a retry option is displayed.
- * Once loaded, the dashboard presents a sticky header with the guild's icon and name, a theme selector, and sections for managing
- * server roles, members, scripts, key-value data, published scripts, and lockdown settings.
+ * This component fetches the guild's base information using the provided guild ID and displays a settings dashboard.
+ * While fetching data, it shows a loading indicator. If an error occurs, an error message is displayed with a retry option,
+ * and a toast notification is triggered. Once the data is loaded, it renders a sticky header with the guild's icon and name,
+ * along with various sections for managing server roles, members, scripts, key-value data, published scripts, and lockdown settings.
  *
- * @param guildId - Unique identifier for the guild.
+ * @param guildId - Unique identifier of the guild.
  * @returns A JSX element representing the settings dashboard.
  */
 export default function Settings({ guildId }: { guildId: string }) {
