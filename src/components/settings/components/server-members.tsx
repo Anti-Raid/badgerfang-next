@@ -6,6 +6,8 @@ import { Primary, Ghost } from '../../ui/Buttons';
 import { InputField, RadioOption, Toggle } from './form-elements';
 import { executeSettings } from '@/lib/api';
 import { Trash2, User, AlertCircle, Check, X, UserPlus } from 'lucide-react';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface ServerMembersProps {
 	guildId: string;
@@ -26,7 +28,6 @@ export const ServerMembers: React.FC<ServerMembersProps> = ({ guildId }) => {
 	const [positionValue, setPositionValue] = useState('');
 	const [isPublic, setIsPublic] = useState(true);
 	const [isLoading, setIsLoading] = useState(false);
-	const [error, setError] = useState<string | null>(null);
 	const [success, setSuccess] = useState<string | null>(null);
 	const [members, setMembers] = useState<ServerMember[]>([]);
 
@@ -36,7 +37,6 @@ export const ServerMembers: React.FC<ServerMembersProps> = ({ guildId }) => {
 
 	const fetchMembers = async () => {
 		setIsLoading(true);
-		setError(null);
 
 		const payload = {
 			operation: 'View',
@@ -57,7 +57,7 @@ export const ServerMembers: React.FC<ServerMembersProps> = ({ guildId }) => {
 			setMembers(membersData);
 		} catch (error) {
 			console.error('Failed to fetch server members:', error);
-			setError('Failed to load server members. Please try again.');
+			toast.error('Failed to load server members. Please try again.');
 		} finally {
 			setIsLoading(false);
 		}
@@ -78,12 +78,11 @@ export const ServerMembers: React.FC<ServerMembersProps> = ({ guildId }) => {
 
 	const handleAddServerMember = async () => {
 		if (!userId.trim()) {
-			setError('User ID is required');
+			toast.error('User ID is required');
 			return;
 		}
 
 		setIsLoading(true);
-		setError(null);
 		setSuccess(null);
 
 		const permOverrides =
@@ -101,7 +100,7 @@ export const ServerMembers: React.FC<ServerMembersProps> = ({ guildId }) => {
 
 		try {
 			await executeSettings(guildId, payload);
-			setSuccess('Server member added successfully');
+			toast.success('Server member added successfully');
 			fetchMembers();
 			// Reset form
 			setUserId('');
@@ -110,7 +109,7 @@ export const ServerMembers: React.FC<ServerMembersProps> = ({ guildId }) => {
 			setPositionValue('');
 		} catch (error) {
 			console.error('Failed to add server member:', error);
-			setError('Failed to add server member. Please try again.');
+			toast.error('Failed to add server member. Please try again.');
 		} finally {
 			setIsLoading(false);
 		}
@@ -118,7 +117,6 @@ export const ServerMembers: React.FC<ServerMembersProps> = ({ guildId }) => {
 
 	const handleDeleteMember = async (memberId: string) => {
 		setIsLoading(true);
-		setError(null);
 		setSuccess(null);
 
 		const memberToDelete = members.find((m) => m.id === memberId);
@@ -135,10 +133,10 @@ export const ServerMembers: React.FC<ServerMembersProps> = ({ guildId }) => {
 		try {
 			await executeSettings(guildId, payload);
 			setMembers(members.filter((m) => m.id !== memberId));
-			setSuccess('Server member deleted successfully');
+			toast.success('Server member deleted successfully');
 		} catch (error) {
 			console.error('Failed to delete server member:', error);
-			setError('Failed to delete server member. Please try again.');
+			toast.error('Failed to delete server member. Please try again.');
 		} finally {
 			setIsLoading(false);
 		}
@@ -267,13 +265,6 @@ export const ServerMembers: React.FC<ServerMembersProps> = ({ guildId }) => {
 					onChange={() => setIsPublic(!isPublic)}
 				/>
 
-				{error && (
-					<div className="bg-destructive/10 border border-destructive/30 rounded-md p-3 flex items-center gap-2 text-sm mt-4">
-						<AlertCircle className="w-4 h-4 text-destructive" />
-						<p className="text-destructive">{error}</p>
-					</div>
-				)}
-
 				{success && (
 					<div className="bg-primary/10 border border-primary/30 rounded-md p-3 flex items-center gap-2 text-sm mt-4">
 						<Check className="w-4 h-4 text-primary" />
@@ -282,11 +273,7 @@ export const ServerMembers: React.FC<ServerMembersProps> = ({ guildId }) => {
 				)}
 
 				<div className="mt-6">
-					<Primary
-						Title="Add Server Member"
-						onClick={handleAddServerMember}
-						icon={UserPlus}
-					/>
+					<Primary Title="Add Server Member" onClick={handleAddServerMember} icon={UserPlus} />
 				</div>
 			</div>
 

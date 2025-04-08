@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, Reorder } from 'framer-motion';
-import { GripVertical, Plus, Settings, Trash2, Edit } from 'lucide-react';
+import { GripVertical, Plus, Trash2, Edit } from 'lucide-react';
 import { Primary } from '../../ui/Buttons';
 import { InputField } from './form-elements';
 import { executeSettings, getUserGuildBaseInfo } from '@/lib/api';
+import { toast } from 'react-toastify'; // Import toast
 
 interface Role {
 	role_id: string;
@@ -38,9 +39,16 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId }) => {
 
 		try {
 			const result = await executeSettings(guildId, payload);
-			setRoles(result.fields || []);
+			const rolesWithDisplayName = result.fields.map((role: Role) => {
+				const roleOption = roleOptions.find((option) => option.value === role.role_id);
+				return {
+					...role,
+					display_name: role.display_name || roleOption?.label || ''
+				};
+			});
+			setRoles(rolesWithDisplayName || []);
 		} catch (error) {
-			console.error('Failed to fetch roles:', error);
+			toast.error('Failed to fetch roles'); // Display error toast
 		}
 	};
 
@@ -58,7 +66,7 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId }) => {
 				}));
 				setRoleOptions(options);
 			} catch (error) {
-				console.error('Failed to fetch role options:', error);
+				toast.error('Failed to fetch role options'); // Display error toast
 			}
 		};
 
@@ -86,7 +94,7 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId }) => {
 				setShowNewRoleForm(false);
 				fetchRoles(); // Fetch roles again after adding a new role
 			} catch (error) {
-				console.error('Failed to add role:', error);
+				toast.error('Failed to add role'); // Display error toast
 			}
 		}
 	};
@@ -102,7 +110,7 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId }) => {
 			await executeSettings(guildId, payload);
 			setRoles(roles.filter((role) => role.role_id !== roleId));
 		} catch (error) {
-			console.error('Failed to delete role:', error);
+			toast.error('Failed to delete role'); // Display error toast
 		}
 	};
 
@@ -123,7 +131,7 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId }) => {
 				setRoles(roles.map((role) => (role.role_id === editingRole.role_id ? editingRole : role)));
 				setEditingRole(null);
 			} catch (error) {
-				console.error('Failed to edit role:', error);
+				toast.error('Failed to edit role'); // Display error toast
 			}
 		}
 	};
@@ -141,7 +149,7 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId }) => {
 			setRoles(updatedRoles);
 			setIsReordered(false);
 		} catch (error) {
-			console.error('Failed to save reordered roles:', error);
+			toast.error('Failed to save reordered roles'); // Display error toast
 		}
 	};
 
@@ -170,8 +178,12 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId }) => {
 						type="select"
 						value={newRole.role_id}
 						onChange={(e) => {
-							const selectedRole = roleOptions.find(option => option.value === e.target.value);
-							setNewRole({ ...newRole, role_id: e.target.value, display_name: selectedRole?.label || '' });
+							const selectedRole = roleOptions.find((option) => option.value === e.target.value);
+							setNewRole({
+								...newRole,
+								role_id: e.target.value,
+								display_name: selectedRole?.label || ''
+							});
 						}}
 						options={roleOptions}
 					/>
@@ -180,7 +192,12 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId }) => {
 						label="Permissions"
 						placeholder="Enter permissions (comma-separated)"
 						value={newRole.perms?.join(',')}
-						onChange={(e) => setNewRole({ ...newRole, perms: e.target.value.split(',').map(perm => perm.trim()) })}
+						onChange={(e) =>
+							setNewRole({
+								...newRole,
+								perms: e.target.value.split(',').map((perm) => perm.trim())
+							})
+						}
 					/>
 
 					<div className="flex gap-2">
@@ -207,8 +224,12 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId }) => {
 						type="select"
 						value={editingRole.role_id}
 						onChange={(e) => {
-							const selectedRole = roleOptions.find(option => option.value === e.target.value);
-							setEditingRole({ ...editingRole, role_id: e.target.value, display_name: selectedRole?.label || '' });
+							const selectedRole = roleOptions.find((option) => option.value === e.target.value);
+							setEditingRole({
+								...editingRole,
+								role_id: e.target.value,
+								display_name: selectedRole?.label || ''
+							});
 						}}
 						options={roleOptions}
 					/>
@@ -217,7 +238,12 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId }) => {
 						label="Permissions"
 						placeholder="Enter permissions (comma-separated)"
 						value={editingRole.perms?.join(',')}
-						onChange={(e) => setEditingRole({ ...editingRole, perms: e.target.value.split(',').map(perm => perm.trim()) })}
+						onChange={(e) =>
+							setEditingRole({
+								...editingRole,
+								perms: e.target.value.split(',').map((perm) => perm.trim())
+							})
+						}
 					/>
 
 					<InputField

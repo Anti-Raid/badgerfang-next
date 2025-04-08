@@ -12,6 +12,8 @@ import { Lockdowns } from './components/lockdowns';
 import { useEffect, useState } from 'react';
 import { getUserGuildBaseInfo, executeSettings } from '@/lib/api';
 import { motion } from 'framer-motion';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 /**
  * Renders the settings dashboard for a guild.
@@ -40,8 +42,12 @@ export default function Settings({ guildId }: { guildId: string }) {
 					const errorMessage =
 						error.response?.data?.message || 'Failed to fetch guild data. Please try again later.';
 					setError(errorMessage);
+					toast.error(errorMessage, { position: 'top-left' });
 				} else {
 					setError('An unexpected error occurred. Please try again later.');
+					toast.error('An unexpected error occurred. Please try again later.', {
+						position: 'top-left'
+					});
 				}
 			} finally {
 				setLoading(false);
@@ -63,20 +69,6 @@ export default function Settings({ guildId }: { guildId: string }) {
 	function isAxiosError(error: any): error is { response?: { data?: { message?: string } } } {
 		return error && error.response;
 	}
-
-	const handleExecuteSettings = async (operation: string, setting: string, fields: any) => {
-		try {
-			const payload = { operation, setting, fields };
-			const result = await executeSettings(guildId, payload);
-		} catch (error) {
-			console.error('Failed to execute settings:', error);
-		}
-	};
-
-	const changeTheme = (theme: string) => {
-		document.documentElement.className = theme;
-		setActiveTheme(theme);
-	};
 
 	if (loading) {
 		return (
@@ -125,6 +117,7 @@ export default function Settings({ guildId }: { guildId: string }) {
 
 	return (
 		<div className="min-h-screen bg-background text-foreground">
+			<ToastContainer position="top-left" />
 			<div className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b border-border">
 				<div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
 					<div className="flex items-center gap-3">

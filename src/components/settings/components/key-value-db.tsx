@@ -250,7 +250,9 @@ export const KeyValueDB: React.FC<KeyValueDBProps> = ({ guildId }) => {
 												<h4 className="font-medium text-foreground whitespace-nowrap">Value:</h4>
 												<div className="relative group flex-1">
 													<div className="text-muted-foreground text-sm bg-muted/30 p-2 rounded break-all">
-														{pair.value}
+														{typeof pair.value === 'object'
+															? JSON.stringify(pair.value, null, 2)
+															: pair.value}
 													</div>
 													<button
 														onClick={() => handleCopyValue(pair.key, pair.value)}
