@@ -23,7 +23,7 @@ export const TemplateCarousel = () => {
 				const repoTemplate: TemplateShopProps = {
 					id: '4',
 					name: response.data.name || 'Auto Slowdown',
-					version: 'v1.0.0',
+					version: '1.0.0',
 					description: response.data.description,
 					owner_guild: 'Anti-Raid',
 					created_at: response.data.created_at || new Date().toISOString(),
