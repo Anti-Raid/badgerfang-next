@@ -121,9 +121,14 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId }) => {
 	const handleSaveEdit = async () => {
 		if (editingRole) {
 			const payload = {
-				operation: 'Edit',
+				operation: 'Update',
 				setting: 'roles',
-				fields: [editingRole]
+				fields: {
+					role_id: editingRole.role_id,
+					perms: editingRole.perms,
+					index: editingRole.index,
+					display_name: editingRole.display_name
+				}
 			};
 
 			try {
@@ -139,7 +144,7 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId }) => {
 	const handleSaveReorder = async () => {
 		const updatedRoles = roles.map((role, index) => ({ ...role, index: index + 1 }));
 		const payload = {
-			operation: 'Edit',
+			operation: 'Update',
 			setting: 'roles',
 			fields: updatedRoles
 		};

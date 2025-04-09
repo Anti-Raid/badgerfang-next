@@ -117,7 +117,7 @@ export default function Settings({ guildId }: { guildId: string }) {
 
 	return (
 		<div className="min-h-screen bg-background text-foreground">
-			<ToastContainer position="top-left" />
+			<ToastContainer theme="dark" />
 			<div className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b border-border">
 				<div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
 					<div className="flex items-center gap-3">
