@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiChevronLeft, FiChevronRight, FiBox } from 'react-icons/fi';
 import { CommonCard } from '../scripts/ScriptCard';
-import axios from 'axios';
+import { anonexecuteSettings } from '@/lib/api';
 import type { TemplateShopProps } from '@/types/script';
 
 export const TemplateCarousel = () => {
@@ -18,26 +18,22 @@ export const TemplateCarousel = () => {
 		const fetchTemplates = async () => {
 			try {
 				setIsLoading(true);
-				const response = await axios.get('https://api.github.com/repos/Anti-Raid/auto-slowdown');
 
-				const repoTemplate: TemplateShopProps = {
-					id: '4',
-					name: response.data.name || 'Auto Slowdown',
-					version: '1.0.0',
-					description: response.data.description,
-					owner_guild: 'Anti-Raid',
-					created_at: response.data.created_at || new Date().toISOString(),
-					created_by: 'Anti-Raid Devs',
-					last_updated_at: response.data.updated_at || new Date().toISOString(),
-					last_updated_by: 'Anti-Raid',
-					tags: ['automation', 'discord', 'luau'],
-					downloads: 0,
-					rating: 4.5
+				const payload = {
+					operation: 'View',
+					setting: 'template_shop_public_list',
+					fields: {}
 				};
+				const settingsResponse = await anonexecuteSettings(payload);
 
-				setTemplates([repoTemplate]);
+				const templatesData = settingsResponse.fields;
+
+				if (Array.isArray(templatesData)) {
+					setTemplates(templatesData);
+				} else {
+					setError('Failed to fetch repository data. Using fallback data.');
+				}
 			} catch (err) {
-				console.error('Error fetching repository:', err);
 				setError('Failed to fetch repository data. Using fallback data.');
 			} finally {
 				setIsLoading(false);

@@ -1,9 +1,9 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
 	FiPackage,
-	FiUser,
 	FiClock,
 	FiGitBranch,
 	FiServer,
@@ -11,19 +11,48 @@ import {
 	FiStar,
 	FiEye
 } from 'react-icons/fi';
-import type { TemplateShopProps } from '@/types/script';
 import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
+import type { TemplateShopProps } from '@/types/script';
+import { anonuserDetails } from '@/lib/api';
 
 interface CommonCardProps {
 	template: TemplateShopProps;
 }
 
+interface CreatorDetails {
+	username: string;
+	avatar: string;
+}
+
 export const CommonCard = ({ template }: CommonCardProps) => {
 	const router = useRouter();
+	const [creator, setCreator] = useState<CreatorDetails | null>(null);
+
+	useEffect(() => {
+		const fetchCreator = async () => {
+			try {
+				const data = await anonuserDetails(template.created_by);
+				setCreator({
+					username: data.user.username,
+					avatar: data.user.avatar
+				});
+			} catch (error) {
+				console.error('Failed to fetch creator details:', error);
+			}
+		};
+
+		if (template.created_by) {
+			fetchCreator();
+		}
+	}, [template.created_by]);
 
 	const handleViewClick = () => {
 		router.push(`/script/${template.name}`);
+	};
+
+	const truncate = (str: string, maxLength: number) => {
+		return str.length > maxLength ? str.slice(0, maxLength) + '...' : str;
 	};
 
 	return (
@@ -75,17 +104,23 @@ export const CommonCard = ({ template }: CommonCardProps) => {
 							</div>
 							<div>
 								<p className="text-muted-foreground text-sm font-inter">Server</p>
-								<p className="font-monster font-semibold text-foreground">{template.owner_guild}</p>
+								<p className="font-monster font-semibold text-foreground">
+									{template.owner_guild.length > 10
+										? `${template.owner_guild.slice(0, 10)}...`
+										: template.owner_guild}
+								</p>
 							</div>
 						</div>
 
 						<div className="flex items-center space-x-3">
-							<div className="p-2.5 bg-primary/10 rounded-xl">
-								<FiUser className="w-5 h-5 text-primary" />
-							</div>
+							{creator?.avatar && (
+								<img src={creator.avatar} alt="Creator Avatar" className="w-8 h-8 rounded-full" />
+							)}
 							<div>
 								<p className="text-muted-foreground text-sm font-inter">Creator</p>
-								<p className="font-monster font-semibold text-foreground">{template.created_by}</p>
+								<p className="font-monster font-semibold text-foreground max-w-[150px] truncate">
+									{creator ? truncate(creator.username, 12) : 'Unknown'}
+								</p>
 							</div>
 						</div>
 					</div>
@@ -98,7 +133,7 @@ export const CommonCard = ({ template }: CommonCardProps) => {
 							<div>
 								<p className="text-muted-foreground text-sm font-inter">Created</p>
 								<p className="font-monster font-semibold text-foreground">
-									{format(new Date(template.created_at), 'MMM d, yyyy')}
+									{format(new Date(template.last_updated_at.replace(' UTC', 'Z')), 'MMM d, yyyy')}
 								</p>
 							</div>
 						</div>

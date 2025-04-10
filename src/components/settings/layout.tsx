@@ -30,7 +30,6 @@ export default function Settings({ guildId }: { guildId: string }) {
 	const [guildData, setGuildData] = useState<any>(null);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
-	const [activeTheme, setActiveTheme] = useState<string>('dark');
 
 	useEffect(() => {
 		const fetchData = async () => {

@@ -1,5 +1,3 @@
-'use client';
-
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiSearch, FiFilter } from 'react-icons/fi';
@@ -8,17 +6,21 @@ import { CommonCard } from './ScriptCard';
 
 export const TemplateShop = ({ data }: { data: TemplateShopProps[] }) => {
 	const [searchTerm, setSearchTerm] = useState('');
-	const [filteredData, setFilteredData] = useState(data);
+	const [filteredData, setFilteredData] = useState<TemplateShopProps[]>([]);
 
 	useEffect(() => {
-		setFilteredData(
-			data.filter(
-				(template) =>
-					template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-					template.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-					template.owner_guild.toLowerCase().includes(searchTerm.toLowerCase())
-			)
-		);
+		if (Array.isArray(data)) {
+			setFilteredData(
+				data.filter(
+					(template) =>
+						template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+						template.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+						template.owner_guild.toLowerCase().includes(searchTerm.toLowerCase())
+				)
+			);
+		} else {
+			setFilteredData([]);
+		}
 	}, [searchTerm, data]);
 
 	return (
@@ -82,7 +84,7 @@ export const TemplateShop = ({ data }: { data: TemplateShopProps[] }) => {
 					>
 						{filteredData.map((template, index) => (
 							<motion.div
-								key={template.id}
+								key={template.name}
 								initial={{ opacity: 0, y: 20 }}
 								animate={{ opacity: 1, y: 0 }}
 								transition={{ duration: 0.3, delay: index * 0.1 }}
