@@ -32,7 +32,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
 	return (
 		<HelmetProvider>
-			<ThemeProvider defaultTheme='dark' attribute='class'>
+			<ThemeProvider defaultTheme='dark' attribute='class'>																							
 				<SWRConfig>
 					<ToastProvider>
 						{isLoading ? (
