@@ -19,7 +19,14 @@ export const metadata: Metadata = {
 		},
 		description: `${description}`,
 		siteName: `${title}`,
-    images: "https://antiraid.xyz/og_image.webp",
+		images: [
+			{
+				url: 'https://antiraid.xyz/og_image.webp',
+				width: 630,
+				height: 630,
+				alt: 'AntiRaid by Purrquinox'
+			}
+		]
 	},
 	keywords: keywords,
   applicationName: "AntiRaid",
