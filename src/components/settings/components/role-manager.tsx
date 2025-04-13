@@ -284,7 +284,7 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId }) => {
 						<Reorder.Item key={role.role_id} value={role} className="p-3">
 							<div className="flex items-center gap-3">
 								<GripVertical className="w-5 h-5 text-muted-foreground cursor-grab active:cursor-grabbing" />
-								<span className="font-medium text-foreground">{role.display_name}</span>
+								<span className="font-medium text-foreground">{role?.display_name || "Role Name"}</span>
 								<div className="ml-auto flex items-center gap-2">
 									<button
 										className="p-1 rounded-md hover:bg-accent/50"
