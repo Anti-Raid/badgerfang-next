@@ -21,12 +21,12 @@ export const metadata: Metadata = {
 		siteName: `${title}`,
 		images: [
 			{
-				url: 'https://antiraid.xyz/og_image.webp',
-				width: 1000,
-				height: 333,
-				alt: 'AntiRaid by Purrquinox'
+					url: 'https://antiraid.xyz/og_image.webp',
+					width: 1200,
+					height: 630,
+					alt: 'AntiRaid by Purrquinox'
 			}
-		]
+	]	
 	},
 	keywords: keywords,
   applicationName: "AntiRaid",
