@@ -77,7 +77,7 @@ const Hero = () => {
 
 						<p className="text-gray-400 mb-10 font-inter text-sm font-bold">
 							Join the other{' '}
-							<span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-red-400">
+							<span className="bg-clip-text text-primary">
 								{serverCount.toLocaleString('en-US')}+
 							</span>{' '}
 							servers that use AntiRaid and protect your server today!

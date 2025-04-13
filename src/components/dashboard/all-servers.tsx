@@ -110,15 +110,16 @@ const AllServers: React.FC = () => {
 	return (
 		<main className="container mx-auto p-4 max-w-7xl">
 			{/* User Profile Header */}
-			<div className="bg-card rounded-xl p-6 mb-8 shadow-lg border border-border backdrop-blur-sm bg-opacity-60">
+			<div className="bg-gradient-to-r from-card/90 to-card/70 backdrop-blur-md rounded-2xl p-6 mb-8 shadow-xl border border-border/50 transition-all duration-300 hover:shadow-primary/5">
 				<div className="flex flex-col sm:flex-row items-center gap-6">
-					<div className="relative">
+					<div className="relative group">
+						<div className="absolute inset-0 bg-gradient-to-r from-primary to-extra rounded-full blur-md opacity-50 group-hover:opacity-70 transition-opacity duration-300"></div>
 						<img
 							src={userData?.user.avatar || '/logo.webp'}
 							alt="User Avatar"
-							className="w-20 h-20 rounded-full border-2 border-primary object-cover"
+							className="relative w-20 h-20 rounded-full border-2 border-primary object-cover"
 						/>
-						<div className="absolute -bottom-2 -right-2 bg-green-500 w-5 h-5 rounded-full border-2 border-card"></div>
+						<div className="absolute -bottom-2 -right-2 bg-green-500 w-5 h-5 rounded-full border-2 border-card z-10"></div>
 					</div>
 					<div className="text-center sm:text-left">
 						<h2 className="text-foreground text-2xl font-bold">
@@ -127,12 +128,12 @@ const AllServers: React.FC = () => {
 						<p className="text-muted-foreground">@{userData?.user.username}</p>
 					</div>
 					<button
-						className="flex items-center gap-2 bg-accent text-accent-foreground px-4 py-2 rounded-md hover:bg-accent/80 transition-colors ml-auto"
+						className="flex items-center gap-2 bg-accent hover:bg-accent/80 text-accent-foreground px-5 py-2.5 rounded-lg transition-all duration-300 ml-auto transform hover:scale-105 hover:shadow-lg"
 						onClick={() => fetchServers(true)}
 						disabled={refreshing}
 					>
 						<RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-						<span className="hidden sm:inline">
+						<span className="hidden sm:inline font-medium">
 							{refreshing ? 'Refreshing...' : 'Refresh Servers'}
 						</span>
 					</button>
@@ -140,9 +141,9 @@ const AllServers: React.FC = () => {
 			</div>
 
 			{/* Tab Navigation */}
-			<div className="flex mb-6 border-b border-border">
+			<div className="flex mb-8 border-b border-border/50 relative">
 				<button
-					className={`px-6 py-3 font-medium text-lg transition-colors ${
+					className={`px-6 py-3 font-medium text-lg transition-all duration-300 ${
 						activeTab === 'managed'
 							? 'text-primary border-b-2 border-primary'
 							: 'text-muted-foreground hover:text-foreground'
@@ -152,7 +153,7 @@ const AllServers: React.FC = () => {
 					Managed Servers ({managedServers.length})
 				</button>
 				<button
-					className={`px-6 py-3 font-medium text-lg transition-colors ${
+					className={`px-6 py-3 font-medium text-lg transition-all duration-300 ${
 						activeTab === 'yours'
 							? 'text-primary border-b-2 border-primary'
 							: 'text-muted-foreground hover:text-foreground'
@@ -161,6 +162,7 @@ const AllServers: React.FC = () => {
 				>
 					Your Servers ({yourServers.length})
 				</button>
+				<div className="absolute bottom-0 w-full h-px bg-gradient-to-r from-primary/10 via-primary/30 to-primary/10"></div>
 			</div>
 
 			{/* Active Tab Content */}
@@ -204,15 +206,18 @@ const ServerList: React.FC<{
 
 	return (
 		<div>
-			<div className="relative mb-6">
-				<Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-				<input
-					type="text"
-					placeholder="Search for a server"
-					className="w-full bg-accent text-foreground pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary placeholder-muted-foreground"
-					value={searchTerm}
-					onChange={(e) => setSearchTerm(e.target.value)}
-				/>
+			<div className="relative mb-8 group">
+				<div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-extra/5 rounded-xl blur-sm group-hover:blur-md transition-all duration-300"></div>
+				<div className="relative bg-accent/80 backdrop-blur-sm rounded-xl overflow-hidden border shadow-lg transition-all duration-300 group-hover:shadow-primary/10">
+					<Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+					<input
+						type="text"
+						placeholder="Search for a server"
+						className="w-full bg-transparent text-foreground pl-12 pr-4 py-4 focus:outline-none placeholder-muted-foreground"
+						value={searchTerm}
+						onChange={(e) => setSearchTerm(e.target.value)}
+					/>
+				</div>
 			</div>
 
 			{isLoading ? (
@@ -220,7 +225,7 @@ const ServerList: React.FC<{
 					{[1, 2, 3, 4, 5, 6].map((i) => (
 						<div
 							key={i}
-							className="bg-card rounded-lg p-6 border border-border animate-pulse h-40"
+							className="bg-card/80 rounded-xl p-6 border border-border/30 animate-pulse h-48 shadow-lg"
 						></div>
 					))}
 				</div>
@@ -231,10 +236,15 @@ const ServerList: React.FC<{
 					))}
 				</div>
 			) : (
-				<div className="flex flex-col items-center justify-center py-12 text-center">
-					<Server className="h-16 w-16 text-muted-foreground mb-4" />
-					<h3 className="text-xl font-semibold text-foreground mb-2">No servers found</h3>
-					<p className="text-muted-foreground">
+				<div className="flex flex-col items-center justify-center py-16 text-center">
+					<div className="relative w-24 h-24 mb-6">
+						<div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-extra/20 rounded-full blur-lg"></div>
+						<div className="relative flex items-center justify-center w-full h-full">
+							<Server className="h-16 w-16 text-muted-foreground" />
+						</div>
+					</div>
+					<h3 className="text-2xl font-semibold text-foreground mb-3">No servers found</h3>
+					<p className="text-muted-foreground max-w-md">
 						{searchTerm
 							? "We couldn't find any servers matching your search"
 							: showViewButton
@@ -242,11 +252,12 @@ const ServerList: React.FC<{
 								: "You don't have any servers with sufficient permissions to add the bot"}
 					</p>
 					{!showViewButton && !searchTerm && servers.length === 0 && (
-						<div className="mt-4 p-4 bg-accent rounded-lg max-w-md text-sm">
-							<p className="text-muted-foreground mb-2">
-								<strong>Note:</strong> You need <span className="text-primary">Manage Server</span>{' '}
-								or <span className="text-primary">Administrator</span> permissions to add bots to a
-								server.
+						<div className="mt-6 p-5 bg-accent/50 backdrop-blur-sm rounded-xl max-w-md text-sm border border-border/30 shadow-lg">
+							<p className="text-muted-foreground mb-3">
+								<strong>Note:</strong> You need{' '}
+								<span className="text-primary font-medium">Manage Server</span> or{' '}
+								<span className="text-primary font-medium">Administrator</span> permissions to add
+								bots to a server.
 							</p>
 							<p className="text-muted-foreground">
 								If you don't see your servers, make sure you're logged in with the correct Discord
@@ -279,57 +290,66 @@ const ServerCard: React.FC<{ server: ServerType; showViewButton: boolean }> = ({
 	};
 
 	return (
-		<div className="bg-card rounded-lg overflow-hidden border border-border shadow-lg transition-all duration-300 hover:-translate-y-1">
-			<div className="h-16 bg-gradient-to-r from-primary/80 to-accent"></div>
-			<div className="p-6 pt-0 -mt-8">
-				<div className="flex items-start gap-3 mb-4">
-					<img
-						src={server.avatar || '/logo.webp'}
-						alt={`${server.name} icon`}
-						className="w-16 h-16 rounded-lg border-4 border-card bg-accent"
-					/>
-					<div className="mt-8">
-						<h3 className="text-foreground font-bold text-lg truncate max-w-[180px]">
-							{server.name}
-						</h3>
-					</div>
+		<div className="group relative">
+			<div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-extra/10 rounded-xl blur-md opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
+			<div className="relative bg-card/80 backdrop-blur-sm rounded-xl overflow-hidden border border-border/30 shadow-lg transition-all duration-300 group-hover:shadow-xl group-hover:border-primary/20 group-hover:-translate-y-1">
+				<div className="h-20 bg-gradient-to-r from-primary/80 via-primary/50 to-extra/80 relative overflow-hidden">
+					<div className="absolute inset-0 bg-[url('/placeholder.svg')] opacity-10 mix-blend-overlay"></div>
+					<div className="absolute inset-0 bg-gradient-to-r from-black/20 to-black/5"></div>
 				</div>
+				<div className="p-6 pt-0 -mt-10">
+					<div className="flex items-start gap-3 mb-4">
+						<div className="relative">
+							<div className="absolute inset-0 bg-gradient-to-r from-primary to-extra rounded-xl blur-sm opacity-70"></div>
+							<img
+								src={server.avatar || '/logo.webp'}
+								alt={`${server.name} icon`}
+								className="relative w-16 h-16 rounded-xl border-2 border-card bg-accent object-cover"
+							/>
+						</div>
+						<div className="mt-10">
+							<h3 className="text-foreground font-bold text-lg truncate max-w-[180px]">
+								{server.name}
+							</h3>
+						</div>
+					</div>
 
-				<div className="flex items-center justify-between mb-4">
-					<div className="flex items-center gap-1">
-						{isAdministrator ? (
-							<div className="bg-primary/20 px-3 py-1 rounded-full text-xs text-primary flex items-center gap-1">
-								<FaDiscord className="h-3 w-3" />
-								<span>Administrator</span>
-							</div>
+					<div className="flex items-center justify-between mb-5">
+						<div className="flex items-center gap-1">
+							{isAdministrator ? (
+								<div className="bg-primary/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs text-primary flex items-center gap-1 font-medium">
+									<FaDiscord className="h-3 w-3" />
+									<span>Administrator</span>
+								</div>
+							) : (
+								<div className="bg-accent/80 backdrop-blur-sm px-3 py-1 rounded-full text-xs text-muted-foreground flex items-center gap-1">
+									<Shield className="h-3 w-3" />
+									<span>{permissionNames[0]}</span>
+								</div>
+							)}
+						</div>
+						<div className="text-xs text-muted-foreground">ID: {server.id.slice(0, 8)}...</div>
+					</div>
+
+					<button
+						className={`flex items-center gap-2 px-4 py-3 rounded-lg w-full justify-center transition-all duration-300 ${
+							showViewButton
+								? 'bg-accent/80 backdrop-blur-sm text-foreground hover:bg-accent/60 hover:shadow-md'
+								: 'bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:shadow-primary/20 hover:shadow-md'
+						}`}
+						onClick={showViewButton ? handleViewClick : handleInviteClick}
+					>
+						{showViewButton ? (
+							<>
+								<Eye className="h-4 w-4" /> <span className="font-medium">Manage Server</span>
+							</>
 						) : (
-							<div className="bg-accent px-3 py-1 rounded-full text-xs text-muted-foreground flex items-center gap-1">
-								<Shield className="h-3 w-3" />
-								<span>{permissionNames[0]}</span>
-							</div>
+							<>
+								<FaDiscord className="h-4 w-4" /> <span className="font-medium">Add Bot</span>
+							</>
 						)}
-					</div>
-					<div className="text-xs text-muted-foreground">ID: {server.id.slice(0, 8)}...</div>
+					</button>
 				</div>
-
-				<button
-					className={`flex items-center gap-2 px-4 py-3 rounded-md w-full justify-center transition-colors ${
-						showViewButton
-							? 'bg-accent text-foreground hover:bg-accent/80'
-							: 'bg-primary text-primary-foreground hover:bg-primary/90'
-					}`}
-					onClick={showViewButton ? handleViewClick : handleInviteClick}
-				>
-					{showViewButton ? (
-						<>
-							<Eye className="h-4 w-4" /> Manage Server
-						</>
-					) : (
-						<>
-							<FaDiscord className="h-4 w-4" /> Add Bot
-						</>
-					)}
-				</button>
 			</div>
 		</div>
 	);

@@ -143,3 +143,13 @@ export const executeSettings = async (guildId: string, payload: any): Promise<an
 	const response = await axiosInstance.post(`/guilds/${guildId}/settings`, payload);
 	return response.data;
 };
+
+export const anonexecuteSettings = async (payload: any): Promise<any> => {
+	const response = await axiosInstance.post(`/settings`, payload);
+	return response.data;
+};
+
+export const anonuserDetails = async (userId: string): Promise<any> => {
+	const response = await axiosInstance.get(`/users/${userId}`);
+	return response.data;
+};

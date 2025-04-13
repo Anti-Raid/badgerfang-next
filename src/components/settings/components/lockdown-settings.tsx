@@ -101,7 +101,6 @@ export const LockdownSettings: React.FC<LockdownSettingsProps> = ({ guildId }) =
 			await executeSettings(guildId, payload);
 			setSuccess('Lockdown settings added successfully');
 			fetchSettings();
-			// Reset form
 			setMemberRoles(['']);
 		} catch (error) {
 			console.error('Failed to add lockdown settings:', error);
@@ -138,12 +137,14 @@ export const LockdownSettings: React.FC<LockdownSettingsProps> = ({ guildId }) =
 
 	return (
 		<div className="space-y-6">
+			{/* Configure Lockdown Settings */}
 			<div className="bg-card border border-border rounded-lg p-5 shadow-sm">
 				<h3 className="text-lg font-medium mb-4 flex items-center gap-2">
 					<Lock className="w-5 h-5 text-primary" />
 					Configure Lockdown Settings
 				</h3>
 
+				{/* Member Roles Configuration */}
 				<div className="mb-4">
 					<label className="block text-foreground font-medium mb-2">
 						Member Roles Configuration
@@ -164,6 +165,7 @@ export const LockdownSettings: React.FC<LockdownSettingsProps> = ({ guildId }) =
 					</div>
 				</div>
 
+				{/* Member Roles Fields */}
 				<div className="space-y-3 mb-6">
 					<label className="block text-foreground font-medium mb-2">Member Roles</label>
 					<AnimatePresence>
@@ -202,6 +204,7 @@ export const LockdownSettings: React.FC<LockdownSettingsProps> = ({ guildId }) =
 					</button>
 				</div>
 
+				{/* Require Correct Layout Toggle */}
 				<Toggle
 					label="Require Correct Layout"
 					description="Whether or not a lockdown can proceed even without correct critical role permissions. May lead to partial lockdowns if disabled"
@@ -209,6 +212,7 @@ export const LockdownSettings: React.FC<LockdownSettingsProps> = ({ guildId }) =
 					onChange={() => setRequireCorrectLayout(!requireCorrectLayout)}
 				/>
 
+				{/* Errors */}
 				{error && (
 					<div className="bg-destructive/10 border border-destructive/30 rounded-md p-3 flex items-center gap-2 text-sm mt-4">
 						<AlertCircle className="w-4 h-4 text-destructive" />
@@ -216,6 +220,7 @@ export const LockdownSettings: React.FC<LockdownSettingsProps> = ({ guildId }) =
 					</div>
 				)}
 
+				{/* Success */}
 				{success && (
 					<div className="bg-primary/10 border border-primary/30 rounded-md p-3 flex items-center gap-2 text-sm mt-4">
 						<Shield className="w-4 h-4 text-primary" />
@@ -223,11 +228,13 @@ export const LockdownSettings: React.FC<LockdownSettingsProps> = ({ guildId }) =
 					</div>
 				)}
 
+				{/* Save Button */}
 				<div className="mt-6">
 					<Primary Title="Save Lockdown Settings" onClick={handleAddLockdownSettings} icon={Save} />
 				</div>
 			</div>
 
+			{/* Existing Lockdown Settings */}
 			<div className="mt-8">
 				<div className="flex justify-between items-center mb-4">
 					<h3 className="text-lg font-medium">Existing Lockdown Settings</h3>
@@ -277,28 +284,18 @@ export const LockdownSettings: React.FC<LockdownSettingsProps> = ({ guildId }) =
 												</div>
 											</div>
 											<div>
-												<h4 className="font-medium text-foreground">Member Roles:</h4>
-												<div className="flex flex-wrap gap-2 mt-1">
-													{setting.member_roles.length > 0 ? (
-														setting.member_roles.map((role, idx) => (
-															<span
-																key={idx}
-																className="px-2 py-1 bg-muted/50 rounded-md text-xs text-muted-foreground"
-															>
-																{role}
-															</span>
-														))
-													) : (
-														<span className="text-sm text-muted-foreground">
-															No roles configured
-														</span>
-													)}
-												</div>
+												<h4 className="font-medium text-foreground mb-1">Member Roles:</h4>
+												<ul className="list-disc list-inside text-sm text-muted-foreground">
+													{setting.member_roles.map((role, idx) => (
+														<li key={idx}>{role}</li>
+													))}
+												</ul>
 											</div>
 										</div>
+
 										<button
 											onClick={() => handleDeleteSetting(setting.id)}
-											className="self-start md:self-center p-2 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+											className="p-2 rounded-md hover:bg-destructive/10 text-destructive transition-colors"
 										>
 											<Trash2 className="w-5 h-5" />
 										</button>

@@ -88,13 +88,6 @@ const ThemeSelector: React.FC = () => {
 			>
 				<div className="relative">
 					<PaletteIcon className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
-					{/* Only render the theme indicator if mounted */}
-					{mounted && theme && (
-						<span
-							className="absolute -bottom-1 -right-1 w-2.5 h-2.5 rounded-full bg-gradient-to-r shadow-lg border border-background"
-							style={{ backgroundImage: `linear-gradient(to right, var(--primary), var(--extra))` }}
-						/>
-					)}
 				</div>
 			</button>
 

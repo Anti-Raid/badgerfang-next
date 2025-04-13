@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Loading from '@/components/Loading';
 import Header from '@/components/static/Header';
 import Footer from '@/components/static/Footer';
@@ -24,7 +23,6 @@ import { SWRConfig } from 'swr';
  */
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
 	const [isLoading, setIsLoading] = useState(false);
-	const router = useRouter();
 
 	useEffect(() => {
 		if (typeof window !== 'undefined') setIsLoading(window.location.pathname === '/');
@@ -34,7 +32,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
 	return (
 		<HelmetProvider>
-			<ThemeProvider>
+			<ThemeProvider defaultTheme='dark' attribute='class'>																							
 				<SWRConfig>
 					<ToastProvider>
 						{isLoading ? (

@@ -12,23 +12,24 @@ import { Lockdowns } from './components/lockdowns';
 import { useEffect, useState } from 'react';
 import { getUserGuildBaseInfo, executeSettings } from '@/lib/api';
 import { motion } from 'framer-motion';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 /**
- * Renders the settings dashboard for a guild.
+ * Renders a dashboard for managing guild settings.
  *
- * This component retrieves and displays the guild's base information using the provided guild ID.
- * While data is being fetched, a loading indicator is shown. If an error occurs, an error message with a retry option is displayed.
- * Once loaded, the dashboard presents a sticky header with the guild's icon and name, a theme selector, and sections for managing
- * server roles, members, scripts, key-value data, published scripts, and lockdown settings.
+ * This component fetches the guild's base information using the provided guild ID and displays a settings dashboard.
+ * While fetching data, it shows a loading indicator. If an error occurs, an error message is displayed with a retry option,
+ * and a toast notification is triggered. Once the data is loaded, it renders a sticky header with the guild's icon and name,
+ * along with various sections for managing server roles, members, scripts, key-value data, published scripts, and lockdown settings.
  *
- * @param guildId - Unique identifier for the guild.
+ * @param guildId - Unique identifier of the guild.
  * @returns A JSX element representing the settings dashboard.
  */
 export default function Settings({ guildId }: { guildId: string }) {
 	const [guildData, setGuildData] = useState<any>(null);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
-	const [activeTheme, setActiveTheme] = useState<string>('dark');
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -40,8 +41,12 @@ export default function Settings({ guildId }: { guildId: string }) {
 					const errorMessage =
 						error.response?.data?.message || 'Failed to fetch guild data. Please try again later.';
 					setError(errorMessage);
+					toast.error(errorMessage, { position: 'top-left' });
 				} else {
 					setError('An unexpected error occurred. Please try again later.');
+					toast.error('An unexpected error occurred. Please try again later.', {
+						position: 'top-left'
+					});
 				}
 			} finally {
 				setLoading(false);
@@ -63,20 +68,6 @@ export default function Settings({ guildId }: { guildId: string }) {
 	function isAxiosError(error: any): error is { response?: { data?: { message?: string } } } {
 		return error && error.response;
 	}
-
-	const handleExecuteSettings = async (operation: string, setting: string, fields: any) => {
-		try {
-			const payload = { operation, setting, fields };
-			const result = await executeSettings(guildId, payload);
-		} catch (error) {
-			console.error('Failed to execute settings:', error);
-		}
-	};
-
-	const changeTheme = (theme: string) => {
-		document.documentElement.className = theme;
-		setActiveTheme(theme);
-	};
 
 	if (loading) {
 		return (
@@ -125,12 +116,13 @@ export default function Settings({ guildId }: { guildId: string }) {
 
 	return (
 		<div className="min-h-screen bg-background text-foreground">
+			<ToastContainer theme="dark" />
 			<div className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b border-border">
 				<div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
 					<div className="flex items-center gap-3">
 						{guildData.icon ? (
 							<img
-								src={guildData.icon || '/placeholder.svg'}
+								src={guildData.icon || '/logo.webp'}
 								alt={guildData.name}
 								className="w-10 h-10 rounded-full border-2 border-primary/20"
 							/>

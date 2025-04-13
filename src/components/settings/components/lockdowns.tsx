@@ -1,12 +1,12 @@
-'use client';
-import type React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Primary } from '../../ui/Buttons';
 import { InputField } from './form-elements';
 import { executeSettings, getUserGuildBaseInfo } from '@/lib/api';
 import { Trash2, Lock, AlertCircle, RefreshCw, Calendar, Clock, Shield, Tv } from 'lucide-react';
 import { FaLock } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface LockdownProps {
 	guildId: string;
@@ -27,20 +27,19 @@ interface Channel {
 }
 
 export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
-	const [type, setType] = useState('qsl'); // Default to first option to avoid empty selection
+	const [type, setType] = useState('qsl');
 	const [reason, setReason] = useState('');
 	const [selectedChannelId, setSelectedChannelId] = useState('');
 	const [channelOptions, setChannelOptions] = useState<{ value: string; label: string }[]>([]);
 	const [lockdowns, setLockdowns] = useState<Lockdown[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
-	const [error, setError] = useState<string | null>(null);
+	const [error, setError] = useState<string | null>(null); // Declare the error state
 
 	useEffect(() => {
 		fetchLockdowns();
 	}, [guildId]);
 
 	useEffect(() => {
-		// Only fetch channels if type is "scl"
 		if (type === 'scl') {
 			fetchChannelOptions();
 		}
@@ -50,7 +49,6 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 		try {
 			const data = await getUserGuildBaseInfo(guildId);
 			if (data.channels && Array.isArray(data.channels)) {
-				// Extract unique channels and format them for the dropdown
 				const uniqueChannels = new Map();
 
 				data.channels.forEach((item: any) => {
@@ -62,19 +60,19 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 					}
 				});
 
-				// Convert the Map values to an array
 				const options = Array.from(uniqueChannels.values());
 				setChannelOptions(options);
 			}
 		} catch (error) {
 			console.error('Failed to fetch channel options:', error);
-			setError('Failed to load channel options. Please try again.');
+			toast.error('Failed to load channel options. Please try again.');
+			setError('Failed to load channel options. Please try again.'); // Set the error state
 		}
 	};
 
 	const fetchLockdowns = async () => {
 		setIsLoading(true);
-		setError(null);
+		setError(null); // Clear any existing error
 
 		const payload = {
 			operation: 'View',
@@ -100,31 +98,31 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 			}
 		} catch (error) {
 			console.error('Failed to fetch lockdowns:', error);
-			setError('Failed to load lockdowns. Please try again.');
+			toast.error('Failed to load lockdowns. Please try again.');
+			setError('Failed to load lockdowns. Please try again.'); // Set the error state
 		} finally {
 			setIsLoading(false);
 		}
 	};
 
 	const handleAddLockdown = async () => {
-		// Validate form inputs
 		if (!type || !reason) {
-			setError('Please select a type and provide a reason');
+			toast.error('Please select a type and provide a reason');
+			setError('Please select a type and provide a reason'); // Set the error state
 			return;
 		}
 
-		// If type is scl, validate that a channel is selected
 		if (type === 'scl' && !selectedChannelId) {
-			setError('Please select a channel for Server Channel Lockdown');
+			toast.error('Please select a channel for Server Channel Lockdown');
+			setError('Please select a channel for Server Channel Lockdown'); // Set the error state
 			return;
 		}
 
-		if (isLoading) return; // Prevent multiple submissions
+		if (isLoading) return;
 
 		setIsLoading(true);
-		setError(null);
+		setError(null); // Clear any existing error
 
-		// Create the correct type format: For SCL, it should be "scl/channelId"
 		const formattedType = type === 'scl' ? `${type}/${selectedChannelId}` : type;
 
 		const payload = {
@@ -138,30 +136,30 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 
 		try {
 			await executeSettings(guildId, payload);
-			// Reset form fields
 			setReason('');
 			if (type === 'scl') {
 				setSelectedChannelId('');
 			}
-			// Refresh the list
 			await fetchLockdowns();
 		} catch (error) {
 			console.error('Failed to add lockdown:', error);
-			setError('Failed to add lockdown. Please try again.');
+			toast.error('Failed to add lockdown. Please try again.');
+			setError('Failed to add lockdown. Please try again.'); // Set the error state
 		} finally {
 			setIsLoading(false);
 		}
 	};
 
 	const handleDeleteLockdown = async (id: string) => {
-		if (isLoading) return; // Prevent multiple deletions
+		if (isLoading) return;
 		if (!id || id.length < 30) {
-			setError('Invalid lockdown ID. Cannot delete this item.');
+			toast.error('Invalid lockdown ID. Cannot delete this item.');
+			setError('Invalid lockdown ID. Cannot delete this item.'); // Set the error state
 			return;
 		}
 
 		setIsLoading(true);
-		setError(null);
+		setError(null); // Clear any existing error
 
 		const payload = {
 			operation: 'Delete',
@@ -173,11 +171,11 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 
 		try {
 			await executeSettings(guildId, payload);
-			// Update local state
 			setLockdowns(lockdowns.filter((lockdown) => lockdown.id !== id));
 		} catch (error) {
 			console.error('Failed to delete lockdown:', error);
-			setError('Failed to delete lockdown. Please try again.');
+			toast.error('Failed to delete lockdown. Please try again.');
+			setError('Failed to delete lockdown. Please try again.'); // Set the error state
 		} finally {
 			setIsLoading(false);
 		}
@@ -190,14 +188,12 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 	];
 
 	const getLockdownTypeLabel = (type: string) => {
-		// Extract base type for display (in case it's "scl/channelId")
 		const baseType = type.split('/')[0];
 		const lockdownType = lockdownTypes.find((lt) => lt.value === baseType);
 		return lockdownType ? lockdownType.label : baseType.toUpperCase();
 	};
 
 	const getTypeColor = (type: string) => {
-		// Extract base type for styling (in case it's "scl/channelId")
 		const baseType = type.split('/')[0];
 		switch (baseType) {
 			case 'qsl':
@@ -227,11 +223,9 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 		}
 	};
 
-	// Get channel ID from composite type string or use directly provided channel_id
 	const getChannelIdFromType = (lockdown: Lockdown): string | undefined => {
 		if (lockdown.channel_id) return lockdown.channel_id;
 
-		// If type is in format "scl/channelId", extract the channelId
 		const typeParts = lockdown.type.split('/');
 		if (typeParts.length > 1 && typeParts[0] === 'scl') {
 			return typeParts[1];
@@ -240,12 +234,9 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 		return undefined;
 	};
 
-	// Find the channel name for display in the lockdown list
 	const getChannelName = (lockdown: Lockdown) => {
-		// If channel_name is already provided, use it
 		if (lockdown.channel_name) return lockdown.channel_name;
 
-		// Otherwise try to get it from channelOptions using the extracted channel ID
 		const channelId = getChannelIdFromType(lockdown);
 		if (!channelId) return '';
 
@@ -253,7 +244,6 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 		return channel ? channel.label : 'Unknown Channel';
 	};
 
-	// Determine if a lockdown is SCL type (either "scl" or "scl/channelId")
 	const isSclType = (type: string) => {
 		return type.startsWith('scl');
 	};

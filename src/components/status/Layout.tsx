@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { FaChartLine, FaCube, FaServer, FaClock } from 'react-icons/fa';
 import {
 	LineChart,
@@ -61,6 +61,7 @@ const StatusCard: React.FC<StatusCardProps> = React.memo(({ icon, title, value }
 		whileHover={{ scale: 1.05 }}
 		whileTap={{ scale: 0.95 }}
 		className="bg-card p-6 rounded-md shadow-md flex items-center space-x-4 transition-all border border-border"
+		aria-label={`${title}: ${value}`}
 	>
 		<div className="text-3xl text-primary">{icon}</div>
 		<div>
@@ -71,12 +72,16 @@ const StatusCard: React.FC<StatusCardProps> = React.memo(({ icon, title, value }
 ));
 
 const ShardLatencyChart: React.FC<{ data: BotStatusData }> = React.memo(({ data }) => {
-	const chartData = Object.entries(data.resp.shard_conns).map(([shard, details]) => ({
-		name: `Shard ${shard}`,
-		latency: details.real_latency,
-		guilds: details.guilds,
-		status: details.status
-	}));
+	const chartData = useMemo(
+		() =>
+			Object.entries(data.resp.shard_conns).map(([shard, details]) => ({
+				name: `Shard ${shard}`,
+				latency: details.real_latency,
+				guilds: details.guilds,
+				status: details.status
+			})),
+		[data]
+	);
 
 	return (
 		<div className="bg-card p-6 rounded-md shadow-md border border-border">
@@ -130,10 +135,14 @@ const ShardLatencyChart: React.FC<{ data: BotStatusData }> = React.memo(({ data 
 });
 
 const GuildDistributionChart: React.FC<{ data: BotStatusData }> = React.memo(({ data }) => {
-	const chartData = Object.entries(data.resp.shard_conns).map(([shard, details]) => ({
-		name: `Shard ${shard}`,
-		guilds: details.guilds
-	}));
+	const chartData = useMemo(
+		() =>
+			Object.entries(data.resp.shard_conns).map(([shard, details]) => ({
+				name: `Shard ${shard}`,
+				guilds: details.guilds
+			})),
+		[data]
+	);
 
 	return (
 		<div className="bg-card p-6 rounded-md shadow-md border border-border">
@@ -201,6 +210,7 @@ const ShardStatusList: React.FC<{ data: BotStatusData }> = React.memo(({ data })
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ duration: 0.3, delay: Number(shard) * 0.05 }}
 						className="bg-secondary p-4 rounded-md border border-border"
+						aria-label={`Shard ${shard} Status`}
 					>
 						<div className="flex justify-between items-center mb-2">
 							<span className="font-semibold text-foreground">Shard {shard}</span>
@@ -212,6 +222,7 @@ const ShardStatusList: React.FC<{ data: BotStatusData }> = React.memo(({ data })
 											? 'bg-yellow-500'
 											: 'bg-red-500'
 								}`}
+								aria-label={`Status: ${details.status}`}
 							/>
 						</div>
 						<div className="text-sm text-muted-foreground">
@@ -236,9 +247,13 @@ const BotStatusSummary: React.FC<{ data: BotStatusData }> = React.memo(({ data }
 	const totalGuilds = data.resp.total_guilds;
 	const uptime = formatUptime(data.resp.uptime);
 
-	const avgLatency = Math.round(
-		Object.values(data.resp.shard_conns).reduce((sum, shard) => sum + shard.real_latency, 0) /
-			totalShards
+	const avgLatency = useMemo(
+		() =>
+			Math.round(
+				Object.values(data.resp.shard_conns).reduce((sum, shard) => sum + shard.real_latency, 0) /
+					totalShards
+			),
+		[data, totalShards]
 	);
 
 	return (
