@@ -14,7 +14,7 @@ import {
 import { useRouter } from 'next/navigation';
 import type { TemplateShopProps } from '@/types/script';
 import { anonuserDetails } from '@/lib/api';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 
 interface CommonCardProps {
 	template: TemplateShopProps;
@@ -28,8 +28,6 @@ interface CreatorDetails {
 export const CommonCard = ({ template }: CommonCardProps) => {
 	const router = useRouter();
 	const [creator, setCreator] = useState<CreatorDetails | null>(null);
-	const formattedCreatedDate = format(new Date(template.created_at), 'MMM d, yyyy');
-	const formattedUpdatedDate = format(new Date(template.last_updated_at), 'MMM d, yyyy');
 
 	useEffect(() => {
 		const fetchCreator = async () => {
@@ -56,6 +54,25 @@ export const CommonCard = ({ template }: CommonCardProps) => {
 	const truncate = (str: string, maxLength: number) => {
 		return str.length > maxLength ? str.slice(0, maxLength) + '...' : str;
 	};
+
+	const convertToISO = (dateString: string) => {
+		// Remove the ' UTC' suffix and replace space with 'T'
+		return dateString.replace(' UTC', '').replace(' ', 'T') + 'Z';
+	};
+
+	const safeFormatDate = (dateString: string) => {
+		const isoDateString = convertToISO(dateString);
+		const date = new Date(isoDateString);
+		if (isValid(date)) {
+			return format(date, 'MMM d, yyyy');
+		} else {
+			console.error(`Invalid date string: ${dateString}`);
+			return 'Invalid Date';
+		}
+	};
+
+	const formattedCreatedDate = safeFormatDate(template.created_at);
+	const formattedUpdatedDate = safeFormatDate(template.last_updated_at);
 
 	return (
 		<motion.div
@@ -134,9 +151,7 @@ export const CommonCard = ({ template }: CommonCardProps) => {
 							</div>
 							<div>
 								<p className="text-muted-foreground text-sm font-inter">Created</p>
-								<p className="font-monster font-semibold text-foreground">
-									{formattedCreatedDate}
-								</p>
+								<p className="font-monster font-semibold text-foreground">{formattedCreatedDate}</p>
 							</div>
 						</div>
 
@@ -146,9 +161,7 @@ export const CommonCard = ({ template }: CommonCardProps) => {
 							</div>
 							<div>
 								<p className="text-muted-foreground text-sm font-inter">Updated</p>
-								<p className="font-monster font-semibold text-foreground">
-								{formattedUpdatedDate}
-								</p>
+								<p className="font-monster font-semibold text-foreground">{formattedUpdatedDate}</p>
 							</div>
 						</div>
 					</div>

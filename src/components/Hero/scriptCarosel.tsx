@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiChevronLeft, FiChevronRight, FiBox } from 'react-icons/fi';
+import { FiChevronLeft, FiBox, FiChevronRight } from 'react-icons/fi';
 import { CommonCard } from '../scripts/ScriptCard';
 import { anonexecuteSettings } from '@/lib/api';
 import type { TemplateShopProps } from '@/types/script';
@@ -54,24 +54,20 @@ export const TemplateCarousel = () => {
 		return () => window.removeEventListener('resize', handleResize);
 	}, []);
 
-	// Determine items per view based on viewport width
 	const getItemsPerView = () => {
 		if (viewportWidth >= 1280) return 3; // xl
 		if (viewportWidth >= 768) return 2; // md
 		return 1; // mobile
 	};
 
-	// Calculate total pages (each page shows a full group of items)
 	const itemsPerPage = getItemsPerView();
 	const totalPages = Math.ceil(templates.length / itemsPerPage);
 
-	// Get the visible templates for the current page
 	const getVisibleTemplates = () => {
 		const start = currentPage * itemsPerPage;
 		return templates.slice(start, start + itemsPerPage);
 	};
 
-	// Page-based navigation for next and previous buttons
 	const next = () => {
 		setCurrentPage((prevPage) => (prevPage + 1) % totalPages);
 	};
@@ -80,7 +76,6 @@ export const TemplateCarousel = () => {
 		setCurrentPage((prevPage) => (prevPage - 1 + totalPages) % totalPages);
 	};
 
-	// Animation variants for navigation buttons
 	const buttonVariants = {
 		hover: {
 			scale: 1.05,
@@ -96,12 +91,12 @@ export const TemplateCarousel = () => {
 
 	return (
 		<section className="py-20 relative overflow-hidden">
-			{/* Background decorative elements */}
+			{/* Background elements */}
 			<div className="absolute -top-24 -left-24 w-64 h-64 rounded-full blur-3xl"></div>
 			<div className="absolute bottom-0 right-0 w-96 h-96 rounded-full blur-3xl"></div>
 
 			<div className="container mx-auto px-4 relative">
-				{/* Section Header with Decorative Elements */}
+				{/* Section header */}
 				<div className="text-center mb-16 relative">
 					<div className="absolute top-1/2 left-1/4 w-32 h-32 rounded-full blur-3xl -z-10"></div>
 					<div className="absolute top-1/2 right-1/4 w-32 h-32 rounded-full blur-3xl -z-10"></div>
@@ -130,7 +125,7 @@ export const TemplateCarousel = () => {
 					</motion.h2>
 				</div>
 
-				{/* Loading State */}
+				{/* Loading spinner */}
 				{isLoading && (
 					<div className="flex justify-center items-center h-64">
 						<motion.div
@@ -141,7 +136,7 @@ export const TemplateCarousel = () => {
 					</div>
 				)}
 
-				{/* Error State */}
+				{/* Error state */}
 				{error && !isLoading && (
 					<motion.div
 						initial={{ opacity: 0, y: 10 }}
@@ -155,7 +150,7 @@ export const TemplateCarousel = () => {
 				{/* Carousel */}
 				{!isLoading && templates.length > 0 && (
 					<div className="relative">
-						{/* Top Navigation Buttons */}
+						{/* Top Navigation */}
 						<div className="flex justify-between items-center mb-8 md:mb-12">
 							<h3 className="text-xl font-semibold text-foreground/80 font-monster">
 								Popular Scripts
@@ -169,7 +164,7 @@ export const TemplateCarousel = () => {
 									whileTap="tap"
 									onClick={prev}
 									className="p-3 rounded-full bg-card hover:bg-secondary text-foreground transition-colors duration-300 border border-border shadow-sm"
-									aria-label="Previous template"
+									aria-label="Previous"
 								>
 									<FiChevronLeft className="w-5 h-5" />
 								</motion.button>
@@ -179,14 +174,14 @@ export const TemplateCarousel = () => {
 									whileTap="tap"
 									onClick={next}
 									className="p-3 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground transition-colors duration-300 shadow-sm"
-									aria-label="Next template"
+									aria-label="Next"
 								>
 									<FiChevronRight className="w-5 h-5" />
 								</motion.button>
 							</div>
 						</div>
 
-						{/* Carousel Track */}
+						{/* Carousel items */}
 						<div className="relative overflow-hidden">
 							<AnimatePresence mode="wait">
 								<motion.div
@@ -211,7 +206,7 @@ export const TemplateCarousel = () => {
 							</AnimatePresence>
 						</div>
 
-						{/* Carousel Indicators */}
+						{/* Carousel dots */}
 						<div className="flex justify-center mt-10 gap-3">
 							{Array.from({ length: totalPages }).map((_, i) => (
 								<motion.button
@@ -235,11 +230,10 @@ export const TemplateCarousel = () => {
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ duration: 0.5 }}
-						className="flex flex-col items-center justify-center h-64 bg-card rounded-lg border border-border p-8 text-center shadow-md"
+						className="flex flex-col items-center justify-center h-64 bg-card rounded-lg border border-border p-6 text-center"
 					>
-						<FiBox className="w-12 h-12 mb-4 text-muted-foreground" />
-						<h3 className="text-xl font-semibold mb-2">No Templates Available</h3>
-						<p className="text-muted-foreground">Check back later for new templates</p>
+						<FiBox className="w-12 h-12 text-muted-foreground mb-4" />
+						<p className="text-muted-foreground text-lg">No templates found.</p>
 					</motion.div>
 				)}
 			</div>
