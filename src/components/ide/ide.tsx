@@ -88,7 +88,7 @@ export function ScriptIDE({
 			let isMounted = true;
 			import('monaco-editor').then((monacoModule) => {
 				if (!isMounted) return;
-				const monaco = monacoModule; // Use the imported monaco
+				const monaco = monacoModule;
 				monaco.languages.register({ id: 'luau' });
 				try {
 					// Register a tokens provider for the language

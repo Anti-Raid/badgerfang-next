@@ -11,10 +11,10 @@ import {
 	FiStar,
 	FiEye
 } from 'react-icons/fi';
-import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import type { TemplateShopProps } from '@/types/script';
 import { anonuserDetails } from '@/lib/api';
+import { format } from 'date-fns';
 
 interface CommonCardProps {
 	template: TemplateShopProps;
@@ -28,6 +28,8 @@ interface CreatorDetails {
 export const CommonCard = ({ template }: CommonCardProps) => {
 	const router = useRouter();
 	const [creator, setCreator] = useState<CreatorDetails | null>(null);
+	const formattedCreatedDate = format(new Date(template.created_at), 'MMM d, yyyy');
+	const formattedUpdatedDate = format(new Date(template.last_updated_at), 'MMM d, yyyy');
 
 	useEffect(() => {
 		const fetchCreator = async () => {
@@ -133,7 +135,7 @@ export const CommonCard = ({ template }: CommonCardProps) => {
 							<div>
 								<p className="text-muted-foreground text-sm font-inter">Created</p>
 								<p className="font-monster font-semibold text-foreground">
-									{format(new Date(template.last_updated_at.replace(' UTC', 'Z')), 'MMM d, yyyy')}
+									{formattedCreatedDate}
 								</p>
 							</div>
 						</div>
@@ -145,7 +147,7 @@ export const CommonCard = ({ template }: CommonCardProps) => {
 							<div>
 								<p className="text-muted-foreground text-sm font-inter">Updated</p>
 								<p className="font-monster font-semibold text-foreground">
-									{format(new Date(template.last_updated_at), 'MMM d, yyyy')}
+								{formattedUpdatedDate}
 								</p>
 							</div>
 						</div>
