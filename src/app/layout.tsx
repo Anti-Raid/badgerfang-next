@@ -22,8 +22,8 @@ export const metadata: Metadata = {
 		images: [
 			{
 				url: 'https://antiraid.xyz/og_image.webp',
-				width: 480,
-				height: 480,
+				width: 1000,
+				height: 333,
 				alt: 'AntiRaid by Purrquinox'
 			}
 		]
