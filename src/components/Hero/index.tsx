@@ -1,3 +1,4 @@
+'use client';
 import { useEffect, useState } from 'react';
 import type { StatisticsData } from '@/types/home/StatisticsData';
 import { TemplateCarousel } from './scriptCarosel';
