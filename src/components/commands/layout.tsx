@@ -816,7 +816,7 @@ export default function CommandInterface() {
 											))}
 										</div>
 									)}
-								</
+								</>
 							)}
 						</div>
 					</main>
