@@ -3,47 +3,19 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { X, ArrowRight, RefreshCcw, AlertOctagon } from "lucide-react";
+import { Primary, Secondary, Ghost } from "@/components/ui/Buttons";
 
-type ButtonVariant = "primary" | "ghost" | "outline";
-
-interface ButtonProps {
-  onClick?: () => void;
-  children: React.ReactNode;
-  variant?: ButtonVariant;
-  className?: string;
-  icon?: React.ReactNode;
-}
-
-// Custom button component with animations
-const Button = ({
-  onClick,
-  children,
-  variant = "primary",
-  className = "",
-  icon,
-}: ButtonProps) => {
-  const baseStyles = "inline-flex h-11 items-center justify-center rounded-lg px-6 text-sm font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2";
-
-  const variantStyles = {
-    primary: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:shadow-primary/30",
-    ghost: "bg-background hover:bg-accent text-foreground hover:text-accent-foreground",
-    outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-  };
-
-  return (
-    <button
-      onClick={onClick}
-      className={`${baseStyles} ${variantStyles[variant]} ${className}`}
-    >
-      <span>{children}</span>
-      {icon && <span className="ml-2">{icon}</span>}
-    </button>
-  );
-};
-
-// Animated particles background
 const ParticlesBackground = () => {
-  const [particles, setParticles] = useState<Array<{ x: number; y: number; size: number; speedX: number; speedY: number; opacity: number }>>([]);
+  const [particles, setParticles] = useState<
+    Array<{
+      x: number;
+      y: number;
+      size: number;
+      speedX: number;
+      speedY: number;
+      opacity: number;
+    }>
+  >([]);
 
   useEffect(() => {
     const createParticles = () => {
@@ -131,7 +103,8 @@ const ErrorPage = () => {
 
   const statusCode = 404;
   const title = "Page Not Found";
-  const description = "The page you are looking for might have been removed or is temporarily unavailable.";
+  const description =
+    "The page you are looking for might have been removed or is temporarily unavailable.";
   const primaryAction = {
     text: "Return Home",
     href: "/",
@@ -144,7 +117,11 @@ const ErrorPage = () => {
       <div className="relative z-10 max-w-3xl w-full">
         <div className="flex flex-col items-center text-center">
           {/* Animated status code */}
-          <div className={`mb-6 font-mono text-8xl font-bold tracking-tighter ${isGlitching ? "animate-pulse" : ""}`}>
+          <div
+            className={`mb-6 font-mono text-8xl font-bold tracking-tighter ${
+              isGlitching ? "animate-pulse" : ""
+            }`}
+          >
             <span className="text-primary">{statusCode}</span>
           </div>
 
@@ -157,7 +134,11 @@ const ErrorPage = () => {
           </div>
 
           {/* Error message */}
-          <h1 className={`text-4xl font-bold mb-4 ${isGlitching ? "animate-glitch" : ""}`}>
+          <h1
+            className={`text-4xl font-bold mb-4 ${
+              isGlitching ? "animate-glitch" : ""
+            }`}
+          >
             {title}
           </h1>
 
@@ -169,28 +150,25 @@ const ErrorPage = () => {
           <div className="flex flex-wrap gap-4 justify-center">
             {primaryAction.href ? (
               <Link href={primaryAction.href}>
-                <Button
-                  variant="primary"
-                  className="group"
-                  icon={<ArrowRight className="transition-transform duration-300 group-hover:translate-x-1" />}
-                >
-                  {primaryAction.text}
-                </Button>
+                <Primary
+                  Title={primaryAction.text}
+                  icon={ArrowRight}
+                  onClick={() => {}}
+                />
               </Link>
             ) : (
-              <Button
-                variant="primary"
-                className="group"
-                icon={<RefreshCcw className="transition-transform duration-300 group-hover:rotate-90" />}
-              >
-                {primaryAction.text}
-              </Button>
+              <Primary
+                Title={primaryAction.text}
+                icon={RefreshCcw}
+                onClick={() => {}}
+              />
             )}
 
-            <Button variant="outline" icon={<X />}>
-              Dismiss
-            </Button>
+            <Ghost Title="Dismiss" icon={X} onClick={() => {}} />
           </div>
+
+          {/* Decorative background */}
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-primary/20 opacity-50 rounded-full blur-3xl"></div>
         </div>
 
         {/* Decorative geometric shapes */}
@@ -201,7 +179,9 @@ const ErrorPage = () => {
 
       {/* Additional information */}
       <div className="absolute bottom-8 text-center text-sm text-muted-foreground">
-        <p>If you continue experiencing issues, please contact our support team</p>
+        <p>
+          If you continue experiencing issues, please contact our support team
+        </p>
       </div>
 
       {/* Add keyframes for the glitch animation */}
