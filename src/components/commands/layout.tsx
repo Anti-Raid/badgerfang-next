@@ -5,7 +5,6 @@ import { useState, useEffect, useMemo } from 'react';
 import { Search, ChevronDown, Menu, X, Filter, Command, Zap, ArrowRight, LayoutGrid, List } from 'lucide-react';
 import type { CanonicalCommand, BotState } from '../../types/splashtail/types';
 
-// Permission mapping (unchanged)
 const permissionNames: { [key: string]: string } = {
   '1': 'CREATE_INSTANT_INVITE',
   '2': 'KICK_MEMBERS',
@@ -50,7 +49,6 @@ const permissionNames: { [key: string]: string } = {
   '1099511627776': 'MODERATE_MEMBERS'
 };
 
-// Custom UI Components (unchanged)
 const Button = ({
   children,
   className = '',
@@ -201,12 +199,10 @@ const Badge = ({
   );
 };
 
-// Helper to randomize array (unchanged)
 const randomizeArray = <T,>(arr: T[]): T[] => {
   return [...arr].sort(() => Math.random() - 0.5);
 };
 
-// Extended command interface with module info and unique id
 interface CommandWithModule extends CanonicalCommand {
   moduleName: string;
   moduleId: string;
@@ -214,7 +210,6 @@ interface CommandWithModule extends CanonicalCommand {
 }
 
 export default function CommandInterface() {
-  // State management (unchanged)
   const [botState, setBotState] = useState<BotState | null>(null);
   const [selectedModule, setSelectedModule] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -224,7 +219,6 @@ export default function CommandInterface() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeView, setActiveView] = useState<'grid' | 'list'>('grid');
 
-  // Data fetching (unchanged)
   useEffect(() => {
     const fetchBotState = async () => {
       try {
@@ -312,7 +306,6 @@ export default function CommandInterface() {
     return Array.from(uniqueModules.values());
   }, [botState]);
 
-  // Loading and error states (unchanged)
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen bg-background">
@@ -344,7 +337,6 @@ export default function CommandInterface() {
     );
   }
 
-  // Sidebar components (unchanged)
   const ModuleSidebar = () => (
     <aside className="w-72 bg-background/50 backdrop-blur-sm border-r border-border rounded-l-xl hidden md:block overflow-hidden">
       <div className="p-5 border-b border-border">
@@ -447,7 +439,6 @@ export default function CommandInterface() {
     </div>
   );
 
-  // CommandCard component (updated to use command.id as key in parent mapping)
   const CommandCard: React.FC<{ command: CommandWithModule }> = ({ command }) => {
     const [expanded, setExpanded] = useState(false);
 
@@ -629,7 +620,6 @@ export default function CommandInterface() {
     );
   };
 
-  // CommandListItem component (updated to use command.id as key in parent mapping)
   const CommandListItem: React.FC<{ command: CommandWithModule }> = ({ command }) => {
     const [expanded, setExpanded] = useState(false);
 
@@ -826,7 +816,7 @@ export default function CommandInterface() {
 											))}
 										</div>
 									)}
-								</>
+								</
 							)}
 						</div>
 					</main>
