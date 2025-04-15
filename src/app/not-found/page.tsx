@@ -1,9 +1,8 @@
-"use client"
+"use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { X, ArrowRight, RefreshCcw, AlertOctagon } from "lucide-react";
-import { NextPage } from "next";
 
 type ButtonVariant = "primary" | "ghost" | "outline";
 
@@ -117,27 +116,8 @@ const ParticlesBackground = () => {
   );
 };
 
-interface ErrorPageProps {
-  statusCode?: number;
-  title?: string;
-  description?: string;
-  primaryAction?: {
-    text: string;
-    href?: string;
-    onClick?: () => void;
-  };
-}
-
 // Main error page component
-const ErrorPage: NextPage<ErrorPageProps> = ({
-  statusCode = 404,
-  title = "Page Not Found",
-  description = "The page you are looking for might have been removed or is temporarily unavailable.",
-  primaryAction = {
-    text: "Return Home",
-    href: "/",
-  },
-}) => {
+const ErrorPage = () => {
   const [isGlitching, setIsGlitching] = useState(false);
 
   useEffect(() => {
@@ -148,6 +128,14 @@ const ErrorPage: NextPage<ErrorPageProps> = ({
 
     return () => clearInterval(glitchInterval);
   }, []);
+
+  const statusCode = 404;
+  const title = "Page Not Found";
+  const description = "The page you are looking for might have been removed or is temporarily unavailable.";
+  const primaryAction = {
+    text: "Return Home",
+    href: "/",
+  };
 
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-background text-foreground p-4">
@@ -192,7 +180,6 @@ const ErrorPage: NextPage<ErrorPageProps> = ({
             ) : (
               <Button
                 variant="primary"
-                onClick={primaryAction.onClick}
                 className="group"
                 icon={<RefreshCcw className="transition-transform duration-300 group-hover:rotate-90" />}
               >
