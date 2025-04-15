@@ -5,7 +5,7 @@ import {
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-	title: "Commands | Antiraid",
+	title: "Commands",
 	description: `${description}`,
 };
 

@@ -13,7 +13,7 @@ import { Metadata } from "next";
  * @returns A React element representing the settings page.
  */
 export const metadata: Metadata = {
-	title: "Developers | Antiraid",
+	title: "Developers",
 	description: `${description}`,
 };
 
