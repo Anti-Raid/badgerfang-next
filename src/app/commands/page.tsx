@@ -1,12 +1,10 @@
 import CommandInterface from '@/components/commands/layout';
-import {
-	description,
-} from '@/components/common';
-import { Metadata } from "next";
+import { description } from '@/components/common';
+import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-	title: "Commands",
-	description: `${description}`,
+	title: 'Commands',
+	description: `${description}`
 };
 
 const Commands = () => {

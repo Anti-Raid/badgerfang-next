@@ -1,26 +1,23 @@
 'use client';
+
 import { useEffect, useState } from 'react';
-import type { StatisticsData } from '@/types/home/StatisticsData';
+import type { BotStats } from '@/types/bot-stats';
 import { TemplateCarousel } from './scriptCarosel';
 import { Primary, Secondary } from '../ui/Buttons';
 import { GoArrowUpRight } from 'react-icons/go';
 import { ReviewsCarousel } from './reviewCarosel';
-import { api_url } from '../common';
+import { getBotStats } from '@/lib/api';
 
 const Hero = () => {
 	const [serverCount, setServerCount] = useState(0);
-	const [stats, setStats] = useState<StatisticsData | null>(null);
+	const [stats, setStats] = useState<BotStats | null>(null);
 
 	useEffect(() => {
 		const fetchStats = async () => {
 			try {
-				const response = await fetch(`${api_url}/bot-stats`);
-				if (response.ok) {
-					const data: StatisticsData = await response.json();
-					setStats(data);
-				} else {
-					console.error('Failed to fetch stats');
-				}
+				const botState = await getBotStats();
+				const data: BotStats = botState as BotStats;
+				setStats(data);
 			} catch (error) {
 				console.error('Error fetching stats:', error);
 			}

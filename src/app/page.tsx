@@ -1,8 +1,6 @@
 import { Hero } from '@/components/Hero/index';
-import {
-	description,
-} from '@/components/common';
-import { Metadata } from "next";
+import { description } from '@/components/common';
+import { Metadata } from 'next';
 
 /**
  * Renders the home page of the application.
@@ -14,8 +12,8 @@ import { Metadata } from "next";
  */
 
 export const metadata: Metadata = {
-	title: "Home | Antiraid",
-	description: `${description}`,
+	title: 'Home | Antiraid',
+	description: `${description}`
 };
 
 export default function Home() {
