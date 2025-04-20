@@ -3,9 +3,10 @@
 import type React from 'react';
 import { motion } from 'framer-motion';
 import { Eye } from 'lucide-react';
+import type { Icon } from 'lucide-react';
 
 interface InputFieldProps {
-	label: string;
+	label?: string;
 	description?: string;
 	placeholder?: string;
 	type?: string;
@@ -14,6 +15,7 @@ interface InputFieldProps {
 	options?: { value: string; label: string }[];
 	className?: string;
 	id?: string;
+	icon?: typeof Icon;
 }
 
 export const InputField: React.FC<InputFieldProps> = ({
@@ -25,24 +27,32 @@ export const InputField: React.FC<InputFieldProps> = ({
 	onChange,
 	options,
 	className = '',
-	id
+	id,
+	icon: IconComponent
 }) => {
 	return (
 		<div className={`mb-6 group ${className}`}>
 			<label
-				htmlFor={id || label.toLowerCase().replace(/\s+/g, '-')}
+				htmlFor={id || label?.toLowerCase().replace(/\s+/g, '-')}
 				className="block text-foreground font-medium mb-1.5 text-sm"
 			>
 				{label}
 			</label>
 			{description && <p className="text-sm text-muted-foreground mb-2.5">{description}</p>}
-			{type === 'select' ? (
-				<div className="relative">
+			<div className="relative">
+				{IconComponent && (
+					<div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+						<IconComponent className="w-4 h-4 text-muted-foreground" iconNode={[]} />
+					</div>
+				)}
+				{type === 'select' ? (
 					<select
-						id={id || label.toLowerCase().replace(/\s+/g, '-')}
+						id={id || label?.toLowerCase().replace(/\s+/g, '-')}
 						value={value}
 						onChange={onChange}
-						className="w-full bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-3 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 appearance-none"
+						className={`w-full bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-3 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 appearance-none ${
+							IconComponent ? 'pl-10' : ''
+						}`}
 					>
 						{options?.map((option) => (
 							<option key={option.value} value={option.value}>
@@ -50,48 +60,35 @@ export const InputField: React.FC<InputFieldProps> = ({
 							</option>
 						))}
 					</select>
-					<div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-						<svg
-							width="12"
-							height="8"
-							viewBox="0 0 12 8"
-							fill="none"
-							xmlns="http://www.w3.org/2000/svg"
-						>
-							<path
-								d="M1 1.5L6 6.5L11 1.5"
-								stroke="currentColor"
-								strokeWidth="2"
-								strokeLinecap="round"
-								strokeLinejoin="round"
-							/>
-						</svg>
-					</div>
-				</div>
-			) : type === 'password' ? (
-				<div className="relative">
+				) : type === 'password' ? (
 					<input
-						id={id || label.toLowerCase().replace(/\s+/g, '-')}
+						id={id || label?.toLowerCase().replace(/\s+/g, '-')}
 						type={type}
 						placeholder={placeholder}
 						value={value}
 						onChange={onChange}
-						className="w-full bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-3 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+						className={`w-full bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-3 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${
+							IconComponent ? 'pl-10' : ''
+						}`}
 					/>
+				) : (
+					<input
+						id={id || label?.toLowerCase().replace(/\s+/g, '-')}
+						type={type}
+						placeholder={placeholder}
+						value={value}
+						onChange={onChange}
+						className={`w-full bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-3 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${
+							IconComponent ? 'pl-10' : ''
+						}`}
+					/>
+				)}
+				{type === 'password' && (
 					<button className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 rounded-md hover:bg-accent/50 text-muted-foreground hover:text-foreground transition-colors">
 						<Eye className="w-4 h-4" />
 					</button>
-				</div>
-			) : (
-				<input
-					id={id || label.toLowerCase().replace(/\s+/g, '-')}
-					type={type}
-					placeholder={placeholder}
-					value={value}
-					onChange={onChange}
-					className="w-full bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-3 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-				/>
-			)}
+				)}
+			</div>
 		</div>
 	);
 };
