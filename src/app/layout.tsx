@@ -1,7 +1,8 @@
 import type React from 'react';
-import './globals.css';
 import type { Metadata } from 'next';
+import './globals.css';
 import { title, description, keywords } from '@/components/common';
+import ClientLayout from './clientLayout';
 
 export const metadata: Metadata = {
 	title: {
@@ -14,25 +15,25 @@ export const metadata: Metadata = {
 		locale: 'en_US',
 		url: 'https://antiraid.xyz',
 		title: {
-			template: `${title} - ${description}`,
-			default: 'AntiRaid by Purrquinox'
+			template: `%s | ${title}`,
+			default: `${title} - ${description}`
 		},
 		description: `${description}`,
 		siteName: `${title}`,
 		images: [
 			{
-					url: 'https://antiraid.xyz/og_image.webp',
-					width: 1200,
-					height: 630,
-					alt: 'AntiRaid by Purrquinox'
+				url: 'https://antiraid.xyz/og_image.webp',
+				width: 1200,
+				height: 630,
+				alt: 'AntiRaid by Purrquinox'
 			}
-	]	
+		]
 	},
 	keywords: keywords,
-  applicationName: "AntiRaid",
-  other: {
-    "mobile-web-app-capable": "yes",
-  },
+	applicationName: 'AntiRaid',
+	other: {
+		'mobile-web-app-capable': 'yes'
+	},
 	twitter: {
 		card: 'summary_large_image',
 		title: `${title} - ${description}`,
@@ -53,8 +54,6 @@ export const metadata: Metadata = {
 			? new URL('http://localhost:3000')
 			: new URL('https://antiraid.xyz')
 };
-
-import ClientLayout from './clientLayout';
 
 export default function RootLayout({
 	children

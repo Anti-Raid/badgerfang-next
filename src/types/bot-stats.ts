@@ -16,4 +16,5 @@ export interface BotStats {
 			total_uptime: number;
 		}
 	>;
+	total_guilds: number;
 }

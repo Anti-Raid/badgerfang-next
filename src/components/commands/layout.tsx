@@ -2,10 +2,21 @@
 
 import type React from 'react';
 import { useState, useEffect, useMemo } from 'react';
-import { Search, ChevronDown, Menu, X, Filter, Command, Zap, ArrowRight } from 'lucide-react';
+import {
+	Search,
+	ChevronDown,
+	Menu,
+	X,
+	Filter,
+	Command,
+	Zap,
+	ArrowRight,
+	LayoutGrid,
+	List
+} from 'lucide-react';
 import type { CanonicalCommand, BotState } from '../../types/splashtail/types';
+import { getBotState } from '@/lib/api';
 
-// Permission mapping
 const permissionNames: { [key: string]: string } = {
 	'1': 'CREATE_INSTANT_INVITE',
 	'2': 'KICK_MEMBERS',
@@ -50,7 +61,6 @@ const permissionNames: { [key: string]: string } = {
 	'1099511627776': 'MODERATE_MEMBERS'
 };
 
-// Custom UI Components
 const Button = ({
 	children,
 	className = '',
@@ -65,13 +75,11 @@ const Button = ({
 }) => {
 	const baseStyles =
 		'inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background';
-
 	const sizeStyles = {
 		sm: 'px-3 py-1.5 text-xs',
 		md: 'px-4 py-2 text-sm',
 		lg: 'px-5 py-2.5 text-base'
 	};
-
 	const variantStyles = {
 		primary: 'bg-primary text-white hover:bg-primary/90 focus:ring-primary/50',
 		secondary: 'bg-secondary text-foreground hover:bg-secondary/80 focus:ring-secondary/50',
@@ -144,7 +152,6 @@ const Select: React.FC<SelectProps> = ({
 					className={`h-4 w-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
 				/>
 			</div>
-
 			{isOpen && (
 				<>
 					<div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
@@ -204,19 +211,17 @@ const Badge = ({
 	);
 };
 
-// Helper to randomize array
 const randomizeArray = <T,>(arr: T[]): T[] => {
 	return [...arr].sort(() => Math.random() - 0.5);
 };
 
-// Extended command interface with module info
 interface CommandWithModule extends CanonicalCommand {
 	moduleName: string;
 	moduleId: string;
+	id: string;
 }
 
 export default function CommandInterface() {
-	// State management
 	const [botState, setBotState] = useState<BotState | null>(null);
 	const [selectedModule, setSelectedModule] = useState<string>('all');
 	const [searchQuery, setSearchQuery] = useState('');
@@ -226,15 +231,10 @@ export default function CommandInterface() {
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 	const [activeView, setActiveView] = useState<'grid' | 'list'>('grid');
 
-	// Data fetching
 	useEffect(() => {
 		const fetchBotState = async () => {
 			try {
-				const response = await fetch('https://splashtail-staging.antiraid.xyz/bot-state');
-				if (!response.ok) {
-					throw new Error('Failed to fetch bot state');
-				}
-				const data: BotState = await response.json();
+				const data: BotState = await getBotState();
 				setBotState(data);
 				setLoading(false);
 			} catch (err) {
@@ -247,48 +247,42 @@ export default function CommandInterface() {
 		fetchBotState();
 	}, []);
 
-	const processCommand = (
-		cmd: CanonicalCommand,
-		moduleName: string,
-		moduleId: string
-	): CommandWithModule[] => {
-		const mainCommand: CommandWithModule = {
-			...cmd,
-			moduleName,
-			moduleId
-		};
-
-		if (!cmd.subcommands || cmd.subcommands.length === 0) {
-			return [mainCommand];
-		}
-
-		const subcommands = cmd.subcommands.map(
-			(subCmd): CommandWithModule => ({
-				...subCmd,
-				moduleName,
-				moduleId
-			})
-		);
-
-		return [mainCommand, ...subcommands];
-	};
-
+	// Process commands with unique ids
 	const allCommands = useMemo(() => {
 		if (!botState) return [];
 
+		let idCounter = 0;
 		const commands: CommandWithModule[] = [];
 
 		botState.commands.forEach((cmd) => {
 			const moduleName = cmd.name;
 			const moduleId = cmd.qualified_name;
 
-			const processedCommands = processCommand(cmd, moduleName, moduleId);
-			commands.push(...processedCommands);
+			const mainCommand: CommandWithModule = {
+				...cmd,
+				moduleName,
+				moduleId,
+				id: `cmd-${idCounter++}`
+			};
+			commands.push(mainCommand);
+
+			if (cmd.subcommands && cmd.subcommands.length > 0) {
+				cmd.subcommands.forEach((subCmd) => {
+					const subCommand: CommandWithModule = {
+						...subCmd,
+						moduleName,
+						moduleId,
+						id: `cmd-${idCounter++}`
+					};
+					commands.push(subCommand);
+				});
+			}
 		});
 
 		return commands;
 	}, [botState]);
 
+	// Filtering and pagination (unchanged except dependency on allCommands)
 	const filteredCommands = useMemo(() => {
 		return allCommands.filter((cmd) => {
 			const matchesSearch =
@@ -299,9 +293,7 @@ export default function CommandInterface() {
 						arg.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
 						(arg.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
 				);
-
 			const matchesModule = selectedModule === 'all' || cmd.moduleId === selectedModule;
-
 			return matchesSearch && matchesModule;
 		});
 	}, [allCommands, searchQuery, selectedModule]);
@@ -312,16 +304,13 @@ export default function CommandInterface() {
 
 	const modules = useMemo(() => {
 		if (!botState) return [];
-
 		const uniqueModules = new Map<string, { id: string; name: string }>();
-
 		botState.commands.forEach((cmd) => {
 			uniqueModules.set(cmd.qualified_name, {
 				id: cmd.qualified_name,
 				name: cmd.name
 			});
 		});
-
 		return Array.from(uniqueModules.values());
 	}, [botState]);
 
@@ -373,7 +362,6 @@ export default function CommandInterface() {
 				>
 					All Modules
 				</Button>
-
 				{modules.map((module) => (
 					<Button
 						key={module.id}
@@ -404,7 +392,6 @@ export default function CommandInterface() {
 		</div>
 	);
 
-	// Mobile sidebar menu
 	const MobileSidebar = () => (
 		<div
 			className={`fixed inset-0 z-50 md:hidden transition-all duration-300 ${
@@ -430,7 +417,6 @@ export default function CommandInterface() {
 						<X className="h-5 w-5" />
 					</button>
 				</div>
-
 				<div className="p-3 space-y-1">
 					<Button
 						variant={selectedModule === 'all' ? 'primary' : 'ghost'}
@@ -443,7 +429,6 @@ export default function CommandInterface() {
 					>
 						All Modules
 					</Button>
-
 					{modules.map((module) => (
 						<Button
 							key={module.id}
@@ -462,28 +447,22 @@ export default function CommandInterface() {
 		</div>
 	);
 
-	const CommandCard: React.FC<{ command: CommandWithModule; index: number }> = ({
-		command,
-		index
-	}) => {
+	const CommandCard: React.FC<{ command: CommandWithModule }> = ({ command }) => {
 		const [expanded, setExpanded] = useState(false);
 
 		return (
-			<div
-				className="bg-background border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
-				key={`${command.moduleId}-${command.name}-${command.qualified_name || ''}-${index}`}
-			>
-				<div className="p-5">
+			<div className="bg-background border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+				<div className="p-5 flex flex-col">
 					<div className="flex justify-between items-start mb-3 gap-2">
 						<h3 className="font-bold text-lg truncate">{command.qualified_name || command.name}</h3>
 						<Badge variant="primary">{command.moduleName}</Badge>
 					</div>
-
 					{command.description && (
-						<p className="text-muted-foreground mb-4 line-clamp-2">{command.description}</p>
+						<p className="text-muted-foreground mb-4 line-clamp-2 flex-grow">
+							{command.description}
+						</p>
 					)}
-
-					<div className="space-y-3">
+					<div className="space-y-3 flex-grow">
 						{command.subcommands && command.subcommands.length > 0 && (
 							<div className="space-y-2">
 								<p className="text-sm font-medium flex items-center gap-1.5">
@@ -506,7 +485,6 @@ export default function CommandInterface() {
 								</div>
 							</div>
 						)}
-
 						{command.arguments.length > 0 && (
 							<div className="space-y-2">
 								<p className="text-sm font-medium flex items-center gap-1.5">
@@ -529,7 +507,6 @@ export default function CommandInterface() {
 								</div>
 							</div>
 						)}
-
 						{botState?.command_permissions &&
 							botState.command_permissions[command.qualified_name || command.name] && (
 								<div className="space-y-2">
@@ -565,17 +542,15 @@ export default function CommandInterface() {
 								</div>
 							)}
 					</div>
-
 					{!expanded && (
 						<button
-							className="mt-4 text-sm text-primary hover:underline flex items-center gap-1"
+							className="mt-auto text-sm text-primary hover:underline flex items-center gap-1"
 							onClick={() => setExpanded(true)}
 						>
 							<span>Show details</span>
 							<ChevronDown className="h-3.5 w-3.5" />
 						</button>
 					)}
-
 					{expanded && (
 						<div className="mt-5 pt-4 border-t border-border space-y-4">
 							{command.description && (
@@ -584,7 +559,6 @@ export default function CommandInterface() {
 									<p className="text-sm text-foreground">{command.description}</p>
 								</div>
 							)}
-
 							{command.subcommands && command.subcommands.length > 0 && (
 								<div>
 									<h4 className="text-sm font-medium mb-1.5">Subcommands</h4>
@@ -600,7 +574,6 @@ export default function CommandInterface() {
 									</ul>
 								</div>
 							)}
-
 							{command.arguments.length > 0 && (
 								<div>
 									<h4 className="text-sm font-medium mb-1.5">Arguments</h4>
@@ -635,7 +608,6 @@ export default function CommandInterface() {
 									</ul>
 								</div>
 							)}
-
 							{botState?.command_permissions &&
 								botState.command_permissions[command.qualified_name || command.name] && (
 									<div>
@@ -651,7 +623,6 @@ export default function CommandInterface() {
 										</div>
 									</div>
 								)}
-
 							<button
 								className="text-sm text-primary hover:underline flex items-center gap-1"
 								onClick={() => setExpanded(false)}
@@ -666,17 +637,11 @@ export default function CommandInterface() {
 		);
 	};
 
-	const CommandListItem: React.FC<{ command: CommandWithModule; index: number }> = ({
-		command,
-		index
-	}) => {
+	const CommandListItem: React.FC<{ command: CommandWithModule }> = ({ command }) => {
 		const [expanded, setExpanded] = useState(false);
 
 		return (
-			<div
-				className="bg-background border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
-				key={`${command.moduleId}-${command.name}-${command.qualified_name || ''}-${index}`}
-			>
+			<div className="bg-background border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
 				<div className="p-5">
 					<div className="flex justify-between items-center">
 						<div className="flex-1">
@@ -697,7 +662,6 @@ export default function CommandInterface() {
 							/>
 						</button>
 					</div>
-
 					{expanded && (
 						<div className="mt-4 pt-4 border-t border-border space-y-4">
 							{command.description && (
@@ -706,7 +670,6 @@ export default function CommandInterface() {
 									<p className="text-sm text-foreground">{command.description}</p>
 								</div>
 							)}
-
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								{command.subcommands && command.subcommands.length > 0 && (
 									<div>
@@ -722,7 +685,6 @@ export default function CommandInterface() {
 										</div>
 									</div>
 								)}
-
 								{command.arguments.length > 0 && (
 									<div>
 										<h4 className="text-sm font-medium mb-1.5">Arguments</h4>
@@ -737,7 +699,6 @@ export default function CommandInterface() {
 										</div>
 									</div>
 								)}
-
 								{botState?.command_permissions &&
 									botState.command_permissions[command.qualified_name || command.name] && (
 										<div>
@@ -768,10 +729,8 @@ export default function CommandInterface() {
 			<div className="max-w-7xl mx-auto p-4">
 				<MobileHeader />
 				<MobileSidebar />
-
 				<div className="flex flex-col md:flex-row rounded-xl overflow-hidden border border-border bg-background/30 backdrop-blur-sm shadow-xl mt-4">
 					<ModuleSidebar />
-
 					<main className="flex-1 flex flex-col min-h-[calc(100vh-2rem)]">
 						<div className="p-6 border-b border-border hidden md:block">
 							<h1 className="text-2xl font-bold mb-2">Command Reference</h1>
@@ -781,7 +740,6 @@ export default function CommandInterface() {
 									: `Browsing commands in ${modules.find((m) => m.id === selectedModule)?.name || ''}`}
 							</p>
 						</div>
-
 						{/* Filters */}
 						<div className="p-4 border-b border-border bg-background/50 backdrop-blur-sm">
 							<div className="flex flex-col sm:flex-row gap-4">
@@ -804,22 +762,7 @@ export default function CommandInterface() {
 											}`}
 											aria-label="Grid view"
 										>
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												width="18"
-												height="18"
-												viewBox="0 0 24 24"
-												fill="none"
-												stroke="currentColor"
-												strokeWidth="2"
-												strokeLinecap="round"
-												strokeLinejoin="round"
-											>
-												<rect x="3" y="3" width="7" height="7" />
-												<rect x="14" y="3" width="7" height="7" />
-												<rect x="3" y="14" width="7" height="7" />
-												<rect x="14" y="14" width="7" height="7" />
-											</svg>
+											<LayoutGrid className="h-5 w-5" />
 										</button>
 										<button
 											onClick={() => setActiveView('list')}
@@ -830,21 +773,7 @@ export default function CommandInterface() {
 											}`}
 											aria-label="List view"
 										>
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												width="18"
-												height="18"
-												viewBox="0 0 24 24"
-												fill="none"
-												stroke="currentColor"
-												strokeWidth="2"
-												strokeLinecap="round"
-												strokeLinejoin="round"
-											>
-												<line x1="3" y1="6" x2="21" y2="6" />
-												<line x1="3" y1="12" x2="21" y2="12" />
-												<line x1="3" y1="18" x2="21" y2="18" />
-											</svg>
+											<List className="h-5 w-5" />
 										</button>
 									</div>
 									<div className="flex items-center gap-2 flex-1 sm:flex-none">
@@ -864,7 +793,6 @@ export default function CommandInterface() {
 								</div>
 							</div>
 						</div>
-
 						{/* Results */}
 						<div className="flex-1 p-4 overflow-auto">
 							<div className="mb-4 flex items-center justify-between">
@@ -882,7 +810,6 @@ export default function CommandInterface() {
 									</Button>
 								)}
 							</div>
-
 							{paginatedCommands.length === 0 ? (
 								<div className="flex flex-col items-center justify-center h-64 text-center">
 									<div className="rounded-full bg-secondary/50 w-16 h-16 flex items-center justify-center mb-4">
@@ -896,15 +823,15 @@ export default function CommandInterface() {
 							) : (
 								<>
 									{activeView === 'grid' ? (
-										<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-											{paginatedCommands.map((command, index) => (
-												<CommandCard key={index} command={command} index={index} />
+										<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
+											{paginatedCommands.map((command) => (
+												<CommandCard key={command.id} command={command} />
 											))}
 										</div>
 									) : (
 										<div className="space-y-4">
-											{paginatedCommands.map((command, index) => (
-												<CommandListItem key={index} command={command} index={index} />
+											{paginatedCommands.map((command) => (
+												<CommandListItem key={command.id} command={command} />
 											))}
 										</div>
 									)}

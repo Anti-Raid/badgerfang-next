@@ -59,22 +59,8 @@ export const useBotState = () => {
 };
 
 export const getBotStats = async (): Promise<BotStats> => {
-	try {
-		const response = await fetch('https://splashtail-staging.antiraid.xyz/bot-stats', {
-			next: {
-				revalidate: 60
-			}
-		});
-
-		if (!response.ok) {
-			throw new Error('Failed to fetch bot state');
-		}
-
-		return response.json();
-	} catch (error) {
-		console.error('Error fetching bot stats:', error);
-		throw error;
-	}
+	const { data } = await axiosInstance.get('/bot-stats');
+	return data;
 };
 
 export const getApiConfig = async (): Promise<ApiConfig> => {

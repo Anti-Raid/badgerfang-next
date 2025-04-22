@@ -79,12 +79,10 @@ const Footer = () => {
 	return (
 		<footer className="bg-transparent text-foreground mt-20">
 			<div className="mx-auto w-full max-w-screen-xl p-4 py-6 lg:py-8">
-				<div className="md:flex md:justify-between md:gap-9">
-					<div className="mb-6 md:mb-0">
-						<Link
-							href="https://antiraid.xyz/"
-							className="flex items-center flex-wrap gap-2 max-[1085px]:justify-center max-[767px]:justify-normal"
-						>
+				<div className="flex flex-col md:flex-row md:justify-between md:gap-9">
+					{/* Logo Section */}
+					<div className="mb-8 md:mb-0">
+						<Link href="https://antiraid.xyz/" className="flex items-center gap-2">
 							<img src={logo} className="h-8 mr-1" alt="AntiRaid Logo" />
 							<div className="flex flex-col">
 								<span className="self-center text-2xl font-semibold whitespace-nowrap text-foreground">
@@ -94,10 +92,11 @@ const Footer = () => {
 						</Link>
 					</div>
 
-					<div className="flex flex-row gap-5 flex-wrap">
+					{/* Categories Section - Better mobile layout */}
+					<div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mb-8 md:mb-0">
 						{categories.map((category) => (
-							<div key={category.name}>
-								<h2 className="mb-4 text-md font-bold text-foreground uppercase flex items-center gap-2">
+							<div key={category.name} className="min-w-max">
+								<h2 className="mb-3 text-md font-bold text-foreground uppercase flex items-center gap-2">
 									{category.icon} {category.name}
 								</h2>
 								<ul className="text-foreground/75">
@@ -116,20 +115,23 @@ const Footer = () => {
 						))}
 					</div>
 
-					<hr className="hidden max-[768px]:flex my-6 border-gray-200 sm:mx-auto dark:border-gray-700 lg:my-8" />
+					{/* Divider for mobile */}
+					<hr className="w-full my-6 border-gray-200 dark:border-gray-700 md:hidden" />
 
-					<div className="end">
+					{/* Copyright and Social Section */}
+					<div className="w-full md:w-auto">
 						<p className="text-foreground font-monster text-md">
 							&copy; 2024 Purrquinox. All Rights Reserved.
 						</p>
 						<small className="text-foreground font-monster text-sm">{''}</small>
 
-						<div className="flex mt-4 justify-start sm:mt-0 md:mt-2 lg:mt-2">
+						<div className="flex mt-4 space-x-4">
 							{socials.map((social) => (
 								<Link
 									key={social.name}
 									href={social.href}
-									className="text-foreground hover:text-foreground/75 flex items-center gap-2"
+									className="text-foreground hover:text-foreground/75 flex items-center"
+									aria-label={social.name}
 								>
 									{social.icon}
 									<span className="sr-only">{social.name}</span>
