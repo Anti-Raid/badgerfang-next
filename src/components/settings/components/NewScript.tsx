@@ -577,7 +577,6 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
 								Title="Add Script"
 								onClick={handleAddScript}
 								icon={Save}
-								disabled={isLoading || !newScript.name.trim()}
 							/>
 							<Secondary Title="Cancel" onClick={() => setShowScriptForm(false)} icon={X} />
 						</div>
