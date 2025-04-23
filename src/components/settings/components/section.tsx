@@ -1,7 +1,6 @@
 'use client';
 
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Plus } from 'lucide-react';
 
@@ -23,7 +22,12 @@ export const Section: React.FC<SectionProps> = ({
 	const [isOpen, setIsOpen] = useState(defaultOpen);
 
 	return (
-		<div className="mb-8">
+		<motion.div
+			className="mb-8"
+			initial={{ opacity: 0, y: 20 }}
+			animate={{ opacity: 1, y: 0 }}
+			transition={{ duration: 0.4 }}
+		>
 			<div className="mb-3">
 				<h2 className="text-xl font-bold text-foreground flex items-center gap-2">
 					{React.cloneElement(icon as React.ReactElement, {
@@ -35,9 +39,10 @@ export const Section: React.FC<SectionProps> = ({
 			</div>
 
 			<div className="bg-card rounded-xl border border-border hover:border-primary/20 transition-colors duration-300 overflow-hidden shadow-sm">
-				<div
+				<motion.div
 					className="p-4 flex items-center cursor-pointer transition-colors duration-200 hover:bg-accent/50"
 					onClick={() => setIsOpen(!isOpen)}
+					whileHover={{ backgroundColor: 'rgba(var(--accent), 0.2)' }}
 				>
 					<div className="mr-3 flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary">
 						<Plus className="w-4 h-4" />
@@ -50,7 +55,7 @@ export const Section: React.FC<SectionProps> = ({
 					>
 						<ChevronDown className="w-5 h-5 text-muted-foreground" />
 					</motion.div>
-				</div>
+				</motion.div>
 
 				<AnimatePresence>
 					{isOpen && (
@@ -65,6 +70,6 @@ export const Section: React.FC<SectionProps> = ({
 					)}
 				</AnimatePresence>
 			</div>
-		</div>
+		</motion.div>
 	);
 };

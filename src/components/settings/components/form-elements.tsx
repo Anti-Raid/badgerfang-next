@@ -2,8 +2,9 @@
 
 import type React from 'react';
 import { motion } from 'framer-motion';
-import { Eye } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import type { Icon } from 'lucide-react';
+import { useState } from 'react';
 
 interface InputFieldProps {
 	label?: string;
@@ -16,6 +17,7 @@ interface InputFieldProps {
 	className?: string;
 	id?: string;
 	icon?: typeof Icon;
+	error?: string;
 }
 
 export const InputField: React.FC<InputFieldProps> = ({
@@ -28,32 +30,39 @@ export const InputField: React.FC<InputFieldProps> = ({
 	options,
 	className = '',
 	id,
-	icon: IconComponent
+	icon: IconComponent,
+	error
 }) => {
+	const [showPassword, setShowPassword] = useState(false);
+	const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
+
 	return (
 		<div className={`mb-6 group ${className}`}>
-			<label
-				htmlFor={id || label?.toLowerCase().replace(/\s+/g, '-')}
-				className="block text-foreground font-medium mb-1.5 text-sm"
-			>
-				{label}
-			</label>
+			{label && (
+				<label htmlFor={inputId} className="block text-foreground font-medium mb-1.5 text-sm">
+					{label}
+				</label>
+			)}
+
 			{description && <p className="text-sm text-muted-foreground mb-2.5">{description}</p>}
+
 			<div className="relative">
 				{IconComponent && (
 					<div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
 						<IconComponent className="w-4 h-4 text-muted-foreground" iconNode={[]} />
 					</div>
 				)}
+
 				{type === 'select' ? (
 					<select
-						id={id || label?.toLowerCase().replace(/\s+/g, '-')}
+						id={inputId}
 						value={value}
 						onChange={onChange}
 						className={`w-full bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-3 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 appearance-none ${
 							IconComponent ? 'pl-10' : ''
-						}`}
+						} ${error ? 'border-destructive' : ''}`}
 					>
+						<option value="">Select an option</option>
 						{options?.map((option) => (
 							<option key={option.value} value={option.value}>
 								{option.label}
@@ -61,34 +70,41 @@ export const InputField: React.FC<InputFieldProps> = ({
 						))}
 					</select>
 				) : type === 'password' ? (
-					<input
-						id={id || label?.toLowerCase().replace(/\s+/g, '-')}
-						type={type}
-						placeholder={placeholder}
-						value={value}
-						onChange={onChange}
-						className={`w-full bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-3 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${
-							IconComponent ? 'pl-10' : ''
-						}`}
-					/>
+					<div className="relative">
+						<input
+							id={inputId}
+							type={showPassword ? 'text' : 'password'}
+							placeholder={placeholder}
+							value={value}
+							onChange={onChange}
+							className={`w-full bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-3 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${
+								IconComponent ? 'pl-10' : ''
+							} ${error ? 'border-destructive' : ''}`}
+						/>
+						<button
+							type="button"
+							className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 rounded-md hover:bg-accent/50 text-muted-foreground hover:text-foreground transition-colors"
+							onClick={() => setShowPassword(!showPassword)}
+							aria-label={showPassword ? 'Hide password' : 'Show password'}
+						>
+							{showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+						</button>
+					</div>
 				) : (
 					<input
-						id={id || label?.toLowerCase().replace(/\s+/g, '-')}
+						id={inputId}
 						type={type}
 						placeholder={placeholder}
 						value={value}
 						onChange={onChange}
 						className={`w-full bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-3 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${
 							IconComponent ? 'pl-10' : ''
-						}`}
+						} ${error ? 'border-destructive' : ''}`}
 					/>
 				)}
-				{type === 'password' && (
-					<button className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 rounded-md hover:bg-accent/50 text-muted-foreground hover:text-foreground transition-colors">
-						<Eye className="w-4 h-4" />
-					</button>
-				)}
 			</div>
+
+			{error && <p className="mt-1.5 text-sm text-destructive">{error}</p>}
 		</div>
 	);
 };
@@ -151,10 +167,16 @@ export const Toggle: React.FC<ToggleProps> = ({ label, description, onChange, ch
 					}`}
 					onClick={onChange}
 				>
-					<span
-						className={`${
-							checked ? 'translate-x-6' : 'translate-x-1'
-						} inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ease-in-out`}
+					<motion.span
+						className="inline-block h-4 w-4 transform rounded-full bg-white"
+						animate={{
+							translateX: checked ? '1.5rem' : '0.25rem'
+						}}
+						transition={{
+							type: 'spring',
+							stiffness: 500,
+							damping: 30
+						}}
 					/>
 				</button>
 				<span className="ml-3 font-medium text-foreground">{label}</span>

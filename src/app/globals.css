@@ -566,7 +566,6 @@
 	/* #EFF0E9 */
 }
 
-
 @layer base {
 	* {
 		@apply border-border;

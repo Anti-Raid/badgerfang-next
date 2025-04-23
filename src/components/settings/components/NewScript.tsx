@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import type React from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Primary, Secondary, Ghost } from '../../ui/Buttons';
+import { Primary, Secondary, Ghost } from '@/components/ui/Buttons';
 import { Toggle, InputField } from './form-elements';
 import { executeSettings, getBotState } from '@/lib/api';
 import {
@@ -17,9 +18,12 @@ import {
 	PauseCircle,
 	PlayCircle,
 	Save,
-	X
+	X,
+	Search,
+	RefreshCw
 } from 'lucide-react';
 import { ScriptModal } from './ScriptModal';
+import { toast } from 'react-toastify';
 
 interface Script {
 	id: string;
@@ -63,17 +67,6 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
 	const [success, setSuccess] = useState<string | null>(null);
 	const [searchTerm, setSearchTerm] = useState('');
 
-	const handleContentChange = (newContent: Record<string, string>) => {
-		if (selectedScript) {
-			setEditScriptContent(newContent);
-		} else {
-			setNewScript((prev) => ({
-				...prev,
-				content: newContent
-			}));
-		}
-	};
-
 	useEffect(() => {
 		fetchScripts();
 		fetchEventsAndCapabilities();
@@ -107,6 +100,7 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
 		} catch (error) {
 			console.error('Failed to fetch scripts:', error);
 			setError('Failed to load scripts. Please try again.');
+			toast.error('Failed to load scripts');
 		} finally {
 			setIsLoading(false);
 		}
@@ -150,12 +144,14 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
 			}
 		} catch (error) {
 			console.error('Failed to fetch events and capabilities:', error);
+			toast.error('Failed to load script options');
 		}
 	};
 
 	const handleAddScript = async () => {
 		if (!newScript.name.trim()) {
 			setError('Script name is required');
+			toast.error('Script name is required');
 			return;
 		}
 
@@ -182,6 +178,7 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
 			await executeSettings(guildId, payload);
 			setScripts([...scripts, { ...newScript, id: scripts.length.toString() }]);
 			setSuccess('Script added successfully');
+			toast.success('Script added successfully');
 			setNewScript({
 				id: '',
 				name: '',
@@ -196,6 +193,7 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
 		} catch (error) {
 			console.error('Failed to add script:', error);
 			setError('Failed to add script. Please try again.');
+			toast.error('Failed to add script');
 		} finally {
 			setIsLoading(false);
 		}
@@ -218,9 +216,11 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
 			await executeSettings(guildId, payload);
 			setScripts(scripts.filter((script) => script.name !== name));
 			setSuccess('Script deleted successfully');
+			toast.success('Script deleted successfully');
 		} catch (error) {
 			console.error('Failed to delete script:', error);
 			setError('Failed to delete script. Please try again.');
+			toast.error('Failed to delete script');
 		} finally {
 			setIsLoading(false);
 		}
@@ -243,9 +243,11 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
 			await executeSettings(guildId, payload);
 			setScripts(scripts.map((s) => (s.id === script.id ? updatedScript : s)));
 			setSuccess(`Script ${updatedScript.paused ? 'paused' : 'activated'} successfully`);
+			toast.success(`Script ${updatedScript.paused ? 'paused' : 'activated'} successfully`);
 		} catch (error) {
 			console.error('Failed to update script:', error);
 			setError('Failed to update script. Please try again.');
+			toast.error('Failed to update script');
 		} finally {
 			setIsLoading(false);
 		}
@@ -303,13 +305,26 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
 				)
 			);
 			setSuccess('Script updated successfully');
+			toast.success('Script updated successfully');
 			setIsEditingScript(false);
 			setSelectedScript(null);
 		} catch (error) {
 			console.error('Failed to update script:', error);
 			setError('Failed to update script. Please try again.');
+			toast.error('Failed to update script');
 		} finally {
 			setIsLoading(false);
+		}
+	};
+
+	const handleContentChange = (newContent: Record<string, string>) => {
+		if (selectedScript) {
+			setEditScriptContent(newContent);
+		} else {
+			setNewScript((prev) => ({
+				...prev,
+				content: newContent
+			}));
 		}
 	};
 
@@ -336,6 +351,7 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
 				/>
 
 				<div className="relative">
+					<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
 					<input
 						type="text"
 						placeholder="Search scripts..."
@@ -343,7 +359,6 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
 						onChange={(e) => setSearchTerm(e.target.value)}
 						className="pl-9 pr-4 py-2 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors w-full md:w-64"
 					/>
-					<Code className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
 				</div>
 			</div>
 
@@ -367,6 +382,7 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
 								description="The name of the script"
 								value={newScript.name}
 								onChange={(e) => setNewScript({ ...newScript, name: e.target.value })}
+								error={!newScript.name.trim() ? 'Script name is required' : undefined}
 							/>
 
 							<InputField
@@ -419,13 +435,15 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
 							</p>
 							<div className="flex flex-wrap gap-2 mb-4">
 								{capabilitiesOptions.map((cap) => (
-									<button
+									<motion.button
 										key={cap.value}
 										onClick={() => handleCapabilityClick(cap.value)}
+										whileHover={{ scale: 1.05 }}
+										whileTap={{ scale: 0.95 }}
 										className="bg-primary/10 text-primary rounded-full px-3 py-1 text-sm hover:bg-primary/20 transition-colors"
 									>
 										{cap.label}
-									</button>
+									</motion.button>
 								))}
 							</div>
 							<div className="flex mt-2 space-x-2">
@@ -436,14 +454,16 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
 									onChange={handleCustomCapabilityChange}
 									className="flex-grow bg-background border border-border rounded-l-md p-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
 								/>
-								<button
+								<motion.button
 									type="button"
 									onClick={addCustomCapability}
 									disabled={!customCapability.trim()}
+									whileHover={{ scale: 1.05 }}
+									whileTap={{ scale: 0.95 }}
 									className="px-4 py-2 bg-primary text-primary-foreground rounded-r-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
 								>
 									Add
-								</button>
+								</motion.button>
 							</div>
 
 							{newScript.allowed_caps.length > 0 && (
@@ -451,18 +471,23 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
 									<strong className="block mb-2 text-sm">Selected Capabilities:</strong>
 									<div className="flex flex-wrap gap-2">
 										{newScript.allowed_caps.map((cap, index) => (
-											<div
+											<motion.div
 												key={index}
 												className="flex items-center bg-primary/5 text-primary rounded-full px-2 py-1 text-sm"
+												initial={{ opacity: 0, scale: 0.8 }}
+												animate={{ opacity: 1, scale: 1 }}
+												exit={{ opacity: 0, scale: 0.8 }}
 											>
 												<span>{cap}</span>
-												<button
+												<motion.button
 													onClick={() => handleCapabilityRemove(cap)}
 													className="ml-1 p-0.5 hover:bg-primary/10 rounded-full"
+													whileHover={{ scale: 1.1 }}
+													whileTap={{ scale: 0.9 }}
 												>
 													<X className="w-3 h-3" />
-												</button>
-											</div>
+												</motion.button>
+											</motion.div>
 										))}
 									</div>
 								</div>
@@ -484,7 +509,7 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
 									);
 									setNewScript((prevScript) => ({
 										...prevScript,
-										events: Array.from(new Set([...prevScript.events, ...selectedEvents])) // Prevent duplicates
+										events: Array.from(new Set([...prevScript.events, ...selectedEvents]))
 									}));
 								}}
 								className="w-full bg-background border border-border rounded-md p-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
@@ -499,12 +524,15 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
 							{newScript.events.length > 0 && (
 								<div className="mt-2 flex flex-wrap gap-2">
 									{newScript.events.map((event, index) => (
-										<div
+										<motion.div
 											key={index}
 											className="bg-primary/5 text-primary px-2 py-1 rounded-full flex items-center text-sm"
+											initial={{ opacity: 0, scale: 0.8 }}
+											animate={{ opacity: 1, scale: 1 }}
+											exit={{ opacity: 0, scale: 0.8 }}
 										>
 											<span>{event}</span>
-											<button
+											<motion.button
 												onClick={() => {
 													setNewScript((prevScript) => ({
 														...prevScript,
@@ -512,10 +540,12 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
 													}));
 												}}
 												className="ml-1 p-0.5 hover:bg-primary/10 rounded-full"
+												whileHover={{ scale: 1.1 }}
+												whileTap={{ scale: 0.9 }}
 											>
 												<X className="w-3 h-3" />
-											</button>
-										</div>
+											</motion.button>
+										</motion.div>
 									))}
 								</div>
 							)}
@@ -543,7 +573,12 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
 						)}
 
 						<div className="mt-6 flex gap-3">
-							<Primary Title="Add Script" onClick={handleAddScript} icon={Save} />
+							<Primary
+								Title="Add Script"
+								onClick={handleAddScript}
+								icon={Save}
+								disabled={isLoading || !newScript.name.trim()}
+							/>
 							<Secondary Title="Cancel" onClick={() => setShowScriptForm(false)} icon={X} />
 						</div>
 					</motion.div>
@@ -551,14 +586,33 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
 			</AnimatePresence>
 
 			<div className="mt-6">
-				<h3 className="text-lg font-medium mb-4">Existing Scripts</h3>
+				<div className="flex justify-between items-center mb-4">
+					<h3 className="text-lg font-medium flex items-center gap-2">
+						<FileCode className="w-5 h-5 text-primary" />
+						Existing Scripts
+					</h3>
+					<motion.button
+						whileHover={{ rotate: 180 }}
+						transition={{ duration: 0.5 }}
+						onClick={fetchScripts}
+						className="p-2 rounded-md hover:bg-accent/50 text-muted-foreground hover:text-foreground transition-colors"
+						disabled={isLoading}
+					>
+						<RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+					</motion.button>
+				</div>
 
 				{isLoading && filteredScripts.length === 0 ? (
 					<div className="flex justify-center items-center py-12">
 						<div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
 					</div>
 				) : filteredScripts.length === 0 ? (
-					<div className="bg-muted/30 rounded-lg p-8 text-center">
+					<motion.div
+						className="bg-muted/30 rounded-lg p-8 text-center"
+						initial={{ opacity: 0, y: 10 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.3 }}
+					>
 						<div className="flex justify-center mb-3">
 							<div className="p-3 bg-muted rounded-full">
 								<FileCode className="w-6 h-6 text-muted-foreground" />
@@ -571,25 +625,29 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
 							{searchTerm ? 'Try a different search term' : 'Add your first script to get started'}
 						</p>
 						{!searchTerm && (
-							<button
+							<motion.button
+								whileHover={{ scale: 1.05 }}
+								whileTap={{ scale: 0.95 }}
 								className="inline-flex items-center gap-1 text-foreground bg-primary/10 px-3 py-1.5 rounded-md hover:bg-primary/20 transition-colors"
 								onClick={() => setShowScriptForm(true)}
 							>
 								<Plus className="w-4 h-4" />
 								<span>Add First Script</span>
-							</button>
+							</motion.button>
 						)}
-					</div>
+					</motion.div>
 				) : (
 					<div className="grid gap-4">
 						<AnimatePresence>
-							{filteredScripts.map((script) => (
+							{filteredScripts.map((script, index) => (
 								<motion.div
 									key={script.id}
-									initial={{ opacity: 0, y: 5 }}
+									initial={{ opacity: 0, y: 20 }}
 									animate={{ opacity: 1, y: 0 }}
 									exit={{ opacity: 0, x: -10 }}
+									transition={{ duration: 0.3, delay: index * 0.05 }}
 									className="bg-card border border-border hover:border-primary/20 rounded-lg p-4 transition-all shadow-sm"
+									whileHover={{ y: -2, boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
 								>
 									<div className="flex flex-col gap-3">
 										<div className="flex items-center justify-between">

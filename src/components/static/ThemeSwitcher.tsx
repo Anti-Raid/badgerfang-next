@@ -26,16 +26,16 @@ const ThemeSelector: React.FC = () => {
 		{ id: 'dark-green-theme', label: 'Forest Deep' },
 		{ id: 'electric-purple-theme', label: 'Electric Purple' },
 		{ id: 'sunset-amber-theme', label: 'Sunset Amber' },
-	
+
 		// New themes
 		{ id: 'stargaze-theme', label: 'Stargaze' },
 		{ id: 'sunbeam-theme', label: 'Sunbeam' },
 		{ id: 'velvet-sky-theme', label: 'Velvet Sky' },
 		{ id: 'crisp-theme', label: 'Crisp' },
 		{ id: 'float-theme', label: 'Float' },
-		{ id: 'puzzlebloom-theme', label: 'PuzzleBloom' },
+		{ id: 'puzzlebloom-theme', label: 'PuzzleBloom' }
 	];
-	
+
 	const getThemeColors = (themeId: string) => {
 		switch (themeId) {
 			// Original themes
@@ -55,7 +55,7 @@ const ThemeSelector: React.FC = () => {
 				return 'from-[hsl(275,100%,60%)] to-[hsl(290,90%,70%)]';
 			case 'sunset-amber-theme':
 				return 'from-[hsl(35,100%,55%)] to-[hsl(20,90%,65%)]';
-	
+
 			// New themes
 			case 'stargaze-theme':
 				return 'from-[#BBA9AB] to-[#B4A9B8]';
@@ -69,12 +69,11 @@ const ThemeSelector: React.FC = () => {
 				return 'from-[#A6D1D9] to-[#7FB8BE]';
 			case 'puzzlebloom-theme':
 				return 'from-[#F0E3CB] to-[#D9AA90]';
-	
+
 			default:
 				return 'from-primary to-extra';
 		}
 	};
-	
 
 	// Set mounted to true once the component is mounted
 	useEffect(() => {
@@ -102,7 +101,6 @@ const ThemeSelector: React.FC = () => {
 			}, 300);
 		}
 	}, [theme, mounted]);
-
 
 	return (
 		<div className="relative" ref={dropdownRef}>

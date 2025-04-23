@@ -729,8 +729,8 @@ export default function CommandInterface() {
 										placeholder="Search commands, arguments, descriptions..."
 										value={searchQuery}
 										onChange={(e) => setSearchQuery(e.target.value)}
-										icon={Search}							
-										/>
+										icon={Search}
+									/>
 								</div>
 								<div className="flex items-center gap-4 w-full sm:w-auto">
 									<div className="flex items-center gap-2">

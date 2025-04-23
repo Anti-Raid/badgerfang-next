@@ -3,10 +3,11 @@
 import type React from 'react';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Primary } from '../../ui/Buttons';
+import { Primary } from '@/components/ui/Buttons';
 import { RadioOption, Toggle, InputField } from './form-elements';
 import { executeSettings } from '@/lib/api';
 import { Trash2, Plus, Lock, AlertCircle, Shield, Save } from 'lucide-react';
+import { toast } from 'react-toastify';
 
 interface LockdownSettingsProps {
 	guildId: string;
@@ -52,6 +53,7 @@ export const LockdownSettings: React.FC<LockdownSettingsProps> = ({ guildId }) =
 		} catch (error) {
 			console.error('Failed to fetch lockdown settings:', error);
 			setError('Failed to load lockdown settings. Please try again.');
+			toast.error('Failed to load lockdown settings');
 		} finally {
 			setIsLoading(false);
 		}
@@ -84,6 +86,7 @@ export const LockdownSettings: React.FC<LockdownSettingsProps> = ({ guildId }) =
 
 		if (filteredRoles.length === 0) {
 			setError('Please add at least one member role');
+			toast.error('Please add at least one member role');
 			setIsLoading(false);
 			return;
 		}
@@ -100,11 +103,13 @@ export const LockdownSettings: React.FC<LockdownSettingsProps> = ({ guildId }) =
 		try {
 			await executeSettings(guildId, payload);
 			setSuccess('Lockdown settings added successfully');
+			toast.success('Lockdown settings added successfully');
 			fetchSettings();
 			setMemberRoles(['']);
 		} catch (error) {
 			console.error('Failed to add lockdown settings:', error);
 			setError('Failed to add lockdown settings. Please try again.');
+			toast.error('Failed to add lockdown settings');
 		} finally {
 			setIsLoading(false);
 		}
@@ -127,9 +132,11 @@ export const LockdownSettings: React.FC<LockdownSettingsProps> = ({ guildId }) =
 			await executeSettings(guildId, payload);
 			setExistingSettings(existingSettings.filter((setting) => setting.id !== id));
 			setSuccess('Lockdown setting deleted successfully');
+			toast.success('Lockdown setting deleted successfully');
 		} catch (error) {
 			console.error('Failed to delete lockdown setting:', error);
 			setError('Failed to delete lockdown setting. Please try again.');
+			toast.error('Failed to delete lockdown setting');
 		} finally {
 			setIsLoading(false);
 		}
@@ -137,8 +144,12 @@ export const LockdownSettings: React.FC<LockdownSettingsProps> = ({ guildId }) =
 
 	return (
 		<div className="space-y-6">
-			{/* Configure Lockdown Settings */}
-			<div className="bg-card border border-border rounded-lg p-5 shadow-sm">
+			<motion.div
+				className="bg-card border border-border rounded-lg p-5 shadow-sm"
+				initial={{ opacity: 0, y: 10 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ duration: 0.3 }}
+			>
 				<h3 className="text-lg font-medium mb-4 flex items-center gap-2">
 					<Lock className="w-5 h-5 text-primary" />
 					Configure Lockdown Settings
@@ -185,23 +196,27 @@ export const LockdownSettings: React.FC<LockdownSettingsProps> = ({ guildId }) =
 										onChange={(e) => handleRoleChange(index, e.target.value)}
 									/>
 								</div>
-								<button
+								<motion.button
+									whileHover={{ scale: 1.1, color: 'rgb(var(--destructive))' }}
+									whileTap={{ scale: 0.9 }}
 									onClick={() => handleRemoveRole(index)}
 									className="self-end mb-6 p-2 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
 								>
 									<Trash2 className="w-5 h-5" />
-								</button>
+								</motion.button>
 							</motion.div>
 						))}
 					</AnimatePresence>
 
-					<button
+					<motion.button
+						whileHover={{ scale: 1.05 }}
+						whileTap={{ scale: 0.95 }}
 						onClick={handleAddRole}
 						className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors mt-2"
 					>
 						<Plus className="w-4 h-4" />
 						<span>Add Another Role</span>
-					</button>
+					</motion.button>
 				</div>
 
 				{/* Require Correct Layout Toggle */}
@@ -232,12 +247,14 @@ export const LockdownSettings: React.FC<LockdownSettingsProps> = ({ guildId }) =
 				<div className="mt-6">
 					<Primary Title="Save Lockdown Settings" onClick={handleAddLockdownSettings} icon={Save} />
 				</div>
-			</div>
+			</motion.div>
 
-			{/* Existing Lockdown Settings */}
 			<div className="mt-8">
 				<div className="flex justify-between items-center mb-4">
-					<h3 className="text-lg font-medium">Existing Lockdown Settings</h3>
+					<h3 className="text-lg font-medium flex items-center gap-2">
+						<Lock className="w-5 h-5 text-primary" />
+						Existing Lockdown Settings
+					</h3>
 				</div>
 
 				{isLoading && existingSettings.length === 0 ? (
@@ -245,7 +262,12 @@ export const LockdownSettings: React.FC<LockdownSettingsProps> = ({ guildId }) =
 						<div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
 					</div>
 				) : existingSettings.length === 0 ? (
-					<div className="bg-muted/30 rounded-lg p-8 text-center">
+					<motion.div
+						className="bg-muted/30 rounded-lg p-8 text-center"
+						initial={{ opacity: 0, y: 10 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.3 }}
+					>
 						<div className="flex justify-center mb-3">
 							<div className="p-3 bg-muted rounded-full">
 								<Lock className="w-6 h-6 text-muted-foreground" />
@@ -255,17 +277,19 @@ export const LockdownSettings: React.FC<LockdownSettingsProps> = ({ guildId }) =
 						<p className="text-muted-foreground text-sm">
 							Add your first lockdown setting to secure your server
 						</p>
-					</div>
+					</motion.div>
 				) : (
 					<div className="grid gap-4">
 						<AnimatePresence>
-							{existingSettings.map((setting) => (
+							{existingSettings.map((setting, index) => (
 								<motion.div
 									key={setting.id}
-									initial={{ opacity: 0, y: 5 }}
+									initial={{ opacity: 0, y: 20 }}
 									animate={{ opacity: 1, y: 0 }}
 									exit={{ opacity: 0, x: -10 }}
+									transition={{ duration: 0.3, delay: index * 0.05 }}
 									className="bg-card border border-border hover:border-primary/20 rounded-lg p-4 transition-all shadow-sm"
+									whileHover={{ y: -2, boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
 								>
 									<div className="flex flex-col md:flex-row md:items-center gap-3">
 										<div className="flex-1">
@@ -293,12 +317,14 @@ export const LockdownSettings: React.FC<LockdownSettingsProps> = ({ guildId }) =
 											</div>
 										</div>
 
-										<button
+										<motion.button
+											whileHover={{ scale: 1.1, color: 'rgb(var(--destructive))' }}
+											whileTap={{ scale: 0.9 }}
 											onClick={() => handleDeleteSetting(setting.id)}
 											className="p-2 rounded-md hover:bg-destructive/10 text-destructive transition-colors"
 										>
 											<Trash2 className="w-5 h-5" />
-										</button>
+										</motion.button>
 									</div>
 								</motion.div>
 							))}
