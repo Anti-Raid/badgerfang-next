@@ -573,11 +573,7 @@ export const Scripts: React.FC<ScriptsProps> = ({ guildId }) => {
 						)}
 
 						<div className="mt-6 flex gap-3">
-							<Primary
-								Title="Add Script"
-								onClick={handleAddScript}
-								icon={Save}
-							/>
+							<Primary Title="Add Script" onClick={handleAddScript} icon={Save} />
 							<Secondary Title="Cancel" onClick={() => setShowScriptForm(false)} icon={X} />
 						</div>
 					</motion.div>

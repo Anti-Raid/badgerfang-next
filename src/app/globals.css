@@ -389,7 +389,6 @@
 	--ring: 210 60% 85%;
 }
 
-
 .puzzlebloom-theme {
 	--background: 120 20% 50%;
 	--foreground: 0 0% 95%;
@@ -411,7 +410,6 @@
 	--input: 120 20% 80%;
 	--ring: 120 50% 70%;
 }
-
 
 @layer base {
 	* {
