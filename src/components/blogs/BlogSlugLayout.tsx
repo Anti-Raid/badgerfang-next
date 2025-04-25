@@ -15,11 +15,6 @@ import ReactMarkdown from 'react-markdown';
 import type { Blog } from '@/types/blogs/index';
 import { FaTwitter, FaFacebook, FaLinkedin, FaGithub, FaInstagram, FaLink } from 'react-icons/fa';
 
-/****
- * Renders a detailed blog post page with author information, markdown content, sharing options, and related articles.
- *
- * Displays loading and not-found states as appropriate. Fetches blog data and related articles based on the URL slug, and provides sharing functionality via the Web Share API or clipboard fallback. Blog content is rendered with enhanced markdown styling and syntax highlighting.
- */
 export default function BlogPostLayout() {
 	const params = useParams();
 	const router = useRouter();
@@ -40,7 +35,6 @@ export default function BlogPostLayout() {
 				if (foundBlog) {
 					setBlog(foundBlog);
 
-					// Find related blogs (same tags)
 					if (foundBlog.tags && foundBlog.tags.length > 0) {
 						const related = data
 							.filter(
@@ -145,7 +139,6 @@ export default function BlogPostLayout() {
 	return (
 		<div className="min-h-screen bg-background">
 			<div className="max-w-4xl mx-auto px-4 sm:px-6 py-12">
-				{/* Back button */}
 				<motion.div
 					initial={{ opacity: 0, x: -20 }}
 					animate={{ opacity: 1, x: 0 }}
@@ -173,7 +166,6 @@ export default function BlogPostLayout() {
 					transition={{ duration: 0.6 }}
 					className="relative"
 				>
-					{/* Tags */}
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
@@ -198,7 +190,6 @@ export default function BlogPostLayout() {
 						)}
 					</motion.div>
 
-					{/* Title */}
 					<motion.h1
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
@@ -208,7 +199,6 @@ export default function BlogPostLayout() {
 						{blog.title}
 					</motion.h1>
 
-					{/* Meta info */}
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
@@ -244,7 +234,6 @@ export default function BlogPostLayout() {
 						</div>
 					</motion.div>
 
-					{/* Author section */}
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
@@ -293,7 +282,18 @@ export default function BlogPostLayout() {
 						<p className="text-muted-foreground">{blog.author.bio}</p>
 					</motion.div>
 
-					{/* Content with enhanced styling */}
+					{blog.image && (
+						<div className="mt-8">
+							<Image
+								src={`https://strapi.purrquinox.com${blog.image.url}`}
+								alt={blog.image.alternativeText || blog.title}
+								width={800}
+								height={400}
+								className="rounded-lg shadow-md mx-auto"
+							/>
+						</div>
+					)}
+
 					<motion.div
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
@@ -424,7 +424,6 @@ export default function BlogPostLayout() {
 					</motion.div>
 				</motion.article>
 
-				{/* Related articles */}
 				{relatedBlogs.length > 0 && (
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
@@ -443,6 +442,15 @@ export default function BlogPostLayout() {
 									className="p-6 rounded-xl bg-card border border-border hover:border-primary/50 transition-all duration-300"
 								>
 									<Link href={`/blogs/${relatedBlog.slug}`} className="block">
+										{relatedBlog.image && (
+											<Image
+												src={`https://strapi.purrquinox.com${relatedBlog.image.url}`}
+												alt={relatedBlog.image.alternativeText || relatedBlog.title}
+												width={800}
+												height={400}
+												className="rounded-lg shadow-md mb-4"
+											/>
+										)}
 										<h3 className="text-lg font-bold mb-2 line-clamp-2 hover:text-primary transition-colors">
 											{relatedBlog.title}
 										</h3>

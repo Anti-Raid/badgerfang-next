@@ -1,27 +1,19 @@
 'use client';
 
 import type React from 'react';
-
 import { useState, useRef } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { Calendar, User, ArrowRight, Tag } from 'lucide-react';
-import { Link } from 'next-view-transitions'
+import { Link } from 'next-view-transitions';
 import { format } from 'date-fns';
 import type { Blog } from '@/types/blogs/index';
+import Image from 'next/image';
 
 interface BlogCardProps {
 	blog: Blog;
 	index: number;
 }
 
-/**
- * Renders an animated, interactive card displaying a blog post summary with 3D tilt and hover effects.
- *
- * The card presents blog metadata, tags, title, description, and a "Read more" link. Visual effects include animated entrance, 3D rotation based on mouse movement, scaling, glow, and gradient overlays. Tags and meta information are shown if available, and the card's appearance responds to hover state for enhanced interactivity.
- *
- * @param blog - The blog post data to display.
- * @param index - The card's position in a list, used to stagger entrance animations.
- */
 export default function BlogCard({ blog, index }: BlogCardProps) {
 	const [isHovered, setIsHovered] = useState(false);
 	const mouseX = useMotionValue(0);
@@ -105,6 +97,19 @@ export default function BlogCard({ blog, index }: BlogCardProps) {
 						<span>{format(new Date(blog.publishedAt), 'MMM d, yyyy')}</span>
 					</div>
 				</div>
+
+				{/* Image */}
+				{blog.image && (
+					<div className="mb-4">
+						<Image
+							src={`https://strapi.purrquinox.com${blog.image.url}`}
+							alt={blog.image.alternativeText || blog.title}
+							width={800}
+							height={400}
+							className="rounded-lg shadow-md"
+						/>
+					</div>
+				)}
 
 				{/* Title */}
 				<h2 className="text-2xl font-bold font-lora mb-2 line-clamp-2 group-hover:text-primary transition-colors duration-300">

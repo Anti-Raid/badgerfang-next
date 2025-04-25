@@ -2,14 +2,15 @@ export interface Author {
 	__typename: string;
 	name: string;
 	bio: string;
-	avatar: Avatar;
+	avatar: Image;
 	socials: Socials[];
 }
 
-export interface Avatar {
+export interface Image {
 	__typename: string;
 	url: string;
 	caption: string;
+	alternativeText: string;
 }
 
 export interface Socials {
@@ -32,5 +33,5 @@ export interface Blog {
 	badges: null;
 	documentId: string;
 	author: Author;
-	image: null;
+	image: Image;
 }
