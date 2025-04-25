@@ -362,11 +362,12 @@ export default function BlogPostLayout() {
 									/>
 								),
 								li: ({ node, ...props }) => <li className="pl-2" {...props} />,
-								code: ({ node, inline, className, children, ...props }) => {
+								code: (props) => {
+									const { inline, className, children, ...rest } = props as any;
 									return inline ? (
 										<code
 											className="rounded bg-card px-1.5 py-0.5 text-sm font-mono border border-border/50 text-white"
-											{...props}
+											{...rest}
 										>
 											{children}
 										</code>
@@ -386,7 +387,7 @@ export default function BlogPostLayout() {
 											PreTag="div"
 											className="rounded-lg border border-border/50 !bg-gray-800 dark:!bg-gray-900 my-6 text-white"
 											codeTagProps={{ className: 'text-white' }}
-											{...props}
+											{...rest}
 										>
 											{String(children).replace(/\n$/, '')}
 										</SyntaxHighlighter>
