@@ -4,14 +4,14 @@ import { title, description } from '@/components/common';
 import React, { Suspense } from 'react';
 
 export const metadata: Metadata = {
-  title: 'Blog',
-  description: `${description}`,
+	title: 'Blog',
+	description: `${description}`
 };
 
 export default function BlogsPage() {
-  return (
-    <Suspense>
-      <BlogLayout />
-    </Suspense>
-  );
+	return (
+		<Suspense>
+			<BlogLayout />
+		</Suspense>
+	);
 }

@@ -4,14 +4,14 @@ import { Metadata } from 'next';
 import { title, description } from '@/components/common';
 
 export const metadata: Metadata = {
-  title: 'Blog',
-  description: `${description}`,
+	title: 'Blog',
+	description: `${description}`
 };
 
 export default function BlogSlugPage() {
-  return (
-    <Suspense>
-      <BlogSlugLayout />
-    </Suspense>
-  );
+	return (
+		<Suspense>
+			<BlogSlugLayout />
+		</Suspense>
+	);
 }
