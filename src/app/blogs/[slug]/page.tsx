@@ -8,6 +8,11 @@ export const metadata: Metadata = {
 	description: `${description}`
 };
 
+/**
+ * Renders the blog post page for a specific slug, displaying its content within a suspense boundary.
+ *
+ * @returns The blog post layout wrapped in a React Suspense component.
+ */
 export default function BlogSlugPage() {
 	return (
 		<Suspense>

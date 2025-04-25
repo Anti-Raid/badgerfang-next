@@ -6,6 +6,11 @@ import { Search, BookOpen, Sparkles, Tag } from 'lucide-react';
 import BlogCard from '@/components/blogs/BlogCard';
 import type { Blog } from '@/types/blogs/index';
 
+/**
+ * Renders the blog listing page with search, tag filtering, animated header, and a newsletter subscription section.
+ *
+ * Fetches blog posts from the API, displays them with interactive filtering by search term and tags, and provides animated UI elements using Framer Motion. Includes loading states, empty result handling, and a call-to-action for newsletter subscription.
+ */
 export default function BlogLayout() {
 	const [blogs, setBlogs] = useState<Blog[]>([]);
 	const [filteredBlogs, setFilteredBlogs] = useState<Blog[]>([]);
