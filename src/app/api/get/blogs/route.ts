@@ -4,38 +4,44 @@ import { gql } from 'graphql-tag';
 
 const GET_ALL_BLOGS_QUERY = gql`
 	query GetAllBlogs($filters: BlogFiltersInput) {
-		blogs(filters: $filters) {
-			title
-			slug
-			description
-			content
-			createdAt
-			updatedAt
-			publishedAt
-			locale
-			tags
-			badges
-			documentId
-			author {
-				name
-			}
-			image {
-				url
-				alternativeText
-				caption
-			}
-			localizations_connection(filters: $filters) {
-				nodes {
-					title
-					slug
-					description
-					content
-					locale
-					publishedAt
-				}
-			}
-		}
-	}
+        blogs(filters: $filters) {
+            title
+            slug
+            description
+            content
+            createdAt
+            updatedAt
+            publishedAt
+            locale
+            tags
+            badges
+            documentId
+            author {
+                name
+                bio
+                socials
+                avatar {
+                  url
+                  caption
+                }
+            }
+            image {
+                url
+                alternativeText
+                caption
+            }
+            localizations_connection(filters: $filters) {
+                nodes {
+                    title
+                    slug
+                    description
+                    content
+                    locale
+                    publishedAt
+                }
+            }
+        }
+    }
 `;
 
 export async function GET(req: NextRequest) {

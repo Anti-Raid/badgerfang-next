@@ -1,6 +1,21 @@
 export interface Author {
 	__typename: string;
 	name: string;
+	bio: string;
+	avatar: Avatar;
+	socials: Socials[];
+}
+
+export interface Avatar {
+	__typename: string;
+	url: string;
+	caption: string;
+}
+
+export interface Socials {
+	__typename: string;
+	url: string;
+	platform: string;
 }
 
 export interface Blog {

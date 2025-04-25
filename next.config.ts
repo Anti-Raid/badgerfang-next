@@ -10,7 +10,10 @@ const nextConfig: NextConfig = {
 				hostname: '**'
 			}
 		]
-	}
+	},
+	experimental: {
+    viewTransition: true,
+  },
 };
 
 export default nextConfig;
