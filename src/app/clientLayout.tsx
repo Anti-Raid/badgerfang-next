@@ -8,6 +8,7 @@ import { ThemeProvider } from '@/components/ui/ThemeProvider';
 import ToastProvider from '@/components/ui/ToastProvider';
 import { HelmetProvider } from 'react-helmet-async';
 import { SWRConfig } from 'swr';
+import { ViewTransitions } from 'next-view-transitions'
 
 /**
  * Provides a client-side layout that manages loading and authentication states for rendering protected pages.
@@ -35,6 +36,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 			<ThemeProvider defaultTheme="dark" attribute="class">
 				<SWRConfig>
 					<ToastProvider>
+						<ViewTransitions>
 						{isLoading ? (
 							<Loading onClose={() => setIsLoading(false)} />
 						) : (
@@ -48,6 +50,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 								</article>
 							</>
 						)}
+						</ViewTransitions>
 					</ToastProvider>
 				</SWRConfig>
 			</ThemeProvider>

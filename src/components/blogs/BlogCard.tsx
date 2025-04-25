@@ -5,7 +5,7 @@ import type React from 'react';
 import { useState, useRef } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { Calendar, User, ArrowRight, Tag } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from 'next-view-transitions'
 import { format } from 'date-fns';
 import type { Blog } from '@/types/blogs/index';
 
