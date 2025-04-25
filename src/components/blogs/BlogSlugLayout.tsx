@@ -15,6 +15,11 @@ import ReactMarkdown from 'react-markdown';
 import type { Blog } from '@/types/blogs/index';
 import { FaTwitter, FaFacebook, FaLinkedin, FaGithub, FaInstagram, FaLink } from 'react-icons/fa';
 
+/****
+ * Renders a detailed blog post page with author information, markdown content, sharing options, and related articles.
+ *
+ * Displays loading and not-found states as appropriate. Fetches blog data and related articles based on the URL slug, and provides sharing functionality via the Web Share API or clipboard fallback. Blog content is rendered with enhanced markdown styling and syntax highlighting.
+ */
 export default function BlogPostLayout() {
 	const params = useParams();
 	const router = useRouter();

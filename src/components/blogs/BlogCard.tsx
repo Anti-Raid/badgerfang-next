@@ -14,6 +14,14 @@ interface BlogCardProps {
 	index: number;
 }
 
+/**
+ * Renders an animated, interactive card displaying a blog post summary with 3D tilt and hover effects.
+ *
+ * The card presents blog metadata, tags, title, description, and a "Read more" link. Visual effects include animated entrance, 3D rotation based on mouse movement, scaling, glow, and gradient overlays. Tags and meta information are shown if available, and the card's appearance responds to hover state for enhanced interactivity.
+ *
+ * @param blog - The blog post data to display.
+ * @param index - The card's position in a list, used to stagger entrance animations.
+ */
 export default function BlogCard({ blog, index }: BlogCardProps) {
 	const [isHovered, setIsHovered] = useState(false);
 	const mouseX = useMotionValue(0);
