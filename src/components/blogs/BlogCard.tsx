@@ -2,8 +2,9 @@
 
 import type React from 'react';
 import { useState, useRef } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
-import { Calendar, User, ArrowRight, Tag } from 'lucide-react';
+import { Calendar, ArrowRight, Tag } from 'lucide-react';
 import { Link } from 'next-view-transitions';
 import { format } from 'date-fns';
 import type { Blog } from '@/types/blogs/index';
@@ -20,8 +21,18 @@ export default function BlogCard({ blog, index }: BlogCardProps) {
 	const mouseY = useMotionValue(0);
 	const cardRef = useRef<HTMLDivElement>(null);
 
+	const router = useRouter();
+	const searchParams = useSearchParams();
+
 	const rotateX = useTransform(mouseY, [-100, 100], [2, -2]);
 	const rotateY = useTransform(mouseX, [-100, 100], [-2, 2]);
+
+	const calculateReadingTime = (content: string): string => {
+		const wordsPerMinute = 200;
+		const wordCount = content.split(/\s+/).length;
+		const minutes = Math.ceil(wordCount / wordsPerMinute);
+		return `${minutes} min read`;
+	};
 
 	const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
 		if (!cardRef.current) return;
@@ -32,6 +43,12 @@ export default function BlogCard({ blog, index }: BlogCardProps) {
 		mouseY.set(y);
 	};
 
+	const handleTagClick = (tag: string) => {
+		const params = new URLSearchParams(searchParams.toString());
+		params.set('sortBy', tag);
+		router.push(`?${params.toString()}`);
+	};
+
 	return (
 		<motion.div
 			ref={cardRef}
@@ -40,12 +57,12 @@ export default function BlogCard({ blog, index }: BlogCardProps) {
 			transition={{
 				duration: 0.6,
 				delay: index * 0.1,
-				ease: [0.22, 1, 0.36, 1]
+				ease: [0.22, 1, 0.36, 1],
 			}}
 			style={{
 				rotateX,
 				rotateY,
-				perspective: 1000
+				perspective: 1000,
 			}}
 			whileHover={{ scale: 1.02 }}
 			onMouseMove={handleMouseMove}
@@ -55,88 +72,97 @@ export default function BlogCard({ blog, index }: BlogCardProps) {
 				mouseX.set(0);
 				mouseY.set(0);
 			}}
-			className="group relative overflow-hidden rounded-xl bg-card border border-border/50 shadow-lg transition-all duration-300"
+			className="group relative overflow-hidden rounded-xl bg-card border border-border/50 shadow-md transition-all duration-300"
 		>
-			{/* Gradient overlay */}
-			<motion.div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+			{/* Full-width Image Header */}
+			{blog.image && (
+				<div className="relative w-full h-48 md:h-56 lg:h-64 overflow-hidden">
+					<Image
+						src={`https://strapi.purrquinox.com${blog.image.url}`}
+						alt={blog.image.alternativeText || blog.title}
+						fill
+						className="object-cover"
+					/>
 
-			{/* Glow effect */}
-			<motion.div
-				className="absolute -inset-0.5 bg-gradient-to-r from-primary to-accent rounded-xl opacity-0 blur-xl"
-				animate={{ opacity: isHovered ? 0.15 : 0 }}
-				transition={{ duration: 0.3 }}
-			/>
-
-			<div className="p-6 relative z-10">
-				{/* Tags */}
-				{blog.tags?.length > 0 && (
-					<div className="flex flex-wrap gap-2 mb-3">
-						{blog.tags.map((tag) => (
-							<motion.span
-								key={tag}
-								initial={{ opacity: 0, scale: 0.8 }}
-								animate={{ opacity: 1, scale: 1 }}
-								transition={{ duration: 0.3 }}
-								className="bg-accent text-white-bold px-2 py-1 rounded-full text-xs font-medium flex items-center"
-							>
-								<Tag size={12} className="mr-1" />
-								{tag}
-							</motion.span>
-						))}
-					</div>
-				)}
-
-				{/* Meta info */}
-				<div className="flex items-center text-sm text-muted-foreground mb-3">
-					<div className="flex items-center mr-4">
-						<User size={14} className="mr-1" />
-						<span className="font-medium">{blog.author.name}</span>
-					</div>
-					<div className="flex items-center">
-						<Calendar size={14} className="mr-1" />
-						<span>{format(new Date(blog.publishedAt), 'MMM d, yyyy')}</span>
-					</div>
+					{/* Tags overlay on image */}
+					{blog.tags?.length > 0 && (
+						<div className="absolute bottom-3 right-3 flex flex-wrap gap-2">
+							{blog.tags.map((tag) => (
+								<motion.button
+									type="button"
+									onClick={() => handleTagClick(tag)}
+									key={tag}
+									initial={{ opacity: 0, scale: 0.8 }}
+									animate={{ opacity: 1, scale: 1 }}
+									transition={{ duration: 0.3 }}
+									className="bg-accent text-white px-2 py-1 rounded-full text-[10px] font-semibold flex items-center"
+								>
+									<Tag size={10} className="mr-1" />
+									{tag}
+								</motion.button>
+							))}
+						</div>
+					)}
 				</div>
+			)}
 
-				{/* Image */}
-				{blog.image && (
-					<div className="mb-4">
-						<Image
-							src={`https://strapi.purrquinox.com${blog.image.url}`}
-							alt={blog.image.alternativeText || blog.title}
-							width={800}
-							height={400}
-							className="rounded-lg shadow-md"
-						/>
-					</div>
-				)}
-
+			{/* Content */}
+			<div className="p-5 space-y-4">
 				{/* Title */}
-				<h2 className="text-2xl font-bold font-lora mb-2 line-clamp-2 group-hover:text-primary transition-colors duration-300">
-					{blog.title}
+				<h2 className="text-xl font-bold font-cabin leading-snug line-clamp-2 group-hover:text-primary transition-colors duration-300">
+					<Link href={`/blogs/${blog.slug}`} className="transition-colors duration-300">
+						{blog.title}
+					</Link>
 				</h2>
 
 				{/* Description */}
-				<p className="text-muted-foreground line-clamp-3 mb-4">{blog.description}</p>
+				<p className="text-md text-muted-foreground line-clamp-3">
+					{blog.description}
+				</p>
 
-				{/* Read more link */}
-				<Link
-					href={`/blogs/${blog.slug}`}
-					className="inline-flex items-center text-primary font-medium"
-				>
-					Read more
-					<motion.span
-						initial={{ x: 0 }}
-						animate={{ x: isHovered ? 5 : 0 }}
-						transition={{ duration: 0.3 }}
-						className="ml-1"
+				{/* Bottom section */}
+				<div className="flex justify-between items-center pt-2">
+					{/* Read more */}
+					<Link
+						href={`/blogs/${blog.slug}`}
+						className="inline-flex items-center text-primary font-medium text-sm"
 					>
-						<ArrowRight size={16} />
-					</motion.span>
-				</Link>
+						Read more
+						<motion.span
+							initial={{ x: 0 }}
+							animate={{ x: isHovered ? 5 : 0 }}
+							transition={{ duration: 0.3 }}
+							className="ml-1"
+						>
+							<ArrowRight size={16} />
+						</motion.span>
+					</Link>
+
+					{/* Author & Date */}
+					<div className="flex items-center gap-2 text-xs text-muted-foreground">
+						{/* Avatar */}
+						{blog.author.avatar && (
+							<Image
+								src={`https://strapi.purrquinox.com${blog.author.avatar.url}`}
+								alt={blog.author.name}
+								width={20}
+								height={20}
+								className="rounded-full object-cover"
+							/>
+						)}
+						<span>{blog.author.name}</span>
+						<span>•</span>
+						<div className="flex items-center gap-1">
+							<Calendar size={12} />
+							<span>{format(new Date(blog.publishedAt), 'MMM d, yyyy')}</span>
+						</div>
+						<span>•</span>
+						<span>{calculateReadingTime(blog.content)}</span>
+					</div>
+				</div>
 			</div>
 
-			{/* Bottom gradient line */}
+			{/* Bottom Glow */}
 			<motion.div
 				className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-accent"
 				initial={{ scaleX: 0 }}

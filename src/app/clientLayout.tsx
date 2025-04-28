@@ -8,7 +8,7 @@ import { ThemeProvider } from '@/components/ui/ThemeProvider';
 import ToastProvider from '@/components/ui/ToastProvider';
 import { HelmetProvider } from 'react-helmet-async';
 import { SWRConfig } from 'swr';
-import { ViewTransitions } from 'next-view-transitions'
+import { ViewTransitions } from 'next-view-transitions';
 
 /**
  * Provides a client-side layout that manages loading and authentication states for rendering protected pages.
@@ -37,19 +37,19 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 				<SWRConfig>
 					<ToastProvider>
 						<ViewTransitions>
-						{isLoading ? (
-							<Loading onClose={() => setIsLoading(false)} />
-						) : (
-							<>
-								<Header />
-								<article className="min-h-screen flex-col justify-between overflow-x-hidden">
-									<main className="mt-9 p-1 w-full md:max-w-7xl mx-auto h-full min-h-screen">
-										{children}
-									</main>
-									<Footer />
-								</article>
-							</>
-						)}
+							{isLoading ? (
+								<Loading onClose={() => setIsLoading(false)} />
+							) : (
+								<>
+									<Header />
+									<article className="min-h-screen flex-col justify-between overflow-x-hidden">
+										<main className="mt-9 p-1 w-full md:max-w-7xl mx-auto h-full min-h-screen">
+											{children}
+										</main>
+										<Footer />
+									</article>
+								</>
+							)}
 						</ViewTransitions>
 					</ToastProvider>
 				</SWRConfig>
