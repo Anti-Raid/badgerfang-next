@@ -57,12 +57,12 @@ export default function BlogCard({ blog, index }: BlogCardProps) {
 			transition={{
 				duration: 0.6,
 				delay: index * 0.1,
-				ease: [0.22, 1, 0.36, 1],
+				ease: [0.22, 1, 0.36, 1]
 			}}
 			style={{
 				rotateX,
 				rotateY,
-				perspective: 1000,
+				perspective: 1000
 			}}
 			whileHover={{ scale: 1.02 }}
 			onMouseMove={handleMouseMove}
@@ -116,9 +116,7 @@ export default function BlogCard({ blog, index }: BlogCardProps) {
 				</h2>
 
 				{/* Description */}
-				<p className="text-md text-muted-foreground line-clamp-3">
-					{blog.description}
-				</p>
+				<p className="text-md text-muted-foreground line-clamp-3">{blog.description}</p>
 
 				{/* Bottom section */}
 				<div className="flex justify-between items-center pt-2">

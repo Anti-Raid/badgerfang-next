@@ -6,7 +6,7 @@ import { Search, BookOpen, Sparkles, Tag } from 'lucide-react';
 import BlogCard from '@/components/blogs/BlogCard';
 import type { Blog } from '@/types/blogs/index';
 import { ViewTransitions } from 'next-view-transitions';
-import { Link } from 'next-view-transitions'
+import { Link } from 'next-view-transitions';
 
 export default function BlogLayout() {
 	const [blogs, setBlogs] = useState<Blog[]>([]);
