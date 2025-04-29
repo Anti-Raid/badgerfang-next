@@ -8,9 +8,11 @@ import { website_url } from '@/components/common';
 import { Metadata } from 'next';
 import { generateScriptMetadata } from '@/lib/Metadata';
 
+/*
 export const metadata: Metadata = generateScriptMetadata({
 	canonicalUrl: `${website_url}/script/shop`
 });
+*/
 
 export default function TemplateShopPage() {
 	const [templates, setTemplates] = useState<TemplateShopProps[]>([]);

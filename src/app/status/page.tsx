@@ -11,40 +11,19 @@ export const metadata: Metadata = generateAboutMetadata({
 	canonicalUrl: `${website_url}/status`
 });
 
-// Error Fallback Component
-const ErrorFallback = ({ error }: { error: Error }) => (
-	<div className="flex justify-center items-center min-h-screen text-destructive">
-		<div>
-			<p>Failed to load bot status</p>
-			<p className="text-sm">{error.message}</p>
-		</div>
-	</div>
-);
 
-const BotStatusPage: React.FC = () => {
-	const [data, setData] = useState<any>(null);
-	const [error, setError] = useState<Error | null>(null);
-
-	useEffect(() => {
-		const fetchData = async () => {
-			try {
-				const response = await getBotStats();
-				setData(response);
-			} catch (err) {
-				setError(err as Error);
-			} finally {
-				setLoading(false);
-			}
-		};
-
-		fetchData();
-	}, []);
-
-	if (error) return <ErrorFallback error={error} />;
-	return data ? <Status data={{ resp: data }} /> : null;
-};
+/**
+ * BotStatusPage component.
+ *
+ * This component fetches and displays the status of the bot.
+ * It uses the {@link Status} component to render the status information.
+ */
+function BotStatusPage() {
+	return (
+		<main>
+			<Status />
+		</main>
+	);
+}
 
 export default BotStatusPage;
-function setLoading(arg0: boolean) {
-	throw new Error('Function not implemented.');
-}

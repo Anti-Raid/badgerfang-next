@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { FaChartLine, FaCube, FaServer, FaClock } from 'react-icons/fa';
 import {
 	LineChart,
@@ -11,6 +11,7 @@ import {
 	ResponsiveContainer
 } from 'recharts';
 import { motion } from 'framer-motion';
+import { getBotStats } from "@/lib/api";
 
 interface ShardDetails {
 	real_latency: number;
@@ -20,7 +21,7 @@ interface ShardDetails {
 	total_uptime: number;
 }
 
-interface BotStatusData {
+interface BotStats {
 	resp: {
 		shard_conns: Record<string, ShardDetails>;
 		total_guilds: number;
@@ -71,7 +72,7 @@ const StatusCard: React.FC<StatusCardProps> = React.memo(({ icon, title, value }
 	</motion.div>
 ));
 
-const ShardLatencyChart: React.FC<{ data: BotStatusData }> = React.memo(({ data }) => {
+const ShardLatencyChart: React.FC<{ data: BotStats }> = React.memo(({ data }) => {
 	const chartData = useMemo(
 		() =>
 			Object.entries(data.resp.shard_conns).map(([shard, details]) => ({
@@ -134,7 +135,7 @@ const ShardLatencyChart: React.FC<{ data: BotStatusData }> = React.memo(({ data 
 	);
 });
 
-const GuildDistributionChart: React.FC<{ data: BotStatusData }> = React.memo(({ data }) => {
+const GuildDistributionChart: React.FC<{ data: BotStats }> = React.memo(({ data }) => {
 	const chartData = useMemo(
 		() =>
 			Object.entries(data.resp.shard_conns).map(([shard, details]) => ({
@@ -195,7 +196,7 @@ const GuildDistributionChart: React.FC<{ data: BotStatusData }> = React.memo(({ 
 	);
 });
 
-const ShardStatusList: React.FC<{ data: BotStatusData }> = React.memo(({ data }) => {
+const ShardStatusList: React.FC<{ data: BotStats }> = React.memo(({ data }) => {
 	return (
 		<div className="bg-card p-6 rounded-md shadow-md border border-border">
 			<h2 className="text-xl font-bold mb-4 flex items-center">
@@ -242,7 +243,7 @@ const ShardStatusList: React.FC<{ data: BotStatusData }> = React.memo(({ data })
 	);
 });
 
-const BotStatusSummary: React.FC<{ data: BotStatusData }> = React.memo(({ data }) => {
+const BotStatusSummary: React.FC<{ data: BotStats }> = React.memo(({ data }) => {
 	const totalShards = Object.keys(data.resp.shard_conns).length;
 	const totalGuilds = data.resp.total_guilds;
 	const uptime = formatUptime(data.resp.uptime);
@@ -271,7 +272,31 @@ const BotStatusSummary: React.FC<{ data: BotStatusData }> = React.memo(({ data }
 	);
 });
 
-const Status: React.FC<{ data: BotStatusData }> = ({ data }) => {
+const Status: React.FC = () => {
+	const [data, setData] = useState<BotStats | null>(null);
+	const [error, setError] = useState<Error | null>(null);
+
+	useEffect(() => {
+		const fetchData = async () => {
+			try {
+				const response = await getBotStats();
+				setData(response as unknown as BotStats);
+			} catch (err) {
+				setError(err as Error);
+			}
+		};
+
+		fetchData();
+	}, []);
+
+	if (error) {
+		return <div>Error: {error.message}</div>;
+	}
+
+	if (!data) {
+		return <div>Loading...</div>;
+	}
+
 	return (
 		<div className="container mx-auto p-6 space-y-8">
 			<motion.h1
