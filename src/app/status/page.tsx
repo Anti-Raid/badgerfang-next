@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useEffect, useState } from 'react';
 import Status from '@/components/status/Layout';
 import { getBotStats } from '@/lib/api';

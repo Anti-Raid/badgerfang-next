@@ -1,7 +1,7 @@
 import { website_url } from '@/components/common';
 import { Metadata } from 'next';
 import { generateTermsMetadata } from '@/lib/Metadata';
-import Terms from '@/components/legal/Terms';
+import TermsOfService from '@/components/legal/Terms';
 
 export const metadata: Metadata = generateTermsMetadata({
 	canonicalUrl: `${website_url}/legal/terms`
@@ -16,7 +16,7 @@ export const metadata: Metadata = generateTermsMetadata({
 export default function TermsPage() {
 	return (
 		<main>
-			<Terms />
+			<TermsOfService />
 		</main>
 	);
 }
