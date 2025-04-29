@@ -5,6 +5,11 @@ import ClientLayout from './clientLayout';
 import { generateMetadata } from '@/lib/Metadata';
 export const metadata: Metadata = generateMetadata({});
 
+/**
+ * Defines the root layout for the application, setting up global HTML structure, fonts, and wrapping content with the client layout.
+ *
+ * @param children - The content to be rendered within the layout.
+ */
 export default function RootLayout({
 	children
 }: Readonly<{

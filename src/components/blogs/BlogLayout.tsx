@@ -8,6 +8,11 @@ import type { Blog } from '@/types/blogs/index';
 import { ViewTransitions } from 'next-view-transitions';
 import { Link } from 'next-view-transitions';
 
+/**
+ * Renders the blog listing page with search, tag filtering, animated header, and newsletter subscription.
+ *
+ * Fetches blog posts from the API, displays them with dynamic filtering by search term and tags, and includes animated UI elements for enhanced user experience.
+ */
 export default function BlogLayout() {
 	const [blogs, setBlogs] = useState<Blog[]>([]);
 	const [filteredBlogs, setFilteredBlogs] = useState<Blog[]>([]);
