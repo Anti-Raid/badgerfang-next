@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Calendar, Tag, User, ArrowLeft, Share2, BookOpen } from 'lucide-react';
 import Link from 'next/link';
@@ -15,10 +15,12 @@ import ReactMarkdown from 'react-markdown';
 import type { Blog } from '@/types/blogs/index';
 import { FaTwitter, FaFacebook, FaLinkedin, FaGithub, FaInstagram, FaLink } from 'react-icons/fa';
 
-export default function BlogPostLayout() {
-	const params = useParams();
+interface BlogSlugLayoutProps {
+  slug: string;
+}
+
+const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 	const router = useRouter();
-	const slug = params.slug as string;
 
 	const [blog, setBlog] = useState<Blog | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
@@ -471,3 +473,5 @@ export default function BlogPostLayout() {
 		</div>
 	);
 }
+
+export default BlogSlugLayout;
