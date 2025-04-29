@@ -11,10 +11,9 @@ export const metadata: Metadata = generateAboutMetadata({
 
 
 /**
- * BotStatusPage component.
+ * Renders the bot status page.
  *
- * This component fetches and displays the status of the bot.
- * It uses the {@link Status} component to render the status information.
+ * Displays the {@link Status} component within a main section.
  */
 function BotStatusPage() {
 	return (

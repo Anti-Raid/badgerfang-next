@@ -8,10 +8,9 @@ export const metadata: Metadata = generateTermsMetadata({
 });
 
 /**
- * Terms of Service page component.
+ * Displays the Terms of Service page.
  *
- * This component renders the Terms of Service page of the application.
- * It uses the {@link Terms} component to display the content.
+ * Renders the {@link TermsOfService} component within a main content area.
  */
 export default function TermsPage() {
 	return (

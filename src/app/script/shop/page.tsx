@@ -8,11 +8,11 @@ import { website_url } from '@/components/common';
 import { Metadata } from 'next';
 import { generateScriptMetadata } from '@/lib/Metadata';
 
-/*
-export const metadata: Metadata = generateScriptMetadata({
-	canonicalUrl: `${website_url}/script/shop`
-});
-*/
+/**
+ * Displays the template shop page, fetching and rendering a list of templates from the public settings API.
+ *
+ * Shows a loading spinner while fetching data and displays an error message if the fetch fails.
+ */
 
 export default function TemplateShopPage() {
 	const [templates, setTemplates] = useState<TemplateShopProps[]>([]);

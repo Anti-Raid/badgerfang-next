@@ -9,10 +9,7 @@ export const metadata: Metadata = generateAboutMetadata({
 });
 
 /**
- * About page component.
- *
- * This component renders the About page of the application.
- * It uses the {@link AboutLayout} component to display the content.
+ * Renders the About page using the {@link AboutLayout} component.
  */
 export default function AboutPage() {
 	return (
