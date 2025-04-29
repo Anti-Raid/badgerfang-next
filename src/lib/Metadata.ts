@@ -207,3 +207,55 @@ export function generateScriptMetadata(params: GenerateMetadataParams = {}): Met
 		Url: params.canonicalUrl
 	});
 }
+
+/**
+ * Generates standardized metadata for the Commands page, using default values for title, description, image, and keywords unless overridden.
+ * 
+ * @param params - Optional overrides for image, keywords, and canonical URL.
+ * @returns A Metadata object configured for the Commands section.
+ */
+export function generateCommandMetadata(params: GenerateMetadataParams = {}): Metadata {
+	return generateMetadata({
+		title: 'Commands',
+		description: 'Browse all available commands',
+		image: params.imageUrl ?? defaultImage,
+		keywords: params.keywords?.length ? params.keywords : ['Commands', 'Code', 'luau'],
+		Url: params.canonicalUrl
+	});
+}
+
+/**
+ * Generates standardized metadata for the Blogs page, using default values for title, description, image, and keywords unless overridden.
+ *
+ * @param params - Optional overrides for image, keywords, and canonical URL.
+ * @returns A Metadata object configured for the Blogs section.
+ */
+export function generateBlogsMetadata(params: GenerateMetadataParams = {}): Metadata {
+	return generateMetadata({
+		title: 'Blogs',
+		description: 'Read the latest news and updates.',
+		image: params.imageUrl ?? defaultImage,
+		keywords: params.keywords?.length ? params.keywords : ['Blogs', 'News', 'Updates'],
+		Url: params.canonicalUrl
+	});
+}
+
+export function generateDeveloperDashboardMetadata(params: GenerateMetadataParams = {}): Metadata {
+	return generateMetadata({
+		title: 'Developer Dashboard',
+		description: 'Manage your Sessions and API Keys',
+		image: params.imageUrl ?? defaultImage,
+		keywords: params.keywords?.length ? params.keywords : ['Developer', 'Dashboard', 'Settings'],
+		Url: params.canonicalUrl
+	});
+}
+
+export function generateSettingsValidatorMetadata(params: GenerateMetadataParams = {}): Metadata {
+	return generateMetadata({
+		title: 'Settings Validator',
+		description: 'Validate the current settings with the ones from the API side',
+		image: params.imageUrl ?? defaultImage,
+		keywords: params.keywords?.length ? params.keywords : ['Settings', 'Validator'],
+		Url: params.canonicalUrl
+	});
+}

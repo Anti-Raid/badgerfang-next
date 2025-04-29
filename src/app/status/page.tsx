@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Status from '@/components/status/Layout';
-import { getBotStats } from '@/lib/api';
 import { generateAboutMetadata } from '@/lib/Metadata';
 import { Metadata } from 'next';
 import { website_url } from '@/components/common';

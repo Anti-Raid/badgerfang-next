@@ -1,7 +1,8 @@
 import Dashboard from '@/components/dashboard/developers/session';
 import ProtectedRoute from '@/components/authProtectedRoute';
-import { description } from '@/components/common';
 import { Metadata } from 'next';
+import { generateDeveloperDashboardMetadata } from '@/lib/Metadata';
+import { website_url } from '@/components/common';
 
 /**
  * Renders the Developes Dashboard page.
@@ -10,10 +11,9 @@ import { Metadata } from 'next';
  *
  * @returns A React element representing the settings page.
  */
-export const metadata: Metadata = {
-	title: 'Developers',
-	description: `${description}`
-};
+export const metadata: Metadata = generateDeveloperDashboardMetadata({
+	canonicalUrl: `${website_url}/dashboard/developers`
+})
 
 export default function Settings() {
 	return (

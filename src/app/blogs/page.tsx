@@ -1,12 +1,12 @@
 import BlogLayout from '@/components/blogs/BlogLayout';
 import { Metadata } from 'next';
-import { title, description } from '@/components/common';
+import { website_url } from '@/components/common';
 import React, { Suspense } from 'react';
+import { generateBlogsMetadata } from '@/lib/Metadata';
 
-export const metadata: Metadata = {
-	title: 'Blog',
-	description: `${description}`
-};
+export const metadata: Metadata = generateBlogsMetadata({
+	canonicalUrl: `${website_url}/blogs`,
+});
 
 /**
  * Displays the blog page, enabling asynchronous loading of its content with React Suspense.
