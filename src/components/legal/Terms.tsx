@@ -14,6 +14,11 @@ import {
 import { MdGavel, MdSecurity } from 'react-icons/md';
 import TableOfContents from '@/components/legal/TableOfContents';
 
+/**
+ * Renders the Terms of Service page with interactive navigation and section highlighting.
+ *
+ * Displays a list of terms sections, a table of contents for quick navigation, and updates the active section based on scroll position. Each section includes legal content and relevant icons.
+ */
 export default function TermsOfService() {
 	const [activeSection, setActiveSection] = useState('');
 
