@@ -9,9 +9,9 @@ export const metadata: Metadata = generateBlogsMetadata({
 });
 
 /**
- * Displays the blog page, enabling asynchronous loading of its content with React Suspense.
+ * Renders the blog page with asynchronous loading using React Suspense.
  *
- * Wraps the {@link BlogLayout} component in a {@link Suspense} boundary to support concurrent rendering.
+ * Wraps the {@link BlogLayout} component in a {@link Suspense} boundary to enable concurrent rendering and deferred loading of blog content.
  */
 export default function BlogsPage() {
 	return (

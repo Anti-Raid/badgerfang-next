@@ -16,12 +16,12 @@ interface BlogCardProps {
 }
 
 /**
- * Renders an animated, interactive blog preview card with 3D tilt, hover effects, and dynamic tag filtering.
+ * Displays an animated blog preview card with 3D tilt, hover effects, and interactive tag filtering.
  *
- * Displays a blog post's image, tags, title, description, author info, publication date, and estimated reading time. The card animates into view with a staggered fade and slide, tilts in 3D based on mouse movement, and scales with a glowing gradient on hover. Clicking a tag updates the URL to filter blogs by that tag.
+ * Shows a blog post's image, tags, title, description, author details, publication date, and estimated reading time. The card animates into view with a staggered fade and slide, tilts in 3D based on mouse movement, and scales with a glowing gradient on hover. Clicking a tag updates the URL to filter blogs by that tag.
  *
- * @param blog - The blog post data to display.
- * @param index - The card's position in a list, used for staggered animation delay.
+ * @param blog - Blog post data to display in the card.
+ * @param index - Position of the card in a list, used for animation delay.
  */
 export default function BlogCard({ blog, index }: BlogCardProps) {
 	const [isHovered, setIsHovered] = useState(false);

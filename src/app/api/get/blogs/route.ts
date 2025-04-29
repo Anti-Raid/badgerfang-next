@@ -45,9 +45,9 @@ const GET_ALL_BLOGS_QUERY = gql`
 `;
 
 /**
- * Handles HTTP GET requests to retrieve blog posts, optionally filtered by query parameters.
+ * Handles HTTP GET requests to fetch blog posts with optional filtering.
  *
- * Parses a `filters` parameter from the request URL to filter blog results. If no filters are provided, defaults to returning blogs published within the last 30 days. Responds with a JSON array of blogs on success, or an error message with an appropriate status code on failure.
+ * Extracts a `filters` parameter from the request URL to filter blog results; if absent, defaults to blogs published in the last 30 days. Returns a JSON array of blogs on success, or an error message with an appropriate status code on failure.
  *
  * @returns A JSON response containing the list of blogs or an error message.
  */

@@ -50,12 +50,12 @@ interface GenerateMetadataParams {
 }
 
 /**
- * Generates a standardized Next.js Metadata object for a page.
+ * Generates a standardized Next.js Metadata object for a page using provided and site-wide defaults.
  *
- * Combines provided and default values to set the page title, description, keywords, icons, Open Graph, and Twitter card metadata. If a canonical URL is specified, it is included in the metadata.
+ * Merges custom and default values to configure the page's title, description, keywords, icons, Open Graph, and Twitter card metadata. Includes a canonical URL if specified and sets the metadata base URL from parameters, environment variables, or site defaults.
  *
- * @param params - Optional metadata customization for the page, such as title, description, image, keywords, canonical URL, or base URL override.
- * @returns A Metadata object suitable for Next.js page configuration.
+ * @param params - Optional overrides for page metadata, including title, description, image, keywords, canonical URL, or base URL.
+ * @returns A Metadata object for Next.js page configuration.
  */
 export function generateMetadata(params: MainMetaDataParam): Metadata {
 	const { title, description, image, keywords = [], Url, metadata } = params;
@@ -107,11 +107,11 @@ export function generateMetadata(params: MainMetaDataParam): Metadata {
 }
 
 /**
- * Generates a Metadata object for a blog post, applying blog-specific defaults and formatting.
+ * Generates standardized metadata for a blog post page with blog-specific defaults.
  *
- * Uses "Blog" as the default title, a standard blog description if none is provided, and prefixes keywords with "Blog". Delegates to {@link generateMetadata} for final assembly.
+ * Sets the title to "Blog" if not provided, applies a default blog description, and ensures "Blog" is included in the keywords. Delegates to {@link generateMetadata} for final metadata construction.
  *
- * @returns A Metadata object suitable for Next.js blog post pages.
+ * @returns Metadata for a Next.js blog post page.
  */
 export function generateBlogMetadata(params: GenerateMetadataParams): Metadata {
 	const { title, description, imageUrl, keywords = [], canonicalUrl } = params;
@@ -128,10 +128,10 @@ export function generateBlogMetadata(params: GenerateMetadataParams): Metadata {
 }
 
 /**
- * Generates metadata for the About page, using default values for title, description, image, and keywords unless overridden.
+ * Generates standardized metadata for the About page, allowing optional overrides for keywords and canonical URL.
  *
- * @param params - Optional overrides for keywords and canonical URL.
- * @returns A Metadata object configured for the About page.
+ * @param params - Optional parameters to override keywords and canonical URL.
+ * @returns Metadata configured for the About page with default or overridden values.
  */
 export function generateAboutMetadata(params: GenerateMetadataParams = {}): Metadata {
 	return generateMetadata({
@@ -144,10 +144,11 @@ export function generateAboutMetadata(params: GenerateMetadataParams = {}): Meta
 }
 
 /**
- * Generates standardized metadata for the Status page, allowing optional customization of image, keywords, and canonical URL.
+ * Generates metadata for the Status page with defaults for title, description, image, and keywords.
  *
- * @param params - Optional overrides for image, keywords, and canonical URL.
- * @returns A Metadata object configured for the Status page.
+ * Optionally overrides the image, keywords, and canonical URL.
+ *
+ * @returns Metadata configured for the Status page.
  */
 export function generateStatusMetadata(params: GenerateMetadataParams = {}): Metadata {
 	return generateMetadata({
@@ -160,9 +161,11 @@ export function generateStatusMetadata(params: GenerateMetadataParams = {}): Met
 }
 
 /**
- * Generates standardized metadata for the Privacy Policy page, using default values for title, description, and keywords unless overridden.
+ * Generates metadata for the Privacy Policy page with default or overridden values.
  *
- * @returns A Metadata object configured for the Privacy Policy page.
+ * Uses "Privacy Policy" as the default title, a standard privacy description, and keywords related to privacy unless custom values are provided.
+ *
+ * @returns Metadata configured for the Privacy Policy page.
  */
 export function generatePrivacyMetadata(params: GenerateMetadataParams = {}): Metadata {
 	return generateMetadata({
@@ -175,10 +178,11 @@ export function generatePrivacyMetadata(params: GenerateMetadataParams = {}): Me
 }
 
 /**
- * Generates standardized metadata for the Terms of Service page, using default values for title, description, and keywords unless overridden.
+ * Generates metadata for the Terms of Service page with default or overridden values.
  *
- * @param params - Optional overrides for image, keywords, and canonical URL.
- * @returns A Metadata object configured for the Terms of Service page.
+ * Uses default title, description, image, and keywords for the Terms of Service page, allowing optional overrides for image, keywords, and canonical URL.
+ *
+ * @returns Metadata configured for the Terms of Service page.
  */
 export function generateTermsMetadata(params: GenerateMetadataParams = {}): Metadata {
 	return generateMetadata({
@@ -191,10 +195,10 @@ export function generateTermsMetadata(params: GenerateMetadataParams = {}): Meta
 }
 
 /**
- * Generates standardized metadata for the Scripts Shop page, using default values for title, description, image, and keywords unless overridden.
+ * Generates metadata for the Scripts Shop page with default or overridden values.
  *
- * @param params - Optional overrides for image, keywords, and canonical URL.
- * @returns A Metadata object configured for the Scripts Shop section.
+ * @param params - Optional values to override the default image, keywords, or canonical URL.
+ * @returns Metadata configured for the Scripts Shop section.
  */
 export function generateScriptMetadata(params: GenerateMetadataParams = {}): Metadata {
 	return generateMetadata({
@@ -209,10 +213,10 @@ export function generateScriptMetadata(params: GenerateMetadataParams = {}): Met
 }
 
 /**
- * Generates standardized metadata for the Commands page, using default values for title, description, image, and keywords unless overridden.
- * 
- * @param params - Optional overrides for image, keywords, and canonical URL.
- * @returns A Metadata object configured for the Commands section.
+ * Generates standardized metadata for the Commands page, applying default title, description, image, and keywords unless overridden.
+ *
+ * @param params - Optional values to override the default image, keywords, description, title, or canonical URL.
+ * @returns Metadata configured for the Commands section.
  */
 export function generateCommandMetadata(params: GenerateMetadataParams = {}): Metadata {
 	return generateMetadata({
@@ -225,10 +229,10 @@ export function generateCommandMetadata(params: GenerateMetadataParams = {}): Me
 }
 
 /**
- * Generates standardized metadata for the Blogs page, using default values for title, description, image, and keywords unless overridden.
+ * Generates metadata for the Blogs page with defaults for title, description, image, and keywords, allowing optional overrides.
  *
- * @param params - Optional overrides for image, keywords, and canonical URL.
- * @returns A Metadata object configured for the Blogs section.
+ * @param params - Optional values to override the default image, keywords, or canonical URL.
+ * @returns Metadata configured for the Blogs section.
  */
 export function generateBlogsMetadata(params: GenerateMetadataParams = {}): Metadata {
 	return generateMetadata({
@@ -240,6 +244,11 @@ export function generateBlogsMetadata(params: GenerateMetadataParams = {}): Meta
 	});
 }
 
+/**
+ * Generates standardized metadata for the Developer Dashboard page, allowing optional overrides for image, keywords, and canonical URL.
+ *
+ * @returns A Next.js {@link Metadata} object configured for the Developer Dashboard.
+ */
 export function generateDeveloperDashboardMetadata(params: GenerateMetadataParams = {}): Metadata {
 	return generateMetadata({
 		title: 'Developer Dashboard',
@@ -250,6 +259,11 @@ export function generateDeveloperDashboardMetadata(params: GenerateMetadataParam
 	});
 }
 
+/**
+ * Generates standardized metadata for the Settings Validator page, allowing optional overrides for image, keywords, and canonical URL.
+ *
+ * @returns A Next.js {@link Metadata} object configured for the Settings Validator page.
+ */
 export function generateSettingsValidatorMetadata(params: GenerateMetadataParams = {}): Metadata {
 	return generateMetadata({
 		title: 'Settings Validator',
