@@ -71,7 +71,7 @@ export function generateMetadata(params: MainMetaDataParam): Metadata {
   const fullTitle = title
     ? `${title} | ${siteTitle}`
     : `${siteTitle} - ${description_short}`;
-  const desc = description ?? description_short;
+  const desc = siteDescription;
   const previewImage = image ?? defaultImage;
   const canonicalBase = metadata ?? process.env.NEXT_PUBLIC_APP_URL ?? website_url;
 
