@@ -1,3 +1,4 @@
+"use client"
 import React, { useEffect, useState, useMemo } from 'react';
 import { FaChartLine, FaCube, FaServer, FaClock } from 'react-icons/fa';
 import {
