@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import BlogSlugLayout from '@/components/blogs/BlogSlugLayout';
 import type { Blog } from '@/types/blogs';
 import { generateBlogMetadata } from '@/lib/Metadata';
@@ -9,10 +9,11 @@ import type { Metadata } from 'next';
  * Fetches all blogs, finds the one matching the slug,
  * then uses the shared metadata util from @/lib/metadata.
  */
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
   const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/get/blogs`, { cache: 'no-store' });
   const data: Blog[] = await res.json();
-  const post = data.find((b) => b.slug === params.slug);
+  const post = data.find((b) => b.slug === slug);
 
   if (!post) {
     // Handle the case where post is undefined
@@ -21,7 +22,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       description: 'The blog post you are looking for does not exist.',
       imageUrl: undefined,
       keywords: [],
-      canonicalUrl: `https://antiraid.xyz/blogs/${params.slug}`,
+      canonicalUrl: `https://antiraid.xyz/blogs/${slug}`,
     });
   }
 
@@ -38,6 +39,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
  * Server component wrapper that renders the client-only BlogPostLayout.
  * Passes the slug down as a prop so the client component can fetch its data.
  */
-export default function Page({ params }: { params: { slug: string } }) {
-  return <BlogSlugLayout slug={params.slug} />;
+export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  return <BlogSlugLayout slug={slug} />;
 }
