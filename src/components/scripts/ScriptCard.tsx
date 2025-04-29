@@ -48,7 +48,7 @@ export const CommonCard = ({ template }: CommonCardProps) => {
 	}, [template.created_by]);
 
 	const handleViewClick = () => {
-		router.push(`/script/${template.name}`);
+		router.push(`/script/auto-slowdown`);
 	};
 
 	const truncate = (str: string, maxLength: number) => {
