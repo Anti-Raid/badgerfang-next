@@ -8,7 +8,7 @@ import { Metadata } from 'next';
 import { website_url } from '@/components/common';
 
 export const metadata: Metadata = generateAboutMetadata({
-	canonicalUrl: `${website_url}/status`,
+	canonicalUrl: `${website_url}/status`
 });
 
 // Error Fallback Component

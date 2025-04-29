@@ -1,15 +1,15 @@
-import { Metadata } from "next";
+import { Metadata } from 'next';
 import {
-  title as siteTitle,
-  description_short,
-  description as siteDescription,
-  keywords as siteKeywords,
-  owner,
-  logo,
-  image as defaultImage,
-  twitter,
-  website_url,
-} from "@/components/common";
+	title as siteTitle,
+	description_short,
+	description as siteDescription,
+	keywords as siteKeywords,
+	owner,
+	logo,
+	image as defaultImage,
+	twitter,
+	website_url
+} from '@/components/common';
 
 /**
  * Parameters for generating common page metadata.
@@ -23,12 +23,12 @@ import {
  * @property {string} [metadata] - Base URL override for metadata (e.g., `process.env.NEXT_PUBLIC_APP_URL`).
  */
 interface MainMetaDataParam {
-  title?: string;
-  description?: string;
-  image?: string;
-  keywords?: string[];
-  Url?: string;
-  metadata?: string;
+	title?: string;
+	description?: string;
+	image?: string;
+	keywords?: string[];
+	Url?: string;
+	metadata?: string;
 }
 
 /**
@@ -42,11 +42,11 @@ interface MainMetaDataParam {
  * @property {string} [canonicalUrl] - Canonical URL for the blog post.
  */
 interface GenerateMetadataParams {
-  title?: string;
-  description?: string;
-  imageUrl?: string;
-  keywords?: string[];
-  canonicalUrl?: string;
+	title?: string;
+	description?: string;
+	imageUrl?: string;
+	keywords?: string[];
+	canonicalUrl?: string;
 }
 
 /**
@@ -59,61 +59,52 @@ interface GenerateMetadataParams {
  * @returns {Metadata} Next.js Metadata object.
  */
 export function generateMetadata(params: MainMetaDataParam): Metadata {
-  const {
-    title,
-    description,
-    image,
-    keywords = [],
-    Url,
-    metadata,
-  } = params;
+	const { title, description, image, keywords = [], Url, metadata } = params;
 
-  const fullTitle = title
-    ? `${title} | ${siteTitle}`
-    : `${siteTitle} - ${description_short}`;
-  const desc = siteDescription;
-  const previewImage = image ?? defaultImage;
-  const canonicalBase = metadata ?? process.env.NEXT_PUBLIC_APP_URL ?? website_url;
+	const fullTitle = title ? `${title} | ${siteTitle}` : `${siteTitle} - ${description_short}`;
+	const desc = siteDescription;
+	const previewImage = image ?? defaultImage;
+	const canonicalBase = metadata ?? process.env.NEXT_PUBLIC_APP_URL ?? website_url;
 
-  const meta: Metadata = {
-    metadataBase: new URL(canonicalBase),
-    title: fullTitle,
-    description: desc,
-    keywords: keywords.length ? keywords : [description_short],
-    icons: {
-      icon: logo ?? "/logo.webp",
-    },
-    openGraph: {
-      title: fullTitle,
-      description: desc,
-      siteName: siteTitle,
-      images: [
-        {
-          url: previewImage,
-          width: 1200,
-          height: 630,
-          alt: fullTitle,
-        },
-      ],
-      locale: "en_US",
-      type: "website",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: fullTitle,
-      description: desc,
-      images: [previewImage],
-      site: twitter || undefined,
-    },
-  };
+	const meta: Metadata = {
+		metadataBase: new URL(canonicalBase),
+		title: fullTitle,
+		description: desc,
+		keywords: keywords.length ? keywords : [description_short],
+		icons: {
+			icon: logo ?? '/logo.webp'
+		},
+		openGraph: {
+			title: fullTitle,
+			description: desc,
+			siteName: siteTitle,
+			images: [
+				{
+					url: previewImage,
+					width: 1200,
+					height: 630,
+					alt: fullTitle
+				}
+			],
+			locale: 'en_US',
+			type: 'website'
+		},
+		twitter: {
+			card: 'summary_large_image',
+			title: fullTitle,
+			description: desc,
+			images: [previewImage],
+			site: twitter || undefined
+		}
+	};
 
-  if (Url) {
-    meta.alternates = {
-      canonical: Url,
-    };
-  }
+	if (Url) {
+		meta.alternates = {
+			canonical: Url
+		};
+	}
 
-  return meta;
+	return meta;
 }
 
 /**
@@ -131,71 +122,67 @@ export function generateMetadata(params: MainMetaDataParam): Metadata {
  * @returns {Metadata} Metadata object tailored for a blog post.
  */
 export function generateBlogMetadata(params: GenerateMetadataParams): Metadata {
-  const {
-    title,
-    description,
-    imageUrl,
-    keywords = [],
-    canonicalUrl,
-  } = params;
+	const { title, description, imageUrl, keywords = [], canonicalUrl } = params;
 
-  const blogDefaults = {
-    title: title || "Blog",
-    description: description || "Read the latest news and updates.",
-    image: imageUrl,
-    keywords: ["Blog", ...keywords],
-    Url: canonicalUrl,
-  };
+	const blogDefaults = {
+		title: title || 'Blog',
+		description: description || 'Read the latest news and updates.',
+		image: imageUrl,
+		keywords: ['Blog', ...keywords],
+		Url: canonicalUrl
+	};
 
-  return generateMetadata(blogDefaults);
+	return generateMetadata(blogDefaults);
 }
 
 export function generateAboutMetadata(params: GenerateMetadataParams = {}): Metadata {
-  return generateMetadata({
-    title: "About",
-    description: "Learn more about us.",
-    image: defaultImage,
-    keywords: params.keywords?.length ? params.keywords : ["About", "Team", "Mission"],
-    Url: params.canonicalUrl,
-  });
+	return generateMetadata({
+		title: 'About',
+		description: 'Learn more about us.',
+		image: defaultImage,
+		keywords: params.keywords?.length ? params.keywords : ['About', 'Team', 'Mission'],
+		Url: params.canonicalUrl
+	});
 }
 
 export function generateStatusMetadata(params: GenerateMetadataParams = {}): Metadata {
-  return generateMetadata({
-    title: "Status",
-    description: "Check the status of our services.",
-    image: params.imageUrl ?? defaultImage,
-    keywords: params.keywords?.length ? params.keywords : ["Status", "Uptime", "Service"],
-    Url: params.canonicalUrl,
-  });
+	return generateMetadata({
+		title: 'Status',
+		description: 'Check the status of our services.',
+		image: params.imageUrl ?? defaultImage,
+		keywords: params.keywords?.length ? params.keywords : ['Status', 'Uptime', 'Service'],
+		Url: params.canonicalUrl
+	});
 }
 
 export function generatePrivacyMetadata(params: GenerateMetadataParams = {}): Metadata {
-  return generateMetadata({
-    title: "Privacy Policy",
-    description: "Learn about our privacy practices.",
-    image: params.imageUrl ?? defaultImage,
-    keywords: params.keywords?.length ? params.keywords : ["Privacy", "Policy", "Data"],
-    Url: params.canonicalUrl,
-  });
+	return generateMetadata({
+		title: 'Privacy Policy',
+		description: 'Learn about our privacy practices.',
+		image: params.imageUrl ?? defaultImage,
+		keywords: params.keywords?.length ? params.keywords : ['Privacy', 'Policy', 'Data'],
+		Url: params.canonicalUrl
+	});
 }
 
 export function generateTermsMetadata(params: GenerateMetadataParams = {}): Metadata {
-  return generateMetadata({
-    title: "Terms of Service",
-    description: "Read our terms and conditions.",
-    image: params.imageUrl ?? defaultImage,
-    keywords: params.keywords?.length ? params.keywords : ["Terms", "Service", "Agreement"],
-    Url: params.canonicalUrl,
-  });
+	return generateMetadata({
+		title: 'Terms of Service',
+		description: 'Read our terms and conditions.',
+		image: params.imageUrl ?? defaultImage,
+		keywords: params.keywords?.length ? params.keywords : ['Terms', 'Service', 'Agreement'],
+		Url: params.canonicalUrl
+	});
 }
 
 export function generateScriptMetadata(params: GenerateMetadataParams = {}): Metadata {
-  return generateMetadata({
-    title: "Scripts Shop",
-    description: "Explore our collection of scripts.",
-    image: params.imageUrl ?? defaultImage,
-    keywords: params.keywords?.length ? params.keywords : ["Scripts", "Code", "luau", "templating", "Tools"],
-    Url: params.canonicalUrl,
-  });
+	return generateMetadata({
+		title: 'Scripts Shop',
+		description: 'Explore our collection of scripts.',
+		image: params.imageUrl ?? defaultImage,
+		keywords: params.keywords?.length
+			? params.keywords
+			: ['Scripts', 'Code', 'luau', 'templating', 'Tools'],
+		Url: params.canonicalUrl
+	});
 }

@@ -16,7 +16,7 @@ import type { Blog } from '@/types/blogs/index';
 import { FaTwitter, FaFacebook, FaLinkedin, FaGithub, FaInstagram, FaLink } from 'react-icons/fa';
 
 interface BlogSlugLayoutProps {
-  slug: string;
+	slug: string;
 }
 
 const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
@@ -472,6 +472,6 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 			</div>
 		</div>
 	);
-}
+};
 
 export default BlogSlugLayout;

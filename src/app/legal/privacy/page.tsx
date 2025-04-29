@@ -15,11 +15,10 @@ import Link from 'next/link';
 import TableOfContents from '@/components/legal/TableOfContents';
 import { Metadata } from 'next';
 import { website_url } from '@/components/common';
-import{ generatePrivacyMetadata } from '@/lib/Metadata';
+import { generatePrivacyMetadata } from '@/lib/Metadata';
 
 export const metadata: Metadata = generatePrivacyMetadata({
-	canonicalUrl: `${website_url}/legal/privacy`,
-
+	canonicalUrl: `${website_url}/legal/privacy`
 });
 
 export default function PrivacyPolicy() {

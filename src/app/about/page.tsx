@@ -16,7 +16,7 @@ import { Metadata } from 'next';
 export const metadata: Metadata = generateAboutMetadata({
 	title: 'About Us',
 	description: 'Learn more about AntiRaid and our team!',
-	keywords: ['AntiRaid', 'About Us', 'Team', 'Partners'],
+	keywords: ['AntiRaid', 'About Us', 'Team', 'Partners']
 });
 
 const ButtonFunc = (button: string): void => {
