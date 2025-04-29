@@ -9,9 +9,9 @@ import { ViewTransitions } from 'next-view-transitions';
 import { Link } from 'next-view-transitions';
 
 /**
- * Renders the blog listing page with search, tag filtering, animated header, and newsletter subscription.
+ * Displays the blog listing page with animated header, search, tag filtering, and newsletter subscription.
  *
- * Fetches blog posts from the API, displays them with dynamic filtering by search term and tags, and includes animated UI elements for enhanced user experience.
+ * Fetches blog posts from the API, enables dynamic filtering by search term and tags, and presents results with animated UI elements. Includes a newsletter subscription section and decorative background effects.
  */
 export default function BlogLayout() {
 	const [blogs, setBlogs] = useState<Blog[]>([]);

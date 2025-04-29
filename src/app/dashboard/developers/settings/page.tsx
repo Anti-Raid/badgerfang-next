@@ -15,6 +15,11 @@ export const metadata: Metadata = generateSettingsValidatorMetadata({
 	canonicalUrl: `${website_url}/dashboard/developers/settings`
 });
 
+/**
+ * Renders the Settings Validator page with access control.
+ *
+ * Displays the validator interface for settings, ensuring only authorized users can access the content.
+ */
 export default function Settings() {
 	return (
 		<div className="min-h-screen">

@@ -11,14 +11,14 @@ import { SWRConfig } from 'swr';
 import { ViewTransitions } from 'next-view-transitions';
 
 /**
- * Renders a client-side layout for protected pages, displaying a loading spinner on the home route before showing the main content.
+ * Provides a client-side layout for protected pages, displaying a loading spinner on the home route before rendering the main content.
  *
- * Wraps its children with providers for theming, document head management, data fetching, toast notifications, and page transitions, and includes a header and footer.
+ * Wraps the content with providers for theming, document head management, data fetching, toast notifications, and page transitions, and includes a header and footer.
  *
- * @param children - The content to display within the layout.
- * @returns The rendered layout as a JSX element.
+ * @param children - The content to render within the layout.
+ * @returns The complete layout as a JSX element.
  *
- * @remark The loading spinner appears for 2 seconds only when the current route is the home page.
+ * @remark The loading spinner is shown for 2 seconds only when the current route is the home page.
  */
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
 	const [isLoading, setIsLoading] = useState(false);
