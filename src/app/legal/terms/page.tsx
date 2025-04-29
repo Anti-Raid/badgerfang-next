@@ -12,8 +12,14 @@ import {
 	FaGavel
 } from 'react-icons/fa';
 import { MdGavel, MdSecurity } from 'react-icons/md';
-import { title, description, image, website_url } from '@/components/common';
+import { website_url } from '@/components/common';
 import TableOfContents from '@/components/legal/TableOfContents';
+import { Metadata } from 'next';
+import { generateTermsMetadata } from '@/lib/Metadata';
+
+export const metadata: Metadata = generateTermsMetadata({
+	canonicalUrl: `${website_url}/legal/terms`
+});
 
 export default function TermsOfService() {
 	const [activeSection, setActiveSection] = useState('');

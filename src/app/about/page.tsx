@@ -1,13 +1,6 @@
 'use client';
+import { website_url } from '@/components/common';
 import Breadcrumb from '@/components/ui/Breadcrumb';
-import {
-	api_url,
-	title,
-	description,
-	image,
-	main_server_id,
-	website_url
-} from '@/components/common';
 import PartnerCard from '@/components/PartnerCard';
 import { Partner } from '@/types/other/Partner';
 import { FaArchive, FaBolt, FaGlobe, FaUser } from 'react-icons/fa';
@@ -16,6 +9,15 @@ import { toast } from 'react-toastify';
 import { CiGlobe } from 'react-icons/ci';
 import { FaDiscord } from 'react-icons/fa';
 import useSWR from 'swr';
+import { generateAboutMetadata } from '@/lib/Metadata';
+import { Metadata } from 'next';
+
+// Metadata
+export const metadata: Metadata = generateAboutMetadata({
+	title: 'About Us',
+	description: 'Learn more about AntiRaid and our team!',
+	keywords: ['AntiRaid', 'About Us', 'Team', 'Partners'],
+});
 
 const ButtonFunc = (button: string): void => {
 	toast(`You have pushed the "${button}" button!`);

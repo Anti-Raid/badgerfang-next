@@ -149,3 +149,53 @@ export function generateBlogMetadata(params: GenerateMetadataParams): Metadata {
 
   return generateMetadata(blogDefaults);
 }
+
+export function generateAboutMetadata(params: GenerateMetadataParams = {}): Metadata {
+  return generateMetadata({
+    title: "About",
+    description: "Learn more about us.",
+    image: defaultImage,
+    keywords: params.keywords?.length ? params.keywords : ["About", "Team", "Mission"],
+    Url: params.canonicalUrl,
+  });
+}
+
+export function generateStatusMetadata(params: GenerateMetadataParams = {}): Metadata {
+  return generateMetadata({
+    title: "Status",
+    description: "Check the status of our services.",
+    image: params.imageUrl ?? defaultImage,
+    keywords: params.keywords?.length ? params.keywords : ["Status", "Uptime", "Service"],
+    Url: params.canonicalUrl,
+  });
+}
+
+export function generatePrivacyMetadata(params: GenerateMetadataParams = {}): Metadata {
+  return generateMetadata({
+    title: "Privacy Policy",
+    description: "Learn about our privacy practices.",
+    image: params.imageUrl ?? defaultImage,
+    keywords: params.keywords?.length ? params.keywords : ["Privacy", "Policy", "Data"],
+    Url: params.canonicalUrl,
+  });
+}
+
+export function generateTermsMetadata(params: GenerateMetadataParams = {}): Metadata {
+  return generateMetadata({
+    title: "Terms of Service",
+    description: "Read our terms and conditions.",
+    image: params.imageUrl ?? defaultImage,
+    keywords: params.keywords?.length ? params.keywords : ["Terms", "Service", "Agreement"],
+    Url: params.canonicalUrl,
+  });
+}
+
+export function generateScriptMetadata(params: GenerateMetadataParams = {}): Metadata {
+  return generateMetadata({
+    title: "Scripts Shop",
+    description: "Explore our collection of scripts.",
+    image: params.imageUrl ?? defaultImage,
+    keywords: params.keywords?.length ? params.keywords : ["Scripts", "Code", "luau", "templating", "Tools"],
+    Url: params.canonicalUrl,
+  });
+}

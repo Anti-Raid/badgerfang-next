@@ -3,8 +3,14 @@
 import { useEffect, useState } from 'react';
 import { TemplateShop } from '@/components/scripts/scriptShop';
 import type { TemplateShopProps } from '@/types/script';
-import { motion } from 'framer-motion';
 import { anonexecuteSettings } from '@/lib/api';
+import { website_url } from '@/components/common';
+import { Metadata } from 'next';
+import { generateScriptMetadata } from '@/lib/Metadata';
+
+export const metadata: Metadata = generateScriptMetadata({
+	canonicalUrl: `${website_url}/script/shop`
+});
 
 export default function TemplateShopPage() {
 	const [templates, setTemplates] = useState<TemplateShopProps[]>([]);
