@@ -16,9 +16,9 @@ export const metadata: Metadata = generateSettingsValidatorMetadata({
 });
 
 /**
- * Renders the Settings Validator page with access control.
+ * Displays the Settings Validator interface, accessible only to authorized users.
  *
- * Displays the validator interface for settings, ensuring only authorized users can access the content.
+ * Renders the settings validation UI within a protected route to restrict access.
  */
 export default function Settings() {
 	return (

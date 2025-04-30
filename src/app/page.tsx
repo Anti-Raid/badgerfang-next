@@ -16,6 +16,11 @@ export const metadata: Metadata = generateHomeMetadata({
 	canonicalUrl: `${website_url}/`,
 });
 
+/**
+ * Renders the application's home page with the main hero section.
+ *
+ * @returns The JSX markup for the home page.
+ */
 export default function Home() {
 	return (
 		<>

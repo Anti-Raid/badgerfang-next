@@ -8,7 +8,7 @@ export const metadata: Metadata = generateTermsMetadata({
 });
 
 /**
- * Renders the Terms of Service page inside the main content area.
+ * Displays the Terms of Service page within the main section of the site.
  */
 export default function TermsPage() {
 	return (

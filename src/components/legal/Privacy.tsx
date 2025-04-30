@@ -18,9 +18,9 @@ import { website_url } from '@/components/common';
 import { generatePrivacyMetadata } from '@/lib/Metadata';
 
 /**
- * Displays the AntiRaid website's privacy policy page with interactive navigation and organized content.
+ * Renders the AntiRaid website's privacy policy page with interactive navigation and structured content sections.
  *
- * Presents a table of contents for quick section access, highlights the active section as the user scrolls, and renders detailed privacy policy information divided into semantic sections.
+ * Provides a dynamic table of contents that highlights the active section as the user scrolls, and enables smooth scrolling to specific sections. The page details the site's privacy practices, user rights, and contact information, organized into clearly defined sections.
  */
 export default function PrivacyPolicy() {
 	const [activeSection, setActiveSection] = useState('');
