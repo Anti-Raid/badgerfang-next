@@ -137,7 +137,7 @@ export function generateAboutMetadata(params: GenerateMetadataParams = {}): Meta
 	return generateMetadata({
 		title: 'About',
 		description: 'Learn more about us.',
-		image: defaultImage,
+		image: params.imageUrl ?? defaultImage,
 		keywords: params.keywords?.length ? params.keywords : ['About', 'Team', 'Mission'],
 		Url: params.canonicalUrl
 	});
@@ -270,6 +270,16 @@ export function generateSettingsValidatorMetadata(params: GenerateMetadataParams
 		description: 'Validate the current settings with the ones from the API side',
 		image: params.imageUrl ?? defaultImage,
 		keywords: params.keywords?.length ? params.keywords : ['Settings', 'Validator'],
+		Url: params.canonicalUrl
+	});
+}
+
+export function generateHomeMetadata(params: GenerateMetadataParams = {}): Metadata {
+	return generateMetadata({
+		title: 'Home',
+		description: 'Welcome to Antiraids Homepage!',
+		image: params.imageUrl ?? defaultImage,
+		keywords: params.keywords?.length ? params.keywords : ['Home', 'Antiraid'],
 		Url: params.canonicalUrl
 	});
 }

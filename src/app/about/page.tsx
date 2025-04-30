@@ -4,7 +4,6 @@ import { website_url } from '@/components/common';
 import { generateAboutMetadata } from '@/lib/Metadata';
 
 export const metadata: Metadata = generateAboutMetadata({
-	title: 'About',
 	canonicalUrl: `${website_url}/about`
 });
 
