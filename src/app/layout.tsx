@@ -6,9 +6,9 @@ import { generateMetadata } from '@/lib/Metadata';
 export const metadata: Metadata = generateMetadata({});
 
 /**
- * Root layout component that sets up the global HTML structure, loads custom fonts, and wraps all page content with the client layout.
+ * Defines the root layout for the application, setting up the global HTML structure, loading custom fonts, and wrapping all page content with the client layout.
  *
- * @param children - React nodes to be rendered within the layout.
+ * @param children - The React nodes to render within the layout.
  */
 export default function RootLayout({
 	children

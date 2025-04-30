@@ -203,9 +203,9 @@ interface CommandWithModule extends CanonicalCommand {
 }
 
 /**
- * Displays an interactive, responsive UI for browsing, searching, and filtering bot commands.
+ * Renders an interactive, responsive interface for browsing, searching, and filtering bot commands.
  *
- * Fetches and presents bot command data with support for module filtering, full-text search, pagination, and toggling between grid and list views. Users can expand commands to view detailed information, including subcommands, arguments, and required permissions. The interface adapts to desktop and mobile devices, and provides loading and error handling states.
+ * Fetches bot command data and allows users to filter by module, perform full-text search, paginate results, and toggle between grid and list views. Users can expand commands to view detailed information, including subcommands, arguments, and required permissions. The UI adapts for desktop and mobile devices, and includes loading and error handling states.
  */
 export default function CommandInterface() {
 	const [botState, setBotState] = useState<BotState | null>(null);

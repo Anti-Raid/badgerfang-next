@@ -9,9 +9,9 @@ import { Metadata } from 'next';
 import { generateScriptMetadata } from '@/lib/Metadata';
 
 /**
- * Renders the template shop page, fetching template data from the public settings API and displaying it.
+ * Displays the template shop page, fetching template data from the public settings API and handling loading and error states.
  *
- * Shows a loading spinner while data is being fetched and displays an error message if the fetch fails.
+ * Shows a loading spinner while fetching data and an error message if the fetch fails.
  */
 
 export default function TemplateShopPage() {

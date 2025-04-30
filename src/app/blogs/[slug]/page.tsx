@@ -5,12 +5,12 @@ import { generateBlogMetadata } from '@/lib/Metadata';
 import type { Metadata } from 'next';
 
 /**
- * Generates dynamic metadata for a blog post page using the provided slug.
+ * Returns metadata for a blog post page based on the provided slug.
  *
- * If a blog post matching the slug exists, returns metadata with the post's title, description, tags as keywords, and image. If not found, returns fallback metadata indicating the post does not exist.
+ * If a matching blog post is found, the metadata includes the post's title, description, tags as keywords, image URL if available, and a canonical URL. If no post matches the slug, fallback metadata is returned indicating the post was not found.
  *
  * @param params - Promise resolving to an object containing the blog post slug.
- * @returns Metadata for the blog post or fallback metadata if not found.
+ * @returns Metadata for the blog post or fallback metadata if the post does not exist.
  */
 export async function generateMetadata({
 	params
@@ -45,9 +45,11 @@ export async function generateMetadata({
 }
 
 /**
- * Renders the blog post page for the specified slug using a client-side layout component.
+ * Renders the blog post page for a given slug using the client-side blog layout.
  *
- * Awaits the route parameters to obtain the blog post slug and passes it to {@link BlogSlugLayout} for rendering and data fetching.
+ * Awaits the route parameters to extract the blog post slug and passes it to {@link BlogSlugLayout} for client-side rendering and data fetching.
+ *
+ * @param params - A promise resolving to an object containing the blog post slug.
  */
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
 	const { slug } = await params;

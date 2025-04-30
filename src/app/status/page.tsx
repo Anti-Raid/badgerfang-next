@@ -10,9 +10,9 @@ export const metadata: Metadata = generateAboutMetadata({
 
 
 /**
- * Displays the bot status page with the current status information.
+ * Renders the bot status page.
  *
- * Renders the {@link Status} component inside a main section.
+ * Displays the {@link Status} component within a main container.
  */
 function BotStatusPage() {
 	return (

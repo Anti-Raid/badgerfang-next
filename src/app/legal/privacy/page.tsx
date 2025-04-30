@@ -8,9 +8,9 @@ export const metadata: Metadata = generatePrivacyMetadata({
 });
 
 /**
- * Server component for the privacy policy page.
+ * Displays the privacy policy page as a server component.
  *
- * Renders the {@link PrivacyPolicy} component within a main content area.
+ * Renders the {@link PrivacyPolicy} content inside a main HTML element.
  */
 export default function PrivacyPage() {
 	return (
