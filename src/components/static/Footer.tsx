@@ -49,7 +49,8 @@ const categories: Category[] = [
 		icon: <FaDiscord size={20} />,
 		items: [
 			{ name: 'Discord Server', href: '/discord' },
-			{ name: 'AntiRaid Forums', href: '/forums' }
+			{ name: 'AntiRaid Forums', href: '/forums' },
+			{ name: 'AntiRaid Blogs', href: '/blogs' }
 		]
 	},
 	{

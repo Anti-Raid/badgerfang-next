@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+'use client';
+
+import type React from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Primary } from '../../ui/Buttons';
+import { Primary } from '@/components/ui/Buttons';
 import { InputField } from './form-elements';
 import { executeSettings, getUserGuildBaseInfo } from '@/lib/api';
 import { Trash2, Lock, AlertCircle, RefreshCw, Calendar, Clock, Shield, Tv } from 'lucide-react';
 import { FaLock } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 interface LockdownProps {
 	guildId: string;
@@ -33,7 +35,7 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 	const [channelOptions, setChannelOptions] = useState<{ value: string; label: string }[]>([]);
 	const [lockdowns, setLockdowns] = useState<Lockdown[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
-	const [error, setError] = useState<string | null>(null); // Declare the error state
+	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
 		fetchLockdowns();
@@ -65,14 +67,14 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 			}
 		} catch (error) {
 			console.error('Failed to fetch channel options:', error);
-			toast.error('Failed to load channel options. Please try again.');
-			setError('Failed to load channel options. Please try again.'); // Set the error state
+			toast.error('Failed to load channel options');
+			setError('Failed to load channel options. Please try again.');
 		}
 	};
 
 	const fetchLockdowns = async () => {
 		setIsLoading(true);
-		setError(null); // Clear any existing error
+		setError(null);
 
 		const payload = {
 			operation: 'View',
@@ -98,8 +100,8 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 			}
 		} catch (error) {
 			console.error('Failed to fetch lockdowns:', error);
-			toast.error('Failed to load lockdowns. Please try again.');
-			setError('Failed to load lockdowns. Please try again.'); // Set the error state
+			toast.error('Failed to load lockdowns');
+			setError('Failed to load lockdowns. Please try again.');
 		} finally {
 			setIsLoading(false);
 		}
@@ -108,20 +110,20 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 	const handleAddLockdown = async () => {
 		if (!type || !reason) {
 			toast.error('Please select a type and provide a reason');
-			setError('Please select a type and provide a reason'); // Set the error state
+			setError('Please select a type and provide a reason');
 			return;
 		}
 
 		if (type === 'scl' && !selectedChannelId) {
 			toast.error('Please select a channel for Server Channel Lockdown');
-			setError('Please select a channel for Server Channel Lockdown'); // Set the error state
+			setError('Please select a channel for Server Channel Lockdown');
 			return;
 		}
 
 		if (isLoading) return;
 
 		setIsLoading(true);
-		setError(null); // Clear any existing error
+		setError(null);
 
 		const formattedType = type === 'scl' ? `${type}/${selectedChannelId}` : type;
 
@@ -136,6 +138,7 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 
 		try {
 			await executeSettings(guildId, payload);
+			toast.success('Lockdown created successfully');
 			setReason('');
 			if (type === 'scl') {
 				setSelectedChannelId('');
@@ -143,8 +146,8 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 			await fetchLockdowns();
 		} catch (error) {
 			console.error('Failed to add lockdown:', error);
-			toast.error('Failed to add lockdown. Please try again.');
-			setError('Failed to add lockdown. Please try again.'); // Set the error state
+			toast.error('Failed to add lockdown');
+			setError('Failed to add lockdown. Please try again.');
 		} finally {
 			setIsLoading(false);
 		}
@@ -153,13 +156,13 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 	const handleDeleteLockdown = async (id: string) => {
 		if (isLoading) return;
 		if (!id || id.length < 30) {
-			toast.error('Invalid lockdown ID. Cannot delete this item.');
-			setError('Invalid lockdown ID. Cannot delete this item.'); // Set the error state
+			toast.error('Invalid lockdown ID');
+			setError('Invalid lockdown ID. Cannot delete this item.');
 			return;
 		}
 
 		setIsLoading(true);
-		setError(null); // Clear any existing error
+		setError(null);
 
 		const payload = {
 			operation: 'Delete',
@@ -172,10 +175,11 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 		try {
 			await executeSettings(guildId, payload);
 			setLockdowns(lockdowns.filter((lockdown) => lockdown.id !== id));
+			toast.success('Lockdown deleted successfully');
 		} catch (error) {
 			console.error('Failed to delete lockdown:', error);
-			toast.error('Failed to delete lockdown. Please try again.');
-			setError('Failed to delete lockdown. Please try again.'); // Set the error state
+			toast.error('Failed to delete lockdown');
+			setError('Failed to delete lockdown. Please try again.');
 		} finally {
 			setIsLoading(false);
 		}
@@ -250,7 +254,12 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 
 	return (
 		<div className="space-y-6">
-			<div className="bg-card border border-border rounded-lg p-5 shadow-sm">
+			<motion.div
+				className="bg-card border border-border rounded-lg p-5 shadow-sm"
+				initial={{ opacity: 0, y: 10 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ duration: 0.3 }}
+			>
 				<h3 className="text-lg font-medium mb-4 flex items-center gap-2">
 					<Lock className="w-5 h-5 text-primary" />
 					Create New Lockdown
@@ -275,6 +284,9 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 							onChange={(e) => setSelectedChannelId(e.target.value)}
 							options={channelOptions}
 							placeholder="Select a channel"
+							error={
+								type === 'scl' && !selectedChannelId ? 'Channel is required for SCL' : undefined
+							}
 						/>
 					)}
 
@@ -284,6 +296,7 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 						placeholder="Enter the reason for the lockdown"
 						value={reason}
 						onChange={(e) => setReason(e.target.value)}
+						error={!reason ? 'Reason is required' : undefined}
 					/>
 
 					{error && (
@@ -299,19 +312,24 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 						icon={FaLock}
 					/>
 				</div>
-			</div>
+			</motion.div>
 
 			<div className="mt-8">
 				<div className="flex justify-between items-center mb-4">
-					<h3 className="text-lg font-medium">Active Lockdowns</h3>
-					<button
+					<h3 className="text-lg font-medium flex items-center gap-2">
+						<Lock className="w-5 h-5 text-primary" />
+						Active Lockdowns
+					</h3>
+					<motion.button
+						whileHover={{ rotate: 180 }}
+						transition={{ duration: 0.5 }}
 						onClick={fetchLockdowns}
 						className="p-2 rounded-md hover:bg-accent/50 text-muted-foreground hover:text-foreground transition-colors"
 						disabled={isLoading}
 						aria-label="Refresh lockdowns"
 					>
 						<RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-					</button>
+					</motion.button>
 				</div>
 
 				{isLoading ? (
@@ -319,7 +337,12 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 						<div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
 					</div>
 				) : lockdowns.length === 0 ? (
-					<div className="bg-muted/30 rounded-lg p-8 text-center">
+					<motion.div
+						className="bg-muted/30 rounded-lg p-8 text-center"
+						initial={{ opacity: 0, y: 10 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.3 }}
+					>
 						<div className="flex justify-center mb-3">
 							<div className="p-3 bg-muted rounded-full">
 								<Shield className="w-6 h-6 text-muted-foreground" />
@@ -329,17 +352,19 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 						<p className="text-muted-foreground text-sm">
 							Your server is currently operating normally
 						</p>
-					</div>
+					</motion.div>
 				) : (
 					<div className="grid gap-4">
 						<AnimatePresence>
-							{lockdowns.map((lockdown) => (
+							{lockdowns.map((lockdown, index) => (
 								<motion.div
 									key={lockdown.id}
-									initial={{ opacity: 0, y: 5 }}
+									initial={{ opacity: 0, y: 20 }}
 									animate={{ opacity: 1, y: 0 }}
 									exit={{ opacity: 0, x: -10 }}
+									transition={{ duration: 0.3, delay: index * 0.05 }}
 									className="bg-card border border-border hover:border-primary/20 rounded-lg p-4 transition-all shadow-sm"
+									whileHover={{ y: -2, boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
 								>
 									<div className="flex flex-col md:flex-row md:items-center gap-3">
 										<div className="flex-1">
@@ -373,13 +398,15 @@ export const Lockdowns: React.FC<LockdownProps> = ({ guildId }) => {
 												</span>
 											</div>
 										</div>
-										<button
+										<motion.button
+											whileHover={{ scale: 1.1, color: 'rgb(var(--destructive))' }}
+											whileTap={{ scale: 0.9 }}
 											onClick={() => handleDeleteLockdown(lockdown.id)}
 											className="self-start md:self-center p-2 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
 											aria-label="Delete lockdown"
 										>
 											<Trash2 className="w-5 h-5" />
-										</button>
+										</motion.button>
 									</div>
 								</motion.div>
 							))}

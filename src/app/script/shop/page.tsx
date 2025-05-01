@@ -3,8 +3,16 @@
 import { useEffect, useState } from 'react';
 import { TemplateShop } from '@/components/scripts/scriptShop';
 import type { TemplateShopProps } from '@/types/script';
-import { motion } from 'framer-motion';
 import { anonexecuteSettings } from '@/lib/api';
+import { website_url } from '@/components/common';
+import { Metadata } from 'next';
+import { generateScriptMetadata } from '@/lib/Metadata';
+
+/**
+ * Displays the template shop page, fetching template data from the public settings API and handling loading and error states.
+ *
+ * Shows a loading spinner while fetching data and an error message if the fetch fails.
+ */
 
 export default function TemplateShopPage() {
 	const [templates, setTemplates] = useState<TemplateShopProps[]>([]);

@@ -17,6 +17,7 @@ const ThemeSelector: React.FC = () => {
 	const dropdownRef = useRef<HTMLDivElement>(null);
 
 	const themes: Theme[] = [
+		// Original themes
 		{ id: 'dark', label: 'Dark' },
 		{ id: 'blue-theme', label: 'Ocean Blue' },
 		{ id: 'dark-blue-theme', label: 'Midnight Navy' },
@@ -24,8 +25,55 @@ const ThemeSelector: React.FC = () => {
 		{ id: 'green-theme', label: 'Emerald' },
 		{ id: 'dark-green-theme', label: 'Forest Deep' },
 		{ id: 'electric-purple-theme', label: 'Electric Purple' },
-		{ id: 'sunset-amber-theme', label: 'Sunset Amber' }
+		{ id: 'sunset-amber-theme', label: 'Sunset Amber' },
+
+		// New themes
+		{ id: 'stargaze-theme', label: 'Stargaze' },
+		{ id: 'sunbeam-theme', label: 'Sunbeam' },
+		{ id: 'velvet-sky-theme', label: 'Velvet Sky' },
+		{ id: 'crisp-theme', label: 'Crisp' },
+		{ id: 'float-theme', label: 'Float' },
+		{ id: 'puzzlebloom-theme', label: 'PuzzleBloom' }
 	];
+
+	const getThemeColors = (themeId: string) => {
+		switch (themeId) {
+			// Original themes
+			case 'dark':
+				return 'from-[hsl(268,95%,55%)] to-[hsl(244,80%,65%)]';
+			case 'blue-theme':
+				return 'from-[hsl(210,100%,60%)] to-[hsl(195,85%,65%)]';
+			case 'dark-blue-theme':
+				return 'from-[hsl(220,95%,50%)] to-[hsl(200,90%,60%)]';
+			case 'dark-red-theme':
+				return 'from-[hsl(355,95%,55%)] to-[hsl(330,90%,65%)]';
+			case 'green-theme':
+				return 'from-[hsl(155,85%,45%)] to-[hsl(170,85%,55%)]';
+			case 'dark-green-theme':
+				return 'from-[hsl(155,95%,40%)] to-[hsl(170,90%,50%)]';
+			case 'electric-purple-theme':
+				return 'from-[hsl(275,100%,60%)] to-[hsl(290,90%,70%)]';
+			case 'sunset-amber-theme':
+				return 'from-[hsl(35,100%,55%)] to-[hsl(20,90%,65%)]';
+
+			// New themes
+			case 'stargaze-theme':
+				return 'from-[#BBA9AB] to-[#B4A9B8]';
+			case 'sunbeam-theme':
+				return 'from-[#F0F1ED] to-[#A5CCDC]';
+			case 'velvet-sky-theme':
+				return 'from-[#A792B1] to-[#A8C0D9]';
+			case 'crisp-theme':
+				return 'from-[#F0F1ED] to-[#A5CCDC]';
+			case 'float-theme':
+				return 'from-[#A6D1D9] to-[#7FB8BE]';
+			case 'puzzlebloom-theme':
+				return 'from-[#F0E3CB] to-[#D9AA90]';
+
+			default:
+				return 'from-primary to-extra';
+		}
+	};
 
 	// Set mounted to true once the component is mounted
 	useEffect(() => {
@@ -53,31 +101,6 @@ const ThemeSelector: React.FC = () => {
 			}, 300);
 		}
 	}, [theme, mounted]);
-
-	const getThemeColors = (themeId: string) => {
-		switch (themeId) {
-			case 'dark':
-				return 'from-[hsl(268,95%,55%)] to-[hsl(244,80%,65%)]';
-			case 'blue-theme':
-				return 'from-[hsl(210,100%,60%)] to-[hsl(195,85%,65%)]';
-			case 'dark-blue-theme':
-				return 'from-[hsl(220,95%,50%)] to-[hsl(200,90%,60%)]';
-			case 'dark-red-theme':
-				return 'from-[hsl(355,95%,55%)] to-[hsl(330,90%,65%)]';
-			case 'green-theme':
-				return 'from-[hsl(155,85%,45%)] to-[hsl(170,85%,55%)]';
-			case 'dark-green-theme':
-				return 'from-[hsl(155,95%,40%)] to-[hsl(170,90%,50%)]';
-			case 'electric-purple-theme':
-				return 'from-[hsl(275,100%,60%)] to-[hsl(290,90%,70%)]';
-			case 'arctic-frost-theme':
-				return 'from-[hsl(195,100%,50%)] to-[hsl(185,100%,60%)]';
-			case 'sunset-amber-theme':
-				return 'from-[hsl(35,100%,55%)] to-[hsl(20,90%,65%)]';
-			default:
-				return 'from-primary to-extra';
-		}
-	};
 
 	return (
 		<div className="relative" ref={dropdownRef}>

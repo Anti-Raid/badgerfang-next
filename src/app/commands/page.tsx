@@ -1,11 +1,11 @@
 import CommandInterface from '@/components/commands/layout';
-import { description } from '@/components/common';
+import { website_url } from '@/components/common';
 import { Metadata } from 'next';
+import { generateCommandMetadata } from '@/lib/Metadata';
 
-export const metadata: Metadata = {
-	title: 'Commands',
-	description: `${description}`
-};
+export const metadata: Metadata = generateCommandMetadata({
+	canonicalUrl: `${website_url}/commands`,
+});
 
 const Commands = () => {
 	return (

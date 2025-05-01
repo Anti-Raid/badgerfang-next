@@ -4,10 +4,10 @@ import type React from 'react';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Plus, Database, Search, AlertCircle, RefreshCw, Copy, Check } from 'lucide-react';
-import { Primary } from '../../ui/Buttons';
+import { Primary } from '@/components/ui/Buttons';
 import { InputField } from './form-elements';
 import { executeSettings } from '@/lib/api';
-import { FaPlus } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 
 interface KeyValueDBProps {
 	guildId: string;
@@ -23,7 +23,7 @@ interface KeyValuePair {
 export const KeyValueDB: React.FC<KeyValueDBProps> = ({ guildId }) => {
 	const [key, setKey] = useState('');
 	const [value, setValue] = useState('');
-	const [valueType, setValueType] = useState('string'); // Default to string
+	const [valueType, setValueType] = useState('string');
 	const [keyValuePairs, setKeyValuePairs] = useState<KeyValuePair[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
@@ -46,6 +46,7 @@ export const KeyValueDB: React.FC<KeyValueDBProps> = ({ guildId }) => {
 		} catch (error) {
 			console.error('Failed to fetch key-value pairs:', error);
 			setError('Failed to load key-value pairs. Please try again.');
+			toast.error('Failed to load key-value pairs');
 		} finally {
 			setIsLoading(false);
 		}
@@ -53,6 +54,7 @@ export const KeyValueDB: React.FC<KeyValueDBProps> = ({ guildId }) => {
 
 	const handleAddKeyValue = async () => {
 		if (!key.trim() || !value.trim()) {
+			toast.error('Key and value are required');
 			return;
 		}
 
@@ -72,9 +74,11 @@ export const KeyValueDB: React.FC<KeyValueDBProps> = ({ guildId }) => {
 			setKey('');
 			setValue('');
 			setValueType('string');
+			toast.success('Key-value pair added successfully');
 		} catch (error) {
 			console.error('Failed to add key-value:', error);
 			setError('Failed to add key-value pair. Please try again.');
+			toast.error('Failed to add key-value pair');
 		} finally {
 			setIsLoading(false);
 		}
@@ -93,9 +97,11 @@ export const KeyValueDB: React.FC<KeyValueDBProps> = ({ guildId }) => {
 		try {
 			await executeSettings(guildId, payload);
 			fetchKeyValuePairs();
+			toast.success('Key-value pair deleted successfully');
 		} catch (error) {
 			console.error('Failed to delete key-value:', error);
 			setError('Failed to delete key-value pair. Please try again.');
+			toast.error('Failed to delete key-value pair');
 		} finally {
 			setIsLoading(false);
 		}
@@ -104,6 +110,7 @@ export const KeyValueDB: React.FC<KeyValueDBProps> = ({ guildId }) => {
 	const handleCopyValue = (key: string, value: string) => {
 		navigator.clipboard.writeText(value);
 		setCopiedKey(key);
+		toast.success('Value copied to clipboard');
 		setTimeout(() => setCopiedKey(null), 2000);
 	};
 
@@ -119,7 +126,12 @@ export const KeyValueDB: React.FC<KeyValueDBProps> = ({ guildId }) => {
 
 	return (
 		<div className="space-y-6">
-			<div className="bg-card border border-border rounded-lg p-5 shadow-sm">
+			<motion.div
+				className="bg-card border border-border rounded-lg p-5 shadow-sm"
+				initial={{ opacity: 0, y: 10 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ duration: 0.3 }}
+			>
 				<h3 className="text-lg font-medium mb-4 flex items-center gap-2">
 					<Database className="w-5 h-5 text-primary" />
 					Add New Key-Value Pair
@@ -141,18 +153,24 @@ export const KeyValueDB: React.FC<KeyValueDBProps> = ({ guildId }) => {
 						value={value}
 						onChange={(e) => setValue(e.target.value)}
 					/>
+				</div>
 
-					<div className="flex items-center gap-2">
-						<label className="text-sm font-medium text-muted-foreground">Value Type:</label>
-						<select
-							value={valueType}
-							onChange={(e) => setValueType(e.target.value)}
-							className="bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors p-2"
-						>
-							<option value="string">String</option>
-							<option value="json">JSON</option>
-							<option value="number">Number</option>
-						</select>
+				<div className="flex items-center gap-4 mt-4 mb-4">
+					<label className="text-sm font-medium text-foreground">Value Type:</label>
+					<div className="flex bg-muted/30 rounded-lg p-1">
+						{['string', 'json', 'number'].map((type) => (
+							<button
+								key={type}
+								onClick={() => setValueType(type)}
+								className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
+									valueType === type
+										? 'bg-primary text-primary-foreground'
+										: 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+								}`}
+							>
+								{type.charAt(0).toUpperCase() + type.slice(1)}
+							</button>
+						))}
 					</div>
 				</div>
 
@@ -160,13 +178,18 @@ export const KeyValueDB: React.FC<KeyValueDBProps> = ({ guildId }) => {
 					<Primary
 						Title={isLoading ? 'Adding...' : 'Add Key-Value Pair'}
 						onClick={handleAddKeyValue}
-						icon={FaPlus}
+						icon={Plus}
 					/>
 				</div>
-			</div>
+			</motion.div>
 
 			{error && (
-				<div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 flex items-center gap-3">
+				<motion.div
+					className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 flex items-center gap-3"
+					initial={{ opacity: 0, y: 10 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.3 }}
+				>
 					<AlertCircle className="w-5 h-5 text-destructive" />
 					<p className="text-destructive">{error}</p>
 					<button
@@ -175,12 +198,15 @@ export const KeyValueDB: React.FC<KeyValueDBProps> = ({ guildId }) => {
 					>
 						Retry
 					</button>
-				</div>
+				</motion.div>
 			)}
 
 			<div className="mt-8">
 				<div className="flex justify-between items-center mb-4">
-					<h3 className="text-lg font-medium">Existing Key-Value Pairs</h3>
+					<h3 className="text-lg font-medium flex items-center gap-2">
+						<Database className="w-5 h-5 text-primary" />
+						Existing Key-Value Pairs
+					</h3>
 					<div className="flex items-center gap-2">
 						<div className="relative">
 							<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
@@ -192,13 +218,15 @@ export const KeyValueDB: React.FC<KeyValueDBProps> = ({ guildId }) => {
 								className="pl-9 pr-4 py-2 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors w-full md:w-64"
 							/>
 						</div>
-						<button
+						<motion.button
+							whileHover={{ rotate: 180 }}
+							transition={{ duration: 0.5 }}
 							onClick={fetchKeyValuePairs}
 							className="p-2 rounded-md hover:bg-accent/50 text-muted-foreground hover:text-foreground transition-colors"
 							disabled={isLoading}
 						>
 							<RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-						</button>
+						</motion.button>
 					</div>
 				</div>
 
@@ -207,7 +235,12 @@ export const KeyValueDB: React.FC<KeyValueDBProps> = ({ guildId }) => {
 						<div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
 					</div>
 				) : filteredPairs.length === 0 ? (
-					<div className="bg-muted/30 rounded-lg p-8 text-center">
+					<motion.div
+						className="bg-muted/30 rounded-lg p-8 text-center"
+						initial={{ opacity: 0, y: 10 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.3 }}
+					>
 						<div className="flex justify-center mb-3">
 							<div className="p-3 bg-muted rounded-full">
 								<AlertCircle className="w-6 h-6 text-muted-foreground" />
@@ -220,29 +253,33 @@ export const KeyValueDB: React.FC<KeyValueDBProps> = ({ guildId }) => {
 								: 'Add your first key-value pair to get started'}
 						</p>
 						{!searchTerm && (
-							<button
+							<motion.button
+								whileHover={{ scale: 1.05 }}
+								whileTap={{ scale: 0.95 }}
 								className="inline-flex items-center gap-1 text-foreground bg-primary/10 px-3 py-1.5 rounded-md hover:bg-primary/20 transition-colors"
 								onClick={() => document.getElementById('key')?.focus()}
 							>
 								<Plus className="w-4 h-4" />
 								<span>Add First Key-Value</span>
-							</button>
+							</motion.button>
 						)}
-					</div>
+					</motion.div>
 				) : (
 					<div className="grid gap-4">
 						<AnimatePresence>
-							{filteredPairs.map((pair) => (
+							{filteredPairs.map((pair, index) => (
 								<motion.div
 									key={pair.key}
-									initial={{ opacity: 0, y: 5 }}
+									initial={{ opacity: 0, y: 20 }}
 									animate={{ opacity: 1, y: 0 }}
 									exit={{ opacity: 0, x: -10 }}
+									transition={{ duration: 0.3, delay: index * 0.05 }}
 									className="bg-card border border-border hover:border-primary/20 rounded-lg p-4 transition-all shadow-sm"
+									whileHover={{ y: -2, boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
 								>
 									<div className="flex flex-col md:flex-row md:items-center gap-3">
 										<div className="flex-1">
-											<div className="flex items-center gap-2 mb-1">
+											<div className="flex items-center gap-2 mb-2">
 												<h4 className="font-medium text-foreground">Key:</h4>
 												<code className="text-sm bg-muted/50 px-2 py-0.5 rounded">{pair.key}</code>
 											</div>
@@ -272,12 +309,14 @@ export const KeyValueDB: React.FC<KeyValueDBProps> = ({ guildId }) => {
 												</div>
 											)}
 										</div>
-										<button
+										<motion.button
+											whileHover={{ scale: 1.1, color: 'rgb(var(--destructive))' }}
+											whileTap={{ scale: 0.9 }}
 											onClick={() => handleDeleteKeyValue(pair.key)}
 											className="self-start md:self-center p-2 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
 										>
 											<Trash2 className="w-5 h-5" />
-										</button>
+										</motion.button>
 									</div>
 								</motion.div>
 							))}

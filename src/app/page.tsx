@@ -1,6 +1,7 @@
 import { Hero } from '@/components/Hero/index';
-import { description } from '@/components/common';
 import { Metadata } from 'next';
+import { website_url } from '@/components/common';
+import { generateHomeMetadata } from '@/lib/Metadata';
 
 /**
  * Renders the home page of the application.
@@ -11,11 +12,15 @@ import { Metadata } from 'next';
  * @returns {JSX.Element} The rendered home page component.
  */
 
-export const metadata: Metadata = {
-	title: 'Home | Antiraid',
-	description: `${description}`
-};
+export const metadata: Metadata = generateHomeMetadata({
+	canonicalUrl: `${website_url}/`,
+});
 
+/**
+ * Renders the application's home page with the main hero section.
+ *
+ * @returns The JSX markup for the home page.
+ */
 export default function Home() {
 	return (
 		<>

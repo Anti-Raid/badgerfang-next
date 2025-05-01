@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import type { CanonicalCommand, BotState } from '../../types/splashtail/types';
 import { getBotState } from '@/lib/api';
+import { InputField } from '@/components/settings/components/form-elements';
 
 const permissionNames: { [key: string]: string } = {
 	'1': 'CREATE_INSTANT_INVITE',
@@ -97,26 +98,6 @@ const Button = ({
 		</button>
 	);
 };
-
-const Input = ({
-	className = '',
-	icon,
-	...props
-}: React.InputHTMLAttributes<HTMLInputElement> & {
-	icon?: React.ReactNode;
-}) => (
-	<div className="relative w-full">
-		{icon && (
-			<div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
-				{icon}
-			</div>
-		)}
-		<input
-			className={`w-full px-3 py-2.5 ${icon ? 'pl-10' : ''} bg-background text-foreground rounded-lg border border-border shadow-sm transition-all duration-200 hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none ${className}`}
-			{...props}
-		/>
-	</div>
-);
 
 interface SelectOption {
 	value: string;
@@ -221,6 +202,11 @@ interface CommandWithModule extends CanonicalCommand {
 	id: string;
 }
 
+/**
+ * Renders an interactive, responsive interface for browsing, searching, and filtering bot commands.
+ *
+ * Fetches bot command data and allows users to filter by module, perform full-text search, paginate results, and toggle between grid and list views. Users can expand commands to view detailed information, including subcommands, arguments, and required permissions. The UI adapts for desktop and mobile devices, and includes loading and error handling states.
+ */
 export default function CommandInterface() {
 	const [botState, setBotState] = useState<BotState | null>(null);
 	const [selectedModule, setSelectedModule] = useState<string>('all');
@@ -744,11 +730,11 @@ export default function CommandInterface() {
 						<div className="p-4 border-b border-border bg-background/50 backdrop-blur-sm">
 							<div className="flex flex-col sm:flex-row gap-4">
 								<div className="relative flex-1">
-									<Input
+									<InputField
 										placeholder="Search commands, arguments, descriptions..."
 										value={searchQuery}
 										onChange={(e) => setSearchQuery(e.target.value)}
-										icon={<Search className="h-4 w-4" />}
+										icon={Search}
 									/>
 								</div>
 								<div className="flex items-center gap-4 w-full sm:w-auto">

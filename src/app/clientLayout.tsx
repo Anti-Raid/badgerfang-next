@@ -8,18 +8,17 @@ import { ThemeProvider } from '@/components/ui/ThemeProvider';
 import ToastProvider from '@/components/ui/ToastProvider';
 import { HelmetProvider } from 'react-helmet-async';
 import { SWRConfig } from 'swr';
+import { ViewTransitions } from 'next-view-transitions';
 
 /**
- * Provides a client-side layout that manages loading and authentication states for rendering protected pages.
+ * Renders a client-side layout for protected pages, showing a loading spinner on the home route before displaying the main content.
  *
- * This component checks for valid user session data and authorization. If the current route is the home page,
- * it temporarily displays a loading spinner before rendering the main layout. If no valid session is found or the user
- * is unauthorized, it clears session-related local storage entries and redirects to the home page.
- * The layout wraps its children with providers for document head management, theming, data fetching, and toast notifications,
- * and includes a header and footer.
+ * The layout includes theming, document head management, data fetching configuration, toast notifications, and page transition animations, along with a header and footer.
  *
- * @param children - The content to be rendered within the layout.
- * @returns The rendered layout as a JSX element.
+ * @param children - The content to display within the main area of the layout.
+ * @returns The composed layout as a JSX element.
+ *
+ * @remark The loading spinner appears for 2 seconds only when the current route is the home page.
  */
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
 	const [isLoading, setIsLoading] = useState(false);
@@ -35,19 +34,21 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 			<ThemeProvider defaultTheme="dark" attribute="class">
 				<SWRConfig>
 					<ToastProvider>
-						{isLoading ? (
-							<Loading onClose={() => setIsLoading(false)} />
-						) : (
-							<>
-								<Header />
-								<article className="min-h-screen flex-col justify-between overflow-x-hidden">
-									<main className="mt-9 p-1 w-full md:max-w-7xl mx-auto h-full min-h-screen">
-										{children}
-									</main>
-									<Footer />
-								</article>
-							</>
-						)}
+						<ViewTransitions>
+							{isLoading ? (
+								<Loading onClose={() => setIsLoading(false)} />
+							) : (
+								<>
+									<Header />
+									<article className="min-h-screen flex-col justify-between overflow-x-hidden">
+										<main className="mt-9 p-1 w-full md:max-w-7xl mx-auto h-full min-h-screen">
+											{children}
+										</main>
+										<Footer />
+									</article>
+								</>
+							)}
+						</ViewTransitions>
 					</ToastProvider>
 				</SWRConfig>
 			</ThemeProvider>

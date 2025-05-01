@@ -1,7 +1,8 @@
 import Dashboard from '@/components/dashboard/developers/session';
 import ProtectedRoute from '@/components/authProtectedRoute';
-import { description } from '@/components/common';
 import { Metadata } from 'next';
+import { generateDeveloperDashboardMetadata } from '@/lib/Metadata';
+import { website_url } from '@/components/common';
 
 /**
  * Renders the Developes Dashboard page.
@@ -10,11 +11,15 @@ import { Metadata } from 'next';
  *
  * @returns A React element representing the settings page.
  */
-export const metadata: Metadata = {
-	title: 'Developers',
-	description: `${description}`
-};
+export const metadata: Metadata = generateDeveloperDashboardMetadata({
+	canonicalUrl: `${website_url}/dashboard/developers`
+})
 
+/**
+ * Renders the Developers Dashboard page, restricting access to authorized users.
+ *
+ * Wraps the {@link Dashboard} component in a {@link ProtectedRoute} to ensure only authenticated users can view the dashboard.
+ */
 export default function Settings() {
 	return (
 		<div className="min-h-screen">
