@@ -5,7 +5,7 @@ import React, { Suspense } from 'react';
 import { generateBlogsMetadata } from '@/lib/Metadata';
 
 export const metadata: Metadata = generateBlogsMetadata({
-	canonicalUrl: `${website_url}/blogs`,
+	canonicalUrl: `${website_url}/blogs`
 });
 
 /**

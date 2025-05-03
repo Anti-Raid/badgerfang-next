@@ -13,7 +13,7 @@ import { generateHomeMetadata } from '@/lib/Metadata';
  */
 
 export const metadata: Metadata = generateHomeMetadata({
-	canonicalUrl: `${website_url}/`,
+	canonicalUrl: `${website_url}/`
 });
 
 /**

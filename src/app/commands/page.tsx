@@ -4,7 +4,7 @@ import { Metadata } from 'next';
 import { generateCommandMetadata } from '@/lib/Metadata';
 
 export const metadata: Metadata = generateCommandMetadata({
-	canonicalUrl: `${website_url}/commands`,
+	canonicalUrl: `${website_url}/commands`
 });
 
 const Commands = () => {

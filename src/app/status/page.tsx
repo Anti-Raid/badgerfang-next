@@ -8,7 +8,6 @@ export const metadata: Metadata = generateStatusMetadata({
 	canonicalUrl: `${website_url}/status`
 });
 
-
 /**
  * Renders the bot status page.
  *

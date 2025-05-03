@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import React, { useEffect, useState, useMemo } from 'react';
 import { FaChartLine, FaCube, FaServer, FaClock } from 'react-icons/fa';
 import {
@@ -12,7 +12,7 @@ import {
 	ResponsiveContainer
 } from 'recharts';
 import { motion } from 'framer-motion';
-import { getBotStats } from "@/lib/api";
+import { getBotStats } from '@/lib/api';
 import { BotStats } from '@/types/bot-stats';
 
 interface StatusCardProps {
