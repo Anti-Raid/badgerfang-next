@@ -1,13 +1,12 @@
 import React from 'react';
 import Status from '@/components/status/Layout';
-import { generateAboutMetadata } from '@/lib/Metadata';
+import { generateStatusMetadata } from '@/lib/Metadata';
 import { Metadata } from 'next';
 import { website_url } from '@/components/common';
 
-export const metadata: Metadata = generateAboutMetadata({
+export const metadata: Metadata = generateStatusMetadata({
 	canonicalUrl: `${website_url}/status`
 });
-
 
 /**
  * Renders the bot status page.

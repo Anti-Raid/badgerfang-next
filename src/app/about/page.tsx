@@ -1,4 +1,4 @@
-import  AboutLayout  from '@/components/about/AboutLayout';
+import AboutLayout from '@/components/about/AboutLayout';
 import { Metadata } from 'next';
 import { website_url } from '@/components/common';
 import { generateAboutMetadata } from '@/lib/Metadata';
