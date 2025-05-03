@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useEffect, useState, useMemo } from 'react';
 import { FaChartLine, FaCube, FaServer, FaClock } from 'react-icons/fa';
 import {
@@ -13,28 +13,7 @@ import {
 } from 'recharts';
 import { motion } from 'framer-motion';
 import { getBotStats } from "@/lib/api";
-
-interface ShardDetails {
-	real_latency: number;
-	guilds: number;
-	status: string;
-	uptime: number;
-	total_uptime: number;
-}
-
-interface BotStats {
-	resp: {
-		shard_conns: Record<string, ShardDetails>;
-		total_guilds: number;
-		uptime: number;
-		managers?: Array<{
-			display_name: string;
-			shard_groups: Array<{
-				shards: Array<[number, number, number, number, number, number]>;
-			}>;
-		}>;
-	};
-}
+import { BotStats } from '@/types/bot-stats';
 
 interface StatusCardProps {
 	icon: React.ReactNode;
@@ -76,7 +55,7 @@ const StatusCard: React.FC<StatusCardProps> = React.memo(({ icon, title, value }
 const ShardLatencyChart: React.FC<{ data: BotStats }> = React.memo(({ data }) => {
 	const chartData = useMemo(
 		() =>
-			Object.entries(data.resp.shard_conns).map(([shard, details]) => ({
+			Object.entries(data.shard_conns).map(([shard, details]) => ({
 				name: `Shard ${shard}`,
 				latency: details.real_latency,
 				guilds: details.guilds,
@@ -139,7 +118,7 @@ const ShardLatencyChart: React.FC<{ data: BotStats }> = React.memo(({ data }) =>
 const GuildDistributionChart: React.FC<{ data: BotStats }> = React.memo(({ data }) => {
 	const chartData = useMemo(
 		() =>
-			Object.entries(data.resp.shard_conns).map(([shard, details]) => ({
+			Object.entries(data.shard_conns).map(([shard, details]) => ({
 				name: `Shard ${shard}`,
 				guilds: details.guilds
 			})),
@@ -205,7 +184,7 @@ const ShardStatusList: React.FC<{ data: BotStats }> = React.memo(({ data }) => {
 				<span className="text-foreground">Shard Status</span>
 			</h2>
 			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-				{Object.entries(data.resp.shard_conns).map(([shard, details]) => (
+				{Object.entries(data.shard_conns).map(([shard, details]) => (
 					<motion.div
 						key={shard}
 						initial={{ opacity: 0, y: 20 }}
@@ -245,14 +224,14 @@ const ShardStatusList: React.FC<{ data: BotStats }> = React.memo(({ data }) => {
 });
 
 const BotStatusSummary: React.FC<{ data: BotStats }> = React.memo(({ data }) => {
-	const totalShards = Object.keys(data.resp.shard_conns).length;
-	const totalGuilds = data.resp.total_guilds;
-	const uptime = formatUptime(data.resp.uptime);
+	const totalShards = Object.keys(data.shard_conns).length;
+	const totalGuilds = data.total_guilds;
+	const uptime = formatUptime(data.uptime);
 
 	const avgLatency = useMemo(
 		() =>
 			Math.round(
-				Object.values(data.resp.shard_conns).reduce((sum, shard) => sum + shard.real_latency, 0) /
+				Object.values(data.shard_conns).reduce((sum, shard) => sum + shard.real_latency, 0) /
 					totalShards
 			),
 		[data, totalShards]
