@@ -167,7 +167,7 @@ export function generateStatusMetadata(params: GenerateMetadataParams = {}): Met
  */
 export function generatePrivacyMetadata(params: GenerateMetadataParams = {}): Metadata {
 	return generateMetadata({
-		title: 'Privacy Policy',
+		title: 'Privacy Policy | Legal',
 		description: 'Learn about our privacy practices.',
 		image: params.imageUrl ?? defaultImage,
 		keywords: params.keywords?.length ? params.keywords : ['Privacy', 'Policy', 'Data'],
@@ -182,7 +182,7 @@ export function generatePrivacyMetadata(params: GenerateMetadataParams = {}): Me
  */
 export function generateTermsMetadata(params: GenerateMetadataParams = {}): Metadata {
 	return generateMetadata({
-		title: 'Terms of Service',
+		title: 'Terms of Service | Legal',
 		description: 'Read our terms and conditions.',
 		image: params.imageUrl ?? defaultImage,
 		keywords: params.keywords?.length ? params.keywords : ['Terms', 'Service', 'Agreement'],
