@@ -34,10 +34,7 @@ const PostCard: React.FC<posts> = (post: posts) => {
 		}
 	};
 
-	const createParticles = (
-		e: React.MouseEvent,
-		type: 'up' | 'down'
-	) => {
+	const createParticles = (e: React.MouseEvent, type: 'up' | 'down') => {
 		const rect = e.currentTarget.getBoundingClientRect();
 		const color = type === 'up' ? '#22c55e' : '#ef4444';
 		const setter = type === 'up' ? setUpvoteParticles : setDownvoteParticles;
@@ -46,7 +43,7 @@ const PostCard: React.FC<posts> = (post: posts) => {
 			id: Date.now() + i,
 			x: e.clientX - rect.left,
 			y: e.clientY - rect.top,
-			color,
+			color
 		}));
 
 		setter((prev) => [...prev, ...particles]);
@@ -180,7 +177,9 @@ const PostCard: React.FC<posts> = (post: posts) => {
 						{upvoteParticles.map((p) => (
 							<Particle key={p.id} {...p} />
 						))}
-						<FaArrowUp className={`h-5 w-5 ${voted === 'up' ? 'scale-110' : 'group-hover:scale-110'}`} />
+						<FaArrowUp
+							className={`h-5 w-5 ${voted === 'up' ? 'scale-110' : 'group-hover:scale-110'}`}
+						/>
 						<span className="text-sm">{upvotes}</span>
 					</button>
 
@@ -197,7 +196,9 @@ const PostCard: React.FC<posts> = (post: posts) => {
 						{downvoteParticles.map((p) => (
 							<Particle key={p.id} {...p} />
 						))}
-						<FaArrowDown className={`h-5 w-5 ${voted === 'down' ? 'scale-110' : 'group-hover:scale-110'}`} />
+						<FaArrowDown
+							className={`h-5 w-5 ${voted === 'down' ? 'scale-110' : 'group-hover:scale-110'}`}
+						/>
 						<span className="text-sm">{downvotes}</span>
 					</button>
 
