@@ -296,7 +296,8 @@ export function generateHomeMetadata(params: GenerateMetadataParams = {}): Metad
 export function generateFourmsMetadata(params: GenerateMetadataParams = {}): Metadata {
 	return generateMetadata({
 		title: 'Forums',
-		description: 'Welcome to Antiraids Forums! Where you can ask support questions and get help from the community.',
+		description:
+			'Welcome to Antiraids Forums! Where you can ask support questions and get help from the community.',
 		image: params.imageUrl ?? defaultImage,
 		keywords: params.keywords?.length ? params.keywords : ['Forums', 'Antiraid'],
 		Url: params.canonicalUrl
