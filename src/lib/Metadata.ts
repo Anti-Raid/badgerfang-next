@@ -287,3 +287,18 @@ export function generateHomeMetadata(params: GenerateMetadataParams = {}): Metad
 		Url: params.canonicalUrl
 	});
 }
+
+/**
+ * Generates metadata for the Forums page with default title, description, image, and keywords.
+ *
+ * @returns A Next.js Metadata object for the Forums page.
+ */
+export function generateFourmsMetadata(params: GenerateMetadataParams = {}): Metadata {
+	return generateMetadata({
+		title: 'Forums',
+		description: 'Welcome to Antiraids Forums! Where you can ask support questions and get help from the community.',
+		image: params.imageUrl ?? defaultImage,
+		keywords: params.keywords?.length ? params.keywords : ['Forums', 'Antiraid'],
+		Url: params.canonicalUrl
+	});
+}

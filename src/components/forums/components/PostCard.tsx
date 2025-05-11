@@ -3,9 +3,9 @@ import React, { useState } from 'react';
 import { posts } from '@/types/forums/types';
 import Image from 'next/image';
 import Link from 'next/link';
+import { FaArrowUp, FaArrowDown, FaCommentAlt } from 'react-icons/fa';
+import Particle from '../../ui/Particle';
 
-import OptimizedImage from '../OptimizedImage';
-import Particle from '../ui/Particle';
 const PostCard: React.FC<posts> = (post: posts) => {
 	const [upvotes, setUpvotes] = useState(0);
 	const [downvotes, setDownvotes] = useState(0);
@@ -20,67 +20,51 @@ const PostCard: React.FC<posts> = (post: posts) => {
 
 	const handleVote = (type: 'up' | 'down') => {
 		if (voted === type) {
-			// Remove vote
 			setVoted(null);
-			if (type === 'up') {
-				setUpvotes((prev) => prev - 1);
-			} else {
-				setDownvotes((prev) => prev - 1);
-			}
+			type === 'up' ? setUpvotes((prev) => prev - 1) : setDownvotes((prev) => prev - 1);
 		} else {
 			if (voted) {
-				if (type === 'up') {
-					setDownvotes((prev) => prev - 1);
-					setUpvotes((prev) => prev + 1);
-				} else {
-					setUpvotes((prev) => prev - 1);
-					setDownvotes((prev) => prev + 1);
-				}
+				type === 'up'
+					? (setDownvotes((prev) => prev - 1), setUpvotes((prev) => prev + 1))
+					: (setUpvotes((prev) => prev - 1), setDownvotes((prev) => prev + 1));
 			} else {
-				// New vote
-				if (type === 'up') {
-					setUpvotes((prev) => prev + 1);
-				} else {
-					setDownvotes((prev) => prev + 1);
-				}
+				type === 'up' ? setUpvotes((prev) => prev + 1) : setDownvotes((prev) => prev + 1);
 			}
 			setVoted(type);
 		}
 	};
 
-	const ImageLoadError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-		e.currentTarget.src = '/logo.webp';
-	};
-
-	const createUpvoteParticles = (e: React.MouseEvent) => {
+	const createParticles = (
+		e: React.MouseEvent,
+		type: 'up' | 'down'
+	) => {
 		const rect = e.currentTarget.getBoundingClientRect();
-		const particles = Array.from({ length: 20 }, (_, index) => ({
-			id: Date.now() + index,
+		const color = type === 'up' ? '#22c55e' : '#ef4444';
+		const setter = type === 'up' ? setUpvoteParticles : setDownvoteParticles;
+
+		const particles = Array.from({ length: 20 }, (_, i) => ({
+			id: Date.now() + i,
 			x: e.clientX - rect.left,
 			y: e.clientY - rect.top,
-			color: '#22c55e'
+			color,
 		}));
-		setUpvoteParticles((prev) => [...prev, ...particles]);
+
+		setter((prev) => [...prev, ...particles]);
 		setTimeout(() => {
-			setUpvoteParticles((prev) => prev.filter((p) => !particles.some((newP) => newP.id === p.id)));
+			setter((prev) => prev.filter((p) => !particles.some((newP) => newP.id === p.id)));
 		}, 1000);
 	};
 
-	const createDownvoteParticles = (e: React.MouseEvent) => {
-		const rect = e.currentTarget.getBoundingClientRect();
-		const particles = Array.from({ length: 20 }, (_, index) => ({
-			id: Date.now() + index,
-			x: e.clientX - rect.left,
-			y: e.clientY - rect.top,
-			color: '#ef4444'
-		}));
-		setDownvoteParticles((prev) => [...prev, ...particles]);
-		setTimeout(() => {
-			setDownvoteParticles((prev) =>
-				prev.filter((p) => !particles.some((newP) => newP.id === p.id))
-			);
-		}, 1000);
+	const isSmallImage = (src: string) => {
+		return (
+			src.includes('5d1ab941') ||
+			src.includes('46f23dcb') ||
+			src.includes('b5cb157c') ||
+			src.includes('d490f890')
+		);
 	};
+
+	const isGif = (src: string) => src.endsWith('.gif');
 
 	return (
 		<div className="overflow-hidden rounded-lg bg-white/5 backdrop-blur-sm transition-all hover:bg-white/10">
@@ -89,13 +73,15 @@ const PostCard: React.FC<posts> = (post: posts) => {
 				href={`/forums/@${post.user.usertag}`}
 				className="flex items-center gap-3 p-4 border-b border-white/10"
 			>
-				<OptimizedImage
+				<Image
 					src={post.user.avatar as string}
 					alt={`${post.user.name}'s Avatar`}
 					width={32}
 					height={32}
 					className="h-8 w-8 rounded-full"
-					fallbackSrc="/logo.webp"
+					onError={(e) => {
+						(e.target as HTMLImageElement).src = '/logo.webp';
+					}}
 				/>
 				<div className="flex flex-col">
 					<span className="text-sm font-medium text-white/90">
@@ -111,35 +97,35 @@ const PostCard: React.FC<posts> = (post: posts) => {
 			<Link href={`/forums/post/${post.postid}`} className="block p-4">
 				<p className="mb-4 text-sm text-white/80">{post.caption}</p>
 
-				{/* Post Image */}
 				{post.image && (
-					<OptimizedImage
+					<Image
 						src={post.image}
 						alt="Post content"
 						className="w-full rounded-md"
-						height={200}
 						width={200}
-						fallbackSrc="/logo.webp"
+						height={200}
+						unoptimized={isGif(post.image)}
 					/>
 				)}
 
-				{/* Post Plugins */}
 				{post.plugins.map((item, idx) => {
 					if (item.type === 'tenor') {
 						return (
-							<OptimizedImage
+							<Image
 								key={`tenor-${idx}`}
 								src={item.href as string}
 								alt="GIF"
 								className="mt-4 w-full rounded-md"
-								height={200}
 								width={200}
-								fallbackSrc="/logo.webp"
+								height={200}
+								unoptimized
 							/>
 						);
 					}
 
 					if (item.type === 'url') {
+						const iconTooSmall = item.jsonData.favicon && isSmallImage(item.jsonData.favicon);
+
 						return (
 							<div
 								key={idx}
@@ -147,13 +133,13 @@ const PostCard: React.FC<posts> = (post: posts) => {
 							>
 								<div className="flex items-center gap-2">
 									{item.jsonData.favicon && (
-										<OptimizedImage
+										<Image
 											src={item.jsonData.favicon}
 											alt={item.jsonData.sitename}
 											width={16}
 											height={16}
 											className="h-4 w-4 rounded-full"
-											fallbackSrc="/logo.webp"
+											{...(iconTooSmall ? {} : { placeholder: 'empty' })}
 										/>
 									)}
 									<span className="text-xs text-white/60">{item.jsonData.sitename}</span>
@@ -161,18 +147,19 @@ const PostCard: React.FC<posts> = (post: posts) => {
 								<h3 className="mt-2 text-sm font-medium text-white/90">{item.jsonData.title}</h3>
 								<p className="mt-1 text-xs text-white/70">{item.jsonData.description}</p>
 								{item.jsonData.image && (
-									<OptimizedImage
+									<Image
 										src={item.jsonData.image}
 										alt={item.jsonData.title}
 										className="mt-3 w-full rounded-md"
-										height={120}
 										width={120}
-										fallbackSrc="/logo.webp"
+										height={120}
+										unoptimized={isGif(item.jsonData.image)}
 									/>
 								)}
 							</div>
 						);
 					}
+
 					return null;
 				})}
 			</Link>
@@ -184,24 +171,16 @@ const PostCard: React.FC<posts> = (post: posts) => {
 					<button
 						onClick={(e) => {
 							handleVote('up');
-							createUpvoteParticles(e);
+							createParticles(e, 'up');
 						}}
 						className={`group relative flex items-center gap-1 transition-all ${
 							voted === 'up' ? 'text-green-500' : 'text-white/60 hover:text-green-500'
 						}`}
 					>
-						{upvoteParticles.map((particle) => (
-							<Particle key={particle.id} {...particle} />
+						{upvoteParticles.map((p) => (
+							<Particle key={p.id} {...p} />
 						))}
-						<svg
-							className={`h-5 w-5 transition-transform ${
-								voted === 'up' ? 'scale-110' : 'group-hover:scale-110'
-							}`}
-							fill="currentColor"
-							viewBox="0 0 24 24"
-						>
-							<path d="M12 4L3 15h6v5h6v-5h6L12 4z" />
-						</svg>
+						<FaArrowUp className={`h-5 w-5 ${voted === 'up' ? 'scale-110' : 'group-hover:scale-110'}`} />
 						<span className="text-sm">{upvotes}</span>
 					</button>
 
@@ -209,24 +188,16 @@ const PostCard: React.FC<posts> = (post: posts) => {
 					<button
 						onClick={(e) => {
 							handleVote('down');
-							createDownvoteParticles(e);
+							createParticles(e, 'down');
 						}}
 						className={`group relative flex items-center gap-1 transition-all ${
 							voted === 'down' ? 'text-red-500' : 'text-white/60 hover:text-red-500'
 						}`}
 					>
-						{downvoteParticles.map((particle) => (
-							<Particle key={particle.id} {...particle} />
+						{downvoteParticles.map((p) => (
+							<Particle key={p.id} {...p} />
 						))}
-						<svg
-							className={`h-5 w-5 transition-transform ${
-								voted === 'down' ? 'scale-110' : 'group-hover:scale-110'
-							}`}
-							fill="currentColor"
-							viewBox="0 0 24 24"
-						>
-							<path d="M12 20l9-11h-6V4H9v5H3l9 11z" />
-						</svg>
+						<FaArrowDown className={`h-5 w-5 ${voted === 'down' ? 'scale-110' : 'group-hover:scale-110'}`} />
 						<span className="text-sm">{downvotes}</span>
 					</button>
 
@@ -235,13 +206,7 @@ const PostCard: React.FC<posts> = (post: posts) => {
 						onClick={() => setIsCommenting(!isCommenting)}
 						className="group flex items-center gap-1 text-white/60 hover:text-primary transition-all"
 					>
-						<svg
-							className="h-5 w-5 transition-transform group-hover:scale-110"
-							fill="currentColor"
-							viewBox="0 0 24 24"
-						>
-							<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z" />
-						</svg>
+						<FaCommentAlt className="h-5 w-5 group-hover:scale-110 transition-transform" />
 						<span className="text-sm">{post.comments?.length || 0}</span>
 					</button>
 				</div>
