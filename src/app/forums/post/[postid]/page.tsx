@@ -6,6 +6,11 @@ import { getForumPost } from '@/lib/api';
 import type { posts } from '@/types/forums/types';
 import PostDetail from '@/components/forums/postsLayout';
 
+/**
+ * Displays a forum post based on the dynamic `postid` route parameter.
+ *
+ * Fetches post data using the `postid` from the URL, handles loading and error states, and renders the post details. If the post is not found or an error occurs, triggers a 404 page.
+ */
 export default function PostPage() {
 	const { postid } = useParams();
 	const [post, setPost] = useState<posts | null>(null);

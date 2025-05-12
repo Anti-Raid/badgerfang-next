@@ -274,9 +274,10 @@ export function generateSettingsValidatorMetadata(params: GenerateMetadataParams
 }
 
 /**
- * Generates metadata for the home page with default title, description, image, and keywords.
+ * Generates Next.js metadata for the home page, applying default values for title, description, image, and keywords, with optional overrides.
  *
- * @returns A Next.js Metadata object for the home page.
+ * @param params - Optional overrides for title, description, image URL, keywords, and canonical URL.
+ * @returns Metadata object configured for the home page.
  */
 export function generateHomeMetadata(params: GenerateMetadataParams = {}): Metadata {
 	return generateMetadata({
@@ -289,9 +290,9 @@ export function generateHomeMetadata(params: GenerateMetadataParams = {}): Metad
 }
 
 /**
- * Generates metadata for the Forums page with default title, description, image, and keywords.
+ * Generates Next.js metadata for the Forums page, applying default values for title, description, image, and keywords, with optional overrides.
  *
- * @returns A Next.js Metadata object for the Forums page.
+ * @returns Metadata for the Forums page.
  */
 export function generateFourmsMetadata(params: GenerateMetadataParams = {}): Metadata {
 	return generateMetadata({
@@ -304,6 +305,14 @@ export function generateFourmsMetadata(params: GenerateMetadataParams = {}): Met
 	});
 }
 
+/**
+ * Generates metadata for a forum post page, applying defaults and allowing overrides.
+ *
+ * Prepends "Forum Post" to the keywords and sets default values for title and description if not provided.
+ *
+ * @param params - Optional overrides for forum post metadata, including title, description, image URL, keywords, and canonical URL.
+ * @returns A Next.js {@link Metadata} object for the forum post page.
+ */
 export function generateForumPostMetadata(params: GenerateMetadataParams): Metadata {
 	const { title, description, imageUrl, keywords = [], canonicalUrl } = params;
 

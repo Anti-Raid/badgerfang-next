@@ -9,6 +9,11 @@ export const metadata: Metadata = generateFourmsMetadata({
 	canonicalUrl: `${website_url}/forums`
 });
 
+/**
+ * Retrieves the list of forum posts, returning an empty array if an error occurs.
+ *
+ * @returns An array of forum posts, or an empty array if fetching fails.
+ */
 async function getPosts() {
 	try {
 		const posts = await listForumPosts();
@@ -23,6 +28,11 @@ async function getPosts() {
 	}
 }
 
+/**
+ * Renders the forums feed page with the latest community posts.
+ *
+ * Fetches forum posts and displays them in the {@link FeedLayout} component with a title and description.
+ */
 export default async function ForumsPage() {
 	const posts = await getPosts();
 
