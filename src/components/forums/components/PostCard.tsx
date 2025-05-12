@@ -1,219 +1,331 @@
-'use client';
-import React, { useState } from 'react';
-import { posts } from '@/types/forums/types';
-import Image from 'next/image';
-import Link from 'next/link';
-import { FaArrowUp, FaArrowDown, FaCommentAlt } from 'react-icons/fa';
-import Particle from '../../ui/Particle';
+"use client"
 
-const PostCard: React.FC<posts> = (post: posts) => {
-	const [upvotes, setUpvotes] = useState(0);
-	const [downvotes, setDownvotes] = useState(0);
-	const [voted, setVoted] = useState<'up' | 'down' | null>(null);
-	const [isCommenting, setIsCommenting] = useState(false);
-	const [upvoteParticles, setUpvoteParticles] = useState<
-		Array<{ id: number; x: number; y: number; color: string }>
-	>([]);
-	const [downvoteParticles, setDownvoteParticles] = useState<
-		Array<{ id: number; x: number; y: number; color: string }>
-	>([]);
+import type React from "react"
+import { useState, useEffect } from "react"
+import type { posts } from "@/types/forums/types"
+import Image from "next/image"
+import Link from "next/link"
+import { motion } from "framer-motion"
+import { ArrowUp, ArrowDown, MessageCircle, Share2, ExternalLink, Clock } from "lucide-react"
+import { formatDistanceToNow } from "date-fns"
 
-	const handleVote = (type: 'up' | 'down') => {
-		if (voted === type) {
-			setVoted(null);
-			type === 'up' ? setUpvotes((prev) => prev - 1) : setDownvotes((prev) => prev - 1);
-		} else {
-			if (voted) {
-				type === 'up'
-					? (setDownvotes((prev) => prev - 1), setUpvotes((prev) => prev + 1))
-					: (setUpvotes((prev) => prev - 1), setDownvotes((prev) => prev + 1));
-			} else {
-				type === 'up' ? setUpvotes((prev) => prev + 1) : setDownvotes((prev) => prev + 1);
-			}
-			setVoted(type);
-		}
-	};
+const PostCard: React.FC<posts> = (post) => {
+  const [upvotes, setUpvotes] = useState<number>(post.upvotes?.length || 0)
+  const [downvotes, setDownvotes] = useState<number>(post.downvotes?.length || 0)
+  const [voted, setVoted] = useState<"up" | "down" | null>(null)
+  const [isHovered, setIsHovered] = useState(false)
+  const [showParticles, setShowParticles] = useState(false)
+  const [particles, setParticles] = useState<
+    Array<{
+      id: number
+      x: number
+      y: number
+      size: number
+      color: string
+      velocity: { x: number; y: number }
+    }>
+  >([])
 
-	const createParticles = (e: React.MouseEvent, type: 'up' | 'down') => {
-		const rect = e.currentTarget.getBoundingClientRect();
-		const color = type === 'up' ? '#22c55e' : '#ef4444';
-		const setter = type === 'up' ? setUpvoteParticles : setDownvoteParticles;
+  useEffect(() => {
+    // Check if user has already voted
+    if (post.upvotes?.some((upvote) => upvote.userid === "current-user-id")) {
+      setVoted("up")
+    } else if (post.downvotes?.some((downvote) => downvote.userid === "current-user-id")) {
+      setVoted("down")
+    }
+  }, [post.upvotes, post.downvotes])
 
-		const particles = Array.from({ length: 20 }, (_, i) => ({
-			id: Date.now() + i,
-			x: e.clientX - rect.left,
-			y: e.clientY - rect.top,
-			color
-		}));
+  useEffect(() => {
+    if (!showParticles) return
 
-		setter((prev) => [...prev, ...particles]);
-		setTimeout(() => {
-			setter((prev) => prev.filter((p) => !particles.some((newP) => newP.id === p.id)));
-		}, 1000);
-	};
+    const interval = setInterval(() => {
+      setParticles((prev) =>
+        prev
+          .map((particle) => ({
+            ...particle,
+            x: particle.x + particle.velocity.x,
+            y: particle.y + particle.velocity.y,
+            size: particle.size * 0.95, // Shrink particles over time
+          }))
+          .filter((particle) => particle.size > 0.5),
+      ) // Remove small particles
+    }, 50)
 
-	const isSmallImage = (src: string) => {
-		return (
-			src.includes('5d1ab941') ||
-			src.includes('46f23dcb') ||
-			src.includes('b5cb157c') ||
-			src.includes('d490f890')
-		);
-	};
+    // Clear particles after animation completes
+    const timeout = setTimeout(() => {
+      setShowParticles(false)
+      setParticles([])
+    }, 1500)
 
-	const isGif = (src: string) => src.endsWith('.gif');
+    return () => {
+      clearInterval(interval)
+      clearTimeout(timeout)
+    }
+  }, [showParticles])
 
-	return (
-		<div className="overflow-hidden rounded-lg bg-white/5 backdrop-blur-sm transition-all hover:bg-white/10">
-			{/* User Info */}
-			<Link
-				href={`/forums/user/${post.user.usertag}`}
-				className="flex items-center gap-3 p-4 border-b border-white/10"
-			>
-				<Image
-					src={post.user.avatar as string}
-					alt={`${post.user.name}'s Avatar`}
-					width={32}
-					height={32}
-					className="h-8 w-8 rounded-full"
-					onError={(e) => {
-						(e.target as HTMLImageElement).src = '/logo.webp';
-					}}
-				/>
-				<div className="flex flex-col">
-					<span className="text-sm font-medium text-white/90">
-						{post.user.name !== post.user.usertag ? post.user.name : post.user.usertag}
-					</span>
-					{post.user.name !== post.user.usertag && (
-						<span className="text-xs text-white/60">@{post.user.usertag}</span>
-					)}
-				</div>
-			</Link>
+  const handleVote = (type: "up" | "down", e: React.MouseEvent) => {
+    e.stopPropagation()
 
-			{/* Post Content */}
-			<Link href={`/forums/post/${post.postid}`} className="block p-4">
-				<p className="mb-4 text-sm text-white/80">{post.caption}</p>
+    // Create particles
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
 
-				{post.image && (
-					<Image
-						src={post.image}
-						alt="Post content"
-						className="w-full rounded-md"
-						width={200}
-						height={200}
-						unoptimized={isGif(post.image)}
-					/>
-				)}
+    const newParticles = Array.from({ length: 15 }, (_, i) => ({
+      id: Date.now() + i,
+      x,
+      y,
+      size: Math.random() * 4 + 2,
+      color: type === "up" ? "hsl(var(--primary))" : "hsl(var(--destructive))",
+      velocity: {
+        x: (Math.random() - 0.5) * 6,
+        y: (Math.random() - 0.5) * 6,
+      },
+    }))
 
-				{post.plugins.map((item, idx) => {
-					if (item.type === 'tenor') {
-						return (
-							<Image
-								key={`tenor-${idx}`}
-								src={item.href as string}
-								alt="GIF"
-								className="mt-4 w-full rounded-md"
-								width={200}
-								height={200}
-								unoptimized
-							/>
-						);
-					}
+    setParticles(newParticles)
+    setShowParticles(true)
 
-					if (item.type === 'url') {
-						const iconTooSmall = item.jsonData.favicon && isSmallImage(item.jsonData.favicon);
+    if (voted === type) {
+      setVoted(null)
+      type === "up" ? setUpvotes((prev) => prev - 1) : setDownvotes((prev) => prev - 1)
+    } else {
+      if (voted) {
+        // Switch vote
+        type === "up"
+          ? (setDownvotes((prev) => prev - 1), setUpvotes((prev) => prev + 1))
+          : (setUpvotes((prev) => prev - 1), setDownvotes((prev) => prev + 1))
+      } else {
+        // New vote
+        type === "up" ? setUpvotes((prev) => prev + 1) : setDownvotes((prev) => prev + 1)
+      }
+      setVoted(type)
+    }
+  }
 
-						return (
-							<div
-								key={idx}
-								className="mt-4 rounded-md border border-white/10 bg-white/5 p-3 transition-all hover:bg-white/10"
-							>
-								<div className="flex items-center gap-2">
-									{item.jsonData.favicon && (
-										<Image
-											src={item.jsonData.favicon}
-											alt={item.jsonData.sitename}
-											width={16}
-											height={16}
-											className="h-4 w-4 rounded-full"
-											{...(iconTooSmall ? {} : { placeholder: 'empty' })}
-										/>
-									)}
-									<span className="text-xs text-white/60">{item.jsonData.sitename}</span>
-								</div>
-								<h3 className="mt-2 text-sm font-medium text-white/90">{item.jsonData.title}</h3>
-								<p className="mt-1 text-xs text-white/70">{item.jsonData.description}</p>
-								{item.jsonData.image && (
-									<Image
-										src={item.jsonData.image}
-										alt={item.jsonData.title}
-										className="mt-3 w-full rounded-md"
-										width={120}
-										height={120}
-										unoptimized={isGif(item.jsonData.image)}
-									/>
-								)}
-							</div>
-						);
-					}
+  const formatDate = (date: Date) => {
+    return formatDistanceToNow(new Date(date), { addSuffix: true })
+  }
 
-					return null;
-				})}
-			</Link>
+  const isGif = (src: string) => src?.toLowerCase().endsWith(".gif")
 
-			{/* Vote Buttons */}
-			<div className="border-t border-white/10 px-4 py-2">
-				<div className="flex items-center gap-4">
-					{/* Upvote */}
-					<button
-						onClick={(e) => {
-							handleVote('up');
-							createParticles(e, 'up');
-						}}
-						className={`group relative flex items-center gap-1 transition-all ${
-							voted === 'up' ? 'text-green-500' : 'text-white/60 hover:text-green-500'
-						}`}
-					>
-						{upvoteParticles.map((p) => (
-							<Particle key={p.id} {...p} />
-						))}
-						<FaArrowUp
-							className={`h-5 w-5 ${voted === 'up' ? 'scale-110' : 'group-hover:scale-110'}`}
-						/>
-						<span className="text-sm">{upvotes}</span>
-					</button>
+  return (
+    <motion.div
+      className="relative overflow-hidden rounded-xl border border-accent/20 bg-card/80 backdrop-blur-sm transition-all duration-300"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ scale: 1.01, borderColor: "hsl(var(--primary)/0.3)" }}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+    >
+      {/* Glow effect on hover */}
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-r from-primary/10 via-accent/5 to-primary/10 opacity-0 transition-opacity duration-500 pointer-events-none"
+        animate={{ opacity: isHovered ? 1 : 0 }}
+      />
 
-					{/* Downvote */}
-					<button
-						onClick={(e) => {
-							handleVote('down');
-							createParticles(e, 'down');
-						}}
-						className={`group relative flex items-center gap-1 transition-all ${
-							voted === 'down' ? 'text-red-500' : 'text-white/60 hover:text-red-500'
-						}`}
-					>
-						{downvoteParticles.map((p) => (
-							<Particle key={p.id} {...p} />
-						))}
-						<FaArrowDown
-							className={`h-5 w-5 ${voted === 'down' ? 'scale-110' : 'group-hover:scale-110'}`}
-						/>
-						<span className="text-sm">{downvotes}</span>
-					</button>
+      {/* User Info */}
+      <div className="flex items-center justify-between border-b border-border/30 p-4">
+        <Link href={`/forums/user/${post.user.usertag}`} className="flex items-center gap-3 group">
+          <div className="relative h-10 w-10 overflow-hidden rounded-full border border-border/50 bg-muted/20 group-hover:border-primary/50 transition-colors duration-300">
+            <Image
+              src={post.user.avatar || "/logo.webp?height=40&width=40"}
+              alt={`${post.user.name}'s Avatar`}
+              width={40}
+              height={40}
+              className="h-full w-full object-cover"
+            />
+          </div>
+          <div className="flex flex-col">
+            <span className="font-medium text-foreground group-hover:text-primary transition-colors duration-300">
+              {post.user.name !== post.user.usertag ? post.user.name : post.user.usertag}
+            </span>
+            {post.user.name !== post.user.usertag && (
+              <span className="text-xs text-muted-foreground">@{post.user.usertag}</span>
+            )}
+          </div>
+        </Link>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Clock className="h-3 w-3" />
+          <span>{formatDate(post.createdat)}</span>
+        </div>
+      </div>
 
-					{/* Comment */}
-					<button
-						onClick={() => setIsCommenting(!isCommenting)}
-						className="group flex items-center gap-1 text-white/60 hover:text-primary transition-all"
-					>
-						<FaCommentAlt className="h-5 w-5 group-hover:scale-110 transition-transform" />
-						<span className="text-sm">{post.comments?.length || 0}</span>
-					</button>
-				</div>
-			</div>
-		</div>
-	);
-};
+      {/* Post Content */}
+      <Link href={`/forums/post/${post.postid}`} className="block p-4">
+        <p className="mb-4 text-foreground/90">{post.caption}</p>
 
-export default PostCard;
+        {post.image && (
+          <div className="relative mb-4 overflow-hidden rounded-lg">
+            <Image
+              src={post.image || "/placeholder.svg"}
+              alt="Post content"
+              className="w-full object-cover transition-transform duration-500 hover:scale-105"
+              width={800}
+              height={600}
+              unoptimized={isGif(post.image)}
+            />
+          </div>
+        )}
+
+        {post.plugins?.map((item, idx) => {
+          if (item.type === "tenor") {
+            return (
+              <div key={`tenor-${idx}`} className="relative mb-4 overflow-hidden rounded-lg">
+                <Image
+                  src={(item.href as string) || "/logo.webp"}
+                  alt="GIF"
+                  className="w-full transition-transform duration-500 hover:scale-105"
+                  width={600}
+                  height={400}
+                  unoptimized
+                />
+              </div>
+            )
+          }
+
+          if (item.type === "url" && item.jsonData) {
+            return (
+              <div
+                key={`url-${idx}`}
+                className="mb-4 overflow-hidden rounded-lg border border-border/30 bg-muted/10 transition-all duration-300 hover:bg-muted/20 hover:border-border/50"
+              >
+                <div className="flex items-center justify-between border-b border-border/20 p-3">
+                  <div className="flex items-center gap-2">
+                    {item.jsonData.favicon && (
+                      <Image
+                        src={item.jsonData.favicon || "/logo.webp"}
+                        alt={item.jsonData.sitename || "Website"}
+                        width={16}
+                        height={16}
+                        className="h-4 w-4 rounded-sm"
+                      />
+                    )}
+                    <span className="text-xs text-muted-foreground">{item.jsonData.sitename || item.jsonData.url}</span>
+                  </div>
+                  <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
+                </div>
+
+                <div className="p-3">
+                  <h3 className="mb-1 text-sm font-medium text-foreground">{item.jsonData.title}</h3>
+                  <p className="text-xs text-muted-foreground">{item.jsonData.description}</p>
+                </div>
+
+                {item.jsonData.image && (
+                  <div className="relative h-60 w-full overflow-hidden">
+                    <Image
+                      src={item.jsonData.image || "/logo.webp"}
+                      alt={item.jsonData.title || "Link preview"}
+                      className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                      width={800}
+                      height={400}
+                      unoptimized={isGif(item.jsonData.image)}
+                    />
+                  </div>
+                )}
+              </div>
+            )
+          }
+
+          return null
+        })}
+      </Link>
+
+      {/* Vote Buttons */}
+      <div className="relative flex items-center justify-between border-t border-border/30 px-4 py-3">
+        {/* Particles container */}
+        {showParticles && (
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            {particles.map((particle) => (
+              <div
+                key={particle.id}
+                className="absolute rounded-full"
+                style={{
+                  left: `${particle.x}px`,
+                  top: `${particle.y}px`,
+                  width: `${particle.size}px`,
+                  height: `${particle.size}px`,
+                  backgroundColor: particle.color,
+                  opacity: particle.size / 6,
+                }}
+              />
+            ))}
+          </div>
+        )}
+
+        <div className="flex items-center gap-6">
+          {/* Upvote */}
+          <button
+            onClick={(e) => handleVote("up", e)}
+            className={`group relative flex items-center gap-2 transition-all duration-300 ${
+              voted === "up" ? "text-primary" : "text-muted-foreground hover:text-primary"
+            }`}
+          >
+            <motion.div
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+            >
+              <ArrowUp className={`h-5 w-5 transition-transform duration-300 ${voted === "up" ? "scale-110" : ""}`} />
+            </motion.div>
+            <span className="text-sm font-medium">{upvotes}</span>
+          </button>
+
+          {/* Downvote */}
+          <button
+            onClick={(e) => handleVote("down", e)}
+            className={`group relative flex items-center gap-2 transition-all duration-300 ${
+              voted === "down" ? "text-destructive" : "text-muted-foreground hover:text-destructive"
+            }`}
+          >
+            <motion.div
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+            >
+              <ArrowDown
+                className={`h-5 w-5 transition-transform duration-300 ${voted === "down" ? "scale-110" : ""}`}
+              />
+            </motion.div>
+            <span className="text-sm font-medium">{downvotes}</span>
+          </button>
+
+          {/* Comments */}
+          <Link
+            href={`/forums/post/${post.postid}`}
+            className="group flex items-center gap-2 text-muted-foreground transition-all duration-300 hover:text-primary"
+          >
+            <motion.div
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+            >
+              <MessageCircle className="h-5 w-5" />
+            </motion.div>
+            <span className="text-sm font-medium">{post.comments?.length || 0}</span>
+          </Link>
+        </div>
+
+        {/* Share */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            navigator.clipboard.writeText(`https://yoursite.com/forums/post/${post.postid}`)
+          }}
+          className="group flex items-center gap-2 text-muted-foreground transition-all duration-300 hover:text-primary"
+        >
+          <motion.div
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+          >
+            <Share2 className="h-5 w-5" />
+          </motion.div>
+          <span className="text-sm font-medium">Share</span>
+        </button>
+      </div>
+    </motion.div>
+  )
+}
+
+export default PostCard
