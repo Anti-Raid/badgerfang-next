@@ -67,7 +67,7 @@ const PostCard: React.FC<posts> = (post: posts) => {
 		<div className="overflow-hidden rounded-lg bg-white/5 backdrop-blur-sm transition-all hover:bg-white/10">
 			{/* User Info */}
 			<Link
-				href={`/forums/@${post.user.usertag}`}
+				href={`/forums/user/${post.user.usertag}`}
 				className="flex items-center gap-3 p-4 border-b border-white/10"
 			>
 				<Image
