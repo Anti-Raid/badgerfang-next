@@ -54,13 +54,6 @@ const FeedLayout: React.FC<FeedLayoutProps> = ({ posts, title = 'Feed', descript
 			);
 		}
 
-		// Apply tag filter if active
-		if (activeFilter) {
-			filteredPosts = filteredPosts.filter((post) =>
-				post.flairs?.some((flair: string) => flair.toLowerCase() === activeFilter.toLowerCase())
-			);
-		}
-
 		// Apply sorting
 		switch (sortBy) {
 			case 'trending':
