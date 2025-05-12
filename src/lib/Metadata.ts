@@ -303,3 +303,17 @@ export function generateFourmsMetadata(params: GenerateMetadataParams = {}): Met
 		Url: params.canonicalUrl
 	});
 }
+
+export function generateForumPostMetadata(params: GenerateMetadataParams): Metadata {
+	const { title, description, imageUrl, keywords = [], canonicalUrl } = params;
+
+	const blogDefaults = {
+		title: title || 'Forum Post',
+		description: description || 'Read the latest news and updates.',
+		image: imageUrl,
+		keywords: ['Forum Post', ...keywords],
+		Url: canonicalUrl
+	};
+
+	return generateMetadata(blogDefaults);
+}

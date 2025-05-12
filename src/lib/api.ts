@@ -1,7 +1,4 @@
-// Imports
 import axios from 'axios';
-import useSWR from 'swr';
-import * as forumTypes from '@/types/forums/types';
 import {
 	ApiConfig,
 	BotState,
@@ -12,12 +9,11 @@ import {
 } from '@/types/splashtail/types';
 import { ApiResponse } from '@/types/dashboard/servers';
 import { BotStats } from '@/types/bot-stats';
+import * as forumTypes from '@/types/forums/types';
 
-// API URLs
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://splashtail-staging.antiraid.xyz';
 const FORUM_API_URL = 'https://potsypaw.purrquinox.com';
 
-// Auth Token Utility
 const getAuthToken = (): string | null => {
 	if (typeof window !== 'undefined') {
 		const tokenData = localStorage.getItem('wistala');
@@ -29,7 +25,6 @@ const getAuthToken = (): string | null => {
 	return null;
 };
 
-// Axios Setup
 const axiosInstance = axios.create({
 	baseURL: API_BASE_URL,
 	headers: {
@@ -45,38 +40,14 @@ axiosInstance.interceptors.request.use((config) => {
 	return config;
 });
 
-// SWR Fetcher
 const fetcher = async (url: string) => {
 	const response = await axiosInstance.get(url);
 	return response.data;
 };
 
-// ========== SplashTail Routes ==========
-
-export const useApiConfig = () =>
-	useSWR<ApiConfig>('/config', fetcher, {
-		revalidateOnFocus: false,
-		revalidateOnReconnect: false
-	});
-
-export const useBotState = () =>
-	useSWR<BotState>('/bot-state', fetcher, {
-		revalidateOnFocus: false,
-		revalidateOnReconnect: false
-	});
-
-export const getBotStats = async (): Promise<BotStats> => {
-	const { data } = await axiosInstance.get('/bot-stats');
-	return data;
-};
-
+// Replaced SWR hooks with regular functions
 export const getApiConfig = async (): Promise<ApiConfig> => {
 	const response = await axiosInstance.get('/config');
-	return response.data;
-};
-
-export const getGuildStaffTeam = async (guildId: string): Promise<GuildStaffTeam> => {
-	const response = await axiosInstance.get(`/guilds/${guildId}/staff-team`);
 	return response.data;
 };
 
@@ -85,7 +56,17 @@ export const getBotState = async (): Promise<BotState> => {
 	return response.data;
 };
 
-export const getUserServers = async (refetch = false): Promise<ApiResponse> => {
+export const getBotStats = async (): Promise<BotStats> => {
+	const { data } = await axiosInstance.get('/bot-stats');
+	return data;
+};
+
+export const getGuildStaffTeam = async (guildId: string): Promise<GuildStaffTeam> => {
+	const response = await axiosInstance.get(`/guilds/${guildId}/staff-team`);
+	return response.data;
+};
+
+export const getUserServers = async (refetch: boolean = false): Promise<ApiResponse> => {
 	const url = refetch ? '/users/@me/guilds?refresh=true' : '/users/@me/guilds';
 	const response = await axiosInstance.get(url);
 	return response.data;
@@ -107,14 +88,24 @@ export const getUserSessions = async (): Promise<UserSessionList> => {
 };
 
 export const revokeSession = async (sessionId: string): Promise<void> => {
-	await axiosInstance.delete(`/sessions/${sessionId}`);
+	try {
+		await axiosInstance.delete(`/sessions/${sessionId}`);
+	} catch (error) {
+		console.error('Failed to revoke session:', error);
+		throw error;
+	}
 };
 
 export const createSession = async (
 	session: CreateUserSession
 ): Promise<CreateUserSessionResponse> => {
-	const { data } = await axiosInstance.post('/sessions', session);
-	return data;
+	try {
+		const { data } = await axiosInstance.post('/sessions', session);
+		return data;
+	} catch (error) {
+		console.error('Failed to create session:', error);
+		throw error;
+	}
 };
 
 export const getUserGuildBaseInfo = async (guildId: string): Promise<any> => {
@@ -137,72 +128,22 @@ export const anonuserDetails = async (userId: string): Promise<any> => {
 	return response.data;
 };
 
-// ========== Forum Routes ==========
-
-export const createForumUser = async (
-	name: string,
-	userid: string,
-	usertag: string,
-	bio: string,
-	avatar: string
-): Promise<boolean | Error> => {
-	try {
-		const { data } = await axios.post(`${FORUM_API_URL}/users/create`, {
-			name,
-			userid,
-			usertag,
-			bio,
-			avatar
-		});
-		return data.success;
-	} catch (error) {
-		console.error('Failed to create forum user:', error);
-		return error as Error;
-	}
-};
-
 export const getForumUser = async (tag: string): Promise<forumTypes.users | Error> => {
-	try {
-		const { data } = await axios.get(`${FORUM_API_URL}/users/get?tag=${tag}`);
-		return data;
-	} catch (error) {
-		console.error('Failed to get forum user:', error);
-		return error as Error;
-	}
-};
-
-export const followForumUser = async (
-	target: string,
-	type: 'follow' | 'unfollow'
-): Promise<boolean | Error> => {
-	try {
-		const { data } = await axios.post(`${FORUM_API_URL}/users/follow`, {
-			target,
-			type
-		});
-		return data.success;
-	} catch (error) {
-		console.error('Failed to follow/unfollow forum user:', error);
-		return error as Error;
-	}
-};
-
-export const listForumUserPosts = async (tag: string): Promise<forumTypes.posts[] | Error> => {
-	try {
-		const { data } = await axios.get(`${FORUM_API_URL}/users/list_posts?tag=${tag}`);
-		return data;
-	} catch (error) {
-		console.error('Failed to list forum user posts:', error);
-		return error as Error;
-	}
+	const response = await axios.get(`${FORUM_API_URL}/users/get?tag=${tag}`);
+	return response.data;
 };
 
 export const listForumPosts = async (): Promise<forumTypes.posts[] | Error> => {
-	try {
-		const { data } = await axios.get(`${FORUM_API_URL}/posts/list`);
-		return data;
-	} catch (error) {
-		console.error('Failed to list forum posts:', error);
-		return error as Error;
-	}
+	const response = await axios.get(`${FORUM_API_URL}/posts/list`);
+	return response.data;
+};
+
+export const getForumPost = async (postId: string): Promise<forumTypes.posts[] | Error> => {
+	const response = await axios.get(`${FORUM_API_URL}/posts/get?post_id=${postId}`);
+	return response.data;
+};
+
+export const listForumUserPosts = async (tag: string): Promise<forumTypes.posts[] | Error> => {
+	const response = await axios.get(`${FORUM_API_URL}/users/list_posts?tag=${tag}`);
+	return response.data;
 };

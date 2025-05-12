@@ -42,7 +42,7 @@
 		"recharts": "^2.15.1",
 		"rehype-raw": "^7.0.0",
 		"remark-gfm": "^4.0.1",
-		"swr": "^2.2.5",
+		"swr": "^2.3.3",
 		"tailwind-merge": "^2.5.4",
 		"tailwindcss-animate": "^1.0.7",
 		"unfetch": "^5.0.0"
