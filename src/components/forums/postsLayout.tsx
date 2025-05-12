@@ -55,7 +55,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ post }) => {
 					<Link href={`/forums/user/${post.user.usertag}`} className="flex items-center gap-3">
 						<div className="relative h-10 w-10 overflow-hidden rounded-full border border-border/50 bg-muted/20">
 							<Image
-								src={post.user.avatar || '/placeholder.svg?height=40&width=40'}
+								src={post.user.avatar || '/logo.webp?height=40&width=40'}
 								alt={`${post.user.name}'s Avatar`}
 								width={40}
 								height={40}
@@ -84,7 +84,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ post }) => {
 					{post.image && (
 						<div className="relative mb-6 overflow-hidden rounded-md">
 							<Image
-								src={post.image || '/placeholder.svg'}
+								src={post.image || '/logo.webp'}
 								alt="Post content"
 								className="w-full object-cover"
 								width={800}
@@ -99,7 +99,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ post }) => {
 							return (
 								<div key={`tenor-${idx}`} className="relative mb-6 overflow-hidden rounded-md">
 									<Image
-										src={(item.href as string) || '/placeholder.svg'}
+										src={(item.href as string) || '/logo.webp'}
 										alt="GIF"
 										className="w-full"
 										width={600}
@@ -120,7 +120,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ post }) => {
 										<div className="flex items-center gap-2">
 											{item.jsonData.favicon && (
 												<Image
-													src={item.jsonData.favicon || '/placeholder.svg'}
+													src={item.jsonData.favicon || '/logo.webp'}
 													alt={item.jsonData.sitename || 'Website'}
 													width={16}
 													height={16}
@@ -146,7 +146,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ post }) => {
 									{item.jsonData.image && (
 										<div className="relative h-60 w-full overflow-hidden">
 											<Image
-												src={item.jsonData.image || '/placeholder.svg'}
+												src={item.jsonData.image || '/logo.webp'}
 												alt={item.jsonData.title || 'Link preview'}
 												className="h-full w-full object-cover"
 												width={800}
@@ -215,7 +215,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ post }) => {
 					<div className="flex gap-3">
 						<div className="relative h-10 w-10 overflow-hidden rounded-full border border-border/50 bg-muted/20">
 							<Image
-								src="/placeholder.svg?height=40&width=40"
+								src="/logo.webp?height=40&width=40"
 								alt="Your Avatar"
 								width={40}
 								height={40}
@@ -260,7 +260,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ post }) => {
 									<Link href={`/forums/@${comment.user.usertag}`}>
 										<div className="relative h-8 w-8 overflow-hidden rounded-full border border-border/50 bg-muted/20">
 											<Image
-												src={comment.user.avatar || '/placeholder.svg?height=32&width=32'}
+												src={comment.user.avatar || '/logo.webp?height=32&width=32'}
 												alt={`${comment.user.name}'s Avatar`}
 												width={32}
 												height={32}
@@ -284,7 +284,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ post }) => {
 										{comment.image && (
 											<div className="mt-2 overflow-hidden rounded-md">
 												<Image
-													src={comment.image || '/placeholder.svg'}
+													src={comment.image || '/logo.webp'}
 													alt="Comment image"
 													width={300}
 													height={200}

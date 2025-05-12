@@ -61,7 +61,7 @@ const ProfileLayout: React.FC<ProfileLayoutProps> = ({ user, posts }) => {
 					{/* Avatar */}
 					<div className="absolute -top-16 left-6 h-32 w-32 overflow-hidden rounded-xl border-4 border-card bg-muted/20 shadow-lg">
 						<Image
-							src={user.avatar || '/placeholder.svg?height=128&width=128'}
+							src={user.avatar || '/logo.webp?height=128&width=128'}
 							alt={`${user.name}'s Avatar`}
 							width={128}
 							height={128}
