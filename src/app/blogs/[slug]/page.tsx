@@ -3,6 +3,7 @@ import BlogSlugLayout from '@/components/blogs/BlogSlugLayout';
 import type { Blog } from '@/types/blogs';
 import { generateBlogMetadata } from '@/lib/Metadata';
 import type { Metadata } from 'next';
+import { website_url } from '@/components/common';
 
 /**
  * Returns metadata for a blog post page based on the provided slug.
@@ -18,7 +19,7 @@ export async function generateMetadata({
 	params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
 	const { slug } = await params;
-	const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/get/blogs`, {
+	const res = await fetch(`${website_url}/api/get/blogs`, {
 		cache: 'no-store'
 	});
 	const data: Blog[] = await res.json();
