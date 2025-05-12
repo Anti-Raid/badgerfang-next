@@ -52,7 +52,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ post }) => {
 			>
 				{/* User Info */}
 				<div className="flex items-center justify-between border-b border-border/30 p-4">
-					<Link href={`/forums/@${post.user.usertag}`} className="flex items-center gap-3">
+					<Link href={`/forums/user/${post.user.usertag}`} className="flex items-center gap-3">
 						<div className="relative h-10 w-10 overflow-hidden rounded-full border border-border/50 bg-muted/20">
 							<Image
 								src={post.user.avatar || '/placeholder.svg?height=40&width=40'}
