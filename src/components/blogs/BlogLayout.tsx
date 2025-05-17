@@ -6,7 +6,7 @@ import { Search, BookOpen, Sparkles, Tag } from 'lucide-react';
 import BlogCard from '@/components/blogs/BlogCard';
 import type { Blog } from '@/types/blogs/index';
 import { ViewTransitions } from 'next-view-transitions';
-import { Link } from 'next-view-transitions';
+import { fetchStrapiBlogs } from '@/lib/api';
 
 /**
  * Renders the blog listing page with animated header, search, tag filtering, and newsletter subscription.
@@ -30,36 +30,37 @@ export default function BlogLayout() {
 	const headerOpacity = useTransform(scrollY, [0, 200], [1, 0.8]);
 	const headerScale = useTransform(scrollY, [0, 200], [1, 0.95]);
 
-	useEffect(() => {
-		const fetchBlogs = async () => {
-			try {
-				const response = await fetch('/api/get/blogs');
-				const data = await response.json();
-				setBlogs(data);
-				setFilteredBlogs(data);
+useEffect(() => {
+  const fetchBlogs = async () => {
+    try {
+      const data = await fetchStrapiBlogs();
+      setBlogs(data.data);
+      setFilteredBlogs(data.data);
 
-				// Extract all unique tags
-				const tags = data.reduce((acc: string[], blog: Blog) => {
-					if (blog.tags) {
-						blog.tags.forEach((tag) => {
-							if (!acc.includes(tag)) {
-								acc.push(tag);
-							}
-						});
-					}
-					return acc;
-				}, []);
+      // Extract all unique tags
+      const tags = data.data.reduce((acc: string[], blog: Blog) => {
+        if (blog.tags) {
+          blog.tags.forEach((tag) => {
+            if (!acc.includes(tag)) {
+              acc.push(tag);
+            }
+          });
+        }
+        return acc;
+      }, []);
 
-				setAllTags(tags);
-			} catch (error) {
-				console.error('Error fetching blogs:', error);
-			} finally {
-				setIsLoading(false);
-			}
-		};
+      setAllTags(tags);
+    } catch (error) {
+      console.error('Error fetching blogs:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-		fetchBlogs();
-	}, []);
+  fetchBlogs();
+}, []);
+
+
 
 	useEffect(() => {
 		let result = blogs;

@@ -1,483 +1,429 @@
-'use client';
-import Breadcrumb from '@/components/ui/Breadcrumb';
-import PartnerCard from '@/components/PartnerCard';
-import { Partner } from '@/types/other/Partner';
-import { FaArchive, FaBolt, FaGlobe, FaUser } from 'react-icons/fa';
-import { Ghost, Primary, Secondary } from '@/components/ui/Buttons';
-import { toast } from 'react-toastify';
-import { CiGlobe } from 'react-icons/ci';
-import { FaDiscord } from 'react-icons/fa';
-import useSWR from 'swr';
+"use client"
+import { useState, useEffect } from "react"
+import { Archive, Zap, Shield, User, Globe, MessageSquare, Github } from "lucide-react"
+import { motion } from "framer-motion"
+import { toast } from "react-toastify"
+import type { Partner } from "@/types/other/Partner"
+import useSWR from "swr"
+import { HistoryTimeline } from "@/components/about/history-timeline"
 
 const ButtonFunc = (button: string): void => {
-	toast(`You have pushed the "${button}" button!`);
-};
+  toast(`You have pushed the "${button}" button!`)
+}
 
-// Internal Components
-const BotFeatures = () => {
-	const features = [
-		{
-			Title: 'Customizable Backups',
-			Description: `AntiRaid offers you with customizable <em>and</em> downloadable server backups allowing you to both backup exactly what you need and control your server's data if you want to including local backups and restores!`,
-			Icon: <FaArchive size={25} />
-		},
-		{
-			Title: 'Unrivaled Scripting',
-			Description: `Our scripting system, based on Luau, a superset of Lua created by Roblox, allows you to customize AntiRaid to the specific needs of your server instead of being <em>yet another</em> generic discord bot`,
-			Icon: <FaBolt size={25} />
-		},
-		{
-			Title: 'Raid Prevention',
-			Description: `AntiRaid offers advanced raid protection with customizable lockdown settings to secure your server during a raid. Automatically prevent new members from joining, control access to specific channels, and receive instant alerts to stay informed and manage disruptions effectively.`,
-			Icon: <FaGlobe size={25} />
-		},
-		{
-			Title: 'User/Developer Friendly',
-			Description: `Unlike most other bots, AntiRaid provides an API for extensive control, allowing you to manage backups and settings, and export your data. This ensures flexibility and helps you avoid vendor-locking by easily switching to other solutions if needed.`,
-			Icon: <FaUser size={25} />
-		}
-	];
-
-	return (
-		<>
-			{features.map((p, index) => (
-				<div
-					key={index}
-					className="block bg-white bg-opacity-5 border border-white border-opacity-5 px-4 py-4 rounded-md"
-				>
-					<dt>
-						<div className="absolute flex h-12 w-12 items-center justify-center rounded-md bg-primary/45 text-foreground">
-							{p.Icon}
-						</div>
-						<p className="ml-16 text-xl font-cabin text-left font-extrabold leading-6 text-foreground">
-							{p.Title}
-						</p>
-					</dt>
-
-					<dd className="mt-3 ml-16 text-foreground text-monster">
-						<p
-							className="text-xs/4 md:text-sm lg:text-md font-normal font-inter opacity-80 text-justify"
-							dangerouslySetInnerHTML={{ __html: p.Description }}
-						></p>
-					</dd>
-				</div>
-			))}
-		</>
-	);
-};
-
-const Partners = () => {
-	const partners: Partner[] = [
-		{
-			name: 'NetSocial',
-			description:
-				'Connect, Share, Grow. NetSocial empowers communities to be who they want to be.',
-			long_description:
-				'NetSocial empowers communities to be who they want to be, no more bots, paywalls and obscene content!',
-			logo: 'https://cdn.netsocial.app/logos/netsocial.png',
-			url: 'https://netsocial.app/',
-			owner: 'Ranveer Soni',
-			owner_image: 'https://avatars.githubusercontent.com/u/87431619?v=4',
-			owner_website: 'https://maya25-me.vercel.app/',
-			links: [
-				{
-					name: 'Website',
-					icon: <CiGlobe size={25} />,
-					link: 'https://netsocial.app/'
-				},
-				{
-					name: 'Discord',
-					icon: <FaDiscord size={25} />,
-					link: 'https://discord.gg/Tf6PCgDwa5'
-				}
-			]
-		},
-		{
-			name: 'Infinity List',
-			description: 'Search our vast list of bots for an exciting start to your server.',
-			long_description:
-				'We make it easier for you to advertise and grow your bots using our vanity links, widgets, bot packs, and more!',
-			logo: 'https://cdn.infinitybots.gg/core/full_logo.webp',
-			url: 'https://infinitybots.gg/',
-			owner: 'Toxic Dev',
-			owner_image:
-				'https://res.cloudinary.com/dh30c3f52/image/upload/v1707465896/immhuag1zamm3juw2mn8.jpg',
-			owner_website: 'https://toxicdev.me/',
-			links: [
-				{
-					name: 'Website',
-					icon: <CiGlobe size={25} />,
-					link: 'https://infinitybots.gg/'
-				},
-				{
-					name: 'Discord',
-					icon: <FaDiscord size={25} />,
-					link: 'https://discord.com/invite/KBCRuBKrHe'
-				}
-			]
-		}
-	];
-
-	return (
-		<>
-			<div className="flex flex-row flex-wrap gap-5 ">
-				{partners.map((partner) => (
-					<PartnerCard key={partner.name} partner={partner} />
-				))}
-			</div>
-		</>
-	);
-};
-
-const TeamMembers = () => {
-	const userIds = [
-		'728871946456137770',
-		'510065483693817867',
-		'775855009421066262',
-		'202560656883449856',
-		'1300319559844364338',
-		'564164277251080208',
-		'1275832535615537277',
-		'787241442770419722'
-	];
-
-	const fetcher = async (userIds: string[]) => {
-		const data = await Promise.all(
-			userIds.map(async (id) => {
-				const response = await fetch(`https://japi.rest/discord/v1/user/${id}`);
-				const json = await response.json();
-				return json.data;
-			})
-		);
-		return data;
-	};
-
-	const { data: usersData, error, isLoading } = useSWR(userIds, fetcher);
-
-	if (isLoading) return <div className="text-foreground">Loading team members...</div>;
-	if (error) return <div className="text-rose-500">Error loading team members</div>;
-
-	return (
-		<div className="mt-5 flex flex-row flex-wrap w-full gap-4">
-			{usersData?.map((user, index) => (
-				<div
-					key={index}
-					className="flex grow p-2 bg-white bg-opacity-5 overflow-hidden rounded-md border border-white border-opacity-5"
-				>
-					<div className="flex items-center">
-						<img
-							className="h-16 w-16 rounded-full"
-							src={user.avatarURL || '/logo.webp'}
-							alt={`${user.global_name || user.username}'s Avatar`}
-						/>
-						<div className="inline-block ml-3">
-							<h3 className="text-lg font-monster font-semibold leading-7 overflow-clip tracking-tight text-foreground">
-								{user.global_name || user.username}
-							</h3>
-							<p className="text-sm font-inter text-foreground">
-								<span className="font-normal opacity-80">@{user.username}</span>
-							</p>
-						</div>
-					</div>
-				</div>
-			))}
-		</div>
-	);
-};
-
-// Page
 const AboutLayout = () => {
-	return (
-		<>
-			<section className="flex flex-col gap-8 mx-4">
-				<div className="text-center md:text-left">
-					<h1 className="text-4xl font-monster font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
-						<span className="block text-foreground xl:inline">&#128075; About Us</span>
-					</h1>
-					<p className="mt-3 text-base text-center md:text-left text-foreground font-semibold font-cabin ml-3 sm:mt-5 sm:text-lg md:ml-0 md:mt-5 md:text-xl lg:ml-0 lg:mx-0">
-						Learn more about <span className="text-purple-600 font-bold">AntiRaid</span> and our
-						team!
-					</p>
-				</div>
+  const [isLoaded, setIsLoaded] = useState(false)
 
-				{/* <div className="p-4" /> */}
+  useEffect(() => {
+    setIsLoaded(true)
+  }, [])
 
-				<p className="text-md md:text-md text-foreground font-cabin opacity-80 text-center md:text-left">
-					AntiRaid offers powerful, automated protection for your Discord server. Designed to combat
-					spam, harmful bots, and disruptive behavior, our advanced moderation technology ensures a
-					safe and welcoming environment. With AntiRaid, you can focus on engaging with your
-					community while we handle the security, providing real-time defense against potential
-					threats. Invite AntiRaid today for reliable and effortless server protection.
-				</p>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-background to-background/80 text-foreground">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid-white/5 [mask-image:linear-gradient(to_bottom,transparent,black)]"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-background/80"></div>
 
-				<div className="p-3" />
+        <div className="container relative mx-auto px-4 py-24 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: isLoaded ? 1 : 0, y: isLoaded ? 0 : 20 }}
+            transition={{ duration: 0.5 }}
+            className="max-w-4xl"
+          >
+            <h1 className="text-5xl md:text-7xl font-monster font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary/80 to-extra">
+              About AntiRaid
+            </h1>
+            <p className="text-xl md:text-2xl font-cabin text-foreground/80 max-w-3xl">
+              Advanced protection for your Discord server with powerful, automated security features.
+            </p>
 
-				{/* Features Section */}
-				<section id="features">
-					<Breadcrumb Title="Features" Description="What do we have to offer?" />
+            <div className="mt-10 flex flex-wrap gap-4">
+              <button
+                onClick={() => ButtonFunc("Get Started")}
+                className="px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-md font-semibold transition-all shadow-[0_0_15px_rgba(var(--primary)/30%)] hover:shadow-[0_0_25px_rgba(var(--primary)/40%)]"
+              >
+                Get Started
+              </button>
+              <button
+                onClick={() => ButtonFunc("Learn More")}
+                className="px-6 py-3 bg-background/30 backdrop-blur-sm border border-primary/30 hover:border-primary/50 text-foreground rounded-md font-semibold transition-all"
+              >
+                Learn More
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      </section>
 
-					<div className="p-2" />
+      {/* About Section */}
+      <section className="py-16 container mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: isLoaded ? 1 : 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="max-w-3xl mx-auto text-center"
+        >
+          <h2 className="text-3xl md:text-4xl font-monster font-bold mb-6">Powerful Protection</h2>
+          <p className="text-lg text-foreground/80 leading-relaxed">
+            AntiRaid offers powerful, automated protection for your Discord server. Designed to combat spam, harmful
+            bots, and disruptive behavior, our advanced moderation technology ensures a safe and welcoming environment.
+            With AntiRaid, you can focus on engaging with your community while we handle the security, providing
+            real-time defense against potential threats.
+          </p>
+        </motion.div>
+      </section>
 
-					<center>
-						<dl className="space-y-4 md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-10 md:space-y-0">
-							<BotFeatures />
-						</dl>
-					</center>
-				</section>
+      {/* Features Section */}
+      <section id="features" className="py-16 bg-accent/5">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-monster font-bold mb-3">Features</h2>
+            <p className="text-lg text-foreground/70">What do we have to offer?</p>
+            <div className="w-20 h-1 bg-primary mx-auto mt-6"></div>
+          </div>
 
-				<div className="p-3" />
+          <div className="grid md:grid-cols-2 gap-8">
+            <FeatureCard
+              icon={<Archive className="w-6 h-6" />}
+              title="Customizable Backups"
+              description="AntiRaid offers you with customizable and downloadable server backups allowing you to both backup exactly what you need and control your server's data if you want to including local backups and restores!"
+              delay={0.3}
+              isLoaded={isLoaded}
+            />
+            <FeatureCard
+              icon={<Zap className="w-6 h-6" />}
+              title="Unrivaled Scripting"
+              description="Our scripting system, based on Luau, a superset of Lua created by Roblox, allows you to customize AntiRaid to the specific needs of your server instead of being yet another generic discord bot"
+              delay={0.4}
+              isLoaded={isLoaded}
+            />
+            <FeatureCard
+              icon={<Shield className="w-6 h-6" />}
+              title="Raid Prevention"
+              description="AntiRaid offers advanced raid protection with customizable lockdown settings to secure your server during a raid. Automatically prevent new members from joining, control access to specific channels, and receive instant alerts."
+              delay={0.5}
+              isLoaded={isLoaded}
+            />
+            <FeatureCard
+              icon={<User className="w-6 h-6" />}
+              title="User/Developer Friendly"
+              description="Unlike most other bots, AntiRaid provides an API for extensive control, allowing you to manage backups and settings, and export your data. This ensures flexibility and helps you avoid vendor-locking."
+              delay={0.6}
+              isLoaded={isLoaded}
+            />
+          </div>
+        </div>
+      </section>
 
-				{/* Partners Section */}
-				<section id="partners" className="w-full">
-					<Breadcrumb
-						Title="Partners"
-						Description="Take a look at our amazing partners, that help us stand where we are today!"
-					/>
+			{/* History Timeline Section */}
+      <HistoryTimeline />
 
-					<div className="p-2" />
+      {/* Partners Section */}
+      <section id="partners" className="py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-monster font-bold mb-3">Partners</h2>
+            <p className="text-lg text-foreground/70">
+              Take a look at our amazing partners, that help us stand where we are today!
+            </p>
+            <div className="w-20 h-1 bg-primary mx-auto mt-6"></div>
+          </div>
 
-					<Partners />
-				</section>
+          <Partners isLoaded={isLoaded} />
+        </div>
+      </section>
 
-				<div className="p-3" />
+      {/* Team Section */}
+      <section id="staff" className="py-16 bg-accent/5">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-monster font-bold mb-3">Meet the Team</h2>
+            <p className="text-lg text-foreground/70">
+              Interested in joining our team? Join our{" "}
+              <a href="/discord" className="text-primary font-bold hover:text-extra transition-colors">
+                Discord Server
+              </a>
+            </p>
+            <div className="w-20 h-1 bg-primary mx-auto mt-6"></div>
+          </div>
 
-				{/* Team Section */}
-				<section id="staff">
-					<Breadcrumb
-						Title="Meet the Team!"
-						Description="Interested in joining our team? Join our
-								<a
-									href='/discord'
-									className='text-purple-600 font-bold xl:inline hover:text-red-600'
-								>
-									Discord Server
-								</a>"
-					/>
+          <TeamMembers isLoaded={isLoaded} />
+        </div>
+      </section>
 
-					{/* Display Team Members */}
-					<TeamMembers />
-				</section>
+      {/* Style Guide Section */}
+      <section id="style-guide" className="py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-monster font-bold mb-3">Style Guide</h2>
+            <p className="text-lg text-foreground/70">
+              Information about our <span className="text-primary font-bold">Styling and Designing</span>.
+            </p>
+            <div className="w-20 h-1 bg-primary mx-auto mt-6"></div>
+          </div>
 
-				<div className="p-3" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <ColorPalette />
+            <Typography />
+            <Buttons />
+          </div>
+        </div>
+      </section>
 
-				{/* Design Guidelines */}
-				<Breadcrumb
-					Title="Style Guide"
-					Description="Information about our <span class='text-purple-600 font-bold'>Styling and Designing</span>."
-				></Breadcrumb>
+    </div>
+  )
+}
 
-				<section className="ml-6" id="design-guide">
-					<div className="flex flex-col gap-10">
-						<div className="flex justify-between flex-wrap  gap-10">
-							<div className="flex flex-1 flex-col gap-10">
-								{/* Color Palette */}
-								<div className="flex flex-col gap-3">
-									<h2 className="text-2xl font-inter font-semibold">Color Palette</h2>
-									<div className="flex flex-col gap-3 ml-[1rem]">
-										<div className="flex items-center gap-3">
-											<div className="rounded-full w-[50px]  border border-white border-opacity-10 h-[50px] bg-primary"></div>
-											<p className="font-inter font-normal">Brand #8100BD</p>
-										</div>
-										<div className="flex items-center gap-3">
-											<div className="rounded-full w-[50px]  border border-white border-opacity-10 h-[50px] bg-secondary "></div>
-											<p className="font-inter font-normal">Secondary #262428</p>
-										</div>
-										<div className="flex items-center gap-3">
-											<div className="rounded-full w-[50px]  border border-white border-opacity-10 h-[50px] bg-background"></div>
-											<p className="font-inter font-normal">Base #0A0118</p>
-										</div>
-										<div className="flex items-center gap-3">
-											<div className="rounded-full w-[50px]  border border-white border-opacity-10 h-[50px] bg-foreground"></div>
-											<p className="font-inter font-normal">Text #FAFAFA</p>
-										</div>
-										<div className="flex items-center gap-3">
-											<div className="rounded-full w-[50px]  border border-white border-opacity-10 h-[50px] bg-extra"></div>
-											<p className="font-inter font-normal">Extra #5046EF</p>
-										</div>
-									</div>
-								</div>
+// Feature Card Component
+type FeatureCardProps = {
+  icon: React.ReactNode
+  title: string
+  description: string
+  delay: number
+  isLoaded: boolean
+}
 
-								{/* Fonts */}
-								<div className="flex flex-col gap-3">
-									<h2 className="text-2xl font-inter font-semibold">Fonts</h2>
-									<div className="flex flex-col gap-3  ml-[1rem]">
-										{/* Inter */}
-										<p className="flex flex-col font-inter font-normal">
-											1. Inter
-											<span className="ml-7">
-												Bold - <br />{' '}
-												<span className="ml-4 font-bold">
-													The quick brown fox jumps over the lazy dog.!?#@:;
-												</span>
-											</span>
-											<span className="ml-7">
-												Medium - <br />{' '}
-												<span className="ml-4 font-medium">
-													The quick brown fox jumps over the lazy dog.!?#@:;
-												</span>
-											</span>
-											<span className="ml-7">
-												Thin - <br />{' '}
-												<span className="ml-4 font-thin">
-													The quick brown fox jumps over the lazy dog.!?#@:;
-												</span>
-											</span>
-										</p>
+const FeatureCard = ({ icon, title, description, delay, isLoaded }: FeatureCardProps) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: isLoaded ? 1 : 0, y: isLoaded ? 0 : 20 }}
+      transition={{ duration: 0.5, delay }}
+      className="bg-background/30 backdrop-blur-sm border border-primary/10 rounded-xl p-6 hover:border-primary/30 transition-all hover:shadow-[0_5px_15px_rgba(var(--primary)/10%)] group"
+    >
+      <div className="flex items-start">
+        <div className="flex-shrink-0 p-3 bg-primary/10 rounded-lg text-primary group-hover:bg-primary/20 transition-all">
+          {icon}
+        </div>
+        <div className="ml-5">
+          <h3 className="text-xl font-monster font-bold mb-2">{title}</h3>
+          <p className="text-foreground/70 leading-relaxed">{description}</p>
+        </div>
+      </div>
+    </motion.div>
+  )
+}
 
-										{/* Monster */}
-										<p className="flex flex-col font-monster font-normal">
-											2. Monster
-											<span className="ml-7">
-												Bold - <br />{' '}
-												<span className="ml-4 font-bold">
-													The quick brown fox jumps over the lazy dog.!?#@:;
-												</span>
-											</span>
-											<span className="ml-7">
-												Medium - <br />{' '}
-												<span className="ml-4 font-medium">
-													The quick brown fox jumps over the lazy dog.!?#@:;
-												</span>
-											</span>
-											<span className="ml-7">
-												Thin - <br />{' '}
-												<span className="ml-4 font-thin">
-													The quick brown fox jumps over the lazy dog.!?#@:;
-												</span>
-											</span>
-										</p>
+// Partners Component
+const Partners = ({ isLoaded }: { isLoaded: boolean }) => {
+  const partners: Partner[] = [
+    {
+      name: "Infinity List",
+      description: "Search our vast list of bots for an exciting start to your server.",
+      long_description:
+        "We make it easier for you to advertise and grow your bots using our vanity links, widgets, bot packs, and more!",
+      logo: "https://cdn.infinitybots.gg/core/full_logo.webp",
+      url: "https://infinitybots.gg/",
+      owner: "CodeMeAPixel",
+      owner_image: "https://res.cloudinary.com/dh30c3f52/image/upload/v1707465896/immhuag1zamm3juw2mn8.jpg",
+      owner_website: "https://codemeapixel.dev/",
+      links: [
+        {
+          name: "Website",
+          icon: <Globe className="w-5 h-5" />,
+          link: "https://infinitybots.gg/",
+        },
+        {
+          name: "Discord",
+          icon: <MessageSquare className="w-5 h-5" />,
+          link: "https://discord.com/invite/KBCRuBKrHe",
+        },
+      ],
+    },
+  ]
 
-										{/* Cabin*/}
-										<p className="flex flex-col font-cabin font-normal">
-											3. Cabin
-											<span className="ml-7">
-												Bold - <br />{' '}
-												<span className="ml-4 font-bold">
-													The quick brown fox jumps over the lazy dog.!?#@:;
-												</span>
-											</span>
-											<span className="ml-7">
-												Medium - <br />{' '}
-												<span className="ml-4 font-medium">
-													The quick brown fox jumps over the lazy dog.!?#@:;
-												</span>
-											</span>
-											<span className="ml-7">
-												Thin - <br />{' '}
-												<span className="ml-4 font-thin">
-													The quick brown fox jumps over the lazy dog.!?#@:;
-												</span>
-											</span>
-										</p>
-									</div>
-								</div>
-							</div>
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {partners.map((partner, index) => (
+        <motion.div
+          key={partner.name}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: isLoaded ? 1 : 0, y: isLoaded ? 0 : 20 }}
+          transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
+          className="bg-background/30 backdrop-blur-sm border border-primary/10 rounded-xl p-6 hover:border-primary/30 transition-all hover:shadow-[0_5px_15px_rgba(var(--primary)/10%)]"
+        >
+          <div className="flex items-center mb-4">
+            <img
+              src={partner.logo || "/placeholder.svg"}
+              alt={partner.name}
+              className="w-16 h-16 rounded-lg object-cover mr-4"
+            />
+            <div>
+              <h3 className="text-xl font-monster font-bold">{partner.name}</h3>
+              <p className="text-foreground/70 text-sm">{partner.description}</p>
+            </div>
+          </div>
 
-							<div className="flex flex-1 flex-col gap-10">
-								{/* Typography */}
-								<div className="flex flex-col gap-3">
-									<h2 className="text-2xl font-inter font-semibold">Typography</h2>
-									<div className="flex flex-col gap-3 ml-[1rem]">
-										<p className="font-normal font-monster text-[50px]">
-											<span className="font-bold ">Heading 1</span> - 50px
-										</p>
-										<p className="font-normal font-monster text-[38px]">
-											<span className="font-bold">Heading 2</span> - 38px
-										</p>
-										<p className="font-normal font-monster text-[32px]">
-											<span className="font-bold">Heading 3</span> - 32px
-										</p>
-										<p className="font-normal font-monster text-[28px]">
-											<span className="font-bold">Heading 4</span> - 28px
-										</p>
-										<p className="font-normal font-monster text-[22px]">
-											<span className="font-bold">Heading 5</span> - 22px
-										</p>
-										<p className="font-normal font-monster text-[20px]">
-											<span className="font-bold">Heading 6</span> - 20px
-										</p>
-										<p className="font-normal text-justify font-monster text-[14px]">
-											<span className="text-justify">
-												Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quam eveniet
-												repellendus et nesciunt esse sed autem, itaque deleniti dicta doloribus
-												quasi nihil molestias necessitatibus quisquam illum perferendis! Ranque,
-												dicta officia illum incidunt ran qui aliquam deserunt sint molestiae eaque,
-												dolorem nam soluta, suscipit dolorum veniam laborum eos repellat
-												consequuntur. Quidem laborum quos asperiores et voluptas neque suscipit qui
-												ab corrupti.
-											</span>{' '}
-											- 14px
-										</p>
-									</div>
-								</div>
+          <div className="mb-4 pb-4 border-b border-border/20">
+            <p className="text-foreground/80">{partner.long_description}</p>
+          </div>
 
-								{/* Unordered List */}
-								<div className="flex flex-col gap-3">
-									<h2 className="text-2xl font-monster font-semibold">Unordered List</h2>
-									<p className="text-sm font-normal">Font: Monster, Regular, 14px, color: Text</p>
-									<div className="flex flex-col gap-3  ml-[1rem]">
-										<ul className="list-disc font-monster font-normal  ml-5">
-											<li>Unordered List Item</li>
-											<li>Unordered List Item</li>
-											<li>Unordered List Item</li>
-										</ul>
-									</div>
-								</div>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <img
+                src={partner.owner_image || "/placeholder.svg"}
+                alt={partner.owner}
+                className="w-8 h-8 rounded-full mr-2"
+              />
+              <span className="text-sm text-foreground/70">{partner.owner}</span>
+            </div>
 
-								{/* Ordered List */}
-								<div className="flex flex-col gap-3">
-									<h2 className="text-2xl font-monster font-semibold">Ordered List</h2>
-									<p className="text-sm font-normal">Font: Monster, Regular, 14px, color: Text</p>
-									<div className="flex flex-col gap-3  ml-[1rem]">
-										<ol className="list-decimal font-monster font-normal ml-5">
-											<li>Ordered List Item</li>
-											<li>Ordered List Item</li>
-											<li>Ordered List Item</li>
-										</ol>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div className="w-full h-[1px] bg-white opacity-15"></div>
+            <div className="flex space-x-2">
+              {partner.links.map((link) => (
+                <a
+                  key={link.name}
+                  href={link.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 bg-background/50 rounded-full text-foreground/70 hover:text-primary transition-colors"
+                  title={link.name}
+                >
+                  {link.icon}
+                </a>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+      ))}
+    </div>
+  )
+}
 
-						{/* buttons */}
-						<div className="flex flex-col gap-5">
-							<h2 className="text-2xl font-monster font-semibold">Buttons</h2>
-							<div className="flex flex-row flex-wrap justify-between gap-5">
-								{/* Primary */}
-								<div className="flex flex-col gap-3">
-									<p className="text-sm font-normal">Font: Monster, Semibold, 18px, color: Text</p>
-									<div className="flex flex-col gap-3">
-										<div>
-											<Primary Title="Primary Button" onClick={() => ButtonFunc('Primary')} />
-										</div>
-									</div>
-								</div>
+// Team Members Component
+const TeamMembers = ({ isLoaded }: { isLoaded: boolean }) => {
+  const userIds = [
+    "728871946456137770",
+    "510065483693817867",
+    "775855009421066262",
+    "202560656883449856",
+    "1300319559844364338",
+    "564164277251080208",
+    "1275832535615537277",
+    "787241442770419722",
+  ]
 
-								{/* Secondary */}
-								<div className="flex flex-col gap-3">
-									<p className="text-sm font-normal">Font: Monster, Semibold, 18px, color: Text</p>
-									<div className="flex flex-col gap-3">
-										<div>
-											<Secondary Title="Secondary Button" onClick={() => ButtonFunc('Secondary')} />
-										</div>
-									</div>
-								</div>
+  const fetcher = async (userIds: string[]) => {
+    const data = await Promise.all(
+      userIds.map(async (id) => {
+        const response = await fetch(`https://japi.rest/discord/v1/user/${id}`)
+        const json = await response.json()
+        return json.data
+      }),
+    )
+    return data
+  }
 
-								{/* Ghost */}
-								<div className="flex flex-col gap-3">
-									<p className="text-sm font-normal">Font: Monster, Semibold, 18px, color: Text</p>
-									<div>
-										<Ghost Title="Ghost Button" onClick={() => ButtonFunc('Ghost')} />
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</section>
-			</section>
-		</>
-	);
-};
+  const { data: usersData, error, isLoading } = useSWR(userIds, fetcher)
 
-export default AboutLayout;
+  if (isLoading)
+    return (
+      <div className="text-center py-12">
+        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-primary border-r-transparent"></div>
+        <p className="mt-4 text-foreground/70">Loading team members...</p>
+      </div>
+    )
+
+  if (error)
+    return (
+      <div className="text-center py-12 text-destructive">
+        <p>Error loading team members</p>
+      </div>
+    )
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      {usersData?.map((user, index) => (
+        <motion.div
+          key={index}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: isLoaded ? 1 : 0, scale: isLoaded ? 1 : 0.95 }}
+          transition={{ duration: 0.5, delay: 0.2 + index * 0.05 }}
+          className="bg-background/30 backdrop-blur-sm border border-primary/10 rounded-xl p-4 hover:border-primary/30 transition-all hover:shadow-[0_5px_15px_rgba(var(--primary)/10%)] group"
+        >
+          <div className="flex flex-col items-center text-center">
+            <div className="relative mb-3">
+              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary to-extra opacity-0 group-hover:opacity-100 blur-md transition-opacity"></div>
+              <img
+                className="relative h-20 w-20 rounded-full object-cover border-2 border-primary/30 group-hover:border-primary/70 transition-all"
+                src={user.avatarURL || "/logo.webp"}
+                alt={`${user.global_name || user.username}'s Avatar`}
+              />
+            </div>
+            <h3 className="text-lg font-monster font-semibold leading-tight">{user.global_name || user.username}</h3>
+            <p className="text-sm text-foreground/60 mt-1">@{user.username}</p>
+          </div>
+        </motion.div>
+      ))}
+    </div>
+  )
+}
+
+// Style Guide Components
+const ColorPalette = () => {
+  const colors = [
+    { name: "Primary", class: "bg-primary" },
+    { name: "Secondary", class: "bg-secondary" },
+    { name: "Accent", class: "bg-accent" },
+    { name: "Background", class: "bg-background" },
+    { name: "Foreground", class: "bg-foreground" },
+  ]
+
+  return (
+    <div className="bg-background/30 backdrop-blur-sm border border-primary/10 rounded-xl p-6">
+      <h3 className="text-xl font-monster font-bold mb-4">Color Palette</h3>
+      <div className="space-y-3">
+        {colors.map((color) => (
+          <div key={color.name} className="flex items-center">
+            <div className={`w-10 h-10 rounded-md ${color.class} mr-3`}></div>
+            <span className="text-foreground/80">{color.name}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+const Typography = () => {
+  return (
+    <div className="bg-background/30 backdrop-blur-sm border border-primary/10 rounded-xl p-6">
+      <h3 className="text-xl font-monster font-bold mb-4">Typography</h3>
+      <div className="space-y-4">
+        <div>
+          <p className="text-sm text-foreground/70 mb-1">Heading</p>
+          <p className="font-monster font-bold text-xl">Montserrat</p>
+        </div>
+        <div>
+          <p className="text-sm text-foreground/70 mb-1">Body</p>
+          <p className="font-cabin">Cabin</p>
+        </div>
+        <div>
+          <p className="text-sm text-foreground/70 mb-1">Alternative</p>
+          <p className="font-inter">Inter</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const Buttons = () => {
+  return (
+    <div className="bg-background/30 backdrop-blur-sm border border-primary/10 rounded-xl p-6">
+      <h3 className="text-xl font-monster font-bold mb-4">Buttons</h3>
+      <div className="space-y-4">
+        <button className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-md font-semibold">
+          Primary Button
+        </button>
+        <button className="w-full px-4 py-2 bg-secondary text-secondary-foreground rounded-md font-semibold">
+          Secondary Button
+        </button>
+        <button className="w-full px-4 py-2 bg-background border border-primary/30 text-foreground rounded-md font-semibold">
+          Outline Button
+        </button>
+      </div>
+    </div>
+  )
+}
+
+export default AboutLayout

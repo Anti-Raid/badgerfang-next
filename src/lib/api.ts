@@ -13,6 +13,7 @@ import * as forumTypes from '@/types/forums/types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://splashtail-staging.antiraid.xyz';
 const FORUM_API_URL = 'https://potsypaw.purrquinox.com';
+const STRAPI_API_URL = 'https://strapi.purrquinox.com'
 
 const getAuthToken = (): string | null => {
 	if (typeof window !== 'undefined') {
@@ -40,12 +41,6 @@ axiosInstance.interceptors.request.use((config) => {
 	return config;
 });
 
-const fetcher = async (url: string) => {
-	const response = await axiosInstance.get(url);
-	return response.data;
-};
-
-// Replaced SWR hooks with regular functions
 export const getApiConfig = async (): Promise<ApiConfig> => {
 	const response = await axiosInstance.get('/config');
 	return response.data;
@@ -146,4 +141,16 @@ export const getForumPost = async (postId: string): Promise<forumTypes.posts[] |
 export const listForumUserPosts = async (tag: string): Promise<forumTypes.posts[] | Error> => {
 	const response = await axios.get(`${FORUM_API_URL}/users/list_posts?tag=${tag}`);
 	return response.data;
+};
+
+export const fetchStrapiBlogs = async (): Promise<any> => {
+		const response = await axios.get(
+			`${STRAPI_API_URL}/api/blogs?populate[author][populate]=avatar&populate[image]=true`,
+			{
+				headers: {
+					Authorization: `Bearer 17f20a5f7c6d039fe839e38c944d7d435b41ba3968f389df28725652c4e6e10779f7c9fd4f146554ab86a967e81a90dec350ab1f348ffc9582115aacab3e4bb29ed36e49f2e218ea9a7978369ff2f27cb175c9fb560cb46534ff2c83f2e32bfff208fd43b468e557125dba1ccb4761b18b5b4bab84ff655a1d3cb921591bfe7d`
+				}
+			}
+		);
+		return response.data;
 };

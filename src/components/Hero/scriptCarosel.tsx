@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiChevronLeft, FiBox, FiChevronRight } from 'react-icons/fi';
+import { FiChevronLeft, FiBox, FiChevronRight, FiPackage, FiZap, FiShield } from 'react-icons/fi';
 import { CommonCard } from '../scripts/ScriptCard';
 import { anonexecuteSettings } from '@/lib/api';
 import type { TemplateShopProps } from '@/types/script';
@@ -13,6 +13,7 @@ export const TemplateCarousel = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [currentPage, setCurrentPage] = useState(0);
 	const [viewportWidth, setViewportWidth] = useState(0);
+	const [isHovering, setIsHovering] = useState(false);
 
 	useEffect(() => {
 		const fetchTemplates = async () => {
@@ -77,61 +78,88 @@ export const TemplateCarousel = () => {
 	};
 
 	const buttonVariants = {
+		initial: {
+			scale: 1,
+			boxShadow: "0px 0px 0px rgba(var(--primary), 0.3)"
+		},
 		hover: {
 			scale: 1.05,
-			boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-			transition: { duration: 0.2 }
+			boxShadow: "0px 0px 20px rgba(var(--primary), 0.5)",
+			transition: { duration: 0.2, type: "spring", stiffness: 400 }
 		},
 		tap: {
 			scale: 0.95,
-			boxShadow: '0 5px 15px -5px rgba(0, 0, 0, 0.1), 0 5px 5px -5px rgba(0, 0, 0, 0.04)',
+			boxShadow: "0px 0px 5px rgba(var(--primary), 0.3)",
 			transition: { duration: 0.1 }
 		}
 	};
 
 	return (
-		<section className="py-20 relative overflow-hidden">
-			{/* Background elements */}
-			<div className="absolute -top-24 -left-24 w-64 h-64 rounded-full blur-3xl"></div>
-			<div className="absolute bottom-0 right-0 w-96 h-96 rounded-full blur-3xl"></div>
+		<section className="py-24 relative overflow-hidden bg-gradient-to-b from-background to-background/95">
+			{/* Animated background elements */}
+			<div className="absolute inset-0 overflow-hidden pointer-events-none">
+				<div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-primary/5 blur-[120px] animate-pulse" style={{ animationDuration: '15s' }}></div>
+				<div className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full bg-accent/5 blur-[150px] animate-pulse" style={{ animationDuration: '20s' }}></div>
+				
+				{/* Cyberpunk grid overlay */}
+				<div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9InN2ZyIgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48cGF0aCBkPSJNNCAwaDYwdjYwSDB6Ii8+PHBhdGggZD0iTTYwIDBIMH Y2MGg2MFYweiBNNTkgMUgxdjU4aDU4VjF6IiBmaWxsPSIjMjcyNTNGIiBmaWxsLW9wYWNpdHk9Ii4wNSIvPjxwYXRoIGQ9Ik02MCAwSDB2NjBoNjBWMEgiIHN0cm9rZT0iIzI3MjUzRiIgc3Ryb2tlLW9wYWNpdHk9Ii4wMiIvPjwvZz48L3N2Zz4=')] opacity-20"></div>
+			</div>
 
-			<div className="container mx-auto px-4 relative">
+			<div className="container mx-auto px-4 relative z-10">
 				{/* Section header */}
-				<div className="text-center mb-16 relative">
-					<div className="absolute top-1/2 left-1/4 w-32 h-32 rounded-full blur-3xl -z-10"></div>
-					<div className="absolute top-1/2 right-1/4 w-32 h-32 rounded-full blur-3xl -z-10"></div>
-
-					<div className="inline-flex items-center gap-4 mb-4">
-						<span className="h-px w-8 bg-gradient-to-r to-primary from-transparent"></span>
-						<motion.span
-							initial={{ opacity: 0, y: 10 }}
-							animate={{ opacity: 1, y: 0 }}
-							transition={{ duration: 0.5 }}
-							className="text-sm text-primary/80 font-monster uppercase tracking-wider"
-						>
-							Scripts
-						</motion.span>
-						<span className="h-px w-8 bg-gradient-to-l to-primary from-transparent"></span>
-					</div>
+				<motion.div 
+					initial={{ opacity: 0, y: 30 }}
+					whileInView={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.6 }}
+					viewport={{ once: true, margin: "-100px" }}
+					className="text-center mb-16 relative"
+				>
+					<motion.div 
+						initial={{ width: 0, opacity: 0 }}
+						whileInView={{ width: "auto", opacity: 1 }}
+						transition={{ duration: 0.8 }}
+						viewport={{ once: true }}
+						className="inline-flex items-center gap-4 px-6 py-2 rounded-full bg-primary/10 backdrop-blur-sm border border-primary/20 mb-8 shadow-lg shadow-primary/5"
+					>
+						<span className="h-px w-5 bg-gradient-to-r from-transparent to-primary"></span>
+						<span className="text-primary/90 font-monster text-sm font-medium tracking-wider uppercase">Premium Scripts</span>
+						<span className="h-px w-5 bg-gradient-to-r from-primary to-transparent"></span>
+					</motion.div>
 
 					<motion.h2
 						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.5, delay: 0.1 }}
-						className="text-4xl md:text-5xl font-bold mb-6 font-monster"
+						whileInView={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.5, delay: 0.2 }}
+						viewport={{ once: true }}
+						className="text-4xl md:text-6xl font-bold mb-6 font-monster"
 					>
-						Browse Our <span className="text-primary">Amazing</span> Scripts that our community has
-						made to tailor your server needs
+						Customize Your <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Protection</span> Experience
 					</motion.h2>
-				</div>
+					
+					<motion.p
+						initial={{ opacity: 0, y: 20 }}
+						whileInView={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.5, delay: 0.3 }}
+						viewport={{ once: true }}
+						className="max-w-3xl mx-auto text-muted-foreground text-lg md:text-xl"
+					>
+						Explore our community-made scripts to enhance your server security and moderation
+					</motion.p>
+				</motion.div>
 
 				{/* Loading spinner */}
 				{isLoading && (
 					<div className="flex justify-center items-center h-64">
 						<motion.div
-							animate={{ rotate: 360 }}
-							transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
-							className="rounded-full h-12 w-12 border-4 border-primary/30 border-t-primary"
+							animate={{ 
+								rotate: 360,
+								boxShadow: ["0 0 5px rgba(var(--primary), 0.5)", "0 0 20px rgba(var(--primary), 0.5)", "0 0 5px rgba(var(--primary), 0.5)"]
+							}}
+							transition={{ 
+								rotate: { duration: 1.5, repeat: Infinity, ease: 'linear' },
+								boxShadow: { duration: 2, repeat: Infinity, ease: 'easeInOut' }
+							}}
+							className="rounded-full h-16 w-16 border-4 border-primary/30 border-t-primary"
 						></motion.div>
 					</div>
 				)}
@@ -141,45 +169,71 @@ export const TemplateCarousel = () => {
 					<motion.div
 						initial={{ opacity: 0, y: 10 }}
 						animate={{ opacity: 1, y: 0 }}
-						className="bg-destructive/10 text-destructive p-4 rounded-lg mb-8 border border-destructive/20"
+						className="bg-destructive/10 text-destructive p-6 rounded-xl mb-8 border border-destructive/20 backdrop-blur-sm shadow-lg"
 					>
-						{error}
+						<div className="flex items-center gap-3">
+							<FiShield className="w-6 h-6" />
+							<p className="font-medium">{error}</p>
+						</div>
 					</motion.div>
 				)}
 
 				{/* Carousel */}
 				{!isLoading && templates.length > 0 && (
-					<div className="relative">
+					<div className="relative" onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>
 						{/* Top Navigation */}
-						<div className="flex justify-between items-center mb-8 md:mb-12">
-							<h3 className="text-xl font-semibold text-foreground/80 font-monster">
+						<motion.div 
+							initial={{ opacity: 0, y: 20 }}
+							whileInView={{ opacity: 1, y: 0 }}
+							transition={{ duration: 0.5 }}
+							viewport={{ once: true }}
+							className="flex justify-between items-center mb-10 md:mb-12"
+						>
+							<motion.h3 
+								initial={{ opacity: 0, x: -20 }}
+								animate={{ opacity: 1, x: 0 }}
+								transition={{ delay: 0.2 }}
+								className="text-2xl font-bold text-foreground/90 font-monster flex items-center gap-3"
+							>
+								<FiPackage className="text-primary" />
 								Popular Scripts
-								<span className="ml-2 text-sm text-muted-foreground">({templates.length})</span>
-							</h3>
+								<motion.span 
+									initial={{ opacity: 0, scale: 0 }}
+									animate={{ opacity: 1, scale: 1 }}
+									transition={{ delay: 0.4, type: "spring" }}
+									className="ml-2 text-sm px-3 py-1 bg-primary/10 text-primary rounded-full font-medium"
+								>
+									{templates.length}
+								</motion.span>
+							</motion.h3>
 
-							<div className="flex gap-2">
+							<div className="flex gap-3">
 								<motion.button
 									variants={buttonVariants}
+									initial="initial"
 									whileHover="hover"
 									whileTap="tap"
 									onClick={prev}
-									className="p-3 rounded-full bg-card hover:bg-secondary text-foreground transition-colors duration-300 border border-border shadow-sm"
+									className="p-4 rounded-xl bg-card hover:bg-secondary text-foreground transition-colors duration-300 border border-border shadow-md relative overflow-hidden group"
 									aria-label="Previous"
 								>
-									<FiChevronLeft className="w-5 h-5" />
+									<div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+									<FiChevronLeft className="w-5 h-5 relative z-10" />
 								</motion.button>
 								<motion.button
 									variants={buttonVariants}
+									initial="initial"
 									whileHover="hover"
 									whileTap="tap"
 									onClick={next}
-									className="p-3 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground transition-colors duration-300 shadow-sm"
+									className="p-4 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground transition-colors duration-300 shadow-md relative overflow-hidden group"
 									aria-label="Next"
 								>
-									<FiChevronRight className="w-5 h-5" />
+									<div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-accent/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+									<FiChevronRight className="w-5 h-5 relative z-10" />
 								</motion.button>
 							</div>
-						</div>
+						</motion.div>
 
 						{/* Carousel items */}
 						<div className="relative overflow-hidden">
@@ -189,15 +243,19 @@ export const TemplateCarousel = () => {
 									initial={{ opacity: 0, x: 20 }}
 									animate={{ opacity: 1, x: 0 }}
 									exit={{ opacity: 0, x: -20 }}
-									transition={{ duration: 0.4, ease: 'easeInOut' }}
+									transition={{ duration: 0.5, ease: 'easeInOut' }}
 									className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8"
 								>
 									{getVisibleTemplates().map((template, idx) => (
 										<motion.div
 											key={template.id}
-											initial={{ opacity: 0, y: 20 }}
+											initial={{ opacity: 0, y: 30 }}
 											animate={{ opacity: 1, y: 0 }}
-											transition={{ duration: 0.4, delay: idx * 0.1 }}
+											transition={{ duration: 0.5, delay: idx * 0.1 }}
+											whileHover={{ 
+												y: -10,
+												transition: { duration: 0.3, type: "spring", stiffness: 300 }
+											}}
 										>
 											<CommonCard template={template} />
 										</motion.div>
@@ -207,20 +265,27 @@ export const TemplateCarousel = () => {
 						</div>
 
 						{/* Carousel dots */}
-						<div className="flex justify-center mt-10 gap-3">
+						<motion.div 
+							initial={{ opacity: 0, y: 20 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ duration: 0.5, delay: 0.3 }}
+							className="flex justify-center mt-12 gap-3"
+						>
 							{Array.from({ length: totalPages }).map((_, i) => (
 								<motion.button
 									key={i}
 									onClick={() => setCurrentPage(i)}
 									whileHover={{ scale: 1.2 }}
 									whileTap={{ scale: 0.9 }}
-									className={`w-2 h-2 rounded-full transition-all duration-300 ${
-										i === currentPage ? 'w-6 bg-primary' : 'bg-muted hover:bg-primary/50'
+									className={`h-2 rounded-full transition-all duration-500 ${
+										i === currentPage 
+											? 'w-10 bg-gradient-to-r from-primary to-accent shadow-lg shadow-primary/30' 
+											: 'w-2 bg-muted hover:bg-primary/50'
 									}`}
 									aria-label={`Go to slide ${i + 1}`}
 								/>
 							))}
-						</div>
+						</motion.div>
 					</div>
 				)}
 
@@ -230,10 +295,32 @@ export const TemplateCarousel = () => {
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ duration: 0.5 }}
-						className="flex flex-col items-center justify-center h-64 bg-card rounded-lg border border-border p-6 text-center"
+						className="flex flex-col items-center justify-center h-64 bg-card rounded-xl border border-border p-8 text-center backdrop-blur-sm shadow-xl"
 					>
-						<FiBox className="w-12 h-12 text-muted-foreground mb-4" />
-						<p className="text-muted-foreground text-lg">No templates found.</p>
+						<motion.div
+							initial={{ scale: 0 }}
+							animate={{ scale: 1 }}
+							transition={{ type: "spring", stiffness: 400, delay: 0.2 }}
+							className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-6"
+						>
+							<FiBox className="w-10 h-10 text-primary" />
+						</motion.div>
+						<motion.p 
+							initial={{ opacity: 0, y: 10 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ delay: 0.3 }}
+							className="text-muted-foreground text-xl font-medium"
+						>
+							No templates found
+						</motion.p>
+						<motion.p
+							initial={{ opacity: 0, y: 10 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ delay: 0.4 }}
+							className="text-muted-foreground/70 mt-2"
+						>
+							Check back later for new scripts
+						</motion.p>
 					</motion.div>
 				)}
 			</div>
