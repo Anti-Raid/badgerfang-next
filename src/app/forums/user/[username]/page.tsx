@@ -7,9 +7,9 @@ import type { users, posts } from '@/types/forums/types';
 import ProfileLayout from '@/components/forums/profileLayout';
 
 /**
- * Renders a user profile page for a forum application, displaying user information and their posts.
+ * Displays a forum user's profile page, including their information and posts.
  *
- * Retrieves the username from the URL, fetches the corresponding user data and posts, and handles loading and error states. If the user is not found or an error occurs during data fetching, a 404 page is displayed.
+ * Fetches user data and posts based on the username from the URL, handling loading and error states. If the user does not exist or an error occurs, a 404 page is shown.
  */
 export default function UserProfilePage() {
 	const { username } = useParams();

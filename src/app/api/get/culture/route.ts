@@ -1,5 +1,10 @@
 import { NextRequest } from 'next/server'
 
+/**
+ * Handles GET requests to provide holiday or seasonal event information for the current date.
+ *
+ * Returns a JSON response containing the ISO date string and either event metadata with themed asset paths if a holiday or season is detected, or a default message and asset paths if not.
+ */
 export async function GET(req: NextRequest) {
   const today = new Date()
   const eventInfo = getHolidayOrSeason(today)
@@ -34,7 +39,13 @@ interface EventInfo {
 }
 
 /**
- * Returns holiday or seasonal metadata for a given date, or null.
+ * Determines if the given date matches a predefined holiday or seasonal event and returns its metadata.
+ *
+ * @param date - The date to check for a matching event.
+ * @returns An {@link EventInfo} object with event details if the date matches a holiday or season, or null if there is no match.
+ *
+ * @remark
+ * Chinese New Year is only recognized for the years 2026–2030, based on hardcoded dates.
  */
 function getHolidayOrSeason(date: Date): EventInfo | null {
   const month = date.getMonth() + 1
@@ -124,11 +135,12 @@ function getHolidayOrSeason(date: Date): EventInfo | null {
 }
 
 /**
- * Checks if a date is the nth occurrence of a particular weekday in its month.
+ * Determines whether the given date is the nth occurrence of a specified weekday within its month.
  *
- * @param date    – The date to evaluate
- * @param nth     – The occurrence count (e.g. 4th)
- * @param weekday – 0=Sunday … 6=Saturday
+ * @param date - The date to check.
+ * @param nth - The occurrence number (e.g., 4 for the fourth occurrence).
+ * @param weekday - The target weekday (0 for Sunday through 6 for Saturday).
+ * @returns True if {@link date} is the nth occurrence of {@link weekday} in its month; otherwise, false.
  */
 function isNthWeekdayOfMonth(
   date: Date,
