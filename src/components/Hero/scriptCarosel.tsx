@@ -80,16 +80,16 @@ export const TemplateCarousel = () => {
 	const buttonVariants = {
 		initial: {
 			scale: 1,
-			boxShadow: "0px 0px 0px rgba(var(--primary), 0.3)"
+			boxShadow: '0px 0px 0px rgba(var(--primary), 0.3)'
 		},
 		hover: {
 			scale: 1.05,
-			boxShadow: "0px 0px 20px rgba(var(--primary), 0.5)",
-			transition: { duration: 0.2, type: "spring", stiffness: 400 }
+			boxShadow: '0px 0px 20px rgba(var(--primary), 0.5)',
+			transition: { duration: 0.2, type: 'spring', stiffness: 400 }
 		},
 		tap: {
 			scale: 0.95,
-			boxShadow: "0px 0px 5px rgba(var(--primary), 0.3)",
+			boxShadow: '0px 0px 5px rgba(var(--primary), 0.3)',
 			transition: { duration: 0.1 }
 		}
 	};
@@ -98,31 +98,39 @@ export const TemplateCarousel = () => {
 		<section className="py-24 relative overflow-hidden bg-gradient-to-b from-background to-background/95">
 			{/* Animated background elements */}
 			<div className="absolute inset-0 overflow-hidden pointer-events-none">
-				<div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-primary/5 blur-[120px] animate-pulse" style={{ animationDuration: '15s' }}></div>
-				<div className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full bg-accent/5 blur-[150px] animate-pulse" style={{ animationDuration: '20s' }}></div>
-				
+				<div
+					className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-primary/5 blur-[120px] animate-pulse"
+					style={{ animationDuration: '15s' }}
+				></div>
+				<div
+					className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full bg-accent/5 blur-[150px] animate-pulse"
+					style={{ animationDuration: '20s' }}
+				></div>
+
 				{/* Cyberpunk grid overlay */}
 				<div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9InN2ZyIgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48cGF0aCBkPSJNNCAwaDYwdjYwSDB6Ii8+PHBhdGggZD0iTTYwIDBIMH Y2MGg2MFYweiBNNTkgMUgxdjU4aDU4VjF6IiBmaWxsPSIjMjcyNTNGIiBmaWxsLW9wYWNpdHk9Ii4wNSIvPjxwYXRoIGQ9Ik02MCAwSDB2NjBoNjBWMEgiIHN0cm9rZT0iIzI3MjUzRiIgc3Ryb2tlLW9wYWNpdHk9Ii4wMiIvPjwvZz48L3N2Zz4=')] opacity-20"></div>
 			</div>
 
 			<div className="container mx-auto px-4 relative z-10">
 				{/* Section header */}
-				<motion.div 
+				<motion.div
 					initial={{ opacity: 0, y: 30 }}
 					whileInView={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.6 }}
-					viewport={{ once: true, margin: "-100px" }}
+					viewport={{ once: true, margin: '-100px' }}
 					className="text-center mb-16 relative"
 				>
-					<motion.div 
+					<motion.div
 						initial={{ width: 0, opacity: 0 }}
-						whileInView={{ width: "auto", opacity: 1 }}
+						whileInView={{ width: 'auto', opacity: 1 }}
 						transition={{ duration: 0.8 }}
 						viewport={{ once: true }}
 						className="inline-flex items-center gap-4 px-6 py-2 rounded-full bg-primary/10 backdrop-blur-sm border border-primary/20 mb-8 shadow-lg shadow-primary/5"
 					>
 						<span className="h-px w-5 bg-gradient-to-r from-transparent to-primary"></span>
-						<span className="text-primary/90 font-monster text-sm font-medium tracking-wider uppercase">Premium Scripts</span>
+						<span className="text-primary/90 font-monster text-sm font-medium tracking-wider uppercase">
+							Premium Scripts
+						</span>
 						<span className="h-px w-5 bg-gradient-to-r from-primary to-transparent"></span>
 					</motion.div>
 
@@ -133,9 +141,13 @@ export const TemplateCarousel = () => {
 						viewport={{ once: true }}
 						className="text-4xl md:text-6xl font-bold mb-6 font-monster"
 					>
-						Customize Your <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Protection</span> Experience
+						Customize Your{' '}
+						<span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+							Protection
+						</span>{' '}
+						Experience
 					</motion.h2>
-					
+
 					<motion.p
 						initial={{ opacity: 0, y: 20 }}
 						whileInView={{ opacity: 1, y: 0 }}
@@ -151,11 +163,15 @@ export const TemplateCarousel = () => {
 				{isLoading && (
 					<div className="flex justify-center items-center h-64">
 						<motion.div
-							animate={{ 
+							animate={{
 								rotate: 360,
-								boxShadow: ["0 0 5px rgba(var(--primary), 0.5)", "0 0 20px rgba(var(--primary), 0.5)", "0 0 5px rgba(var(--primary), 0.5)"]
+								boxShadow: [
+									'0 0 5px rgba(var(--primary), 0.5)',
+									'0 0 20px rgba(var(--primary), 0.5)',
+									'0 0 5px rgba(var(--primary), 0.5)'
+								]
 							}}
-							transition={{ 
+							transition={{
 								rotate: { duration: 1.5, repeat: Infinity, ease: 'linear' },
 								boxShadow: { duration: 2, repeat: Infinity, ease: 'easeInOut' }
 							}}
@@ -180,16 +196,20 @@ export const TemplateCarousel = () => {
 
 				{/* Carousel */}
 				{!isLoading && templates.length > 0 && (
-					<div className="relative" onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>
+					<div
+						className="relative"
+						onMouseEnter={() => setIsHovering(true)}
+						onMouseLeave={() => setIsHovering(false)}
+					>
 						{/* Top Navigation */}
-						<motion.div 
+						<motion.div
 							initial={{ opacity: 0, y: 20 }}
 							whileInView={{ opacity: 1, y: 0 }}
 							transition={{ duration: 0.5 }}
 							viewport={{ once: true }}
 							className="flex justify-between items-center mb-10 md:mb-12"
 						>
-							<motion.h3 
+							<motion.h3
 								initial={{ opacity: 0, x: -20 }}
 								animate={{ opacity: 1, x: 0 }}
 								transition={{ delay: 0.2 }}
@@ -197,10 +217,10 @@ export const TemplateCarousel = () => {
 							>
 								<FiPackage className="text-primary" />
 								Popular Scripts
-								<motion.span 
+								<motion.span
 									initial={{ opacity: 0, scale: 0 }}
 									animate={{ opacity: 1, scale: 1 }}
-									transition={{ delay: 0.4, type: "spring" }}
+									transition={{ delay: 0.4, type: 'spring' }}
 									className="ml-2 text-sm px-3 py-1 bg-primary/10 text-primary rounded-full font-medium"
 								>
 									{templates.length}
@@ -252,9 +272,9 @@ export const TemplateCarousel = () => {
 											initial={{ opacity: 0, y: 30 }}
 											animate={{ opacity: 1, y: 0 }}
 											transition={{ duration: 0.5, delay: idx * 0.1 }}
-											whileHover={{ 
+											whileHover={{
 												y: -10,
-												transition: { duration: 0.3, type: "spring", stiffness: 300 }
+												transition: { duration: 0.3, type: 'spring', stiffness: 300 }
 											}}
 										>
 											<CommonCard template={template} />
@@ -265,7 +285,7 @@ export const TemplateCarousel = () => {
 						</div>
 
 						{/* Carousel dots */}
-						<motion.div 
+						<motion.div
 							initial={{ opacity: 0, y: 20 }}
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ duration: 0.5, delay: 0.3 }}
@@ -278,8 +298,8 @@ export const TemplateCarousel = () => {
 									whileHover={{ scale: 1.2 }}
 									whileTap={{ scale: 0.9 }}
 									className={`h-2 rounded-full transition-all duration-500 ${
-										i === currentPage 
-											? 'w-10 bg-gradient-to-r from-primary to-accent shadow-lg shadow-primary/30' 
+										i === currentPage
+											? 'w-10 bg-gradient-to-r from-primary to-accent shadow-lg shadow-primary/30'
 											: 'w-2 bg-muted hover:bg-primary/50'
 									}`}
 									aria-label={`Go to slide ${i + 1}`}
@@ -300,12 +320,12 @@ export const TemplateCarousel = () => {
 						<motion.div
 							initial={{ scale: 0 }}
 							animate={{ scale: 1 }}
-							transition={{ type: "spring", stiffness: 400, delay: 0.2 }}
+							transition={{ type: 'spring', stiffness: 400, delay: 0.2 }}
 							className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-6"
 						>
 							<FiBox className="w-10 h-10 text-primary" />
 						</motion.div>
-						<motion.p 
+						<motion.p
 							initial={{ opacity: 0, y: 10 }}
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ delay: 0.3 }}

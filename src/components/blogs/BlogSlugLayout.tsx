@@ -28,39 +28,39 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 	const [relatedBlogs, setRelatedBlogs] = useState<Blog[]>([]);
 	const [copied, setCopied] = useState(false);
 
-useEffect(() => {
-  const fetchBlog = async () => {
-    try {
-      const response = await fetchStrapiBlogs();
-      // Access the data array inside the response
-      const data = response.data;
+	useEffect(() => {
+		const fetchBlog = async () => {
+			try {
+				const response = await fetchStrapiBlogs();
+				// Access the data array inside the response
+				const data = response.data;
 
-      const foundBlog = data.find((b: any) => b.slug === slug);
+				const foundBlog = data.find((b: any) => b.slug === slug);
 
-      if (foundBlog) {
-        setBlog(foundBlog);
+				if (foundBlog) {
+					setBlog(foundBlog);
 
-        if (foundBlog.tags && foundBlog.tags.length > 0) {
-          const related = data
-            .filter(
-              (b: any) => b.slug !== slug && b.tags?.some((tag: any) => foundBlog.tags?.includes(tag))
-            )
-            .slice(0, 2);
-          setRelatedBlogs(related);
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching blog:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+					if (foundBlog.tags && foundBlog.tags.length > 0) {
+						const related = data
+							.filter(
+								(b: any) =>
+									b.slug !== slug && b.tags?.some((tag: any) => foundBlog.tags?.includes(tag))
+							)
+							.slice(0, 2);
+						setRelatedBlogs(related);
+					}
+				}
+			} catch (error) {
+				console.error('Error fetching blog:', error);
+			} finally {
+				setIsLoading(false);
+			}
+		};
 
-  if (slug) {
-    fetchBlog();
-  }
-}, [slug]);
-
+		if (slug) {
+			fetchBlog();
+		}
+	}, [slug]);
 
 	const shareArticle = () => {
 		if (navigator.share) {
