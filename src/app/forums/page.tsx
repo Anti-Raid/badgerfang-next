@@ -10,9 +10,9 @@ export const metadata: Metadata = generateFourmsMetadata({
 });
 
 /**
- * Retrieves the list of forum posts, returning an empty array if an error occurs.
+ * Fetches forum posts, returning an empty array if fetching fails or an error is encountered.
  *
- * @returns An array of forum posts, or an empty array if fetching fails.
+ * @returns An array of forum posts, or an empty array on failure.
  */
 async function getPosts() {
 	try {
@@ -29,9 +29,9 @@ async function getPosts() {
 }
 
 /**
- * Renders the forums feed page with the latest community posts.
+ * Displays the community forums feed page with the latest posts.
  *
- * Fetches forum posts and displays them in the {@link FeedLayout} component with a title and description.
+ * Retrieves forum posts and renders them in the {@link FeedLayout} component with a title and description.
  */
 export default async function ForumsPage() {
 	const posts = await getPosts();

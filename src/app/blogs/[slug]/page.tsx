@@ -6,9 +6,9 @@ import type { Metadata } from 'next';
 import { website_url } from '@/components/common';
 
 /**
- * Generates metadata for a blog post page using the provided slug.
+ * Generates metadata for a blog post page based on the provided slug.
  *
- * If a blog post matching the slug exists, returns metadata including the post's title, description, tags as keywords, image URL if present, and a canonical URL. If no matching post is found, returns fallback metadata indicating the post was not found.
+ * Fetches blog data and returns metadata for the matching post, or fallback metadata if the post does not exist.
  *
  * @param params - Promise resolving to an object containing the blog post slug.
  * @returns Metadata for the specified blog post, or fallback metadata if not found.

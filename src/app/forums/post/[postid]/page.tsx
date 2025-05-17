@@ -7,9 +7,11 @@ import type { posts } from '@/types/forums/types';
 import PostDetail from '@/components/forums/postsLayout';
 
 /**
- * Displays a forum post based on the dynamic `postid` route parameter.
+ * Renders a forum post page based on the dynamic `postid` route parameter.
  *
- * Fetches post data using the `postid` from the URL, handles loading and error states, and renders the post details. If the post is not found or an error occurs, triggers a 404 page.
+ * Fetches the post data using the `postid` from the URL, manages loading and error states, and displays the post details. If the post is not found or an error occurs, a 404 page is triggered.
+ *
+ * @remark Triggers Next.js's 404 page if the `postid` is invalid or the post cannot be fetched.
  */
 export default function PostPage() {
 	const { postid } = useParams();
