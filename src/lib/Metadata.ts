@@ -258,10 +258,11 @@ export function generateDeveloperDashboardMetadata(params: GenerateMetadataParam
 }
 
 /**
- * Generates a Next.js Metadata object for the Settings Validator page with default or overridden title, description, image, keywords, and canonical URL.
+ * Generates Next.js metadata for the Settings Validator page with default values and optional overrides.
  *
- * @param params - Optional overrides for title, description, imageUrl, keywords, and canonicalUrl.
- * @returns The constructed Metadata object for the Settings Validator page.
+ * Applies default title, description, image, and keywords for the Settings Validator page, allowing customization through the provided parameters.
+ *
+ * @returns Metadata for the Settings Validator page.
  */
 export function generateSettingsValidatorMetadata(params: GenerateMetadataParams = {}): Metadata {
 	return generateMetadata({
@@ -274,9 +275,11 @@ export function generateSettingsValidatorMetadata(params: GenerateMetadataParams
 }
 
 /**
- * Generates metadata for the home page with default title, description, image, and keywords.
+ * Generates Next.js metadata for the home page with default values and optional overrides.
  *
- * @returns A Next.js Metadata object for the home page.
+ * Applies default title, description, image, and keywords for the home page, allowing customization through the provided parameters.
+ *
+ * @returns A Metadata object for the home page.
  */
 export function generateHomeMetadata(params: GenerateMetadataParams = {}): Metadata {
 	return generateMetadata({
@@ -286,4 +289,42 @@ export function generateHomeMetadata(params: GenerateMetadataParams = {}): Metad
 		keywords: params.keywords?.length ? params.keywords : ['Home', 'Antiraid'],
 		Url: params.canonicalUrl
 	});
+}
+
+/**
+ * Generates Next.js metadata for the Forums page with default values and optional overrides.
+ *
+ * @returns A Metadata object configured for the Forums page.
+ */
+export function generateFourmsMetadata(params: GenerateMetadataParams = {}): Metadata {
+	return generateMetadata({
+		title: 'Forums',
+		description:
+			'Welcome to Antiraids Forums! Where you can ask support questions and get help from the community.',
+		image: params.imageUrl ?? defaultImage,
+		keywords: params.keywords?.length ? params.keywords : ['Forums', 'Antiraid'],
+		Url: params.canonicalUrl
+	});
+}
+
+/**
+ * Generates Next.js metadata for a forum post page with default values and optional overrides.
+ *
+ * Prepends "Forum Post" to the keywords array and uses fallback values for title and description if not provided.
+ *
+ * @param params - Optional overrides for the forum post's title, description, image URL, keywords, and canonical URL.
+ * @returns A {@link Metadata} object for the forum post page.
+ */
+export function generateForumPostMetadata(params: GenerateMetadataParams): Metadata {
+	const { title, description, imageUrl, keywords = [], canonicalUrl } = params;
+
+	const blogDefaults = {
+		title: title || 'Forum Post',
+		description: description || 'Read the latest news and updates.',
+		image: imageUrl,
+		keywords: ['Forum Post', ...keywords],
+		Url: canonicalUrl
+	};
+
+	return generateMetadata(blogDefaults);
 }

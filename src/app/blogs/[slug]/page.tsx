@@ -3,14 +3,15 @@ import BlogSlugLayout from '@/components/blogs/BlogSlugLayout';
 import type { Blog } from '@/types/blogs';
 import { generateBlogMetadata } from '@/lib/Metadata';
 import type { Metadata } from 'next';
+import { website_url } from '@/components/common';
 
 /**
- * Returns metadata for a blog post page based on the provided slug.
+ * Generates metadata for a blog post page based on the provided slug.
  *
- * If a matching blog post is found, the metadata includes the post's title, description, tags as keywords, image URL if available, and a canonical URL. If no post matches the slug, fallback metadata is returned indicating the post was not found.
+ * Fetches blog data and returns metadata for the matching post, or fallback metadata if the post does not exist.
  *
  * @param params - Promise resolving to an object containing the blog post slug.
- * @returns Metadata for the blog post or fallback metadata if the post does not exist.
+ * @returns Metadata for the specified blog post, or fallback metadata if not found.
  */
 export async function generateMetadata({
 	params
@@ -18,7 +19,7 @@ export async function generateMetadata({
 	params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
 	const { slug } = await params;
-	const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/get/blogs`, {
+	const res = await fetch(`${website_url}/api/get/blogs`, {
 		cache: 'no-store'
 	});
 	const data: Blog[] = await res.json();

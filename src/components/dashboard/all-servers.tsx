@@ -294,7 +294,7 @@ const ServerCard: React.FC<{ server: ServerType; showViewButton: boolean }> = ({
 			<div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-extra/10 rounded-xl blur-md opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
 			<div className="relative bg-card/80 backdrop-blur-sm rounded-xl overflow-hidden border border-border/30 shadow-lg transition-all duration-300 group-hover:shadow-xl group-hover:border-primary/20 group-hover:-translate-y-1">
 				<div className="h-20 bg-gradient-to-r from-primary/80 via-primary/50 to-extra/80 relative overflow-hidden">
-					<div className="absolute inset-0 bg-[url('/placeholder.svg')] opacity-10 mix-blend-overlay"></div>
+					<div className="absolute inset-0 opacity-10 mix-blend-overlay"></div>
 					<div className="absolute inset-0 bg-gradient-to-r from-black/20 to-black/5"></div>
 				</div>
 				<div className="p-6 pt-0 -mt-10">

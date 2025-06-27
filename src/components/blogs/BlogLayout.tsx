@@ -6,14 +6,14 @@ import { Search, BookOpen, Sparkles, Tag } from 'lucide-react';
 import BlogCard from '@/components/blogs/BlogCard';
 import type { Blog } from '@/types/blogs/index';
 import { ViewTransitions } from 'next-view-transitions';
-import { Link } from 'next-view-transitions';
+import { fetchStrapiBlogs } from '@/lib/api';
 
 /**
- * Renders the blog listing page with animated header, search, tag filtering, and newsletter subscription.
+ * Displays the blog listing page with animated header, search, tag filtering, and newsletter subscription.
  *
- * Fetches blog posts from the API, enables dynamic filtering by search term and tags, and displays results with animated UI elements. Includes a newsletter subscription section and decorative background effects.
+ * Fetches blog posts on mount, enables filtering by search term and tags, and presents results with animated UI elements. Includes a newsletter subscription form and decorative background effects.
  *
- * @remark Blog data is fetched from the `/api/get/blogs` endpoint on mount. If fetching fails, an error is logged to the console and the page displays no blogs.
+ * @remark If blog fetching fails, an error is logged to the console and no blogs are displayed.
  */
 export default function BlogLayout() {
 	const [blogs, setBlogs] = useState<Blog[]>([]);
@@ -33,13 +33,12 @@ export default function BlogLayout() {
 	useEffect(() => {
 		const fetchBlogs = async () => {
 			try {
-				const response = await fetch('/api/get/blogs');
-				const data = await response.json();
-				setBlogs(data);
-				setFilteredBlogs(data);
+				const data = await fetchStrapiBlogs();
+				setBlogs(data.data);
+				setFilteredBlogs(data.data);
 
 				// Extract all unique tags
-				const tags = data.reduce((acc: string[], blog: Blog) => {
+				const tags = data.data.reduce((acc: string[], blog: Blog) => {
 					if (blog.tags) {
 						blog.tags.forEach((tag) => {
 							if (!acc.includes(tag)) {
