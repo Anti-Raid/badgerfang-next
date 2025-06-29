@@ -43,7 +43,7 @@ export interface TestAuth {
 // source: bot.go
 
 export interface BotState {
-	commands: discordgo.ApplicationCommand;
+	commands: discordgo.ApplicationCommand[];
 	settings: CanonicalConfigOption[];
 }
 
