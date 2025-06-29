@@ -43,25 +43,10 @@ export interface TestAuth {
 // source: bot.go
 
 export interface BotState {
-	commands: CanonicalCommand[];
+	commands: discordgo.ApplicationCommand[];
 	settings: CanonicalConfigOption[];
-	command_permissions: { [key: string]: string[] };
 }
-export interface CanonicalCommandArgument {
-	name: string;
-	description?: string;
-	required: boolean;
-	choices: string[];
-}
-export interface CanonicalCommand {
-	name: string;
-	qualified_name: string;
-	description?: string;
-	nsfw: boolean;
-	subcommands: CanonicalCommand[];
-	subcommand_required: boolean;
-	arguments: CanonicalCommandArgument[];
-}
+
 export interface CanonicalColumnType {
 	Scalar?: {
 		inner: CanonicalInnerColumnType;
