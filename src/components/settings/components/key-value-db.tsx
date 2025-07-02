@@ -136,8 +136,8 @@ export const KeyValueDB: React.FC<KeyValueDBProps> = ({ guildId }) => {
 			>
 				<AlertCircle className="w-5 h-5 text-yellow-600" aria-hidden="true" />
 				<p className="text-yellow-800 font-medium">
-					We <span className="font-bold">check KV's every few days</span>. <span className="font-bold">Do not store anything illegal</span> or you will get banned.
-				</p>
+                                    <span className="font-bold">Our moderators regularly review stored KVs.</span> <span className="font-bold">Storing illegal content will result in a ban.</span>
+                                </p>
 			</motion.div>
 
 			<motion.div
