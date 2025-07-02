@@ -14,53 +14,11 @@ import {
 	LayoutGrid,
 	List
 } from 'lucide-react';
-import type { CanonicalCommand, BotState } from '../../types/splashtail/types';
+import type { BotState } from '../../types/splashtail/types';
+import * as discordgo from '../../types/splashtail/discordgo';
 import { getBotState } from '@/lib/api';
 import { InputField } from '@/components/settings/components/form-elements';
 
-const permissionNames: { [key: string]: string } = {
-	'1': 'CREATE_INSTANT_INVITE',
-	'2': 'KICK_MEMBERS',
-	'4': 'BAN_MEMBERS',
-	'8': 'ADMINISTRATOR',
-	'16': 'MANAGE_CHANNELS',
-	'32': 'MANAGE_GUILD',
-	'64': 'ADD_REACTIONS',
-	'128': 'VIEW_AUDIT_LOG',
-	'256': 'PRIORITY_SPEAKER',
-	'512': 'STREAM',
-	'1024': 'VIEW_CHANNEL',
-	'2048': 'SEND_MESSAGES',
-	'4096': 'SEND_TTS_MESSAGES',
-	'8192': 'MANAGE_MESSAGES',
-	'16384': 'EMBED_LINKS',
-	'32768': 'ATTACH_FILES',
-	'65536': 'READ_MESSAGE_HISTORY',
-	'131072': 'MENTION_EVERYONE',
-	'262144': 'USE_EXTERNAL_EMOJIS',
-	'524288': 'VIEW_GUILD_INSIGHTS',
-	'1048576': 'CONNECT',
-	'2097152': 'SPEAK',
-	'4194304': 'MUTE_MEMBERS',
-	'8388608': 'DEAFEN_MEMBERS',
-	'16777216': 'MOVE_MEMBERS',
-	'33554432': 'USE_VAD',
-	'67108864': 'CHANGE_NICKNAME',
-	'134217728': 'MANAGE_NICKNAMES',
-	'268435456': 'MANAGE_ROLES',
-	'536870912': 'MANAGE_WEBHOOKS',
-	'1073741824': 'MANAGE_EMOJIS_AND_STICKERS',
-	'2147483648': 'USE_APPLICATION_COMMANDS',
-	'4294967296': 'REQUEST_TO_SPEAK',
-	'8589934592': 'MANAGE_EVENTS',
-	'17179869184': 'MANAGE_THREADS',
-	'34359738368': 'CREATE_PUBLIC_THREADS',
-	'68719476736': 'CREATE_PRIVATE_THREADS',
-	'137438953472': 'USE_EXTERNAL_STICKERS',
-	'274877906944': 'SEND_MESSAGES_IN_THREADS',
-	'549755813888': 'USE_EMBEDDED_ACTIVITIES',
-	'1099511627776': 'MODERATE_MEMBERS'
-};
 
 const Button = ({
 	children,
@@ -157,7 +115,7 @@ const Select: React.FC<SelectProps> = ({
 						</div>
 					</div>
 				</>
-			)}
+			)}I
 		</div>
 	);
 };
@@ -196,10 +154,22 @@ const randomizeArray = <T,>(arr: T[]): T[] => {
 	return [...arr].sort(() => Math.random() - 0.5);
 };
 
-interface CommandWithModule extends CanonicalCommand {
-	moduleName: string;
-	moduleId: string;
-	id: string;
+// Utility to extract subcommands and arguments from ApplicationCommandOption
+function extractSubcommandsAndArgs(options: (discordgo.ApplicationCommandOption | undefined)[] = []) {
+	const subcommands: discordgo.ApplicationCommandOption[] = [];
+	const args: discordgo.ApplicationCommandOption[] = [];
+	options.forEach((opt) => {
+		if (!opt) return;
+		if (
+			opt.type === 1 || // ApplicationCommandOptionSubCommand
+			opt.type === 2    // ApplicationCommandOptionSubCommandGroup
+		) {
+			subcommands.push(opt);
+		} else {
+			args.push(opt);
+		}
+	});
+	return { subcommands, args };
 }
 
 /**
@@ -236,49 +206,59 @@ export default function CommandInterface() {
 	// Process commands with unique ids
 	const allCommands = useMemo(() => {
 		if (!botState) return [];
-
 		let idCounter = 0;
-		const commands: CommandWithModule[] = [];
-
-		botState.commands.forEach((cmd) => {
+		const commands: any[] = [];
+		botState.commands.forEach((cmd: discordgo.ApplicationCommand) => {
 			const moduleName = cmd.name;
-			const moduleId = cmd.qualified_name;
-
-			const mainCommand: CommandWithModule = {
+			const moduleId = cmd.name;
+			const { subcommands, args } = extractSubcommandsAndArgs(cmd.options);
+			const mainCommand = {
 				...cmd,
 				moduleName,
 				moduleId,
-				id: `cmd-${idCounter++}`
+				id: `cmd-${idCounter++}`,
+				subcommands,
+				arguments: args.map((arg: discordgo.ApplicationCommandOption) => ({
+					...arg,
+					required: arg.required ?? false,
+					choices: Array.isArray(arg.choices)
+						? (arg.choices.filter((c): c is discordgo.ApplicationCommandOptionChoice => !!c).map((c) => c.name))
+						: [],
+				})),
 			};
 			commands.push(mainCommand);
-
-			if (cmd.subcommands && cmd.subcommands.length > 0) {
-				cmd.subcommands.forEach((subCmd) => {
-					const subCommand: CommandWithModule = {
-						...subCmd,
-						moduleName,
-						moduleId,
-						id: `cmd-${idCounter++}`
-					};
-					commands.push(subCommand);
+			// Flatten subcommands (if any)
+			subcommands.forEach((subCmd: discordgo.ApplicationCommandOption) => {
+				const { subcommands: subSub, args: subArgs } = extractSubcommandsAndArgs(subCmd.options);
+				commands.push({
+					...subCmd,
+					moduleName,
+					moduleId,
+					id: `cmd-${idCounter++}`,
+					subcommands: subSub,
+					arguments: subArgs.map((arg: discordgo.ApplicationCommandOption) => ({
+						...arg,
+						required: arg.required ?? false,
+						choices: Array.isArray(arg.choices)
+							? (arg.choices.filter((c): c is discordgo.ApplicationCommandOptionChoice => !!c).map((c) => c.name))
+							: [],
+					})),
 				});
-			}
+			});
 		});
-
 		return commands;
 	}, [botState]);
 
 	// Filtering and pagination (unchanged except dependency on allCommands)
 	const filteredCommands = useMemo(() => {
-		return allCommands.filter((cmd) => {
+		return allCommands.filter((cmd: any) => {
 			const matchesSearch =
 				cmd.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
 				(cmd.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false) ||
-				cmd.arguments.some(
-					(arg) =>
-						arg.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-						(arg.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
-				);
+				(Array.isArray(cmd.arguments) && cmd.arguments.some((arg: any) =>
+					arg.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+					(arg.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
+				));
 			const matchesModule = selectedModule === 'all' || cmd.moduleId === selectedModule;
 			return matchesSearch && matchesModule;
 		});
@@ -291,9 +271,9 @@ export default function CommandInterface() {
 	const modules = useMemo(() => {
 		if (!botState) return [];
 		const uniqueModules = new Map<string, { id: string; name: string }>();
-		botState.commands.forEach((cmd) => {
-			uniqueModules.set(cmd.qualified_name, {
-				id: cmd.qualified_name,
+		botState.commands.forEach((cmd: discordgo.ApplicationCommand) => {
+			uniqueModules.set(cmd.name, {
+				id: cmd.name,
 				name: cmd.name
 			});
 		});
@@ -433,14 +413,14 @@ export default function CommandInterface() {
 		</div>
 	);
 
-	const CommandCard: React.FC<{ command: CommandWithModule }> = ({ command }) => {
+	const CommandCard: React.FC<{ command: any }> = ({ command }) => {
 		const [expanded, setExpanded] = useState(false);
 
 		return (
 			<div className="bg-background border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
 				<div className="p-5 flex flex-col">
 					<div className="flex justify-between items-start mb-3 gap-2">
-						<h3 className="font-bold text-lg truncate">{command.qualified_name || command.name}</h3>
+						<h3 className="font-bold text-lg truncate">{command.name}</h3>
 						<Badge variant="primary">{command.moduleName}</Badge>
 					</div>
 					{command.description && (
@@ -458,7 +438,7 @@ export default function CommandInterface() {
 								<div className="flex flex-wrap gap-1.5">
 									{command.subcommands
 										.slice(0, expanded ? command.subcommands.length : 3)
-										.map((subCmd) => (
+										.map((subCmd: discordgo.ApplicationCommandOption) => (
 											<Badge key={subCmd.name} variant="secondary">
 												{subCmd.name}
 											</Badge>
@@ -480,7 +460,7 @@ export default function CommandInterface() {
 								<div className="flex flex-wrap gap-1.5">
 									{command.arguments
 										.slice(0, expanded ? command.arguments.length : 3)
-										.map((arg) => (
+										.map((arg: any) => (
 											<Badge key={arg.name} variant={arg.required ? 'required' : 'optional'}>
 												{arg.name}
 											</Badge>
@@ -493,40 +473,6 @@ export default function CommandInterface() {
 								</div>
 							</div>
 						)}
-						{botState?.command_permissions &&
-							botState.command_permissions[command.qualified_name || command.name] && (
-								<div className="space-y-2">
-									<p className="text-sm font-medium flex items-center gap-1.5">
-										<ArrowRight className="h-3.5 w-3.5 text-primary" />
-										Required Permissions
-									</p>
-									<div className="flex flex-wrap gap-1.5">
-										{botState.command_permissions[command.qualified_name || command.name]
-											.slice(
-												0,
-												expanded
-													? botState.command_permissions[command.qualified_name || command.name]
-															.length
-													: 2
-											)
-											.map((perm, idx) => (
-												<Badge key={idx} variant="secondary">
-													{permissionNames[perm] || perm}
-												</Badge>
-											))}
-										{!expanded &&
-											botState.command_permissions[command.qualified_name || command.name].length >
-												2 && (
-												<Badge variant="outline" onClick={() => setExpanded(true)}>
-													+
-													{botState.command_permissions[command.qualified_name || command.name]
-														.length - 2}{' '}
-													more
-												</Badge>
-											)}
-									</div>
-								</div>
-							)}
 					</div>
 					{!expanded && (
 						<button
@@ -549,7 +495,7 @@ export default function CommandInterface() {
 								<div>
 									<h4 className="text-sm font-medium mb-1.5">Subcommands</h4>
 									<ul className="space-y-3">
-										{command.subcommands.map((subCmd) => (
+										{command.subcommands.map((subCmd: discordgo.ApplicationCommandOption) => (
 											<li key={subCmd.name} className="text-sm bg-secondary/30 p-3 rounded-lg">
 												<span className="font-medium text-primary">{subCmd.name}</span>
 												{subCmd.description && (
@@ -564,7 +510,7 @@ export default function CommandInterface() {
 								<div>
 									<h4 className="text-sm font-medium mb-1.5">Arguments</h4>
 									<ul className="space-y-3">
-										{command.arguments.map((arg) => (
+										{command.arguments.map((arg: discordgo.ApplicationCommandOption) => (
 											<li key={arg.name} className="text-sm bg-secondary/30 p-3 rounded-lg">
 												<div className="flex items-center gap-2">
 													<span className="font-medium text-primary">{arg.name}</span>
@@ -581,7 +527,7 @@ export default function CommandInterface() {
 													<div className="mt-2">
 														<span className="text-xs text-muted-foreground">Options: </span>
 														<div className="flex flex-wrap gap-1.5 mt-1.5">
-															{arg.choices.map((choice, idx) => (
+															{arg.choices && arg.choices.length > 0 && (arg.choices as unknown as string[]).map((choice, idx) => (
 																<Badge key={idx} variant="secondary">
 																	{choice}
 																</Badge>
@@ -594,21 +540,6 @@ export default function CommandInterface() {
 									</ul>
 								</div>
 							)}
-							{botState?.command_permissions &&
-								botState.command_permissions[command.qualified_name || command.name] && (
-									<div>
-										<h4 className="text-sm font-medium mb-1.5">Required Permissions</h4>
-										<div className="flex flex-wrap gap-1.5 bg-secondary/30 p-3 rounded-lg">
-											{botState.command_permissions[command.qualified_name || command.name].map(
-												(perm, idx) => (
-													<Badge key={idx} variant="secondary">
-														{permissionNames[perm] || perm}
-													</Badge>
-												)
-											)}
-										</div>
-									</div>
-								)}
 							<button
 								className="text-sm text-primary hover:underline flex items-center gap-1"
 								onClick={() => setExpanded(false)}
@@ -623,7 +554,7 @@ export default function CommandInterface() {
 		);
 	};
 
-	const CommandListItem: React.FC<{ command: CommandWithModule }> = ({ command }) => {
+	const CommandListItem: React.FC<{ command: any }> = ({ command }) => {
 		const [expanded, setExpanded] = useState(false);
 
 		return (
@@ -632,7 +563,7 @@ export default function CommandInterface() {
 					<div className="flex justify-between items-center">
 						<div className="flex-1">
 							<div className="flex items-center gap-3">
-								<h3 className="font-bold text-lg">{command.qualified_name || command.name}</h3>
+								<h3 className="font-bold text-lg">{command.name}</h3>
 								<Badge variant="primary">{command.moduleName}</Badge>
 							</div>
 							{command.description && (
@@ -662,7 +593,7 @@ export default function CommandInterface() {
 										<h4 className="text-sm font-medium mb-1.5">Subcommands</h4>
 										<div className="bg-secondary/30 p-3 rounded-lg">
 											<div className="flex flex-wrap gap-1.5">
-												{command.subcommands.map((subCmd) => (
+												{command.subcommands.map((subCmd: discordgo.ApplicationCommandOption) => (
 													<Badge key={subCmd.name} variant="secondary">
 														{subCmd.name}
 													</Badge>
@@ -676,7 +607,7 @@ export default function CommandInterface() {
 										<h4 className="text-sm font-medium mb-1.5">Arguments</h4>
 										<div className="bg-secondary/30 p-3 rounded-lg">
 											<div className="flex flex-wrap gap-1.5">
-												{command.arguments.map((arg) => (
+												{command.arguments.map((arg: discordgo.ApplicationCommandOption) => (
 													<Badge key={arg.name} variant={arg.required ? 'required' : 'optional'}>
 														{arg.name}
 													</Badge>
@@ -685,23 +616,6 @@ export default function CommandInterface() {
 										</div>
 									</div>
 								)}
-								{botState?.command_permissions &&
-									botState.command_permissions[command.qualified_name || command.name] && (
-										<div>
-											<h4 className="text-sm font-medium mb-1.5">Required Permissions</h4>
-											<div className="bg-secondary/30 p-3 rounded-lg">
-												<div className="flex flex-wrap gap-1.5">
-													{botState.command_permissions[command.qualified_name || command.name].map(
-														(perm, idx) => (
-															<Badge key={idx} variant="secondary">
-																{permissionNames[perm] || perm}
-															</Badge>
-														)
-													)}
-												</div>
-											</div>
-										</div>
-									)}
 							</div>
 						</div>
 					)}

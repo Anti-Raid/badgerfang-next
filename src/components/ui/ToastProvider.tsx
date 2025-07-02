@@ -10,7 +10,7 @@ export default function ToastProvider({ children }: ToastProviderProps) {
 	return (
 		<>
 			{children}
-			<ToastContainer theme="dark" />
+			<ToastContainer theme="dark" role="alert" aria-live="assertive" />
 		</>
 	);
 }

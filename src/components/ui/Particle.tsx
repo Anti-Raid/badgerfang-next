@@ -45,8 +45,9 @@ const Particle = ({ x, y, color }: ParticleProps) => {
 				opacity,
 				transform: 'translate(-50%, -50%)'
 			}}
+			aria-hidden="true"
 		>
-			<svg width="10" height="10" viewBox="0 0 10 10">
+			<svg width="10" height="10" viewBox="0 0 10 10" focusable="false" aria-hidden="true">
 				<circle cx="1" cy="1" r="1" fill={color} />
 			</svg>
 		</div>

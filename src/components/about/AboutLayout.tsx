@@ -219,11 +219,11 @@ const Partners = ({ isLoaded }: { isLoaded: boolean }) => {
 			description: 'Search our vast list of bots for an exciting start to your server.',
 			long_description:
 				'We make it easier for you to advertise and grow your bots using our vanity links, widgets, bot packs, and more!',
-			logo: 'https://cdn.infinitybots.gg/core/full_logo.webp',
+			logo: 'https://cdn.infinitybots.gg/core/logo.webp',
 			url: 'https://infinitybots.gg/',
 			owner: 'CodeMeAPixel',
 			owner_image:
-				'https://res.cloudinary.com/dh30c3f52/image/upload/v1707465896/immhuag1zamm3juw2mn8.jpg',
+				'https://codemeapixel.dev/logo.png',
 			owner_website: 'https://codemeapixel.dev/',
 			links: [
 				{
@@ -307,7 +307,8 @@ const TeamMembers = ({ isLoaded }: { isLoaded: boolean }) => {
 		'1300319559844364338',
 		'564164277251080208',
 		'1275832535615537277',
-		'787241442770419722'
+		'787241442770419722',
+		'1196897908579123273'
 	];
 
 	const fetcher = async (userIds: string[]) => {
