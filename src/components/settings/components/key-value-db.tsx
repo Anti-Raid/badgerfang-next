@@ -136,7 +136,7 @@ export const KeyValueDB: React.FC<KeyValueDBProps> = ({ guildId }) => {
 			>
 				<AlertCircle className="w-5 h-5 text-yellow-600" aria-hidden="true" />
 				<p className="text-yellow-800 font-medium">
-					We <span className="font-bold">check KV's every month</span>. <span className="font-bold">Do not store anything illegal</span> or you will get banned.
+					We <span className="font-bold">check KV's every few days</span>. <span className="font-bold">Do not store anything illegal</span> or you will get banned.
 				</p>
 			</motion.div>
 
