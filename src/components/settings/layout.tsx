@@ -8,7 +8,6 @@ import { Scripts } from './components/NewScript';
 import { KeyValueDB } from './components/key-value-db';
 import { PublishedScripts } from './components/published-scripts';
 import { LockdownSettings } from './components/lockdown-settings';
-import { Lockdowns } from './components/lockdowns';
 import { useEffect, useState } from 'react';
 import { getUserGuildBaseInfo, executeSettings } from '@/lib/api';
 import { motion } from 'framer-motion';
@@ -214,14 +213,6 @@ export default function Settings({ guildId }: { guildId: string }) {
 						icon={<Lock />}
 					>
 						<LockdownSettings guildId={guildId} />
-					</Section>
-
-					<Section
-						title="Lockdowns"
-						description="Manage active and scheduled lockdowns"
-						icon={<Lock />}
-					>
-						<Lockdowns guildId={guildId} />
 					</Section>
 				</div>
 			</div>
