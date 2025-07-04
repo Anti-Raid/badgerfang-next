@@ -10,10 +10,11 @@ import {
 import { ApiResponse } from '@/types/dashboard/servers';
 import { BotStats } from '@/types/bot-stats';
 import * as forumTypes from '@/types/forums/types';
+import { api_url } from '@/components/common';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://splashtail-staging.antiraid.xyz';
-const FORUM_API_URL = 'https://potsypaw.purrquinox.com';
-const STRAPI_API_URL = 'https://strapi.purrquinox.com';
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || api_url;
+export const FORUM_API_URL = 'https://potsypaw.purrquinox.com';
+export const STRAPI_API_URL = 'https://strapi.purrquinox.com';
 
 const getAuthToken = (): string | null => {
 	if (typeof window !== 'undefined') {
