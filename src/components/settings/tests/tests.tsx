@@ -112,14 +112,14 @@ const column5: Column = {
 	secret: false,
 	readonly: []
 };
-const initialColumn5Value = {"a": 1};
+const initialColumn5Value = { a: 1 };
 
 export const ColumnInputTest = () => {
 	let [column1Value, setColumn1Value] = useState<any>(initialColumn1Value);
 	let [column2Value, setColumn2Value] = useState<any>(initialColumn2Value);
 	let [column3Value, setColumn3Value] = useState<any>(initialColumn3Value);
 	let [column4Value, setColumn4Value] = useState<any>(initialColumn4Value);
-    let [column5Value, setColumn5Value] = useState<any>(initialColumn5Value);
+	let [column5Value, setColumn5Value] = useState<any>(initialColumn5Value);
 
 	return (
 		<>
@@ -147,7 +147,7 @@ export const ColumnInputTest = () => {
 				onChange={(newValue) => setColumn4Value(newValue)}
 			/>
 
-            <SettingsColumn
+			<SettingsColumn
 				column={column5}
 				value={column5Value}
 				onChange={(newValue) => setColumn5Value(newValue)}
@@ -157,7 +157,7 @@ export const ColumnInputTest = () => {
 			<p>Column 2: {JSON.stringify(column2Value)}</p>
 			<p>Column 3: {JSON.stringify(column3Value)}</p>
 			<p>Column 4: {JSON.stringify(column4Value)}</p>
-            <p>Column 5: {JSON.stringify(column5Value)}</p>
+			<p>Column 5: {JSON.stringify(column5Value)}</p>
 		</>
 	);
 };

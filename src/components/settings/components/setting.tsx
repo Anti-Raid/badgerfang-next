@@ -585,8 +585,8 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 }) => {
 	let [valueType, setValueType] = useState<string>('string');
 
-    let [jsonValue, setJsonValue] = useState(JSON.stringify(value))
-    let [jsonOk, setJsonOk] = useState(true)
+	let [jsonValue, setJsonValue] = useState(JSON.stringify(value));
+	let [jsonOk, setJsonOk] = useState(true);
 
 	return (
 		<>
@@ -683,29 +683,29 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 						placeholder={parentColumn.placeholder}
 						value={jsonValue}
 						onChange={(e) => {
-                            setJsonValue(e.target.value)
+							setJsonValue(e.target.value);
 
-                            // Dispatch onChange if the json is parseable for specified type
+							// Dispatch onChange if the json is parseable for specified type
 							if (valueType === 'json') {
 								try {
 									const jsonValue = JSON.parse(e.target.value);
-                                    setJsonOk(true)
+									setJsonOk(true);
 									onChange(jsonValue);
 								} catch (error) {
-                                    setJsonOk(false)
+									setJsonOk(false);
 									return;
 								}
 							} else if (valueType === 'number') {
 								const numberValue = parseFloat(e.target.value);
 								if (isNaN(numberValue)) {
-                                    setJsonOk(false)
+									setJsonOk(false);
 									return;
 								}
-                                setJsonOk(true)
+								setJsonOk(true);
 								onChange(numberValue);
 							} else {
 								// For string type, just pass the value as is
-                                setJsonOk(true)
+								setJsonOk(true);
 								onChange(e.target.value);
 							}
 						}}
@@ -742,23 +742,26 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 						</div>
 					</div>
 
-                    {!jsonOk && (
-                        <>
-                            <motion.div
-                                className="bg-yellow-100 border border-yellow-300 rounded-lg p-4 flex items-center gap-3 mb-2"
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.3 }}
-                                role="alert"
-                                aria-live="polite"
-                            >
-                                <AlertCircle className="w-5 h-5 text-yellow-600" aria-hidden="true" />
-                                <p className="text-yellow-800 font-medium">
-                                    <span className="font-bold">Invalid JSON input. The previously stored value of <code>{JSON.stringify(value)}</code> has been kept</span>
-                                </p>
-                            </motion.div>
-                        </>
-                    )}
+					{!jsonOk && (
+						<>
+							<motion.div
+								className="bg-yellow-100 border border-yellow-300 rounded-lg p-4 flex items-center gap-3 mb-2"
+								initial={{ opacity: 0, y: 10 }}
+								animate={{ opacity: 1, y: 0 }}
+								transition={{ duration: 0.3 }}
+								role="alert"
+								aria-live="polite"
+							>
+								<AlertCircle className="w-5 h-5 text-yellow-600" aria-hidden="true" />
+								<p className="text-yellow-800 font-medium">
+									<span className="font-bold">
+										Invalid JSON input. The previously stored value of{' '}
+										<code>{JSON.stringify(value)}</code> has been kept
+									</span>
+								</p>
+							</motion.div>
+						</>
+					)}
 				</>
 			) : (
 				<>
