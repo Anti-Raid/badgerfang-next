@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, Reorder } from 'framer-motion';
 import { GripVertical, Plus, Trash2, Edit, AlertCircle } from 'lucide-react';
 import { Ghost, Primary, Secondary } from '../../ui/Buttons';
-import { InputField, RadioOption, Toggle } from './form-elements';
+import { GroupedRadioOption, InputField, RadioOption, Toggle } from './form-elements';
 import { executeSettings, getUserGuildBaseInfo } from '@/lib/api';
 import { toast } from 'react-toastify'; // Import toast
 import {
@@ -352,113 +352,123 @@ export const SettingsColumn: React.FC<SettingsColumnProps> = ({ column, value, o
 	return (
 		<>
 			{column.column_type.type === ColumnType.Scalar ? (
-                <>
-                    <div className="items-center mt-2 bg-muted/30 p-3 rounded-lg">
-                    	<SettingsInnerColumn
-                            parentColumn={column}
-                            column={column.column_type.inner}
-                            id={column.id}
-                            value={value}
-                            onChange={onChange}
-                        />
-                    </div>
-                </>
+				<>
+					<div className="items-center mt-2 bg-muted/30 p-3 rounded-lg">
+						<SettingsInnerColumn
+							parentColumn={column}
+							column={column.column_type.inner}
+							id={column.id}
+							value={value}
+							onChange={onChange}
+							marginClass="mb-4"
+						/>
+					</div>
+				</>
 			) : column.column_type.type === ColumnType.Array ? (
 				<>
-                    <div className="items-center mt-2 bg-muted/30 p-3 rounded-lg">
-                        {Array.isArray(value) ? (
-                            value.map((item, index) => (
-                                <React.Fragment key={index}>
-                                    <SettingsInnerColumn
-                                        key={`${column.id}-${index}`}
-                                        parentColumn={column}
-                                        column={assertInnerColumnTypeUnion(column.column_type.inner)} // Workaround for TypeScript bug
-                                        columnLabel={`${column.name} (${index+1})`}
-                                        id={`${column.id}-${index}`}
-                                        value={item}
-                                        onChange={(newValue) => {
-                                            const newArray = [...value];
-                                            newArray[index] = newValue;
-                                            onChange(newArray);
-                                        }}
-                                        marginClass="mb-2"
-                                    />
+					<div className="items-center mt-2 bg-muted/30 p-3 rounded-lg">
+						{Array.isArray(value) ? (
+							value.map((item, index) => (
+								<React.Fragment key={index}>
+									<SettingsInnerColumn
+										key={`${column.id}-${index}`}
+										parentColumn={column}
+										column={assertInnerColumnTypeUnion(column.column_type.inner)} // Workaround for TypeScript bug
+										columnLabel={`${column.name} (${index + 1})`}
+										id={`${column.id}-${index}`}
+										value={item}
+										onChange={(newValue) => {
+											const newArray = [...value];
+											newArray[index] = newValue;
+											onChange(newArray);
+										}}
+										marginClass="mb-2"
+									/>
 
-                                    <span className="mr-2">
-                                        <Secondary
-                                            Title="Add Above"
-                                            onClick={() => {
-                                                let ict = assertInnerColumnTypeUnion(column.column_type.inner)
+									<span className="mr-2">
+										<Secondary
+											Title="Add Above"
+											onClick={() => {
+												let ict = assertInnerColumnTypeUnion(column.column_type.inner);
 
-                                                let newElement: any = ""
-                                                if(ict.type === InnerColumnType.Integer || ict.type === InnerColumnType.Float) {
-                                                    newElement = 0
-                                                } else if (ict.type === InnerColumnType.Boolean) {
-                                                    newElement = false
-                                                }
+												let newElement: any = '';
+												if (
+													ict.type === InnerColumnType.Integer ||
+													ict.type === InnerColumnType.Float
+												) {
+													newElement = 0;
+												} else if (ict.type === InnerColumnType.Boolean) {
+													newElement = false;
+												}
 
-                                                const newArray = value.toSpliced(index, 0, newElement)                                            
-                                                onChange(newArray);
-                                            }}
-                                        />
-                                    </span>
-                                    <span className="mr-2">
-                                        <Secondary
-                                            Title="Add Below"
-                                            onClick={() => {
-                                                let ict = assertInnerColumnTypeUnion(column.column_type.inner)
+												const newArray = value.toSpliced(index, 0, newElement);
+												onChange(newArray);
+											}}
+										/>
+									</span>
+									<span className="mr-2">
+										<Secondary
+											Title="Add Below"
+											onClick={() => {
+												let ict = assertInnerColumnTypeUnion(column.column_type.inner);
 
-                                                let newElement: any = ""
-                                                if(ict.type === InnerColumnType.Integer || ict.type === InnerColumnType.Float) {
-                                                    newElement = 0
-                                                } else if (ict.type === InnerColumnType.Boolean) {
-                                                    newElement = false
-                                                }
+												let newElement: any = '';
+												if (
+													ict.type === InnerColumnType.Integer ||
+													ict.type === InnerColumnType.Float
+												) {
+													newElement = 0;
+												} else if (ict.type === InnerColumnType.Boolean) {
+													newElement = false;
+												}
 
-                                                const newArray = value.toSpliced(index+1, 0, newElement)                                            
-                                                onChange(newArray);
-                                            }}
-                                        />
-                                    </span>
-                                    <span className="mr-2">
-                                        <Secondary
-                                            Title="Delete"
-                                            onClick={() => {
-                                                let ict = assertInnerColumnTypeUnion(column.column_type.inner)
+												const newArray = value.toSpliced(index + 1, 0, newElement);
+												onChange(newArray);
+											}}
+										/>
+									</span>
+									<span className="mr-2">
+										<Secondary
+											Title="Delete"
+											onClick={() => {
+												let ict = assertInnerColumnTypeUnion(column.column_type.inner);
 
-                                                let newElement: any = ""
-                                                if(ict.type === InnerColumnType.Integer || ict.type === InnerColumnType.Float) {
-                                                    newElement = 0
-                                                } else if (ict.type === InnerColumnType.Boolean) {
-                                                    newElement = false
-                                                }
+												let newElement: any = '';
+												if (
+													ict.type === InnerColumnType.Integer ||
+													ict.type === InnerColumnType.Float
+												) {
+													newElement = 0;
+												} else if (ict.type === InnerColumnType.Boolean) {
+													newElement = false;
+												}
 
-                                                const newArray = value.filter((_, idx) => idx !== index);                                        
-                                                onChange(newArray);
-                                            }}
-                                        />
-                                    </span>
-                                    {index != value.length - 1 && <div className="mt-5"></div>}
-                                </React.Fragment>
-                            ))
-                        ) : (
-                            <motion.div
-                                className="bg-yellow-100 border border-yellow-300 rounded-lg p-4 flex items-center gap-3 mb-2"
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.3 }}
-                                role="alert"
-                                aria-live="polite"
-                            >
-                                <AlertCircle className="w-5 h-5 text-yellow-600" aria-hidden="true" />
-                                <p className="text-yellow-800 font-medium">
-                                    <span className="font-bold">
-                                        Schema Error: Array column type passed but input is not an array
-                                    </span>
-                                </p>
-                            </motion.div>
-                        )}
-                    </div>    
+												const newArray = value.filter((_, idx) => idx !== index);
+												onChange(newArray);
+											}}
+										/>
+									</span>
+									{index != value.length - 1 && <div className="mt-5"></div>}
+								</React.Fragment>
+							))
+						) : (
+							<motion.div
+								className="bg-yellow-100 border border-yellow-300 rounded-lg p-4 flex items-center gap-3 mb-2"
+								initial={{ opacity: 0, y: 10 }}
+								animate={{ opacity: 1, y: 0 }}
+								transition={{ duration: 0.3 }}
+								role="alert"
+								aria-live="polite"
+							>
+								<AlertCircle className="w-5 h-5 text-yellow-600" aria-hidden="true" />
+								<p className="text-yellow-800 font-medium">
+									<span className="font-bold">
+										Schema Error: Array column type passed but input is not an array
+									</span>
+								</p>
+							</motion.div>
+						)}
+					</div>
 				</>
 			) : column.column_type.type === ColumnType.Widget ? (
 				<>
@@ -547,45 +557,60 @@ export const SettingsColumn: React.FC<SettingsColumnProps> = ({ column, value, o
 interface SettingsInnerColumnProps {
 	parentColumn: Column;
 	column: InnerColumnTypeUnion;
-    columnLabel?: string; 
+	columnLabel?: string;
 	id: string;
 	value: any;
 	onChange: (value: any) => void;
-    marginClass?: string;
+	marginClass?: string;
 }
 
 /**
- * Defines the inner column for a setting. 
- * 
+ * Defines the inner column for a setting.
+ *
  * Setting columnLabel will allow overriding this inner column label while marginClass allows controlling the bottom
  * margin to the input element
- * 
+ *
  * Note that the following features are unsupported:
  * - Bitflag inputs
  */
 const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 	parentColumn,
 	column,
-    columnLabel,
+	columnLabel,
 	id,
 	value,
 	onChange,
-    marginClass
+	marginClass
 }) => {
 	let [valueType, setValueType] = useState<string>('string');
 	return (
 		<>
 			{column.type === InnerColumnType.String ? (
-				<InputField
-					label={columnLabel || parentColumn.name}
-					description={parentColumn.description}
-					placeholder={parentColumn.placeholder}
-					value={value}
-					onChange={(e) => onChange(e.target.value)}
-					id={id}
-					aria-required="true"
-                    marginClass={marginClass}
-				/>
+				<>
+					{column.allowed_values.length > 0 ? (
+						<GroupedRadioOption
+							id={id}
+							label={columnLabel || parentColumn.name}
+							description={parentColumn.description}
+							value={value}
+							allowedValues={column.allowed_values}
+							onChange={onChange}
+							aria-required="true"
+							marginClass={marginClass}
+						/>
+					) : (
+						<InputField
+							label={columnLabel || parentColumn.name}
+							description={parentColumn.description}
+							placeholder={parentColumn.placeholder}
+							value={value}
+							onChange={(e) => onChange(e.target.value)}
+							id={id}
+							aria-required="true"
+							marginClass={marginClass}
+						/>
+					)}
+				</>
 			) : column.type === InnerColumnType.Integer ? (
 				<InputField
 					label={columnLabel || parentColumn.name}
@@ -603,7 +628,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 					id={id}
 					type=""
 					aria-required="true"
-                    marginClass={marginClass}
+					marginClass={marginClass}
 				/>
 			) : column.type === InnerColumnType.Float ? (
 				<InputField
@@ -621,7 +646,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 					id={id}
 					type="number"
 					aria-required="true"
-                    marginClass={marginClass}
+					marginClass={marginClass}
 				/>
 			) : column.type == InnerColumnType.BitFlag ? (
 				<motion.div
@@ -643,6 +668,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 					description={parentColumn.description}
 					checked={value}
 					onChange={() => onChange(!value)}
+					marginClass={marginClass}
 				/>
 			) : column.type == InnerColumnType.Json ? (
 				<>
@@ -674,7 +700,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 						}}
 						id={id}
 						aria-required="true"
-                        marginClass={marginClass}
+						marginClass={marginClass}
 					/>
 					<div
 						className="flex items-center gap-4 mt-4 mb-4"
@@ -716,7 +742,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 						onChange={(e) => onChange(e.target.value)}
 						id={id}
 						aria-required="true"
-                        marginClass={marginClass}
+						marginClass={marginClass}
 					/>
 				</>
 			)}

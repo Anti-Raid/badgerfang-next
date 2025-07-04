@@ -4,7 +4,7 @@ import type React from 'react';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff } from 'lucide-react';
 import type { Icon } from 'lucide-react';
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 
 interface InputFieldProps {
 	label?: string;
@@ -33,7 +33,7 @@ export const InputField: React.FC<InputFieldProps> = ({
 	id,
 	icon: IconComponent,
 	error,
-	marginClass = "mb-6"
+	marginClass = 'mb-6'
 }) => {
 	const [showPassword, setShowPassword] = useState(false);
 	const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
@@ -144,16 +144,18 @@ interface RadioOptionProps {
 	name: string;
 	checked?: boolean;
 	onChange?: () => void;
+	marginClass?: string;
 }
 
 export const RadioOption: React.FC<RadioOptionProps> = ({
 	label,
 	name,
 	checked = false,
+	marginClass = 'mr-6 mb-3',
 	onChange
 }) => {
 	return (
-		<label className="inline-flex items-center mr-6 mb-3 cursor-pointer group">
+		<label className={`inline-flex items-center ${marginClass} cursor-pointer group`}>
 			<div className="relative flex items-center">
 				<input
 					type="radio"
@@ -190,16 +192,95 @@ export const RadioOption: React.FC<RadioOptionProps> = ({
 	);
 };
 
+interface GroupedRadioOptionProps {
+	id: string;
+	label: string;
+	value: string;
+	allowedValues: string[];
+	description: string;
+	icon?: typeof Icon;
+	onChange: (v: string) => void;
+	marginClass?: string;
+	className?: string;
+}
+
+export const GroupedRadioOption: React.FC<GroupedRadioOptionProps> = ({
+	id,
+	label,
+	value,
+	allowedValues,
+	description,
+	icon: IconComponent,
+	onChange,
+	marginClass = 'mb-6',
+	className = ''
+}) => {
+	const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
+
+	return (
+		<div className={`${marginClass} group ${className}`}>
+			{label && (
+				<label
+					htmlFor={inputId}
+					className="block text-foreground font-medium mb-1.5 text-sm"
+					id={`${inputId}-label`}
+				>
+					{label}
+				</label>
+			)}
+
+			{description && (
+				<p className="text-sm text-muted-foreground mb-2.5" id={`${inputId}-desc`}>
+					{description}
+				</p>
+			)}
+
+			<div className="relative">
+				{IconComponent && (
+					<div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+						<IconComponent
+							className="w-4 h-4 text-muted-foreground"
+							iconNode={[]}
+							aria-hidden="true"
+						/>
+					</div>
+				)}
+
+				{allowedValues.map((v, idx) => (
+					<Fragment key={idx}>
+						<div>
+							<RadioOption
+								name={id}
+								label={v}
+								checked={v == value}
+								onChange={() => onChange(v)}
+								marginClass={idx != allowedValues.length - 1 ? 'mr-6 mb-3' : 'mr-6'}
+							/>
+						</div>
+					</Fragment>
+				))}
+			</div>
+		</div>
+	);
+};
+
 interface ToggleProps {
 	label: string;
 	description?: string;
 	checked: boolean;
 	onChange: () => void;
+	marginClass?: string;
 }
 
-export const Toggle: React.FC<ToggleProps> = ({ label, description, onChange, checked }) => {
+export const Toggle: React.FC<ToggleProps> = ({
+	label,
+	description,
+	onChange,
+	checked,
+	marginClass = 'mb-5'
+}) => {
 	return (
-		<div className="mb-5">
+		<div className={marginClass}>
 			<div className="flex items-center">
 				<button
 					type="button"
