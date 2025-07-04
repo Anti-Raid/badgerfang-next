@@ -258,23 +258,6 @@ export function generateDeveloperDashboardMetadata(params: GenerateMetadataParam
 }
 
 /**
- * Generates Next.js metadata for the Settings Validator page with default values and optional overrides.
- *
- * Applies default title, description, image, and keywords for the Settings Validator page, allowing customization through the provided parameters.
- *
- * @returns Metadata for the Settings Validator page.
- */
-export function generateSettingsValidatorMetadata(params: GenerateMetadataParams = {}): Metadata {
-	return generateMetadata({
-		title: 'Settings Validator',
-		description: 'Validate the current settings with the ones from the API side',
-		image: params.imageUrl ?? defaultImage,
-		keywords: params.keywords?.length ? params.keywords : ['Settings', 'Validator'],
-		Url: params.canonicalUrl
-	});
-}
-
-/**
  * Generates Next.js metadata for the home page with default values and optional overrides.
  *
  * Applies default title, description, image, and keywords for the home page, allowing customization through the provided parameters.

@@ -57,11 +57,6 @@ export const getBotStats = async (): Promise<BotStats> => {
 	return data;
 };
 
-export const getGuildStaffTeam = async (guildId: string): Promise<GuildStaffTeam> => {
-	const response = await axiosInstance.get(`/guilds/${guildId}/staff-team`);
-	return response.data;
-};
-
 export const getUserServers = async (refetch: boolean = false): Promise<ApiResponse> => {
 	const url = refetch ? '/users/@me/guilds?refresh=true' : '/users/@me/guilds';
 	const response = await axiosInstance.get(url);
@@ -109,13 +104,13 @@ export const getUserGuildBaseInfo = async (guildId: string): Promise<any> => {
 	return response.data;
 };
 
-export const executeSettings = async (guildId: string, payload: any): Promise<any> => {
-	const response = await axiosInstance.post(`/guilds/${guildId}/settings`, payload);
+export const getSettings = async (guildId: string): Promise<any> => {
+	const response = await axiosInstance.get(`/guilds/${guildId}/settings`);
 	return response.data;
 };
 
-export const anonexecuteSettings = async (payload: any): Promise<any> => {
-	const response = await axiosInstance.post(`/settings`, payload);
+export const executeSettings = async (guildId: string, payload: any): Promise<any> => {
+	const response = await axiosInstance.post(`/guilds/${guildId}/settings`, payload);
 	return response.data;
 };
 

@@ -136,8 +136,9 @@ export const KeyValueDB: React.FC<KeyValueDBProps> = ({ guildId }) => {
 			>
 				<AlertCircle className="w-5 h-5 text-yellow-600" aria-hidden="true" />
 				<p className="text-yellow-800 font-medium">
-                                    <span className="font-bold">Our moderators regularly review stored KVs.</span> <span className="font-bold">Storing illegal content will result in a ban.</span>
-                                </p>
+					<span className="font-bold">Our moderators regularly review stored KVs.</span>{' '}
+					<span className="font-bold">Storing illegal content will result in a ban.</span>
+				</p>
 			</motion.div>
 
 			<motion.div
@@ -175,8 +176,14 @@ export const KeyValueDB: React.FC<KeyValueDBProps> = ({ guildId }) => {
 					/>
 				</div>
 
-				<div className="flex items-center gap-4 mt-4 mb-4" role="radiogroup" aria-label="Value Type">
-					<label className="text-sm font-medium text-foreground" id="value-type-label">Value Type:</label>
+				<div
+					className="flex items-center gap-4 mt-4 mb-4"
+					role="radiogroup"
+					aria-label="Value Type"
+				>
+					<label className="text-sm font-medium text-foreground" id="value-type-label">
+						Value Type:
+					</label>
 					<div className="flex bg-muted/30 rounded-lg p-1" aria-labelledby="value-type-label">
 						{['string', 'json', 'number'].map((type) => (
 							<button
@@ -238,7 +245,10 @@ export const KeyValueDB: React.FC<KeyValueDBProps> = ({ guildId }) => {
 					</h3>
 					<div className="flex items-center gap-2">
 						<div className="relative">
-							<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" aria-hidden="true" />
+							<Search
+								className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4"
+								aria-hidden="true"
+							/>
 							<input
 								type="text"
 								placeholder="Search keys or values..."
@@ -256,14 +266,24 @@ export const KeyValueDB: React.FC<KeyValueDBProps> = ({ guildId }) => {
 							disabled={isLoading}
 							aria-label="Refresh key-value pairs"
 						>
-							<RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} aria-hidden="true" />
+							<RefreshCw
+								className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`}
+								aria-hidden="true"
+							/>
 						</motion.button>
 					</div>
 				</div>
 
 				{isLoading ? (
-					<div className="flex justify-center items-center py-12" aria-busy="true" aria-live="polite">
-						<div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" aria-label="Loading"></div>
+					<div
+						className="flex justify-center items-center py-12"
+						aria-busy="true"
+						aria-live="polite"
+					>
+						<div
+							className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"
+							aria-label="Loading"
+						></div>
 					</div>
 				) : filteredPairs.length === 0 ? (
 					<motion.div

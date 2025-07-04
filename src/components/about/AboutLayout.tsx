@@ -222,8 +222,7 @@ const Partners = ({ isLoaded }: { isLoaded: boolean }) => {
 			logo: 'https://cdn.infinitybots.gg/core/logo.webp',
 			url: 'https://infinitybots.gg/',
 			owner: 'CodeMeAPixel',
-			owner_image:
-				'https://codemeapixel.dev/logo.png',
+			owner_image: 'https://codemeapixel.dev/logo.png',
 			owner_website: 'https://codemeapixel.dev/',
 			links: [
 				{

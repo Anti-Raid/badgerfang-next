@@ -28,26 +28,7 @@ interface CreatorDetails {
 
 export const CommonCard = ({ template }: CommonCardProps) => {
 	const router = useRouter();
-	const [creator, setCreator] = useState<CreatorDetails | null>(null);
 	const [isHovered, setIsHovered] = useState(false);
-
-	useEffect(() => {
-		const fetchCreator = async () => {
-			try {
-				const data = await anonuserDetails(template.created_by);
-				setCreator({
-					username: data.user.username,
-					avatar: data.user.avatar
-				});
-			} catch (error) {
-				console.error('Failed to fetch creator details:', error);
-			}
-		};
-
-		if (template.created_by) {
-			fetchCreator();
-		}
-	}, [template.created_by]);
 
 	const handleViewClick = () => {
 		router.push(`/script/auto-slowdown`);
@@ -197,18 +178,10 @@ export const CommonCard = ({ template }: CommonCardProps) => {
 								transition={{ delay: 0.6 }}
 								className="flex items-center space-x-3"
 							>
-								{creator?.avatar && (
-									<motion.img
-										src={creator.avatar}
-										alt="Creator Avatar"
-										className="w-10 h-10 rounded-xl border border-primary/20 group-hover:border-primary/40 transition-all duration-300 shadow-md"
-										whileHover={{ scale: 1.1 }}
-									/>
-								)}
 								<div>
-									<p className="text-muted-foreground text-sm font-inter">Creator</p>
+									<p className="text-muted-foreground text-sm font-inter">Made by</p>
 									<p className="font-monster font-semibold text-foreground max-w-[150px] truncate">
-										{creator ? truncate(creator.username, 12) : 'Unknown'}
+										{truncate(template.owner_guild, 12) || 'Unknown'}
 									</p>
 								</div>
 							</motion.div>
@@ -250,31 +223,6 @@ export const CommonCard = ({ template }: CommonCardProps) => {
 							</motion.div>
 						</div>
 					</div>
-
-					{(template.downloads !== undefined || template.rating !== undefined) && (
-						<motion.div
-							initial={{ y: 10, opacity: 0 }}
-							animate={{ y: 0, opacity: 1 }}
-							transition={{ delay: 0.7 }}
-							className="flex items-center justify-between px-4 py-3 bg-muted/40 rounded-xl backdrop-blur-sm border border-border/50 group-hover:border-primary/20 transition-all duration-300"
-						>
-							{template.downloads !== undefined && (
-								<div className="flex items-center space-x-2">
-									<FiDownload className="text-primary" />
-									<span className="text-foreground font-medium">
-										{template.downloads.toLocaleString()}
-									</span>
-								</div>
-							)}
-
-							{template.rating !== undefined && (
-								<div className="flex items-center space-x-2">
-									<FiStar className="text-yellow-500" />
-									<span className="text-foreground font-medium">{template.rating.toFixed(1)}</span>
-								</div>
-							)}
-						</motion.div>
-					)}
 
 					<motion.div
 						initial={{ y: 10, opacity: 0 }}

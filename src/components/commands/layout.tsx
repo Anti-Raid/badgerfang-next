@@ -14,11 +14,10 @@ import {
 	LayoutGrid,
 	List
 } from 'lucide-react';
-import type { BotState } from '../../types/splashtail/types';
-import * as discordgo from '../../types/splashtail/discordgo';
+import type { BotState } from '../../types/gosdk/types';
+import * as discordgo from '../../types/gosdk/types';
 import { getBotState } from '@/lib/api';
 import { InputField } from '@/components/settings/components/form-elements';
-
 
 const Button = ({
 	children,
@@ -115,7 +114,8 @@ const Select: React.FC<SelectProps> = ({
 						</div>
 					</div>
 				</>
-			)}I
+			)}
+			I
 		</div>
 	);
 };
@@ -155,14 +155,16 @@ const randomizeArray = <T,>(arr: T[]): T[] => {
 };
 
 // Utility to extract subcommands and arguments from ApplicationCommandOption
-function extractSubcommandsAndArgs(options: (discordgo.ApplicationCommandOption | undefined)[] = []) {
+function extractSubcommandsAndArgs(
+	options: (discordgo.ApplicationCommandOption | undefined)[] = []
+) {
 	const subcommands: discordgo.ApplicationCommandOption[] = [];
 	const args: discordgo.ApplicationCommandOption[] = [];
 	options.forEach((opt) => {
 		if (!opt) return;
 		if (
 			opt.type === 1 || // ApplicationCommandOptionSubCommand
-			opt.type === 2    // ApplicationCommandOptionSubCommandGroup
+			opt.type === 2 // ApplicationCommandOptionSubCommandGroup
 		) {
 			subcommands.push(opt);
 		} else {
@@ -222,9 +224,11 @@ export default function CommandInterface() {
 					...arg,
 					required: arg.required ?? false,
 					choices: Array.isArray(arg.choices)
-						? (arg.choices.filter((c): c is discordgo.ApplicationCommandOptionChoice => !!c).map((c) => c.name))
-						: [],
-				})),
+						? arg.choices
+								.filter((c): c is discordgo.ApplicationCommandOptionChoice => !!c)
+								.map((c) => c.name)
+						: []
+				}))
 			};
 			commands.push(mainCommand);
 			// Flatten subcommands (if any)
@@ -240,9 +244,11 @@ export default function CommandInterface() {
 						...arg,
 						required: arg.required ?? false,
 						choices: Array.isArray(arg.choices)
-							? (arg.choices.filter((c): c is discordgo.ApplicationCommandOptionChoice => !!c).map((c) => c.name))
-							: [],
-					})),
+							? arg.choices
+									.filter((c): c is discordgo.ApplicationCommandOptionChoice => !!c)
+									.map((c) => c.name)
+							: []
+					}))
 				});
 			});
 		});
@@ -255,10 +261,12 @@ export default function CommandInterface() {
 			const matchesSearch =
 				cmd.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
 				(cmd.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false) ||
-				(Array.isArray(cmd.arguments) && cmd.arguments.some((arg: any) =>
-					arg.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-					(arg.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
-				));
+				(Array.isArray(cmd.arguments) &&
+					cmd.arguments.some(
+						(arg: any) =>
+							arg.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+							(arg.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
+					));
 			const matchesModule = selectedModule === 'all' || cmd.moduleId === selectedModule;
 			return matchesSearch && matchesModule;
 		});
@@ -527,11 +535,13 @@ export default function CommandInterface() {
 													<div className="mt-2">
 														<span className="text-xs text-muted-foreground">Options: </span>
 														<div className="flex flex-wrap gap-1.5 mt-1.5">
-															{arg.choices && arg.choices.length > 0 && (arg.choices as unknown as string[]).map((choice, idx) => (
-																<Badge key={idx} variant="secondary">
-																	{choice}
-																</Badge>
-															))}
+															{arg.choices &&
+																arg.choices.length > 0 &&
+																(arg.choices as unknown as string[]).map((choice, idx) => (
+																	<Badge key={idx} variant="secondary">
+																		{choice}
+																	</Badge>
+																))}
 														</div>
 													</div>
 												)}
