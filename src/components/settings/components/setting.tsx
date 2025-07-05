@@ -18,7 +18,7 @@ import {
 	InnerColumnType,
 	InnerWidget
 } from '@/types/settings'; // Adjust the import path as needed
-import { UserGuildBaseData } from '@/types/gosdk/types';
+import { DispatchResult, UserGuildBaseData } from '@/types/gosdk/types';
 import dynamic from 'next/dynamic';
 
 const ScriptModal = dynamic(() => import('./ScriptModal').then(mod => mod.ScriptModal), {
@@ -30,67 +30,174 @@ const ScriptModal = dynamic(() => import('./ScriptModal').then(mod => mod.Script
 	)
 });
 
-interface Role {
-	role_id: string;
-	display_name: string;
-	index: number;
-	perms?: string[];
+const defaultNew = (setting: Setting) => {
+    let data: any = {}
+    for (let column of setting.columns) {
+        if (column.column_type.type === ColumnType.Scalar) {
+            if (column.column_type.inner.type === InnerColumnType.Integer || column.column_type.inner.type === InnerColumnType.Float) {
+                data[column.id] = 0
+            } else if (column.column_type.inner.type === InnerColumnType.Boolean) {
+                data[column.id] = false;
+            } else {
+                data[column.id] = '';
+            }
+        } else if (column.column_type.type === ColumnType.Array) {
+            data[column.id] = [];
+        } else if (column.column_type.type === ColumnType.Widget) {
+            continue
+        }
+    }
 }
 
-interface RoleManagerProps {
+/*
+ * A template string (e.g.): {index} - {role_id} needs to be replaced
+ * 
+ * Special case: for roles/channels, a {role[role_id].name) or a {channel[channel_id].name} can be used to
+*/
+const formatTemplateString = (template: string, fields: any) => {
+    return template.replace(/{([^}]+)}/g, (match, p1) => {
+        const parts = p1.split('.');
+        if (parts.length === 2) {
+            // Handle nested properties like role_id.name
+            const [id, prop] = parts;
+            const field = fields[id];
+            return field ? (field[prop]?.toString() || '') : match;
+        } else {
+            // Handle simple properties like index or role_id
+            return fields[p1]?.toString() || match;
+        }
+    });
+}
+
+/*
+ * Fills in missing columns in a setting
+ */
+const fillInSetting = (setting: Setting, fields: {[key: string]: any}) => {
+    for(let column of setting.columns) {
+        let data = fields[column.id]
+        if(!data) {
+            if (column.column_type.type === ColumnType.Scalar) {
+                if (column.column_type.inner.type === InnerColumnType.Integer || column.column_type.inner.type === InnerColumnType.Float) {
+                    fields[column.id] = 0
+                } else if (column.column_type.inner.type === InnerColumnType.Boolean) {
+                    fields[column.id] = false;
+                } else {
+                    fields[column.id] = '';
+                }
+            } else if (column.column_type.type === ColumnType.Array) {
+                fields[column.id] = [];
+            } else if (column.column_type.type === ColumnType.Widget) {
+                continue
+            }
+        }
+    }
+}
+
+/**
+ * Fetches settings data. This can be useful in e.g. mocking settings with dummy data and also allows for functionality
+ * to be separate from the UI
+ */
+export interface SettingDataFetcher {
+    /**
+     * Returns a list of all entries (as returned by the template/script) for a given setting
+     */
+    listEntries: (setting: Setting) => Promise<any>
+}
+
+interface SettingProps {
 	guildId: string;
 	setting: Setting;
+    fetcher: SettingDataFetcher; // Optional dummy data for testing
+    guildData?: UserGuildBaseData | null; // Optional guild data for testing
 }
 
-export const RoleManager: React.FC<RoleManagerProps> = ({ guildId, setting }) => {
-	const [roles, setRoles] = useState<Role[]>([]);
+export const SettingComponent: React.FC<SettingProps> = ({ guildId, setting, fetcher }) => {
 	const [fields, setFields] = useState<any[]>([]); // Fields fetched from settings API on View operation
-	const [newRole, setNewRole] = useState<Role>({
-		role_id: '',
-		display_name: '',
-		index: roles.length + 1,
-		perms: []
-	});
-	const [showNewRoleForm, setShowNewRoleForm] = useState(false);
-	const [editingRole, setEditingRole] = useState<Role | null>(null);
-	const [roleOptions, setRoleOptions] = useState<{ value: string; label: string }[]>([]);
+	const [newEntry, setNewEntry] = useState<any>(null);
+	const [editingEntry, setEditingEntry] = useState<any>(null);
+    const [loadErrors, setLoadErrors] = useState<{[templateName: string]: string}>({}); // Errors encountered during loading
 	const [isReordered, setIsReordered] = useState(false);
 
 	const fetchSetting = async () => {
-		/*
-        const payload = {
-            operation: 'View',
-            setting: setting.id,
-            fields: {}
-        };
-
         try {
-            const result = await executeSettings(guildId, payload);
-            const rolesWithDisplayName = result.fields.map((role: Role) => {
-                const roleOption = roleOptions.find((option) => option.value === role.role_id);
-                return {
-                    ...role,
-                    display_name: role.display_name || roleOption?.label || ''
-                };
-            });
-            setRoles(rolesWithDisplayName || []);
+            const result: {[templateName: string]: DispatchResult} = await fetcher.listEntries(setting);
+
+            let mergedFields: any[] = [];
+            let errors: {[templateName: string]: string} = {};
+
+            for(const templateName in result) {
+                let templateResult = result[templateName];
+                if (!templateResult) {
+                    errors[templateName] = `No data found for template ${templateName}`;
+                }
+
+                if(templateResult.type != "Ok") {
+                    errors[templateName] = templateResult.data?.toString() || "Unknown error";
+                    continue;
+                }
+
+                if(!templateResult.data) {
+                    errors[templateName] = `No data returned by template ${templateName}`;
+                    continue;
+                }
+
+                if (Array.isArray(templateResult.data)) {
+                    mergedFields.push(...templateResult.data.map(f => fillInSetting(setting, f)));
+                } else if (typeof templateResult.data === 'object') {
+                    mergedFields.push(fillInSetting(setting, templateResult.data));
+                } else {
+                    errors[templateName] = `Unexpected data type returned by template ${templateName} [${typeof templateResult.data}]`;
+                }
+            }
+            
+            if(Object.keys(errors).length > 0) {
+                setLoadErrors(errors);
+            }
+
+            setFields(mergedFields);
         } catch (error) {
             toast.error('Failed to fetch roles'); // Display error toast
-        }*/
-
-		// TODO: Use dummy data
-		setFields([
-			{
-				foo: 'This is a dummy field for testing purposes',
-				bar: 'This is another dummy field'
-			}
-		]);
+        }
 	};
 
-	useEffect(() => {
+    useEffect(() => {
 		fetchSetting();
-	}, [guildId]);
+	}, [guildId, fetcher]);
 
+    return (
+        <>
+            {loadErrors && Object.keys(loadErrors).length > 0 && (
+                <motion.div
+                    className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 flex items-center gap-3"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                    role="alert"
+                    aria-live="assertive"
+                >
+                    <AlertCircle className="w-5 h-5 text-destructive" aria-hidden="true" />
+                    <p className="text-destructive">
+                        {Object.entries(loadErrors).map(([templateName, error]) => (
+                            <div key={templateName}>
+                                Error loading {templateName}: <br/><code>{error}</code>
+                            </div>
+                        ))}
+                    </p>
+                    <button
+                        onClick={fetchSetting}
+                        className="ml-auto bg-destructive/20 hover:bg-destructive/30 text-destructive px-3 py-1 rounded-md text-sm transition-colors focus:outline focus:outline-2 focus:outline-destructive"
+                        aria-label="Retry loading key-value pairs"
+                    >
+                        Retry
+                    </button>
+                </motion.div>
+            )}
+
+
+        </>
+    )
+
+	/*
 	useEffect(() => {
 		const fetchRoleOptions = async () => {
 			try {
@@ -154,7 +261,7 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId, setting }) =>
 	};
 
 	const handleSaveEdit = async () => {
-		/*if (editingRole) {
+		if (editingRole) {
             const payload = {
                 operation: 'Update',
                 setting: 'roles',
@@ -173,7 +280,7 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId, setting }) =>
             } catch (error) {
                 toast.error('Failed to edit role'); // Display error toast
             }
-        }*/
+        }
 	};
 
 	const handleSaveReorder = async () => {
@@ -352,7 +459,7 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId, setting }) =>
 				Drag to reorder roles. Higher roles have more permissions.
 			</p>
 		</div>
-	);
+	);*/
 };
 
 interface SettingsColumnListProps {
@@ -947,6 +1054,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
                                     scriptName="New Script"
                                     isEditMode={!disabled}
                                     onContentChange={setTemplateContent}
+
                                     onSave={() => {
                                         // Save the template content to value onSave
                                         onChange(templateContent);
