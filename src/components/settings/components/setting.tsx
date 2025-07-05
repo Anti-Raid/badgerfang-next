@@ -2,7 +2,13 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion, Reorder } from 'framer-motion';
 import { GripVertical, Plus, Trash2, Edit, AlertCircle } from 'lucide-react';
 import { Ghost, Primary, Secondary } from '../../ui/Buttons';
-import { GroupedRadioOption, InputField, RadioOption, Toggle } from './form-elements';
+import {
+	BaseLabelAndDescription,
+	GroupedRadioOption,
+	InputField,
+	RadioOption,
+	Toggle
+} from './form-elements';
 import { executeSettings, getUserGuildBaseInfo } from '@/lib/api';
 import { toast } from 'react-toastify'; // Import toast
 import {
@@ -15,6 +21,7 @@ import {
 } from '@/types/settings'; // Adjust the import path as needed
 import { Settings } from 'http2';
 import logger from '@/lib/logger';
+import { UserGuildBaseData } from '@/types/gosdk/types';
 
 interface Role {
 	role_id: string;
@@ -341,15 +348,61 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ guildId, setting }) =>
 	);
 };
 
+interface SettingsColumnListProps {
+	columns: Column[];
+	values: { [key: string]: any };
+	operation: string;
+	guildData: UserGuildBaseData | null;
+	onChange: (data: { [key: string]: any }) => void;
+}
+
+/**
+ * Defines a column list primitive for settings that renders a list of columns
+ * while also correctly hiding hidden values and propagating input changes and
+ * operation values
+ */
+export const SettingsColumnList: React.FC<SettingsColumnListProps> = ({
+	columns,
+	values,
+	operation,
+	guildData,
+	onChange
+}) => {
+	return (
+		<div className="space-y-4">
+			{columns
+				.filter((c) => !c.hidden || !c.hidden.includes(operation))
+				.map((column) => (
+					<SettingsColumn
+						key={column.id}
+						column={column}
+						value={values[column.id]}
+						disabled={column.readonly.includes(operation)}
+						guildData={guildData}
+						onChange={(newValue) => onChange({ ...values, [column.id]: newValue })}
+					/>
+				))}
+		</div>
+	);
+};
+
 const assertInnerColumnTypeUnion = (v: any): InnerColumnTypeUnion => v;
 
 interface SettingsColumnProps {
 	column: Column;
+	disabled: boolean;
 	value: any;
+	guildData: UserGuildBaseData | null;
 	onChange: (value: any) => void;
 }
 
-export const SettingsColumn: React.FC<SettingsColumnProps> = ({ column, value, onChange }) => {
+export const SettingsColumn: React.FC<SettingsColumnProps> = ({
+	column,
+	value,
+	disabled,
+	guildData,
+	onChange
+}) => {
 	return (
 		<>
 			{column.column_type.type === ColumnType.Scalar ? (
@@ -360,7 +413,12 @@ export const SettingsColumn: React.FC<SettingsColumnProps> = ({ column, value, o
 							column={column.column_type.inner}
 							id={column.id}
 							value={value}
-							onChange={onChange}
+							onChange={(v) => {
+								if (disabled) return;
+								onChange(v);
+							}}
+							disabled={disabled}
+							guildData={guildData}
 							marginClass="mb-4"
 						/>
 					</div>
@@ -368,6 +426,41 @@ export const SettingsColumn: React.FC<SettingsColumnProps> = ({ column, value, o
 			) : column.column_type.type === ColumnType.Array ? (
 				<>
 					<div className="items-center mt-2 bg-muted/30 p-3 rounded-lg">
+						{/* Edge case: no inputs in array, so we just show a label and then have the 3 buttons below it */}
+						{!value ||
+							(Array.isArray(value) && value.length === 0 && (
+								<>
+									<BaseLabelAndDescription
+										label={column.name}
+										description={column.description}
+										marginClass="mb-2"
+									/>
+
+									<span className="mr-2">
+										<Secondary
+											Title="Add Element"
+											disabled={disabled}
+											onClick={() => {
+												let ict = assertInnerColumnTypeUnion(column.column_type.inner);
+
+												let newElement: any = '';
+												if (
+													ict.type === InnerColumnType.Integer ||
+													ict.type === InnerColumnType.Float
+												) {
+													newElement = 0;
+												} else if (ict.type === InnerColumnType.Boolean) {
+													newElement = false;
+												}
+
+												const newArray = value.toSpliced(1, 0, newElement);
+												onChange(newArray);
+											}}
+										/>
+									</span>
+								</>
+							))}
+
 						{Array.isArray(value) ? (
 							value.map((item, index) => (
 								<React.Fragment key={index}>
@@ -378,77 +471,84 @@ export const SettingsColumn: React.FC<SettingsColumnProps> = ({ column, value, o
 										columnLabel={`${column.name} (${index + 1})`}
 										id={`${column.id}-${index}`}
 										value={item}
+										disabled={disabled}
 										onChange={(newValue) => {
+											if (disabled) return;
 											const newArray = [...value];
 											newArray[index] = newValue;
 											onChange(newArray);
 										}}
+										guildData={guildData}
 										marginClass="mb-2"
 									/>
 
-									<span className="mr-2">
-										<Secondary
-											Title="Add Above"
-											onClick={() => {
-												let ict = assertInnerColumnTypeUnion(column.column_type.inner);
+									{!disabled && (
+										<>
+											<span className="mr-2">
+												<Secondary
+													Title="Add Above"
+													onClick={() => {
+														let ict = assertInnerColumnTypeUnion(column.column_type.inner);
 
-												let newElement: any = '';
-												if (
-													ict.type === InnerColumnType.Integer ||
-													ict.type === InnerColumnType.Float
-												) {
-													newElement = 0;
-												} else if (ict.type === InnerColumnType.Boolean) {
-													newElement = false;
-												}
+														let newElement: any = '';
+														if (
+															ict.type === InnerColumnType.Integer ||
+															ict.type === InnerColumnType.Float
+														) {
+															newElement = 0;
+														} else if (ict.type === InnerColumnType.Boolean) {
+															newElement = false;
+														}
 
-												const newArray = value.toSpliced(index, 0, newElement);
-												onChange(newArray);
-											}}
-										/>
-									</span>
-									<span className="mr-2">
-										<Secondary
-											Title="Add Below"
-											onClick={() => {
-												let ict = assertInnerColumnTypeUnion(column.column_type.inner);
+														const newArray = value.toSpliced(index, 0, newElement);
+														onChange(newArray);
+													}}
+												/>
+											</span>
+											<span className="mr-2">
+												<Secondary
+													Title="Add Below"
+													onClick={() => {
+														let ict = assertInnerColumnTypeUnion(column.column_type.inner);
 
-												let newElement: any = '';
-												if (
-													ict.type === InnerColumnType.Integer ||
-													ict.type === InnerColumnType.Float
-												) {
-													newElement = 0;
-												} else if (ict.type === InnerColumnType.Boolean) {
-													newElement = false;
-												}
+														let newElement: any = '';
+														if (
+															ict.type === InnerColumnType.Integer ||
+															ict.type === InnerColumnType.Float
+														) {
+															newElement = 0;
+														} else if (ict.type === InnerColumnType.Boolean) {
+															newElement = false;
+														}
 
-												const newArray = value.toSpliced(index + 1, 0, newElement);
-												onChange(newArray);
-											}}
-										/>
-									</span>
-									<span className="mr-2">
-										<Secondary
-											Title="Delete"
-											onClick={() => {
-												let ict = assertInnerColumnTypeUnion(column.column_type.inner);
+														const newArray = value.toSpliced(index + 1, 0, newElement);
+														onChange(newArray);
+													}}
+												/>
+											</span>
+											<span className="mr-2">
+												<Secondary
+													Title="Delete"
+													onClick={() => {
+														let ict = assertInnerColumnTypeUnion(column.column_type.inner);
 
-												let newElement: any = '';
-												if (
-													ict.type === InnerColumnType.Integer ||
-													ict.type === InnerColumnType.Float
-												) {
-													newElement = 0;
-												} else if (ict.type === InnerColumnType.Boolean) {
-													newElement = false;
-												}
+														let newElement: any = '';
+														if (
+															ict.type === InnerColumnType.Integer ||
+															ict.type === InnerColumnType.Float
+														) {
+															newElement = 0;
+														} else if (ict.type === InnerColumnType.Boolean) {
+															newElement = false;
+														}
 
-												const newArray = value.filter((_, idx) => idx !== index);
-												onChange(newArray);
-											}}
-										/>
-									</span>
+														const newArray = value.filter((_, idx) => idx !== index);
+														onChange(newArray);
+													}}
+												/>
+											</span>
+										</>
+									)}
 									{index != value.length - 1 && <div className="mt-5"></div>}
 								</React.Fragment>
 							))
@@ -559,9 +659,11 @@ interface SettingsInnerColumnProps {
 	parentColumn: Column;
 	column: InnerColumnTypeUnion;
 	columnLabel?: string;
+	disabled: boolean;
 	id: string;
 	value: any;
 	onChange: (value: any) => void;
+	guildData: UserGuildBaseData | null;
 	marginClass?: string;
 }
 
@@ -577,16 +679,52 @@ interface SettingsInnerColumnProps {
 const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 	parentColumn,
 	column,
+	disabled,
 	columnLabel,
 	id,
 	value,
 	onChange,
+	guildData,
 	marginClass
 }) => {
 	let [valueType, setValueType] = useState<string>('string');
 
 	let [jsonValue, setJsonValue] = useState(JSON.stringify(value));
 	let [jsonOk, setJsonOk] = useState(true);
+
+	let roles = useMemo(() => {
+		if (!guildData || column.type !== InnerColumnType.String || column.kind !== 'role') return [];
+		return guildData.roles
+			.toSorted((a, b) => {
+				if (a.position === b.position) {
+					return b.id.localeCompare(a.id); // Newer roles are less than older roles
+				} else {
+					return b.position - a.position; // Sort by position
+				}
+			})
+			.map((s) => {
+				return { value: s.id, label: s.name };
+			});
+	}, [guildData]);
+
+	let channels = useMemo(() => {
+		if (!guildData || column.type !== InnerColumnType.String || column.kind !== 'channel')
+			return [];
+		return guildData.channels
+			.filter((s) => s.channel)
+			.toSorted((a, b) => {
+				if (!a.channel || !b.channel) return 0; // Handle cases where channel data might be missing
+				if (a.channel.position === b.channel.position) {
+					return b.channel.id.localeCompare(a.channel.id); // Newer roles are less than older roles
+				} else {
+					return b.channel.position - a.channel.position; // Sort by position
+				}
+			})
+			.map((s) => {
+				if (!s.channel) return { value: '', label: 'Unknown Channel' }; // Fallback for missing channel data
+				return { value: s.channel.id, label: s.channel.name };
+			});
+	}, [guildData]);
 
 	return (
 		<>
@@ -598,9 +736,38 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 							label={columnLabel || parentColumn.name}
 							description={parentColumn.description}
 							value={value}
+							disabled={disabled}
 							allowedValues={column.allowed_values}
 							onChange={onChange}
 							aria-required="true"
+							marginClass={marginClass}
+						/>
+					) : column.kind === 'role' && guildData ? (
+						<InputField
+							label={columnLabel || parentColumn.name}
+							description={parentColumn.description}
+							placeholder={parentColumn.placeholder}
+							value={value}
+							disabled={disabled}
+							onChange={(e) => onChange(e.target.value)}
+							id={id}
+							aria-required="false"
+							type={'select'}
+							options={roles}
+							marginClass={marginClass}
+						/>
+					) : column.kind === 'channel' && guildData ? (
+						<InputField
+							label={columnLabel || parentColumn.name}
+							description={parentColumn.description}
+							placeholder={parentColumn.placeholder}
+							value={value}
+							disabled={disabled}
+							onChange={(e) => onChange(e.target.value)}
+							id={id}
+							aria-required="false"
+							type={'select'}
+							options={channels}
 							marginClass={marginClass}
 						/>
 					) : (
@@ -609,12 +776,43 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 							description={parentColumn.description}
 							placeholder={parentColumn.placeholder}
 							value={value}
+							disabled={disabled}
 							onChange={(e) => onChange(e.target.value)}
 							id={id}
 							aria-required="true"
-							marginClass={marginClass}
+							type={
+								column.kind === 'password'
+									? 'password'
+									: column.kind === 'textarea'
+										? 'textarea'
+										: 'text'
+							}
+							marginClass={!disabled && column.suggestions ? '' : marginClass}
 						/>
 					)}
+
+					{!disabled &&
+						column.suggestions &&
+						Array.isArray(column.suggestions) &&
+						column.suggestions.length > 0 && (
+							<>
+								<InputField
+									label={'Suggestions'}
+									description={'Here are some potential suggestions for this field.'}
+									placeholder={parentColumn.placeholder}
+									value={value}
+									disabled={disabled}
+									onChange={(e) => onChange(e.target.value)}
+									id={id}
+									aria-required="false"
+									type={'select'}
+									options={column.suggestions.map((s: string) => {
+										return { value: s, label: s };
+									})}
+									marginClass={marginClass}
+								/>
+							</>
+						)}
 				</>
 			) : column.type === InnerColumnType.Integer ? (
 				<InputField
@@ -622,6 +820,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 					description={parentColumn.description}
 					placeholder={parentColumn.placeholder}
 					value={value}
+					disabled={disabled}
 					onChange={(e) => {
 						let number = parseFloat(e.target.value);
 						if (isNaN(number)) {
@@ -641,6 +840,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 					description={parentColumn.description}
 					placeholder={parentColumn.placeholder}
 					value={value}
+					disabled={disabled}
 					onChange={(e) => {
 						let number = parseFloat(e.target.value);
 						if (isNaN(number)) {
@@ -672,7 +872,10 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 					label={columnLabel || parentColumn.name}
 					description={parentColumn.description}
 					checked={value}
-					onChange={() => onChange(!value)}
+					disabled={disabled}
+					onChange={() => {
+						onChange(!value);
+					}}
 					marginClass={marginClass}
 				/>
 			) : column.type == InnerColumnType.Json ? (
@@ -682,6 +885,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 						description={parentColumn.description}
 						placeholder={parentColumn.placeholder}
 						value={jsonValue}
+						disabled={disabled}
 						onChange={(e) => {
 							setJsonValue(e.target.value);
 
@@ -725,12 +929,13 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 							{['string', 'json', 'number'].map((type) => (
 								<button
 									key={type}
+									disabled={disabled}
 									onClick={() => setValueType(type)}
 									className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
 										valueType === type
 											? 'bg-primary text-primary-foreground outline outline-2 outline-primary'
 											: 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-									}`}
+									} ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
 									role="radio"
 									aria-checked={valueType === type}
 									tabIndex={0}
@@ -771,6 +976,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 						description={parentColumn.description}
 						placeholder={parentColumn.placeholder}
 						value={value}
+						disabled={disabled}
 						onChange={(e) => onChange(e.target.value)}
 						id={id}
 						aria-required="true"

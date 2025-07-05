@@ -59,6 +59,7 @@ export interface StringType {
 	min_length?: number;
 	max_length?: number;
 	allowed_values: string[];
+	suggestions?: string[];
 	kind: string;
 }
 
@@ -92,22 +93,6 @@ export type InnerColumnTypeUnion =
 	| BooleanType
 	| Json;
 
-export enum ColumnSuggestion {
-	Static = 'Static',
-	None = 'None'
-}
-
-export interface StaticSuggestion {
-	type: ColumnSuggestion.Static;
-	suggestions: string[];
-}
-
-export interface NoneSuggestion {
-	type: ColumnSuggestion.None;
-}
-
-export type ColumnSuggestionUnion = StaticSuggestion | NoneSuggestion;
-
 export interface Column {
 	id: string;
 	name: string;
@@ -116,8 +101,6 @@ export interface Column {
 	column_type: ColumnTypeUnion;
 	primary_key: boolean;
 	nullable: boolean;
-	suggestions: ColumnSuggestionUnion;
-	secret: boolean;
 	hidden?: string[];
 	readonly: string[];
 }

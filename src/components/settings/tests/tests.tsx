@@ -1,8 +1,11 @@
 'use client';
 
-import { Column, ColumnSuggestion, ColumnType, InnerColumnType } from '@/types/settings';
-import { useState } from 'react';
-import { SettingsColumn } from '../components/setting';
+import { Column, ColumnType, InnerColumnType } from '@/types/settings';
+import { useEffect, useState } from 'react';
+import { SettingsColumn, SettingsColumnList } from '../components/setting';
+import { getUserGuildBaseInfo } from '@/lib/api';
+import { toast } from 'react-toastify';
+import { UserGuildBaseData } from '@/types/gosdk/types';
 
 const column1: Column = {
 	id: 'column1',
@@ -16,13 +19,9 @@ const column1: Column = {
 		inner: {
 			type: InnerColumnType.String,
 			allowed_values: [],
-			kind: 'Text'
+			kind: 'normal'
 		}
 	},
-	suggestions: {
-		type: ColumnSuggestion.None
-	},
-	secret: false,
 	readonly: []
 };
 const initialColumn1Value = 'Bacon and eggs';
@@ -40,11 +39,7 @@ const column2: Column = {
 			type: InnerColumnType.Integer
 		}
 	},
-	suggestions: {
-		type: ColumnSuggestion.None
-	},
-	secret: false,
-	readonly: []
+	readonly: ['View']
 };
 const initialColumn2Value = [1, 2, 3, 6];
 
@@ -61,11 +56,7 @@ const column3: Column = {
 			type: InnerColumnType.Boolean
 		}
 	},
-	suggestions: {
-		type: ColumnSuggestion.None
-	},
-	secret: false,
-	readonly: []
+	readonly: ['View']
 };
 const initialColumn3Value = [false, false];
 
@@ -84,10 +75,6 @@ const column4: Column = {
 			kind: 'normal'
 		}
 	},
-	suggestions: {
-		type: ColumnSuggestion.None
-	},
-	secret: false,
 	readonly: []
 };
 const initialColumn4Value = 'Cats';
@@ -106,58 +93,165 @@ const column5: Column = {
 			style: 'normal'
 		}
 	},
-	suggestions: {
-		type: ColumnSuggestion.None
-	},
-	secret: false,
-	readonly: []
+	readonly: ['View']
 };
 const initialColumn5Value = { a: 1 };
 
-export const ColumnInputTest = () => {
-	let [column1Value, setColumn1Value] = useState<any>(initialColumn1Value);
-	let [column2Value, setColumn2Value] = useState<any>(initialColumn2Value);
-	let [column3Value, setColumn3Value] = useState<any>(initialColumn3Value);
-	let [column4Value, setColumn4Value] = useState<any>(initialColumn4Value);
-	let [column5Value, setColumn5Value] = useState<any>(initialColumn5Value);
+const column6: Column = {
+	id: 'column6',
+	name: 'Column 6',
+	description: 'This is the sixth column for input.',
+	placeholder: 'Enter your value here',
+	primary_key: false,
+	nullable: true,
+	column_type: {
+		type: ColumnType.Scalar,
+		inner: {
+			type: InnerColumnType.String,
+			allowed_values: [],
+			kind: 'password'
+		}
+	},
+	readonly: []
+};
+const initialColumn6Value = 'My little password';
+
+const column7: Column = {
+	id: 'column7',
+	name: 'Column 7',
+	description: 'This is the seventh column for input.',
+	placeholder: 'Enter your value here',
+	primary_key: false,
+	nullable: true,
+	column_type: {
+		type: ColumnType.Scalar,
+		inner: {
+			type: InnerColumnType.String,
+			allowed_values: [],
+			suggestions: ['Piano', 'Guitar', 'Drums', 'Violin'],
+			kind: 'normal'
+		}
+	},
+	readonly: []
+};
+const initialColumn7Value = 'Piano';
+
+const column8: Column = {
+	id: 'column8',
+	name: 'Column 8',
+	description: 'This is the eight column for input.',
+	placeholder: 'Enter your value here',
+	primary_key: false,
+	nullable: true,
+	column_type: {
+		type: ColumnType.Scalar,
+		inner: {
+			type: InnerColumnType.String,
+			allowed_values: [],
+			suggestions: [],
+			kind: 'role'
+		}
+	},
+	readonly: []
+};
+const initialColumn8Value = '';
+
+const column9: Column = {
+	id: 'column9',
+	name: 'Column 9',
+	description: 'This is the ninth column for input.',
+	placeholder: 'Enter your value here',
+	primary_key: false,
+	nullable: true,
+	column_type: {
+		type: ColumnType.Scalar,
+		inner: {
+			type: InnerColumnType.String,
+			allowed_values: [],
+			suggestions: [],
+			kind: 'channel'
+		}
+	},
+	readonly: []
+};
+const initialColumn9Value = '';
+
+const column10: Column = {
+	id: 'column10',
+	name: 'Column 10',
+	description: 'This is the tenth column for input.',
+	placeholder: 'Enter your value here',
+	primary_key: false,
+	nullable: true,
+	column_type: {
+		type: ColumnType.Scalar,
+		inner: {
+			type: InnerColumnType.String,
+			allowed_values: [],
+			suggestions: [],
+			kind: 'textarea'
+		}
+	},
+	readonly: []
+};
+const initialColumn10Value = '';
+
+const columns = [
+	column1,
+	column2,
+	column3,
+	column4,
+	column5,
+	column6,
+	column7,
+	column8,
+	column9,
+	column10
+];
+
+interface ColumnInputTestProps {
+	guildId: string;
+}
+
+export const ColumnInputTest: React.FC<ColumnInputTestProps> = ({ guildId }) => {
+	const [userGuildBaseData, setUserGuildBaseData] = useState<UserGuildBaseData | null>(null);
+	useEffect(() => {
+		const fetchRoleOptions = async () => {
+			try {
+				const data = await getUserGuildBaseInfo(guildId);
+				setUserGuildBaseData(data);
+			} catch (error) {
+				toast.error('Failed to fetch user guild base data'); // Display error toast
+			}
+		};
+
+		fetchRoleOptions();
+	}, [guildId]);
+
+	let [columnData, setColumnData] = useState<{ [key: string]: any }>({
+		column1: initialColumn1Value,
+		column2: initialColumn2Value,
+		column3: initialColumn3Value,
+		column4: initialColumn4Value,
+		column5: initialColumn5Value,
+		column6: initialColumn6Value,
+		column7: initialColumn7Value,
+		column8: initialColumn8Value,
+		column9: initialColumn9Value,
+		column10: initialColumn10Value
+	});
 
 	return (
 		<>
-			<SettingsColumn
-				column={column1}
-				value={column1Value}
-				onChange={(newValue) => setColumn1Value(newValue)}
+			<SettingsColumnList
+				columns={columns}
+				values={columnData}
+				onChange={(newValues) => setColumnData(newValues)}
+				guildData={userGuildBaseData}
+				operation="View"
 			/>
 
-			<SettingsColumn
-				column={column2}
-				value={column2Value}
-				onChange={(newValue) => setColumn2Value(newValue)}
-			/>
-
-			<SettingsColumn
-				column={column3}
-				value={column3Value}
-				onChange={(newValue) => setColumn3Value(newValue)}
-			/>
-
-			<SettingsColumn
-				column={column4}
-				value={column4Value}
-				onChange={(newValue) => setColumn4Value(newValue)}
-			/>
-
-			<SettingsColumn
-				column={column5}
-				value={column5Value}
-				onChange={(newValue) => setColumn5Value(newValue)}
-			/>
-
-			<p>Column 1: {column1Value}</p>
-			<p>Column 2: {JSON.stringify(column2Value)}</p>
-			<p>Column 3: {JSON.stringify(column3Value)}</p>
-			<p>Column 4: {JSON.stringify(column4Value)}</p>
-			<p>Column 5: {JSON.stringify(column5Value)}</p>
+			<p>Column Data: {JSON.stringify(columnData)}</p>
 		</>
 	);
 };

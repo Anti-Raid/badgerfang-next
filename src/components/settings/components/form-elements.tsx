@@ -6,19 +6,54 @@ import { Eye, EyeOff } from 'lucide-react';
 import type { Icon } from 'lucide-react';
 import { Fragment, useState } from 'react';
 
+interface BaseLabelAndDescriptionProps {
+	label?: string;
+	description?: string;
+	className?: string;
+	id?: string;
+	marginClass?: string;
+}
+
+export const BaseLabelAndDescription: React.FC<BaseLabelAndDescriptionProps> = ({
+	label,
+	description,
+	className = '',
+	id,
+	marginClass = 'mb-6'
+}) => {
+	return (
+		<div className={`${marginClass} group ${className}`}>
+			{label && (
+				<label className="block text-foreground font-medium mb-1.5 text-sm" id={`${id}-label`}>
+					{label}
+				</label>
+			)}
+
+			{description && (
+				<p className="text-sm text-muted-foreground mb-2.5" id={`${id}-desc`}>
+					{description}
+				</p>
+			)}
+		</div>
+	);
+};
+
 interface InputFieldProps {
 	label?: string;
 	description?: string;
 	placeholder?: string;
 	type?: string;
 	value?: string;
-	onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+	onChange?: (
+		e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+	) => void;
 	options?: { value: string; label: string }[];
 	className?: string;
 	id?: string;
 	icon?: typeof Icon;
 	error?: string;
 	marginClass?: string;
+	disabled?: boolean;
 }
 
 export const InputField: React.FC<InputFieldProps> = ({
@@ -27,6 +62,7 @@ export const InputField: React.FC<InputFieldProps> = ({
 	placeholder,
 	type = 'text',
 	value,
+	disabled = false,
 	onChange,
 	options,
 	className = '',
@@ -71,10 +107,15 @@ export const InputField: React.FC<InputFieldProps> = ({
 					<select
 						id={inputId}
 						value={value}
-						onChange={onChange}
+						aria-placeholder={placeholder}
+						onChange={(e) => {
+							if (disabled) return;
+							if (onChange) onChange(e);
+						}}
+						disabled={disabled}
 						className={`w-full bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-3 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 appearance-none ${
 							IconComponent ? 'pl-10' : ''
-						} ${error ? 'border-destructive' : ''}`}
+						} ${error ? 'border-destructive' : ''} ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
 						aria-labelledby={`${inputId}-label`}
 						aria-describedby={description ? `${inputId}-desc` : undefined}
 					>
@@ -92,10 +133,14 @@ export const InputField: React.FC<InputFieldProps> = ({
 							type={showPassword ? 'text' : 'password'}
 							placeholder={placeholder}
 							value={value}
-							onChange={onChange}
+							disabled={disabled}
+							onChange={(e) => {
+								if (disabled) return;
+								if (onChange) onChange(e);
+							}}
 							className={`w-full bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-3 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${
 								IconComponent ? 'pl-10' : ''
-							} ${error ? 'border-destructive' : ''}`}
+							} ${error ? 'border-destructive' : ''} ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
 							aria-labelledby={`${inputId}-label`}
 							aria-describedby={description ? `${inputId}-desc` : undefined}
 							aria-required="true"
@@ -113,16 +158,36 @@ export const InputField: React.FC<InputFieldProps> = ({
 							)}
 						</button>
 					</div>
+				) : type === 'textarea' ? (
+					<textarea
+						id={inputId}
+						placeholder={placeholder}
+						value={value}
+						disabled={disabled}
+						onChange={(e) => {
+							if (disabled) return;
+							if (onChange) onChange(e);
+						}}
+						className={`w-full bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-3 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${
+							IconComponent ? 'pl-10' : ''
+						} ${error ? 'border-destructive' : ''} ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
+						aria-labelledby={`${inputId}-label`}
+						aria-describedby={description ? `${inputId}-desc` : undefined}
+					/>
 				) : (
 					<input
 						id={inputId}
 						type={type}
 						placeholder={placeholder}
 						value={value}
-						onChange={onChange}
+						disabled={disabled}
+						onChange={(e) => {
+							if (disabled) return;
+							if (onChange) onChange(e);
+						}}
 						className={`w-full bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-3 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${
 							IconComponent ? 'pl-10' : ''
-						} ${error ? 'border-destructive' : ''}`}
+						} ${error ? 'border-destructive' : ''} ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
 						aria-labelledby={`${inputId}-label`}
 						aria-describedby={description ? `${inputId}-desc` : undefined}
 						aria-required="true"
@@ -144,12 +209,14 @@ interface RadioOptionProps {
 	name: string;
 	checked?: boolean;
 	onChange?: () => void;
+	disabled?: boolean;
 	marginClass?: string;
 }
 
 export const RadioOption: React.FC<RadioOptionProps> = ({
 	label,
 	name,
+	disabled = false,
 	checked = false,
 	marginClass = 'mr-6 mb-3',
 	onChange
@@ -161,8 +228,12 @@ export const RadioOption: React.FC<RadioOptionProps> = ({
 					type="radio"
 					name={name}
 					className="sr-only"
+					disabled={disabled}
 					checked={checked}
-					onChange={onChange}
+					onChange={() => {
+						if (disabled) return;
+						if (onChange) onChange();
+					}}
 					aria-checked={checked}
 					aria-label={label}
 					tabIndex={0}
@@ -198,6 +269,7 @@ interface GroupedRadioOptionProps {
 	value: string;
 	allowedValues: string[];
 	description: string;
+	disabled?: boolean;
 	icon?: typeof Icon;
 	onChange: (v: string) => void;
 	marginClass?: string;
@@ -208,6 +280,7 @@ export const GroupedRadioOption: React.FC<GroupedRadioOptionProps> = ({
 	id,
 	label,
 	value,
+	disabled = false,
 	allowedValues,
 	description,
 	icon: IconComponent,
@@ -253,6 +326,7 @@ export const GroupedRadioOption: React.FC<GroupedRadioOptionProps> = ({
 								name={id}
 								label={v}
 								checked={v == value}
+								disabled={disabled}
 								onChange={() => onChange(v)}
 								marginClass={idx != allowedValues.length - 1 ? 'mr-6 mb-3' : 'mr-6'}
 							/>
@@ -268,6 +342,7 @@ interface ToggleProps {
 	label: string;
 	description?: string;
 	checked: boolean;
+	disabled?: boolean;
 	onChange: () => void;
 	marginClass?: string;
 }
@@ -277,6 +352,7 @@ export const Toggle: React.FC<ToggleProps> = ({
 	description,
 	onChange,
 	checked,
+	disabled = false,
 	marginClass = 'mb-5'
 }) => {
 	return (
@@ -286,10 +362,14 @@ export const Toggle: React.FC<ToggleProps> = ({
 					type="button"
 					role="switch"
 					aria-checked={checked}
+					disabled={disabled}
 					className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 ${
 						checked ? 'bg-primary' : 'bg-muted'
 					}`}
-					onClick={onChange}
+					onClick={() => {
+						if (disabled) return;
+						if (onChange) onChange();
+					}}
 					aria-label={label}
 					tabIndex={0}
 				>

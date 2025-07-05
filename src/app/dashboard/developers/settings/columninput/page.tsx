@@ -1,19 +1,31 @@
+'use client';
+
 import ProtectedRoute from '@/components/authProtectedRoute';
-import { Metadata } from 'next';
-import { generateDeveloperDashboardMetadata } from '@/lib/Metadata';
-import { website_url } from '@/components/common';
 import { ColumnInputTest } from '@/components/settings/tests/tests';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 /**
- * Renders the Developes Dashboard page.
+ * Renders the column test page content.
  *
- * This component returns a full-page layout that wraps the Dashboard component within a ProtectedRoute. The ProtectedRoute ensures that only authorized users can access the Dashboard content.
+ * Extracts the guild ID from the URL search parameters using Next.js's routing hooks. If a valid guild ID is retrieved, the component renders the settings view; otherwise, it displays a message indicating that the guild ID is missing.
  *
- * @returns A React element representing the settings page.
+ * @returns A JSX element representing either the guild settings or an error message.
  */
-export const metadata: Metadata = generateDeveloperDashboardMetadata({
-	canonicalUrl: `${website_url}/dashboard/settings/columninput`
-});
+function GuildContent() {
+	const searchParams = useSearchParams();
+	const [guildId, setGuildId] = useState<string | null>(null);
+
+	useEffect(() => {
+		setGuildId(searchParams.get('id'));
+	}, [searchParams]);
+
+	if (!guildId) {
+		return <div>Guild ID is missing.</div>;
+	}
+
+	return <ColumnInputTest guildId={guildId} />;
+}
 
 /**
  * Renders the Developers Dashboard page, restricting access to authorized users.
@@ -24,7 +36,7 @@ export default function Settings() {
 	return (
 		<div className="min-h-screen">
 			<ProtectedRoute>
-				<ColumnInputTest />
+				<GuildContent />
 			</ProtectedRoute>
 		</div>
 	);
