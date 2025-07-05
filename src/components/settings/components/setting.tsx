@@ -21,7 +21,7 @@ import {
 import { DispatchResult, UserGuildBaseData } from '@/types/gosdk/types';
 import dynamic from 'next/dynamic';
 
-const ScriptModal = dynamic(() => import('./ScriptModal').then(mod => mod.ScriptModal), {
+const ScriptModal = dynamic(() => import('../old/ScriptModal').then(mod => mod.ScriptModal), {
 	ssr: false,
 	loading: () => (
 		<div className="flex items-center justify-center h-full">
@@ -47,35 +47,17 @@ const defaultNew = (setting: Setting) => {
             continue
         }
     }
-}
 
-/*
- * A template string (e.g.): {index} - {role_id} needs to be replaced
- * 
- * Special case: for roles/channels, a {role[role_id].name) or a {channel[channel_id].name} can be used to
-*/
-const formatTemplateString = (template: string, fields: any) => {
-    return template.replace(/{([^}]+)}/g, (match, p1) => {
-        const parts = p1.split('.');
-        if (parts.length === 2) {
-            // Handle nested properties like role_id.name
-            const [id, prop] = parts;
-            const field = fields[id];
-            return field ? (field[prop]?.toString() || '') : match;
-        } else {
-            // Handle simple properties like index or role_id
-            return fields[p1]?.toString() || match;
-        }
-    });
+	return data;
 }
 
 /*
  * Fills in missing columns in a setting
  */
-const fillInSetting = (setting: Setting, fields: {[key: string]: any}) => {
+const fillInSetting = (setting: Setting, fields: {[key: string]: unknown}) => {
     for(let column of setting.columns) {
         let data = fields[column.id]
-        if(!data) {
+        if(data === undefined) {
             if (column.column_type.type === ColumnType.Scalar) {
                 if (column.column_type.inner.type === InnerColumnType.Integer || column.column_type.inner.type === InnerColumnType.Float) {
                     fields[column.id] = 0
@@ -89,7 +71,30 @@ const fillInSetting = (setting: Setting, fields: {[key: string]: any}) => {
             } else if (column.column_type.type === ColumnType.Widget) {
                 continue
             }
-        }
+        } else {
+			// Ensure correct type for scalar/array values
+			if (column.column_type.type === ColumnType.Scalar) {
+				if (column.column_type.inner.type === InnerColumnType.Integer || column.column_type.inner.type === InnerColumnType.Float) {
+					if(typeof data !== 'number') {
+						let num = parseFloat(data?.toString() || '0');
+						if(isNaN(num)) {
+							num = 0;
+						}
+						fields[column.id] = num
+					}
+				} else if (column.column_type.inner.type === InnerColumnType.Boolean) {
+					if(typeof data === "boolean") {
+						fields[column.id] = data;
+					} else if (typeof data === "string") {
+						fields[column.id] = data == "true" || data === "1" || data.toLowerCase() === "yes";
+					} else if (typeof data === "number") {
+						fields[column.id] = data !== 0; // Treat 0 as false, anything else as true
+					} else {
+						fields[column.id] = false; // Default to false if not a recognized type
+					}
+				}
+			}
+		}
     }
 }
 
@@ -193,28 +198,22 @@ export const SettingComponent: React.FC<SettingProps> = ({ guildId, setting, fet
                 </motion.div>
             )}
 
-
+			<div className="space-y-4">
+				<div className="flex justify-between items-center mb-4">
+					<h3 className="text-lg font-medium">Server Roles</h3>
+					<button
+						className="flex items-center gap-1 text-foreground bg-accent px-3 py-1.5 rounded-md hover:bg-accent/80 transition-colors"
+						onClick={() => setNewEntry(defaultNew(setting))}
+					>
+						<Plus className="w-4 h-4" />
+						<span>New {setting.name}</span>
+					</button>
+				</div>
+			</div>
         </>
     )
 
 	/*
-	useEffect(() => {
-		const fetchRoleOptions = async () => {
-			try {
-				const data = await getUserGuildBaseInfo(guildId);
-				const options = data.roles.map((role: { id: string; name: string }) => ({
-					value: role.id,
-					label: role.name
-				}));
-				setRoleOptions(options);
-			} catch (error) {
-				toast.error('Failed to fetch role options'); // Display error toast
-			}
-		};
-
-		fetchRoleOptions();
-	}, [guildId]);
-
 	const handleAddRole = async () => {
 		if (newRole.display_name.trim() && newRole.role_id.trim()) {
 			const newRoleObj: Role = {

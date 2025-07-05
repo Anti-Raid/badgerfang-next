@@ -1,47 +1,11 @@
-import logger from './logger';
+import { LuauTemplateResultCode, LuauTemplateResult } from './wasm-types';
 
-let module: any = null
+// Web worker for wasm execution
+let worker: Worker | null = null;
 
-const getModule = async () => {
-    if (module) {
-        return module;
-    }
-
-    try {
-        const wasm_js = await import('@/../wasm/wasm.js');
-        const wasmModule = await wasm_js.default();
-        module = wasmModule;
-        return module;
-    } catch (error) {
-        logger.error("LuauWASM", 'Error initializing WASM module:', error);
-        throw error;
-    }
-}
-
-const markModuleAsBroken = () => {
-    if (module) {
-        module = null; // Reset the module to force reinitialization
-    }
-}
-
-export enum LuauTemplateResultCode {
-    Success = 0,
-    ErrorGeneral = 1,
-    ErrorLuau = 2,
-    ErrorUnknown = 3,
-}
-
-export interface LuauTemplateResultSuccess {
-    code: LuauTemplateResultCode.Success;
-    result: any; // The result of the Luau code execution
-}
-
-export interface LuauTemplateResultError {
-    code: LuauTemplateResultCode.ErrorGeneral | LuauTemplateResultCode.ErrorLuau | LuauTemplateResultCode.ErrorUnknown;
-    message: string; // Error message
-}
-
-export type LuauTemplateResult = LuauTemplateResultSuccess | LuauTemplateResultError;
+// Map of pending requests
+const callbacks: Map<number, { resolve: Function, reject: Function }> = new Map();
+let msgId = 0
 
 /**
  * Evaluates Luau code using the WASM module.
@@ -58,53 +22,39 @@ export type LuauTemplateResult = LuauTemplateResultSuccess | LuauTemplateResultE
  * @param args The args, which must be serializable to JSON to call with.
  */
 export const luauTemplate = async (code: string, args: any): Promise<LuauTemplateResult> => {
-    let argsJson = JSON.stringify(args);
-    if (argsJson.includes('\0')) {
-        logger.error("LuauWASM", 'Arguments contain null bytes, which are not allowed across Luau/JS boundary.');
-        throw new Error('Arguments contain null bytes, which are not allowed across Luau/JS boundary');
+    if (typeof window !== 'undefined' && !worker) {
+        worker = new Worker(new URL('./wasm-webworker.ts', import.meta.url));
+        worker.onmessage = (event) => {
+            const { id, data } = event.data as { id: number, data: LuauTemplateResult };
+            const cb = callbacks.get(id);
+            if (!cb) return;
+
+            callbacks.delete(id);
+
+            if (data.code === LuauTemplateResultCode.Success) {
+                cb.resolve(data);
+            } else {
+                cb.reject(data);
+            }
+        }
+
+        let workerInstance = worker as any as Worker;
+
+        // wait for the worker to be ready
+        await new Promise<void>((resolve) => {
+            workerInstance.onmessage = (event) => {
+                console.log('Worker message:', event.data);
+                if (event.data === 'ready') {
+                    resolve();
+                }
+            };
+        })
     }
 
-    let module = await getModule();
-
-    let resp = "3unreachable";
-    try {
-        resp = module.cwrap('luau_template', 'string', ['string', 'string'])(code, argsJson)
-    } catch (error) {
-        markModuleAsBroken();
-        logger.error("LuauWASM", 'Error executing Luau code:', error);
-        throw new Error('Error executing Luau code: ' + error);
-    }
-    let statusCode = resp[0];
-    let rest = resp.slice(1);
-    switch (statusCode) {
-        case '0': {
-            // Success
-            let resp = JSON.parse(rest);
-            return {
-                code: LuauTemplateResultCode.Success,
-                result: resp,
-            }
-        }
-        case '1': {
-            // Error
-            return {
-                code: LuauTemplateResultCode.ErrorGeneral,
-                message: rest,
-            }
-        }
-        case '2': {
-            // Luau error
-            return {
-                code: LuauTemplateResultCode.ErrorLuau,
-                message: rest,
-            }
-        }
-        default: {
-            // Unknown error
-            return {
-                code: LuauTemplateResultCode.ErrorUnknown,
-                message: rest,
-            }
-        }
-    }
+    const id = ++msgId;
+    return new Promise((resolve, reject) => {
+        callbacks.set(id, { resolve, reject });
+        let workerInstance = worker as any as Worker;
+        workerInstance.postMessage({ id, code, args });
+    });
 }

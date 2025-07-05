@@ -4,7 +4,7 @@ import type React from 'react';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Primary } from '@/components/ui/Buttons';
-import { RadioOption, Toggle, InputField } from './form-elements';
+import { RadioOption, Toggle, InputField } from '../components/form-elements';
 import { executeSettings } from '@/lib/api';
 import { Trash2, Plus, Lock, AlertCircle, Shield, Save } from 'lucide-react';
 import { toast } from 'react-toastify';

@@ -4,7 +4,7 @@ import type React from 'react';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Primary, Secondary, Ghost } from '@/components/ui/Buttons';
-import { Toggle, InputField } from './form-elements';
+import { Toggle, InputField } from '../components/form-elements';
 import { executeSettings, getBotState } from '@/lib/api';
 import {
 	Trash2,

@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Plus, Database, Search, AlertCircle, RefreshCw, Copy, Check } from 'lucide-react';
 import { Primary } from '@/components/ui/Buttons';
-import { InputField } from './form-elements';
+import { InputField } from '../components/form-elements';
 import { executeSettings } from '@/lib/api';
 import { toast } from 'react-toastify';
 

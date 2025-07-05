@@ -26,6 +26,8 @@ pub extern "C" fn test_wasm() -> i32 {
 // 1 - general error
 // 2 - luau error
 // 0 - success 
+//
+// Note that the returned value must be freed by the caller using `_free`
 #[unsafe(no_mangle)]
 pub extern "C" fn luau_template(code: *const c_char, json: *const c_char) -> *mut c_char {
     if code.is_null() {
@@ -102,11 +104,19 @@ pub fn call_luau(code: String, value: Value) -> Result<Value, Error> {
     let result = vm_result.vm.load(code)
         .set_environment(vm_result.globals.clone())
         .set_name("luau_template")
-        .call::<LuaValue>(lua_value)
+        .call::<LuaMultiValue>(lua_value)
         .map_err(|e| format!("Failed to execute Lua code: {}", e))?;
 
-    let result_value = vm_result.vm.from_value(result)
-        .map_err(|e| format!("Failed to convert Lua value to JSON value: {}", e))?;
+    let mut results = Vec::with_capacity(result.len());
+    for val in result {
+        let converted = vm_result.vm.from_value(val)
+            .map_err(|e| format!("Failed to convert Lua value to JSON value: {}", e))?;
+        results.push(converted);
+    }
 
-    Ok(result_value)
+    if results.len() == 1 {
+        return Ok(results.remove(0));
+    }
+
+    Ok(Value::Array(results))
 }

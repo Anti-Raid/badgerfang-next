@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, Reorder } from 'framer-motion';
 import { GripVertical, Plus, Trash2, Edit } from 'lucide-react';
 import { Primary } from '../../ui/Buttons';
-import { InputField } from './form-elements';
+import { InputField } from '../components/form-elements';
 import { executeSettings, getUserGuildBaseInfo } from '@/lib/api';
 import { toast } from 'react-toastify'; // Import toast
 
