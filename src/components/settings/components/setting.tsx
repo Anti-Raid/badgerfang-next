@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, Reorder } from 'framer-motion';
-import { GripVertical, Plus, Trash2, Edit, AlertCircle } from 'lucide-react';
-import { Ghost, Primary, Secondary } from '../../ui/Buttons';
+import { GripVertical, Plus, Trash2, Edit, AlertCircle, Code } from 'lucide-react';
+import { Primary, Secondary } from '../../ui/Buttons';
 import {
 	BaseLabelAndDescription,
 	GroupedRadioOption,
 	InputField,
-	RadioOption,
 	Toggle
 } from './form-elements';
 import { executeSettings, getUserGuildBaseInfo } from '@/lib/api';
@@ -19,9 +18,17 @@ import {
 	InnerColumnType,
 	InnerWidget
 } from '@/types/settings'; // Adjust the import path as needed
-import { Settings } from 'http2';
-import logger from '@/lib/logger';
 import { UserGuildBaseData } from '@/types/gosdk/types';
+import dynamic from 'next/dynamic';
+
+const ScriptModal = dynamic(() => import('./ScriptModal').then(mod => mod.ScriptModal), {
+	ssr: false,
+	loading: () => (
+		<div className="flex items-center justify-center h-full">
+			<p className="text-muted-foreground">Loading Script IDE...</p>
+		</div>
+	)
+});
 
 interface Role {
 	role_id: string;
@@ -668,6 +675,21 @@ interface SettingsInnerColumnProps {
 }
 
 /**
+ * Returns true if the value is a valid template content [a valid map of strings to strings]
+ */
+const isValidTemplateContent = (value: any): boolean => {
+    if (typeof value !== 'object' || value == null || value == undefined) return false;
+
+    for (const key in value) {
+        if (typeof key !== 'string' || typeof value[key] !== 'string') {
+            return false; // All keys and values must be strings
+        }
+    }
+
+    return true; // All checks passed, it's a valid template content
+}
+
+/**
  * Defines the inner column for a setting.
  *
  * Setting columnLabel will allow overriding this inner column label while marginClass allows controlling the bottom
@@ -688,8 +710,9 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 	marginClass
 }) => {
 	let [valueType, setValueType] = useState<string>('string');
-
+    let [templateContent, setTemplateContent] = useState<any>(value);
 	let [jsonValue, setJsonValue] = useState(JSON.stringify(value));
+    let [isEditingNewScriptContent, setIsEditingNewScriptContent] = useState(false);
 	let [jsonOk, setJsonOk] = useState(true);
 
 	let roles = useMemo(() => {
@@ -880,93 +903,149 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 				/>
 			) : column.type == InnerColumnType.Json ? (
 				<>
-					<InputField
-						label={columnLabel || parentColumn.name}
-						description={parentColumn.description}
-						placeholder={parentColumn.placeholder}
-						value={jsonValue}
-						disabled={disabled}
-						onChange={(e) => {
-							setJsonValue(e.target.value);
+                    {column.style == "template-content" && isValidTemplateContent(templateContent) ? (
+                        <>
+                        	<div className="mb-5 mt-4">
+                                <label className="block text-foreground font-medium mb-2">{columnLabel || parentColumn.name}</label>
+                                {parentColumn.description && (
+                                    <p className="text-sm text-muted-foreground mb-2.5" id={`${id}-desc`}>
+                                        {parentColumn.description}
+                                    </p>
+                                )}
+                                
+                                <div className="flex items-center">
+                                    <span className="text-sm text-muted-foreground mr-2">
+                                        {Object.keys(value).length === 0
+                                            ? 'No files added yet'
+                                            : `${Object.keys(value).length} file(s) added`}
+                                    </span>
+                                    <Primary
+                                        Title="Edit Content"
+                                        icon={Code}
+                                        onClick={() => setIsEditingNewScriptContent(true)}
+                                    />
+                                </div>
+                                {Object.keys(value).length > 0 && (
+                                    <div className="mt-2 p-3 bg-muted/20 rounded-md">
+                                        <p className="font-medium text-sm">Files:</p>
+                                        <ul className="list-disc list-inside mt-1">
+                                            {Object.keys(value).map((filename) => (
+                                                <li key={filename} className="text-sm text-muted-foreground">
+                                                    {filename}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+                            </div>
 
-							// Dispatch onChange if the json is parseable for specified type
-							if (valueType === 'json') {
-								try {
-									const jsonValue = JSON.parse(e.target.value);
-									setJsonOk(true);
-									onChange(jsonValue);
-								} catch (error) {
-									setJsonOk(false);
-									return;
-								}
-							} else if (valueType === 'number') {
-								const numberValue = parseFloat(e.target.value);
-								if (isNaN(numberValue)) {
-									setJsonOk(false);
-									return;
-								}
-								setJsonOk(true);
-								onChange(numberValue);
-							} else {
-								// For string type, just pass the value as is
-								setJsonOk(true);
-								onChange(e.target.value);
-							}
-						}}
-						id={id}
-						aria-required="true"
-						marginClass={marginClass}
-					/>
-					<div
-						className="flex items-center gap-4 mt-4 mb-4"
-						role="radiogroup"
-						aria-label="Value Type"
-					>
-						<label className="text-sm font-medium text-foreground" id="value-type-label">
-							Value Type:
-						</label>
-						<div className="flex bg-muted/30 rounded-lg p-1" aria-labelledby="value-type-label">
-							{['string', 'json', 'number'].map((type) => (
-								<button
-									key={type}
-									disabled={disabled}
-									onClick={() => setValueType(type)}
-									className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
-										valueType === type
-											? 'bg-primary text-primary-foreground outline outline-2 outline-primary'
-											: 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-									} ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
-									role="radio"
-									aria-checked={valueType === type}
-									tabIndex={0}
-									aria-label={type.charAt(0).toUpperCase() + type.slice(1)}
-								>
-									{type.charAt(0).toUpperCase() + type.slice(1)}
-								</button>
-							))}
-						</div>
-					</div>
+                            {isEditingNewScriptContent && (
+                                <ScriptModal
+                                    isOpen={isEditingNewScriptContent}
+                                    onClose={() => setIsEditingNewScriptContent(false)}
+                                    content={value}
+                                    scriptName="New Script"
+                                    isEditMode={!disabled}
+                                    onContentChange={setTemplateContent}
+                                    onSave={() => {
+                                        // Save the template content to value onSave
+                                        onChange(templateContent);
+                                        setIsEditingNewScriptContent(false)
+                                    }}
+                                />
+                            )}                            
+                        </>
+                    ) : (
+                        <>
+                        	<InputField
+                                label={columnLabel || parentColumn.name}
+                                description={parentColumn.description}
+                                placeholder={parentColumn.placeholder}
+                                value={jsonValue}
+                                disabled={disabled}
+                                onChange={(e) => {
+                                    setJsonValue(e.target.value);
 
-					{!jsonOk && (
-						<>
-							<motion.div
-								className="bg-yellow-100 border border-yellow-300 rounded-lg p-4 flex items-center gap-3 mb-2"
-								initial={{ opacity: 0, y: 10 }}
-								animate={{ opacity: 1, y: 0 }}
-								transition={{ duration: 0.3 }}
-								role="alert"
-								aria-live="polite"
-							>
-								<AlertCircle className="w-5 h-5 text-yellow-600" aria-hidden="true" />
-								<p className="text-yellow-800 font-medium">
-									<span className="font-bold">
-										Invalid JSON input. The previously stored value of{' '}
-										<code>{JSON.stringify(value)}</code> has been kept
-									</span>
-								</p>
-							</motion.div>
-						</>
-					)}
+                                    // Dispatch onChange if the json is parseable for specified type
+                                    if (valueType === 'json') {
+                                        try {
+                                            const jsonValue = JSON.parse(e.target.value);
+                                            setJsonOk(true);
+                                            onChange(jsonValue);
+                                        } catch (error) {
+                                            setJsonOk(false);
+                                            return;
+                                        }
+                                    } else if (valueType === 'number') {
+                                        const numberValue = parseFloat(e.target.value);
+                                        if (isNaN(numberValue)) {
+                                            setJsonOk(false);
+                                            return;
+                                        }
+                                        setJsonOk(true);
+                                        onChange(numberValue);
+                                    } else {
+                                        // For string type, just pass the value as is
+                                        setJsonOk(true);
+                                        onChange(e.target.value);
+                                    }
+                                }}
+                                id={id}
+                                aria-required="true"
+                                marginClass={marginClass}
+                            />
+                            <div
+                                className="flex items-center gap-4 mt-4 mb-4"
+                                role="radiogroup"
+                                aria-label="Value Type"
+                            >
+                                <label className="text-sm font-medium text-foreground" id="value-type-label">
+                                    Value Type:
+                                </label>
+                                <div className="flex bg-muted/30 rounded-lg p-1" aria-labelledby="value-type-label">
+                                    {['string', 'json', 'number'].map((type) => (
+                                        <button
+                                            key={type}
+                                            disabled={disabled}
+                                            onClick={() => setValueType(type)}
+                                            className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
+                                                valueType === type
+                                                    ? 'bg-primary text-primary-foreground outline outline-2 outline-primary'
+                                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                                            } ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
+                                            role="radio"
+                                            aria-checked={valueType === type}
+                                            tabIndex={0}
+                                            aria-label={type.charAt(0).toUpperCase() + type.slice(1)}
+                                        >
+                                            {type.charAt(0).toUpperCase() + type.slice(1)}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {!jsonOk && (
+                                <>
+                                    <motion.div
+                                        className="bg-yellow-100 border border-yellow-300 rounded-lg p-4 flex items-center gap-3 mb-2"
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ duration: 0.3 }}
+                                        role="alert"
+                                        aria-live="polite"
+                                    >
+                                        <AlertCircle className="w-5 h-5 text-yellow-600" aria-hidden="true" />
+                                        <p className="text-yellow-800 font-medium">
+                                            <span className="font-bold">
+                                                Invalid JSON input. The previously stored value of{' '}
+                                                <code>{JSON.stringify(value)}</code> has been kept
+                                            </span>
+                                        </p>
+                                    </motion.div>
+                                </>
+                            )}
+                        </>
+                    )}
 				</>
 			) : (
 				<>

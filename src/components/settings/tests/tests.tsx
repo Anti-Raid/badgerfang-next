@@ -93,7 +93,7 @@ const column5: Column = {
 			style: 'normal'
 		}
 	},
-	readonly: ['View']
+	readonly: []
 };
 const initialColumn5Value = { a: 1 };
 
@@ -196,6 +196,25 @@ const column10: Column = {
 };
 const initialColumn10Value = '';
 
+const column11: Column = {
+	id: 'column11',
+	name: 'Column 11',
+	description: 'This is the eleventh column for input.',
+	placeholder: 'Enter your value here',
+	primary_key: false,
+	nullable: true,
+	column_type: {
+		type: ColumnType.Scalar,
+		inner: {
+			type: InnerColumnType.Json,
+			style: 'template-content'
+		}
+	},
+	readonly: []
+};
+const initialColumn11Value = { "init.luau": "print(123456)" };
+
+
 const columns = [
 	column1,
 	column2,
@@ -206,7 +225,8 @@ const columns = [
 	column7,
 	column8,
 	column9,
-	column10
+	column10,
+    column11
 ];
 
 interface ColumnInputTestProps {
@@ -238,7 +258,8 @@ export const ColumnInputTest: React.FC<ColumnInputTestProps> = ({ guildId }) => 
 		column7: initialColumn7Value,
 		column8: initialColumn8Value,
 		column9: initialColumn9Value,
-		column10: initialColumn10Value
+		column10: initialColumn10Value,
+        column11: initialColumn11Value
 	});
 
 	return (
