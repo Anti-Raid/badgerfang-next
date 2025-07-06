@@ -461,7 +461,7 @@ export const SettingComponent: React.FC<SettingProps> = ({ guildId, setting, fet
                     <div className="text-destructive">
                         {Object.entries(loadErrors).map(([templateName, error]) => (
                             <div key={templateName}>
-                                Error loading {templateName}: <br/><code>{error}</code>
+                                Error in {templateName}: <br/><code className="whitespace-pre-wrap">{error}</code>
                             </div>
                         ))}
                     </div>
