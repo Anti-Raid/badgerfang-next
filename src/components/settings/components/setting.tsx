@@ -38,7 +38,7 @@ const defaultNew = (setting: Setting) => {
 /*
  * Fills in missing columns in a setting
  */
-const fillInSetting = async (setting: Setting, guildData: UserGuildBaseData, fields: {[key: string]: unknown}) => {
+const fillInSetting = async (setting: Setting, guildData: UserGuildBaseData, fields: {[key: string]: unknown}, onError: (e: string) => void) => {
     for(let column of setting.columns) {
         let data = fields[column.id]
         if(data === undefined) {
@@ -93,8 +93,7 @@ const fillInSetting = async (setting: Setting, guildData: UserGuildBaseData, fie
 				fields['title'] = title;
 			}
 		} catch (error) {
-			logger.error("SettingComponent", "Failed to fill in title for setting:", setting.id, "with error:", error);
-			toast.error(`Failed to fill in title for setting ${setting.id}: ${error}`);
+			onError(error?.toString() || "Unknown error");
 		}
 	}
 
@@ -196,10 +195,16 @@ export const SettingComponent: React.FC<SettingProps> = ({ guildId, setting, fet
 
                 if (Array.isArray(templateResult.data)) {
 					for (let f of templateResult.data) {
-						mergedFields.push(await fillInSetting(setting, guildData, f));
+						mergedFields.push(await fillInSetting(setting, guildData, f, (e) => {
+							errors[templateName] = e;
+							logger.error("SettingComponent", "Failed to fill in setting for template:", templateName, "with error:", e);
+						}));
 					}
                 } else if (typeof templateResult.data === 'object') {
-                    mergedFields.push(await fillInSetting(setting, guildData, templateResult.data));
+                    mergedFields.push(await fillInSetting(setting, guildData, templateResult.data, (e) => {
+						errors[templateName] = e;
+						logger.error("SettingComponent", "Failed to fill in setting for template:", templateName, "with error:", e);
+					}));
                 } else {
                     errors[templateName] = `Unexpected data type returned by template ${templateName} [${typeof templateResult.data}]`;
                 }
