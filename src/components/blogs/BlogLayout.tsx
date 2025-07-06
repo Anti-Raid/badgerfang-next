@@ -5,7 +5,6 @@ import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import { Search, BookOpen, Sparkles, Tag } from 'lucide-react';
 import BlogCard from '@/components/blogs/BlogCard';
 import type { Blog } from '@/types/blogs/index';
-import { ViewTransitions } from 'next-view-transitions';
 import { fetchStrapiBlogs } from '@/lib/api';
 
 /**
@@ -88,7 +87,6 @@ export default function BlogLayout() {
 	return (
 		<div className="min-h-screen bg-background">
 			{/* Header Section */}
-			<ViewTransitions>
 				<motion.div
 					ref={headerRef}
 					style={{ opacity: headerOpacity, scale: headerScale }}
@@ -184,7 +182,6 @@ export default function BlogLayout() {
 						}}
 					/>
 				</motion.div>
-			</ViewTransitions>
 
 			{/* Tags Section */}
 			{allTags.length > 0 && (

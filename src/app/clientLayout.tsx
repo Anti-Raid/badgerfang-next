@@ -8,7 +8,6 @@ import { ThemeProvider } from '@/components/ui/ThemeProvider';
 import ToastProvider from '@/components/ui/ToastProvider';
 import { HelmetProvider } from 'react-helmet-async';
 import { SWRConfig } from 'swr';
-import { ViewTransitions } from 'next-view-transitions';
 
 /**
  * Renders a client-side layout for protected pages, showing a loading spinner on the home route before displaying the main content.
@@ -34,7 +33,6 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 			<ThemeProvider defaultTheme="dark" attribute="class">
 				<SWRConfig>
 					<ToastProvider>
-						<ViewTransitions>
 							{isLoading ? (
 								<Loading onClose={() => setIsLoading(false)} />
 							) : (
@@ -48,7 +46,6 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 									</article>
 								</>
 							)}
-						</ViewTransitions>
 					</ToastProvider>
 				</SWRConfig>
 			</ThemeProvider>
