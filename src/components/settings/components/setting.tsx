@@ -194,6 +194,18 @@ export const SettingComponent: React.FC<SettingProps> = ({ guildId, setting, fet
     const [loadErrors, setLoadErrors] = useState<{[templateName: string]: string}>({}); // Errors encountered during loading
 	const [isReordered, setIsReordered] = useState(false);
 
+	const processRes = (res: {[templateName: string]: DispatchResult}) => {
+		let errors: {[templateName: string]: string} = {};
+		for (let templateName in res) {
+			if (res[templateName].type !== "Ok") {
+				let errorMessage = res[templateName].data?.toString() || "Unknown error";
+				errors[templateName] = errorMessage;
+			}
+		}
+
+		setLoadErrors(errors);
+	}
+
 	const fetchSetting = async () => {
         try {
             const result = await fetcher.listEntries(setting);
@@ -286,7 +298,8 @@ export const SettingComponent: React.FC<SettingProps> = ({ guildId, setting, fet
 		}
 
 		try {
-			await fetcher.createEntry(setting, sendFields);
+			let res = await fetcher.createEntry(setting, sendFields);
+			processRes(res)
 			setNewEntry(null);
 			setShowNewEntryForm(false);
 			fetchSetting(); // Fetch roles again after adding a new role
@@ -331,7 +344,8 @@ export const SettingComponent: React.FC<SettingProps> = ({ guildId, setting, fet
 				}
 			}
 
-			await fetcher.deleteEntry(setting, sendFields);
+			let res = await fetcher.deleteEntry(setting, sendFields);
+			processRes(res)
 			setEntries(entries.filter((entry) => entry != fields));
 		} catch (error) {
 			logger.error("SettingsComponent", "Failed to delete entry", error);
@@ -366,7 +380,8 @@ export const SettingComponent: React.FC<SettingProps> = ({ guildId, setting, fet
 		}
 
 		try {
-			await fetcher.updateEntry(setting, sendFields);
+			let res = await fetcher.updateEntry(setting, sendFields);
+			processRes(res)
 			setEditingEntry(null);
 			fetchSetting(); // Fetch data again after editing
 		} catch (error) {
@@ -417,7 +432,8 @@ export const SettingComponent: React.FC<SettingProps> = ({ guildId, setting, fet
 		}
 
 		try {
-			await fetcher.reorderEntries(setting, sendFields);
+			let res = await fetcher.reorderEntries(setting, sendFields);
+			processRes(res)
 			fetchSetting(); // Fetch data again after editing
 			setIsReordered(false);
 		} catch (error) {
