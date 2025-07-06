@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Milestone, Zap, Users, Code, ChevronDown } from 'lucide-react';
-import { FaBullhorn } from "react-icons/fa";
+import { FaBullhorn } from 'react-icons/fa';
 
 interface TimelineEvent {
 	year: string;
@@ -81,11 +81,11 @@ export const HistoryTimeline = () => {
 		},
 		{
 			year: '2025 Q2',
-			title: "AntiRaid V7",
+			title: 'AntiRaid V7',
 			description: (
 				<>
-					Launch of our completely redesigned bot with new BuiltIns commands in Luau and docs for enhanced user experience
-					and new features.
+					Launch of our completely redesigned bot with new BuiltIns commands in Luau and docs for
+					enhanced user experience and new features.
 				</>
 			),
 			icon: <FaBullhorn className="w-6 h-6" />

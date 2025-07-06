@@ -10,10 +10,16 @@ import {
 import { ApiResponse } from '@/types/dashboard/servers';
 import { BotStats } from '@/types/bot-stats';
 import * as forumTypes from '@/types/forums/types';
+import { api_url } from '@/components/common';
+import {
+	DispatchResult,
+	TemplateShopPartialTemplate,
+	TemplateShopTemplate
+} from '@/types/gosdk/types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://splashtail-staging.antiraid.xyz';
-const FORUM_API_URL = 'https://potsypaw.purrquinox.com';
-const STRAPI_API_URL = 'https://strapi.purrquinox.com';
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || api_url;
+export const FORUM_API_URL = 'https://potsypaw.purrquinox.com';
+export const STRAPI_API_URL = 'https://strapi.purrquinox.com';
 
 const getAuthToken = (): string | null => {
 	if (typeof window !== 'undefined') {
@@ -54,11 +60,6 @@ export const getBotState = async (): Promise<BotState> => {
 export const getBotStats = async (): Promise<BotStats> => {
 	const { data } = await axiosInstance.get('/bot-stats');
 	return data;
-};
-
-export const getGuildStaffTeam = async (guildId: string): Promise<GuildStaffTeam> => {
-	const response = await axiosInstance.get(`/guilds/${guildId}/staff-team`);
-	return response.data;
 };
 
 export const getUserServers = async (refetch: boolean = false): Promise<ApiResponse> => {
@@ -108,13 +109,39 @@ export const getUserGuildBaseInfo = async (guildId: string): Promise<any> => {
 	return response.data;
 };
 
-export const executeSettings = async (guildId: string, payload: any): Promise<any> => {
+export const getSettings = async (
+	guildId: string
+): Promise<{ [template: string]: DispatchResult }> => {
+	const response = await axiosInstance.get(`/guilds/${guildId}/settings`);
+	if (response.status !== 200) {
+		let err = response.data;
+		throw new Error(
+			`Failed to fetch settings: ${JSON.stringify(err || { error: 'Unknown error' })}`
+		);
+	}
+	return response.data;
+};
+
+export const executeSettings = async (
+	guildId: string,
+	payload: any
+): Promise<{ [template: string]: DispatchResult }> => {
 	const response = await axiosInstance.post(`/guilds/${guildId}/settings`, payload);
 	return response.data;
 };
 
-export const anonexecuteSettings = async (payload: any): Promise<any> => {
-	const response = await axiosInstance.post(`/settings`, payload);
+export const listTemplateShop = async (): Promise<TemplateShopPartialTemplate[]> => {
+	const response = await axiosInstance.get(`/template-shop`);
+	return response.data;
+};
+
+export const getTemplateShop = async (id: string): Promise<TemplateShopTemplate | null> => {
+	const response = await axiosInstance.get(`/template-shop/${id}`, {
+		validateStatus: (status) => status === 200 || status === 404 // Allow 404 for not found
+	});
+	if (response.status === 404) {
+		return null; // Template not found
+	}
 	return response.data;
 };
 

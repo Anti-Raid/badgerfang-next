@@ -3,6 +3,7 @@ import { FaGithub, FaDiscord, FaForumbee } from 'react-icons/fa';
 import { RiTwitterXFill, RiTeamFill, RiBook2Fill, RiShieldCheckFill } from 'react-icons/ri';
 import { TbApi } from 'react-icons/tb';
 import { logo } from '../common';
+import { API_BASE_URL } from '@/lib/api';
 
 interface Category {
 	name: string;
@@ -32,7 +33,7 @@ const categories: Category[] = [
 		items: [
 			{
 				name: 'API Documentation',
-				href: 'https://splashtail-staging.antiraid.xyz/docs/splashtail'
+				href: `${API_BASE_URL}/docs/splashtail`
 			},
 			{
 				name: 'Developer Portal',

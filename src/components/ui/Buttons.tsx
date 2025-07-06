@@ -13,9 +13,19 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 const baseClass =
 	'px-5 py-2.5 w-full max-w-[160px] rounded-sm text-foreground font-medium text-[16px] border border-white border-opacity-5 hover:brightness-[80%] transition-all inline-flex justify-center items-center gap-2 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-primary';
 
-export const Primary: React.FC<ButtonProps> = ({ Title, onClick, icon: Icon, disabled, 'aria-label': ariaLabel, type = "button", ...rest }) => {
+export const Primary: React.FC<ButtonProps> = ({
+	Title,
+	onClick,
+	icon: Icon,
+	disabled,
+	'aria-label': ariaLabel,
+	type = 'button',
+	...rest
+}) => {
 	if (process.env.NODE_ENV === 'development' && (!Title || Title.trim() === '')) {
-		console.warn('Button component: Title prop is missing or empty. This is required for accessibility.');
+		console.warn(
+			'Button component: Title prop is missing or empty. This is required for accessibility.'
+		);
 	}
 	return (
 		<button
@@ -31,9 +41,19 @@ export const Primary: React.FC<ButtonProps> = ({ Title, onClick, icon: Icon, dis
 	);
 };
 
-export const Secondary: React.FC<ButtonProps> = ({ Title, onClick, icon: Icon, disabled, 'aria-label': ariaLabel, type = "button", ...rest }) => {
+export const Secondary: React.FC<ButtonProps> = ({
+	Title,
+	onClick,
+	icon: Icon,
+	disabled,
+	'aria-label': ariaLabel,
+	type = 'button',
+	...rest
+}) => {
 	if (process.env.NODE_ENV === 'development' && (!Title || Title.trim() === '')) {
-		console.warn('Button component: Title prop is missing or empty. This is required for accessibility.');
+		console.warn(
+			'Button component: Title prop is missing or empty. This is required for accessibility.'
+		);
 	}
 	return (
 		<button
@@ -49,9 +69,19 @@ export const Secondary: React.FC<ButtonProps> = ({ Title, onClick, icon: Icon, d
 	);
 };
 
-export const Ghost: React.FC<ButtonProps> = ({ Title, onClick, icon: Icon, disabled, 'aria-label': ariaLabel, type = "button", ...rest }) => {
+export const Ghost: React.FC<ButtonProps> = ({
+	Title,
+	onClick,
+	icon: Icon,
+	disabled,
+	'aria-label': ariaLabel,
+	type = 'button',
+	...rest
+}) => {
 	if (process.env.NODE_ENV === 'development' && (!Title || Title.trim() === '')) {
-		console.warn('Button component: Title prop is missing or empty. This is required for accessibility.');
+		console.warn(
+			'Button component: Title prop is missing or empty. This is required for accessibility.'
+		);
 	}
 	return (
 		<button

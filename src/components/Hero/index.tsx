@@ -7,7 +7,7 @@ import { Primary, Secondary } from '../ui/Buttons';
 import { GoArrowUpRight } from 'react-icons/go';
 import { ReviewsCarousel } from './reviewCarosel';
 import { getBotStats } from '@/lib/api';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 
 const ServerIcons = () => {
 	const servers = [
@@ -100,7 +100,7 @@ const Hero = () => {
 		}
 	};
 
-	const itemVariants = {
+	const itemVariants: Variants = {
 		hidden: { y: 20, opacity: 0 },
 		visible: {
 			y: 0,
