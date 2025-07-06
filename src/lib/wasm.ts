@@ -22,7 +22,11 @@ let msgId = 0
  * @param args The args, which must be serializable to JSON to call with.
  */
 export const luauTemplate = async (code: string, args: any): Promise<unknown> => {
-    if (typeof window !== 'undefined' && !worker) {
+    if(typeof window === 'undefined') {
+        throw new Error('luauTemplate can only be called in client-side code.');
+    }
+
+    if (!worker) {
         worker = new Worker(new URL('./wasm-webworker.ts', import.meta.url));
         worker.onmessage = (event) => {
             const { id, data } = event.data as { id: number, data: LuauTemplateResult };

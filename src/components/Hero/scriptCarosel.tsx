@@ -1,14 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { FiChevronLeft, FiBox, FiChevronRight, FiPackage, FiZap, FiShield } from 'react-icons/fi';
 import { CommonCard } from '../scripts/ScriptCard';
-import { anonexecuteSettings } from '@/lib/api';
-import type { TemplateShopProps } from '@/types/script';
+import { TemplateShopPartialTemplate } from '@/types/gosdk/types';
+import { listTemplateShop } from '@/lib/api';
 
 export const TemplateCarousel = () => {
-	const [templates, setTemplates] = useState<TemplateShopProps[]>([]);
+	const [templates, setTemplates] = useState<TemplateShopPartialTemplate[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [currentPage, setCurrentPage] = useState(0);
@@ -20,22 +20,10 @@ export const TemplateCarousel = () => {
 			try {
 				setIsLoading(true);
 
-				const payload = {
-					operation: 'View',
-					setting: 'template_shop_public_list',
-					fields: {}
-				};
-				const settingsResponse = await anonexecuteSettings(payload);
-
-				const templatesData = settingsResponse.fields;
-
-				if (Array.isArray(templatesData)) {
-					setTemplates(templatesData);
-				} else {
-					setError('Failed to fetch repository data. Using fallback data.');
-				}
+				const templates = await listTemplateShop();
+				setTemplates(templates);
 			} catch (err) {
-				setError('Failed to fetch repository data. Using fallback data.');
+				setError('Failed to fetch template data. Using fallback data.');
 			} finally {
 				setIsLoading(false);
 			}
@@ -77,7 +65,7 @@ export const TemplateCarousel = () => {
 		setCurrentPage((prevPage) => (prevPage - 1 + totalPages) % totalPages);
 	};
 
-	const buttonVariants = {
+	const buttonVariants: Variants = {
 		initial: {
 			scale: 1,
 			boxShadow: '0px 0px 0px rgba(var(--primary), 0.3)'
