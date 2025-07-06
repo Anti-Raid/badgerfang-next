@@ -264,8 +264,29 @@ export const SettingComponent: React.FC<SettingProps> = ({ guildId, setting, fet
 	};
 
 	const handleAddEntry = async () => {
+		let sendFields = structuredClone(newEntry); // Create a deep copy of newEntry
+		if (setting.validation_template) {
+			let params = {
+				op: "Create",
+				fields: sendFields,
+				entries,
+				guildData: guildData
+			}
+
+			try {
+				let potSendFields = await luauTemplate(setting.validation_template, params);
+				if( potSendFields !== null) {
+					sendFields = potSendFields as {[key: string]: unknown}; // SAFETY: We do not try to parse/use the sendFields after this
+				}
+			} catch (error) {
+				logger.error("SettingsComponent", "Failed to validate deletion with template", error);
+				toast.error(`Failed to validate deletion of ${setting.name}: ${error}`); // Display error toast
+				return;
+			}
+		}
+
 		try {
-			await fetcher.createEntry(setting, newEntry);
+			await fetcher.createEntry(setting, sendFields);
 			setNewEntry(null);
 			setShowNewEntryForm(false);
 			fetchSetting(); // Fetch roles again after adding a new role
@@ -290,6 +311,26 @@ export const SettingComponent: React.FC<SettingProps> = ({ guildId, setting, fet
 				}
 			}
 
+			if (setting.validation_template) {
+				let params = {
+					op: "Delete",
+					fields: sendFields,
+					entries,
+					guildData: guildData
+				}
+
+				try {
+					let potSendFields = await luauTemplate(setting.validation_template, params);
+					if( potSendFields !== null) {
+						sendFields = potSendFields as {[key: string]: unknown}; // SAFETY: We do not try to parse/use the sendFields after this
+					}
+				} catch (error) {
+					logger.error("SettingsComponent", "Failed to validate deletion with template", error);
+					toast.error(`Failed to validate deletion of ${setting.name}: ${error}`); // Display error toast
+					return;
+				}
+			}
+
 			await fetcher.deleteEntry(setting, sendFields);
 			setEntries(entries.filter((entry) => entry != fields));
 		} catch (error) {
@@ -303,13 +344,29 @@ export const SettingComponent: React.FC<SettingProps> = ({ guildId, setting, fet
 	};
 
 	const handleSaveEdit = async () => {
-		try {
-			let primaryKey = setting.columns.find(c => c.primary_key);
-			if (!primaryKey) {
-				toast.error('No primary key defined for this setting'); // Display error toast
+		let sendFields = structuredClone(editingEntry); // Create a deep copy of editingEntry
+		if (setting.validation_template) {
+			let params = {
+				op: "Update",
+				fields: sendFields,
+				entries,
+				guildData: guildData
+			}
+
+			try {
+				let potSendFields = await luauTemplate(setting.validation_template, params);
+				if( potSendFields !== null) {
+					sendFields = potSendFields as {[key: string]: unknown}; // SAFETY: We do not try to parse/use the sendFields after this
+				}
+			} catch (error) {
+				logger.error("SettingsComponent", "Failed to validate deletion with template", error);
+				toast.error(`Failed to validate deletion of ${setting.name}: ${error}`); // Display error toast
 				return;
 			}
-			await fetcher.updateEntry(setting, editingEntry);
+		}
+
+		try {
+			await fetcher.updateEntry(setting, sendFields);
 			setEditingEntry(null);
 			fetchSetting(); // Fetch data again after editing
 		} catch (error) {
@@ -319,28 +376,48 @@ export const SettingComponent: React.FC<SettingProps> = ({ guildId, setting, fet
 	};
 
 	const handleReorderEntry = async () => {
-		try {
-			let finalSendFields = []
-			for (let fields of entries) {
-				let sendFields: {[key: string]: unknown} = {}
-				for (let column of setting.columns) {
-					if (column.primary_key) {
-						let entry = fields[column.id];
-						if(entry === undefined) {
-							toast.error(`Missing primary key field ${column.id} for deletion`);
-							return;
-						}
-
-						sendFields[column.id] = entry;
+		let sendFields = []
+		for (let fields of entries) {
+			let _sendFields: {[key: string]: unknown} = {}
+			for (let column of setting.columns) {
+				if (column.primary_key) {
+					let entry = fields[column.id];
+					if(entry === undefined) {
+						toast.error(`Missing primary key field ${column.id} for deletion`);
+						return;
 					}
+
+					_sendFields[column.id] = entry;
 				}
-
-				sendFields[setting.index_by || ''] = fields[setting.index_by || ''] || 0; // Ensure index is included
-
-				finalSendFields.push(sendFields);
 			}
 
-			await fetcher.reorderEntries(setting, finalSendFields);
+			_sendFields[setting.index_by || ''] = fields[setting.index_by || ''] || 0; // Ensure index is included
+
+			sendFields.push(_sendFields);
+		}
+
+		if (setting.validation_template) {
+			let params = {
+				op: "Reorder",
+				fields: sendFields,
+				entries,
+				guildData: guildData
+			}
+
+			try {
+				let potSendFields = await luauTemplate(setting.validation_template, params);
+				if( potSendFields !== null) {
+					sendFields = potSendFields as {[key: string]: unknown}[]; // SAFETY: We do not try to parse/use the sendFields after this
+				}
+			} catch (error) {
+				logger.error("SettingsComponent", "Failed to validate deletion with template", error);
+				toast.error(`Failed to validate deletion of ${setting.name}: ${error}`); // Display error toast
+				return;
+			}
+		}
+
+		try {
+			await fetcher.reorderEntries(setting, sendFields);
 			fetchSetting(); // Fetch data again after editing
 			setIsReordered(false);
 		} catch (error) {

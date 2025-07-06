@@ -115,6 +115,7 @@ export interface Setting {
 	operations: string[];
 	footer?: Footer;
 	icon?: string;
+	validation_template?: string;
 }
 
 export interface Footer {
