@@ -306,6 +306,8 @@ export const SettingComponent: React.FC<SettingProps> = ({ guildId, setting, fet
 					}
 				}
 
+				sendFields[setting.index_by || ''] = fields[setting.index_by || ''] || 0; // Ensure index is included
+
 				finalSendFields.push(sendFields);
 			}
 
@@ -313,7 +315,7 @@ export const SettingComponent: React.FC<SettingProps> = ({ guildId, setting, fet
 			fetchSetting(); // Fetch data again after editing
 			setIsReordered(false);
 		} catch (error) {
-			logger.error("SettingsComponent", "Failed to delete entry", error);
+			logger.error("SettingsComponent", "Failed to reorder entry", error);
 			toast.error(`Failed to delete ${setting.name}`); // Display error toast
 		}
 	};
