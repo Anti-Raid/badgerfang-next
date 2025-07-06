@@ -11,10 +11,16 @@ import { useEffect, useState } from "react";
  */
 export default function LuauWasmTest() {
     let [value, setValue] = useState<string>('');
+    let [result, setResult] = useState<string>('');
 
     const handleValueChange = async (newValue: string) => {
-        let resp = await luauTemplate(value, { code: newValue })
-        console.log(resp);
+        try {
+            let resp = await luauTemplate(value, { code: newValue })
+            setResult(resp?.toString() || 'No result returned');
+        } catch (e) {
+            let err = e?.toString() || 'Unknown error';
+            setResult(err);
+        }
     }
 
     // Handle the value change when the input changes
@@ -36,7 +42,9 @@ export default function LuauWasmTest() {
                 id={"code-input"}
                 aria-required="true"
                 type={"textarea"}
-            />            
+            />    
+
+            <code className="whitespace-pre-wrap">{result}</code>        
         </div>
     );
 }

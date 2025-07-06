@@ -291,7 +291,7 @@ export const GroupedRadioOption: React.FC<GroupedRadioOptionProps> = ({
 	const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
 
 	return (
-		<div className={`${marginClass} group ${className}`}>
+		<div className={`${marginClass} ${className}`}>
 			{label && (
 				<label
 					htmlFor={inputId}
@@ -321,7 +321,7 @@ export const GroupedRadioOption: React.FC<GroupedRadioOptionProps> = ({
 
 				{allowedValues.map((v, idx) => (
 					<Fragment key={idx}>
-						<div>
+						<div className="group">
 							<RadioOption
 								name={id}
 								label={v}

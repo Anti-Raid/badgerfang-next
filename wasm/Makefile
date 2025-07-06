@@ -12,9 +12,9 @@ release:
      -s NO_DISABLE_EXCEPTION_CATCHING \
      -s DISABLE_EXCEPTION_CATCHING=0 \
      -s ALLOW_MEMORY_GROWTH=1 \
-     -s ASYNCIFY \
      -fexceptions \
-	 -O3 --no-entry \
+     -flto \
+     -O3 --no-entry \
      -L target/wasm32-unknown-emscripten/release \
      -lwasm \
      -o wasm.js

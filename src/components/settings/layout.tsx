@@ -2,12 +2,6 @@
 
 import { Shield, User, Code, Database, FileCode, Lock, Bell } from 'lucide-react';
 import { Section } from './components/section';
-import { RoleManager } from './components/role-manager';
-import { ServerMembers } from './components/server-members';
-import { Scripts } from './components/NewScript';
-import { KeyValueDB } from './components/key-value-db';
-import { PublishedScripts } from './components/published-scripts';
-import { LockdownSettings } from './components/lockdown-settings';
 import { useEffect, useState } from 'react';
 import { getUserGuildBaseInfo, executeSettings } from '@/lib/api';
 import { motion } from 'framer-motion';
@@ -166,54 +160,6 @@ export default function Settings({ guildId }: { guildId: string }) {
 				</motion.div>
 
 				<div className="space-y-8">
-					<Section
-						title="Server Roles"
-						description="Configure server roles permissions on AntiRaid"
-						icon={<Shield />}
-						defaultOpen={true}
-					>
-						<RoleManager guildId={guildId} />
-					</Section>
-
-					<Section
-						title="Server Members"
-						description="Manage server members and their permissions"
-						icon={<User />}
-					>
-						<ServerMembers guildId={guildId} />
-					</Section>
-
-					<Section
-						title="Scripts"
-						description="Configure your servers' custom scripts and automations"
-						icon={<Code />}
-					>
-						<Scripts guildId={guildId} />
-					</Section>
-
-					<Section
-						title="Key-Value Database"
-						description="Key-value database available to scripts on this server"
-						icon={<Database />}
-					>
-						<KeyValueDB guildId={guildId} />
-					</Section>
-
-					<Section
-						title="Published Scripts"
-						description="Publish new scripts to the shop that can be used by any other server"
-						icon={<FileCode />}
-					>
-						<PublishedScripts />
-					</Section>
-
-					<Section
-						title="Lockdown Settings"
-						description="Setup standard lockdown settings for a server"
-						icon={<Lock />}
-					>
-						<LockdownSettings guildId={guildId} />
-					</Section>
 				</div>
 			</div>
 		</div>

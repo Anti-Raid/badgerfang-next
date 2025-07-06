@@ -106,7 +106,29 @@ export interface SettingDataFetcher {
     /**
      * Returns a list of all entries (as returned by the template/script) for a given setting
      */
-    listEntries: (setting: Setting) => Promise<any>
+    listEntries: (setting: Setting) => Promise<any>,
+	/**
+	 * Creates a new entry for a given setting
+	 * @param setting The setting to create an entry for
+	 * @param fields The fields to create the entry with
+	 */
+	createEntry: (setting: Setting, fields: any) => Promise<void>,
+	/**
+	 * Updates an existing entry for a given setting
+	 * @param setting The setting to update an entry for
+	 * @param fields The fields to update the entry with
+	 */
+	updateEntry: (setting: Setting, fields: any) => Promise<void>,
+	/**
+	 * Deletes an entry for a given setting
+	 * @param setting The setting to delete an entry for
+	 * @param fields The fields to delete the entry with
+	 */
+	deleteEntry: (setting: Setting, fields: any) => Promise<void>,
+	/**
+	 * Reorders entries for a given setting
+	 */
+	reorderEntries: (setting: Setting, fields: any[]) => Promise<void>
 }
 
 interface SettingProps {

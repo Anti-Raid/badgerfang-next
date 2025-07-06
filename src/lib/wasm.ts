@@ -21,7 +21,7 @@ let msgId = 0
  * @param code The code to run
  * @param args The args, which must be serializable to JSON to call with.
  */
-export const luauTemplate = async (code: string, args: any): Promise<LuauTemplateResult> => {
+export const luauTemplate = async (code: string, args: any): Promise<unknown> => {
     if (typeof window !== 'undefined' && !worker) {
         worker = new Worker(new URL('./wasm-webworker.ts', import.meta.url));
         worker.onmessage = (event) => {
@@ -32,23 +32,25 @@ export const luauTemplate = async (code: string, args: any): Promise<LuauTemplat
             callbacks.delete(id);
 
             if (data.code === LuauTemplateResultCode.Success) {
-                cb.resolve(data);
+                cb.resolve(data.result);
             } else {
-                cb.reject(data);
+                let errMsg: string = data.message;
+                switch (data.code) {
+                    case LuauTemplateResultCode.ErrorGeneral:
+                        errMsg = `General Error: ${errMsg}`;
+                        break;
+                    case LuauTemplateResultCode.ErrorLuau:
+                        errMsg = `Luau Error: ${errMsg}`;
+                        break;
+                    case LuauTemplateResultCode.ErrorUnknown:
+                        errMsg = `Unknown Error: ${errMsg}`;
+                        break;
+                    case LuauTemplateResultCode.ErrorFatal:
+                        errMsg = `Fatal Error: ${errMsg}`;
+                }
+                cb.reject(errMsg);
             }
         }
-
-        let workerInstance = worker as any as Worker;
-
-        // wait for the worker to be ready
-        await new Promise<void>((resolve) => {
-            workerInstance.onmessage = (event) => {
-                console.log('Worker message:', event.data);
-                if (event.data === 'ready') {
-                    resolve();
-                }
-            };
-        })
     }
 
     const id = ++msgId;
