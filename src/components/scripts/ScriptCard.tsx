@@ -1,24 +1,22 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
 	FiPackage,
 	FiClock,
 	FiGitBranch,
 	FiServer,
-	FiDownload,
-	FiStar,
 	FiEye,
-	FiZap
+	FiZap,
+	FiUser
 } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
-import type { TemplateShopProps } from '@/types/script';
-import { anonuserDetails } from '@/lib/api';
 import { format, isValid } from 'date-fns';
+import { TemplateShopPartialTemplate } from '@/types/gosdk/types';
 
 interface CommonCardProps {
-	template: TemplateShopProps;
+	template: TemplateShopPartialTemplate;
 }
 
 interface CreatorDetails {
@@ -30,22 +28,12 @@ export const CommonCard = ({ template }: CommonCardProps) => {
 	const router = useRouter();
 	const [isHovered, setIsHovered] = useState(false);
 
-	const handleViewClick = () => {
-		router.push(`/script/auto-slowdown`);
-	};
-
 	const truncate = (str: string, maxLength: number) => {
 		return str.length > maxLength ? str.slice(0, maxLength) + '...' : str;
 	};
 
-	const convertToISO = (dateString: string) => {
-		// Remove the ' UTC' suffix and replace space with 'T'
-		return dateString.replace(' UTC', '').replace(' ', 'T') + 'Z';
-	};
-
 	const safeFormatDate = (dateString: string) => {
-		const isoDateString = convertToISO(dateString);
-		const date = new Date(isoDateString);
+		const date = new Date(dateString);
 		if (isValid(date)) {
 			return format(date, 'MMM d, yyyy');
 		} else {
@@ -178,6 +166,9 @@ export const CommonCard = ({ template }: CommonCardProps) => {
 								transition={{ delay: 0.6 }}
 								className="flex items-center space-x-3"
 							>
+								<div className="p-2.5 bg-primary/10 rounded-xl group-hover:bg-primary/15 transition-colors duration-300">
+									<FiUser className="w-5 h-5 text-primary" />
+								</div>
 								<div>
 									<p className="text-muted-foreground text-sm font-inter">Made by</p>
 									<p className="font-monster font-semibold text-foreground max-w-[150px] truncate">
@@ -233,7 +224,7 @@ export const CommonCard = ({ template }: CommonCardProps) => {
 						<motion.button
 							whileHover={{ scale: 1.02, boxShadow: '0 0 20px rgba(var(--primary), 0.3)' }}
 							whileTap={{ scale: 0.98 }}
-							onClick={handleViewClick}
+							onClick={() => router.push(`/script/${template.id}`)}
 							className="relative flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-white px-4 py-3 rounded-xl font-medium transition-all duration-300 overflow-hidden group"
 						>
 							<div className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-gradient-x"></div>

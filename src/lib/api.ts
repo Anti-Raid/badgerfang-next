@@ -11,7 +11,7 @@ import { ApiResponse } from '@/types/dashboard/servers';
 import { BotStats } from '@/types/bot-stats';
 import * as forumTypes from '@/types/forums/types';
 import { api_url } from '@/components/common';
-import { DispatchResult } from '@/types/gosdk/types';
+import { DispatchResult, TemplateShopPartialTemplate, TemplateShopTemplate } from '@/types/gosdk/types';
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || api_url;
 export const FORUM_API_URL = 'https://potsypaw.purrquinox.com';
@@ -118,6 +118,29 @@ export const executeSettings = async (guildId: string, payload: any): Promise<{[
 	const response = await axiosInstance.post(`/guilds/${guildId}/settings`, payload);
 	return response.data;
 };
+
+export const listTemplateShop = async (): Promise<TemplateShopPartialTemplate[]> => {
+	const response = await axiosInstance.get(`/template-shop`);
+	if(response.status !== 200) {
+		let err = response.data
+		throw new Error(`Failed to fetch settings: ${JSON.stringify(err || {"error": "Unknown error"})}`);
+	}
+	return response.data;
+}
+
+export const getTemplateShop = async (id: string): Promise<TemplateShopTemplate | null> => {
+	const response = await axiosInstance.get(`/template-shop/${id}`, {
+		validateStatus: (status) => status === 200 || status === 404 // Allow 404 for not found
+	});
+	if (response.status === 404) {
+		return null; // Template not found
+	}
+	if(response.status !== 200) {
+		let err = response.data
+		throw new Error(`Failed to fetch settings: ${JSON.stringify(err || {"error": "Unknown error"})}`);
+	}
+	return response.data;
+}
 
 export const anonuserDetails = async (userId: string): Promise<any> => {
 	const response = await axiosInstance.get(`/users/${userId}`);

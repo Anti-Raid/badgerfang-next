@@ -619,7 +619,6 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
                                     scriptName="New Script"
                                     isEditMode={!disabled}
                                     onContentChange={setTemplateContent}
-
                                     onSave={() => {
                                         // Save the template content to value onSave
                                         onChange(templateContent);

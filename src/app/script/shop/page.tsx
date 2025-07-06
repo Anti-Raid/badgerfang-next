@@ -2,11 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { TemplateShop } from '@/components/scripts/scriptShop';
-import type { TemplateShopProps } from '@/types/script';
-import { anonexecuteSettings } from '@/lib/api';
-import { website_url } from '@/components/common';
-import { Metadata } from 'next';
-import { generateScriptMetadata } from '@/lib/Metadata';
+import { listTemplateShop } from '@/lib/api';
+import { TemplateShopPartialTemplate } from '@/types/gosdk/types';
 
 /**
  * Displays the template shop page, fetching template data from the public settings API and handling loading and error states.
@@ -15,29 +12,15 @@ import { generateScriptMetadata } from '@/lib/Metadata';
  */
 
 export default function TemplateShopPage() {
-	const [templates, setTemplates] = useState<TemplateShopProps[]>([]);
+	const [templates, setTemplates] = useState<TemplateShopPartialTemplate[]>([]);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
 		const fetchTemplates = async () => {
 			try {
-				setIsLoading(true);
-
-				const payload = {
-					operation: 'View',
-					setting: 'template_shop_public_list',
-					fields: {}
-				};
-				const settingsResponse = await anonexecuteSettings(payload);
-
-				const templatesData = settingsResponse.fields;
-
-				if (Array.isArray(templatesData)) {
-					setTemplates(templatesData);
-				} else {
-					setError('Failed to fetch repository data. Using fallback data.');
-				}
+				let data = await listTemplateShop();
+				setTemplates(data);
 			} catch (err) {
 				setError('Failed to fetch repository data. Using fallback data.');
 			} finally {

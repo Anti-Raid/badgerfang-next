@@ -5,15 +5,11 @@ import { FiArrowLeft } from 'react-icons/fi';
 import { ScriptIDE } from '../ide/ide';
 import { CommonCard } from './ScriptCard';
 import type { TemplateShopProps } from '@/types/script';
+import { TemplateShopPartialTemplate } from '@/types/gosdk/types';
 
 interface ScriptLayoutProps {
-	script: TemplateShopProps;
-	files: {
-		name: string;
-		path: string;
-		content: string;
-		type: 'file' | 'dir';
-	}[];
+	script: TemplateShopPartialTemplate;
+	files: { [key: string]: string };
 }
 
 /**
@@ -27,6 +23,16 @@ interface ScriptLayoutProps {
  * @returns A React element representing the script layout.
  */
 export function ScriptLayout({ script, files }: ScriptLayoutProps) {
+	// Convert content object to files array for ScriptIDE
+	const contentToFiles = (content: Record<string, string>) => {
+		return Object.entries(content).map(([name, content]) => ({
+			name,
+			path: name,
+			content,
+			type: 'file' as const
+		}));
+	};
+
 	return (
 		<div className="container mx-auto px-4 py-8 max-w-7xl">
 			<div className="mb-8">
@@ -44,7 +50,7 @@ export function ScriptLayout({ script, files }: ScriptLayoutProps) {
 			</div>
 
 			<div className="w-full">
-				<ScriptIDE files={files} isContentEditable={false} height="800px" width="100%" />
+				<ScriptIDE files={contentToFiles(files)} isContentEditable={false} height="800px" width="100%" />
 			</div>
 		</div>
 	);
