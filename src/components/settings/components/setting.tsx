@@ -1,3 +1,22 @@
+/**
+ * # Settings
+
+ * **Introduction/Flow**
+
+ * Settings is based on a schema driven approach. There are two stages to this: Get Settings and Execute Setting.
+ * Whenever the user opens the dashboard, the bot will trigger a Get Settings event to all templates bound to that event, 
+ * this will return a list of schema objects that will then be rendered by the website. 
+ * 
+ * The website will then take this schema and loop over all columns/aspects of the setting to render the setting to the user.
+ * 
+ * In order to list entries, a View operation will be dispatched via the Execute Setting event,
+ * similarly to create/update/delete, a Create, Update or Delete operation will be dispatched.
+ * 
+ * When reordering a setting which implements an index_by, the bot will dispatch a Reorder operation with the primary keys 
+ * and the index_by value of each entry.
+ * 
+ */
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, Reorder } from 'framer-motion';
 import { GripVertical, Plus, Trash2, Edit, AlertCircle, Code } from 'lucide-react';
