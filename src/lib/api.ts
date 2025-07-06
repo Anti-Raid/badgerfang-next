@@ -121,10 +121,6 @@ export const executeSettings = async (guildId: string, payload: any): Promise<{[
 
 export const listTemplateShop = async (): Promise<TemplateShopPartialTemplate[]> => {
 	const response = await axiosInstance.get(`/template-shop`);
-	if(response.status !== 200) {
-		let err = response.data
-		throw new Error(`Failed to fetch settings: ${JSON.stringify(err || {"error": "Unknown error"})}`);
-	}
 	return response.data;
 }
 
@@ -134,10 +130,6 @@ export const getTemplateShop = async (id: string): Promise<TemplateShopTemplate 
 	});
 	if (response.status === 404) {
 		return null; // Template not found
-	}
-	if(response.status !== 200) {
-		let err = response.data
-		throw new Error(`Failed to fetch settings: ${JSON.stringify(err || {"error": "Unknown error"})}`);
 	}
 	return response.data;
 }
