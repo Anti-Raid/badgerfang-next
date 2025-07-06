@@ -24,7 +24,9 @@ import { DispatchResult } from '@/types/gosdk/types';
  */
 export default function Settings({ guildId }: { guildId: string }) {
 	const [guildData, setGuildData] = useState<any>(null);
-	const [guildSettings, setGuildSettings] = useState<{[key: string]: DispatchResult} | null>(null);
+	const [guildSettings, setGuildSettings] = useState<{ [key: string]: DispatchResult } | null>(
+		null
+	);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
 
@@ -35,7 +37,7 @@ export default function Settings({ guildId }: { guildId: string }) {
 				operation: 'View',
 				setting: setting.id,
 				fields: {}
-			}
+			};
 
 			return await executeSettings(guildId, payload);
 		},
@@ -44,7 +46,7 @@ export default function Settings({ guildId }: { guildId: string }) {
 				operation: 'Create',
 				setting: setting.id,
 				fields: entry
-			}
+			};
 
 			return await executeSettings(guildId, payload);
 		},
@@ -53,7 +55,7 @@ export default function Settings({ guildId }: { guildId: string }) {
 				operation: 'Update',
 				setting: setting.id,
 				fields: entry
-			}
+			};
 
 			return await executeSettings(guildId, payload);
 		},
@@ -62,7 +64,7 @@ export default function Settings({ guildId }: { guildId: string }) {
 				operation: 'Delete',
 				setting: setting.id,
 				fields: entry
-			}
+			};
 
 			return await executeSettings(guildId, payload);
 		},
@@ -71,24 +73,24 @@ export default function Settings({ guildId }: { guildId: string }) {
 				operation: 'Reorder',
 				setting: setting.id,
 				fields: entries
-			}
+			};
 
 			return await executeSettings(guildId, payload);
-		},
-	}
+		}
+	};
 
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
 				const data = await getUserGuildBaseInfo(guildId);
-				let settings = await getSettings(guildId)
+				let settings = await getSettings(guildId);
 
 				// Ensure builtin settings are the first thing in the object
 				const builtins = settings['$builtins'];
 				if (builtins) {
 					delete settings['$builtins'];
 					settings = {
-						'$builtins': builtins,
+						$builtins: builtins,
 						...settings
 					};
 				}
@@ -228,84 +230,102 @@ export default function Settings({ guildId }: { guildId: string }) {
 				<div className="space-y-8">
 					{guildSettings && guildData && (
 						<>
-							{Object.keys(guildSettings).filter(s => guildSettings[s].type !== "Ok").map((setting, idx) => {
-								return (
-									<div key={idx} className="bg-background flex items-center justify-center">
-										<div className="bg-card p-6 rounded-xl border border-destructive max-w-md w-full">
-											<div className="text-destructive mb-3">
-												<svg
-													xmlns="http://www.w3.org/2000/svg"
-													width="24"
-													height="24"
-													viewBox="0 0 24 24"
-													fill="none"
-													stroke="currentColor"
-													strokeWidth="2"
-													strokeLinecap="round"
-													strokeLinejoin="round"
-												>
-													<circle cx="12" cy="12" r="10"></circle>
-													<line x1="12" y1="8" x2="12" y2="12"></line>
-													<line x1="12" y1="16" x2="12.01" y2="16"></line>
-												</svg>
-											</div>
-											<h3 className="text-lg font-bold mb-2">Error getting settings from template {setting}</h3>
-											<p className="text-muted-foreground">{JSON.stringify(guildSettings[setting].data)}</p>
-											<button
-												onClick={() => window.location.reload()}
-												className="mt-4 bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors"
-											>
-												Try Again
-											</button>
-										</div>
-									</div>
-								);
-							})}
-
-							{Object.keys(guildSettings).filter(s => guildSettings[s].type === "Ok").map(s => {
-								return {s, setting: guildSettings[s].data as Setting[]};
-							}).map((setting, _idx) => {
-								console.log(`Rendering setting`, setting)
-								return (
-									<Fragment key={setting.s}>
-										{setting.s !== "$builtins" && (
-											<>
-												<h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-primary to-extra bg-clip-text text-transparent">
-													Template {setting.s}
-												</h2>
-												<p className="text-muted-foreground mb-6">
-													Manage settings from template {setting.s} here.
+							{Object.keys(guildSettings)
+								.filter((s) => guildSettings[s].type !== 'Ok')
+								.map((setting, idx) => {
+									return (
+										<div key={idx} className="bg-background flex items-center justify-center">
+											<div className="bg-card p-6 rounded-xl border border-destructive max-w-md w-full">
+												<div className="text-destructive mb-3">
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														width="24"
+														height="24"
+														viewBox="0 0 24 24"
+														fill="none"
+														stroke="currentColor"
+														strokeWidth="2"
+														strokeLinecap="round"
+														strokeLinejoin="round"
+													>
+														<circle cx="12" cy="12" r="10"></circle>
+														<line x1="12" y1="8" x2="12" y2="12"></line>
+														<line x1="12" y1="16" x2="12.01" y2="16"></line>
+													</svg>
+												</div>
+												<h3 className="text-lg font-bold mb-2">
+													Error getting settings from template {setting}
+												</h3>
+												<p className="text-muted-foreground">
+													{JSON.stringify(guildSettings[setting].data)}
 												</p>
-											</>
-										)}
-										{setting.setting.map((setting, idx) => (
-											<Section
-												key={idx}
-												title={setting.name}
-												description={setting.description}
-												icon={
-													setting.icon == "Bell" ? <Bell />
-													: setting.icon == "Shield" ? <Shield />
-													: setting.icon == "User" ? <User />
-													: setting.icon == "Code" ? <Code />
-													: setting.icon == "Database" ? <Database />
-													: setting.icon == "FileCode" ? <FileCode />
-													: setting.icon == "Lock" ? <Lock />
-													: <Shield />
-												}
-												defaultOpen={idx == 0} // Open the first section by default
-											>
-												<SettingComponent
-													guildId={guildId}
-													setting={setting}
-													guildData={guildData}
-													fetcher={fetcher}
-												/>
-											</Section>
-										))}
-									</Fragment>
-								)
-							})}
+												<button
+													onClick={() => window.location.reload()}
+													className="mt-4 bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors"
+												>
+													Try Again
+												</button>
+											</div>
+										</div>
+									);
+								})}
+
+							{Object.keys(guildSettings)
+								.filter((s) => guildSettings[s].type === 'Ok')
+								.map((s) => {
+									return { s, setting: guildSettings[s].data as Setting[] };
+								})
+								.map((setting, _idx) => {
+									console.log(`Rendering setting`, setting);
+									return (
+										<Fragment key={setting.s}>
+											{setting.s !== '$builtins' && (
+												<>
+													<h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-primary to-extra bg-clip-text text-transparent">
+														Template {setting.s}
+													</h2>
+													<p className="text-muted-foreground mb-6">
+														Manage settings from template {setting.s} here.
+													</p>
+												</>
+											)}
+											{setting.setting.map((setting, idx) => (
+												<Section
+													key={idx}
+													title={setting.name}
+													description={setting.description}
+													icon={
+														setting.icon == 'Bell' ? (
+															<Bell />
+														) : setting.icon == 'Shield' ? (
+															<Shield />
+														) : setting.icon == 'User' ? (
+															<User />
+														) : setting.icon == 'Code' ? (
+															<Code />
+														) : setting.icon == 'Database' ? (
+															<Database />
+														) : setting.icon == 'FileCode' ? (
+															<FileCode />
+														) : setting.icon == 'Lock' ? (
+															<Lock />
+														) : (
+															<Shield />
+														)
+													}
+													defaultOpen={idx == 0} // Open the first section by default
+												>
+													<SettingComponent
+														guildId={guildId}
+														setting={setting}
+														guildData={guildData}
+														fetcher={fetcher}
+													/>
+												</Section>
+											))}
+										</Fragment>
+									);
+								})}
 						</>
 					)}
 				</div>

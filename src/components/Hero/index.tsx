@@ -179,7 +179,7 @@ const Hero = () => {
 							</motion.p>
 
 							{/* CTA Buttons */}
-							<motion.div variants={itemVariants} className="flex flex-wrap gap-4 justify-center"> 
+							<motion.div variants={itemVariants} className="flex flex-wrap gap-4 justify-center">
 								<motion.div
 									whileHover={{ scale: 1.05 }}
 									whileTap={{ scale: 0.98 }}

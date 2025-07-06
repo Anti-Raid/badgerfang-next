@@ -50,7 +50,12 @@ export function ScriptLayout({ script, files }: ScriptLayoutProps) {
 			</div>
 
 			<div className="w-full">
-				<ScriptIDE files={contentToFiles(files)} isContentEditable={false} height="800px" width="100%" />
+				<ScriptIDE
+					files={contentToFiles(files)}
+					isContentEditable={false}
+					height="800px"
+					width="100%"
+				/>
 			</div>
 		</div>
 	);

@@ -8,7 +8,7 @@ Badgerfang is the official rewrite of the old [Website](https://github.com/Anti-
 
 ## Webassembly Assets
 
-Badgerfang uses webassembly for its settings middleware code (for stuff like templating stuff). In most cases, you won't need to recompile these assets, but you can use the ``build:wasm`` target to do so
+Badgerfang uses webassembly for its settings middleware code (for stuff like templating stuff). In most cases, you won't need to recompile these assets, but you can use the `build:wasm` target to do so
 
 ### Self-hosting
 

@@ -214,8 +214,7 @@ const column11: Column = {
 	},
 	readonly: []
 };
-const initialColumn11Value = { "init.luau": "print(123456)" };
-
+const initialColumn11Value = { 'init.luau': 'print(123456)' };
 
 const columns = [
 	column1,
@@ -228,7 +227,7 @@ const columns = [
 	column8,
 	column9,
 	column10,
-    column11
+	column11
 ];
 
 interface ColumnInputTestProps {
@@ -261,15 +260,15 @@ export const ColumnInputTest: React.FC<ColumnInputTestProps> = ({ guildId }) => 
 		column8: initialColumn8Value,
 		column9: initialColumn9Value,
 		column10: initialColumn10Value,
-        column11: initialColumn11Value
+		column11: initialColumn11Value
 	});
 
 	let settingsFetcher: SettingDataFetcher = {
 		...noOpFetcher,
-		listEntries: async (setting: Setting): Promise<{[key: string]: DispatchResult}> => {
+		listEntries: async (setting: Setting): Promise<{ [key: string]: DispatchResult }> => {
 			return {
 				builtins: {
-					type: "Ok",
+					type: 'Ok',
 					data: [
 						{
 							id: '1',
@@ -304,14 +303,15 @@ export const ColumnInputTest: React.FC<ColumnInputTestProps> = ({ guildId }) => 
 					]
 				}
 			};
-		},
-	}
+		}
+	};
 
 	let setting: Setting = {
-		id: "testsetting",
-		name: "Test Setting",
-		description: "This is a test setting for column input.",
-		title_template: "local data = ...; return `{#data.guildData.roles} roles with ID {data.fields.id} and index {data.fields.index}`",
+		id: 'testsetting',
+		name: 'Test Setting',
+		description: 'This is a test setting for column input.',
+		title_template:
+			'local data = ...; return `{#data.guildData.roles} roles with ID {data.fields.id} and index {data.fields.index}`',
 		columns: [
 			{
 				id: 'ID',
@@ -347,11 +347,11 @@ export const ColumnInputTest: React.FC<ColumnInputTestProps> = ({ guildId }) => 
 					}
 				},
 				readonly: []
-			},
+			}
 		],
-		index_by: "index",
-		operations: ["View", "Create", "Update", "Delete"],
-	}
+		index_by: 'index',
+		operations: ['View', 'Create', 'Update', 'Delete']
+	};
 
 	return (
 		<>
@@ -368,7 +368,7 @@ export const ColumnInputTest: React.FC<ColumnInputTestProps> = ({ guildId }) => 
 			{userGuildBaseData && (
 				<>
 					{/* Test settings display */}
-					<SettingComponent 
+					<SettingComponent
 						guildId={guildId}
 						setting={setting}
 						fetcher={settingsFetcher}
