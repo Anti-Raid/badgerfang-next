@@ -391,7 +391,7 @@ export const SettingComponent: React.FC<SettingProps> = ({ guildId, setting, fet
 	};
 
 	const handleReorderEntry = async () => {
-		let sendFields = []
+		let sendFields: any[] = []
 		for (let fields of entries) {
 			let _sendFields: {[key: string]: unknown} = {}
 			for (let column of setting.columns) {
