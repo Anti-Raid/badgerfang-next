@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence, useInView } from 'framer-motion';
+import { motion, AnimatePresence, useInView, Variants } from 'framer-motion';
 import { FiSearch, FiFilter, FiX, FiPackage, FiZap, FiGrid, FiList } from 'react-icons/fi';
 import { CommonCard } from './ScriptCard';
 import { TemplateShopPartialTemplate } from '@/types/gosdk/types';
@@ -37,8 +37,8 @@ export const TemplateShop = ({ data }: { data: TemplateShopPartialTemplate[] }) 
 		}
 	};
 
-	// Animation variants
-	const containerVariants = {
+	// Animation variants with proper typing
+	const containerVariants: Variants = {
 		hidden: { opacity: 0 },
 		visible: {
 			opacity: 1,
@@ -48,12 +48,15 @@ export const TemplateShop = ({ data }: { data: TemplateShopPartialTemplate[] }) 
 		}
 	};
 
-	const itemVariants = {
+	const itemVariants: Variants = {
 		hidden: { y: 20, opacity: 0 },
 		visible: {
 			y: 0,
 			opacity: 1,
-			transition: { type: 'spring', stiffness: 100 }
+			transition: { 
+				type: 'spring' as const, 
+				stiffness: 100 
+			}
 		}
 	};
 

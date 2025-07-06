@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { FiArrowLeft } from 'react-icons/fi';
 import { ScriptIDE } from '../ide/ide';
 import { CommonCard } from './ScriptCard';
-import type { TemplateShopProps } from '@/types/script';
 import { TemplateShopPartialTemplate } from '@/types/gosdk/types';
 
 interface ScriptLayoutProps {

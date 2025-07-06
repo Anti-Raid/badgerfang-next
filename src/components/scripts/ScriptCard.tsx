@@ -94,7 +94,7 @@ export const CommonCard = ({ template }: CommonCardProps) => {
 							transition={{ delay: 0.2 }}
 							className="px-4 py-1.5 bg-white/10 backdrop-blur-md text-white text-sm font-monster font-semibold rounded-full shadow-lg border border-white/20 group-hover:border-white/30 transition-all duration-300"
 						>
-							v{template.version}
+							{template.version}
 						</motion.span>
 					</div>
 
@@ -162,7 +162,7 @@ export const CommonCard = ({ template }: CommonCardProps) => {
 									<FiUser className="w-5 h-5 text-primary" />
 								</div>
 								<div>
-									<p className="text-muted-foreground text-sm font-inter">Made by</p>
+									<p className="text-muted-foreground text-sm font-inter">Owned by</p>
 									<p className="font-monster font-semibold text-foreground max-w-[150px] truncate">
 										{truncate(template.owner_guild, 12) || 'Unknown'}
 									</p>

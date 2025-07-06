@@ -29,8 +29,23 @@ export async function GET() {
 
 	for (const { path, generator } of staticPages) {
 		const metadata = generator();
-		const canonical = metadata.alternates?.canonical || `${websiteUrl}${path}`;
-		urls.push(canonical);
+		const canonical = metadata.alternates?.canonical;
+		
+		// Convert canonical to string properly
+		let canonicalUrl: string;
+		if (typeof canonical === 'string') {
+			canonicalUrl = canonical;
+		} else if (canonical instanceof URL) {
+			canonicalUrl = canonical.toString();
+		} else if (canonical && typeof canonical === 'object' && 'url' in canonical) {
+			// Handle AlternateLinkDescriptor case
+			const url = canonical.url;
+			canonicalUrl = typeof url === 'string' ? url : url.toString();
+		} else {
+			canonicalUrl = `${websiteUrl}${path}`;
+		}
+		
+		urls.push(canonicalUrl);
 	}
 
 	// Build the sitemap XML
@@ -42,7 +57,7 @@ export async function GET() {
 	<url>
 		<loc>${url}</loc>
 		<changefreq>weekly</changefreq>
-		<priority>10.0</priority>
+		<priority>1.0</priority>
 	</url>`
 		)
 		.join('\n')}
@@ -51,7 +66,8 @@ export async function GET() {
 	return new NextResponse(sitemap, {
 		status: 200,
 		headers: {
-			'Content-Type': 'application/xml'
+			'Content-Type': 'application/xml',
+			'Cache-Control': 'public, max-age=86400, s-max-age=86400', // Cache for 24 hours
 		}
 	});
 }
