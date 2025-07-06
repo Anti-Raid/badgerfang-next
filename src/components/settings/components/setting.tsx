@@ -15,6 +15,11 @@
  * When reordering a setting which implements an index_by, the bot will dispatch a Reorder operation with the primary keys 
  * and the index_by value of each entry.
  * 
+ * 
+ * The title_template is a Luau script executed using WASM. When running, the title_template will recieve
+ * a table with the following:
+ * - fields: The fields of the setting, which are the values of the columns
+ * - guildData: The guild data of the guild the setting is being executed in, which is the data returned by the Get User Guild Base Data event
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
