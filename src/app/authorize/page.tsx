@@ -7,6 +7,11 @@ import { fetchClient } from '@/lib/fetchClient';
 import { AuthorizeRequest, CreateUserSessionResponse } from '@/types/splashtail/types';
 import { API_BASE_URL } from '@/lib/api';
 
+/**
+ * React page component that handles OAuth2 authorization, user session creation, and redirects to the dashboard upon success.
+ *
+ * Initiates the OAuth2 flow by exchanging the authorization code from the URL for a user session, retrieves user data, stores session and user information in localStorage, and displays authorization status to the user.
+ */
 export default function AuthorizePage() {
 	const [error, setError] = useState<string | null>(null);
 	const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');

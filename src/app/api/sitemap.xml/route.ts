@@ -12,6 +12,14 @@ import {
 
 const websiteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://antiraid.xyz';
 
+/**
+ * Handles GET requests by generating and returning an XML sitemap for the website's static pages.
+ *
+ * The sitemap includes canonical URLs for each static page, with a weekly change frequency and a priority of 10.0.
+ * The response is returned with a 200 status and a content type of 'application/xml'.
+ *
+ * @returns A NextResponse containing the generated sitemap XML.
+ */
 export async function GET() {
 	const urls: string[] = [];
 

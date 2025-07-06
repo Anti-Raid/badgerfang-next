@@ -3,9 +3,17 @@ use mlua::prelude::*;
 use std::cell::Cell;
 use std::rc::Rc;
 
-/// Creates a proxy global table that forwards reads to the global table if the key is in the global table
+/// Creates a Lua table that proxies global variable access with custom read, write, iteration, and length behavior.
 ///
-/// The resulting proxied global table includes
+/// The returned table acts as a global environment proxy: reads and writes are forwarded to the actual Lua globals table if the key exists there, otherwise they operate on the proxy table itself. Iteration yields all key-value pairs from the proxy table first, then from the Lua globals table. The length operation returns the combined size of both tables. Access to the metatable is disabled.
+///
+/// # Examples
+///
+/// ```
+/// let proxy = proxy_global(&lua)?; // Returns a LuaTable proxying global access
+/// proxy.set("foo", 42)?; // Writes to proxy if "foo" is not in globals, otherwise to globals
+/// let val: i32 = proxy.get("foo")?;
+/// ```
 pub fn proxy_global(lua: &Lua) -> LuaResult<LuaTable> {
     // Setup the global table using a metatable
     //

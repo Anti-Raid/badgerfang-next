@@ -5,9 +5,9 @@ import { luauTemplate } from '@/lib/wasm';
 import { useEffect, useState } from 'react';
 
 /**
- * Renders the Developers Dashboard page, restricting access to authorized users.
+ * Provides an interactive interface for entering code and viewing the processed result using a WebAssembly-powered function.
  *
- * Wraps the {@link Dashboard} component in a {@link ProtectedRoute} to ensure only authenticated users can view the dashboard.
+ * Users can input code into a textarea, which is asynchronously processed via the `luauTemplate` function. The output or any error message is displayed below the input in real time.
  */
 export default function LuauWasmTest() {
 	let [value, setValue] = useState<string>('');

@@ -17,6 +17,16 @@ unsafe impl Sync for VmData {}
 
 pub static VM: OnceLock<VmData> = OnceLock::new();
 
+/// Returns the integer 42 as a test value.
+///
+/// This function is intended to verify that the WebAssembly module is callable from the host environment.
+///
+/// # Examples
+///
+/// ```
+/// let result = unsafe { test_wasm() };
+/// assert_eq!(result, 42);
+/// ```
 #[unsafe(no_mangle)]
 pub extern "C" fn test_wasm() -> i32 {
     return 42;
@@ -28,7 +38,25 @@ pub extern "C" fn test_wasm() -> i32 {
 // 0 - success 
 //
 // Note that the returned value must be freed by the caller using `_free`
-#[unsafe(no_mangle)]
+/// Executes Lua code with JSON input and returns the result as a JSON string via a C-compatible interface.
+///
+/// Accepts two C strings: Lua code and a JSON-encoded argument. Executes the Lua code in a sandboxed VM with the provided JSON value as input, then serializes the result to JSON and returns it as a newly allocated C string. The returned string is prefixed with a status code: `"0"` for success, `"1"` for general errors (e.g., null pointers, invalid UTF-8, JSON parse/serialization errors), and `"2"` for Lua execution errors. The caller is responsible for freeing the returned string.
+///
+/// # Safety
+///
+/// Both `code` and `json` must be valid, null-terminated C strings. The returned pointer must be freed by the caller using the appropriate deallocation function.
+///
+/// # Examples
+///
+/// ```c
+/// // Example usage from C (pseudo-code)
+/// const char* lua_code = "return arg + 1";
+/// const char* json_arg = "41";
+/// char* result = luau_template(lua_code, json_arg);
+/// // result now points to a string like "042"
+/// // ... use result ...
+/// free(result);
+/// ```
 pub extern "C" fn luau_template(code: *const c_char, json: *const c_char) -> *mut c_char {
     if code.is_null() {
         let c_string = CString::new("1got null code").unwrap();
@@ -86,6 +114,27 @@ pub extern "C" fn luau_template(code: *const c_char, json: *const c_char) -> *mu
 
 type Error = Box<dyn std::error::Error + Send + Sync>;
 
+/// Executes Lua code in a sandboxed VM with JSON input and returns the result as JSON.
+///
+/// Converts the provided JSON value to a Lua value, runs the given Lua code in a persistent, sandboxed Lua VM with a proxy global environment, and collects all returned Lua values. The results are converted back to JSON; if there is a single result, it is returned directly, otherwise an array of results is returned.
+///
+/// # Parameters
+/// - `code`: The Lua code to execute.
+/// - `value`: The JSON value to pass as an argument to the Lua code.
+///
+/// # Returns
+/// - `Ok(Value)`: The result of the Lua execution as a JSON value or array of values.
+/// - `Err(Error)`: If conversion or execution fails, returns an error with a descriptive message.
+///
+/// # Examples
+///
+/// ```
+/// use serde_json::json;
+/// let code = "return arg * 2".to_string();
+/// let input = json!(21);
+/// let result = call_luau(code, input).unwrap();
+/// assert_eq!(result, json!(42));
+/// ```
 pub fn call_luau(code: String, value: Value) -> Result<Value, Error> {
     let vm_result = VM.get_or_init(|| {
         let lua = Lua::new_with(LuaStdLib::ALL_SAFE, LuaOptions::new().disable_error_userdata(true)).expect("Failed to create Lua VM");

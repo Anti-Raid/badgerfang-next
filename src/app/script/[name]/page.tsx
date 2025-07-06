@@ -7,6 +7,11 @@ import type { TemplateShopProps } from '@/types/script';
 import { TemplateShopTemplate } from '@/types/gosdk/types';
 import { getTemplateShop } from '@/lib/api';
 
+/**
+ * Displays a script page by fetching and rendering script data based on the route parameter.
+ *
+ * Fetches script information using the script name from the URL, handles loading and error states, and renders the script content using the ScriptLayout component.
+ */
 export default function ScriptPage() {
 	const params = useParams();
 	const scriptName = params.name as string;

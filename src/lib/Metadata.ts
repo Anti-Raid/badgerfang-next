@@ -243,9 +243,9 @@ export function generateBlogsMetadata(params: GenerateMetadataParams = {}): Meta
 }
 
 /**
- * Generates metadata for the Developer Dashboard page with optional custom title, description, image, keywords, and canonical URL.
+ * Generates Next.js metadata for the Developer Dashboard page, applying default values and allowing optional overrides for title, description, image, keywords, and canonical URL.
  *
- * @returns A Metadata object tailored for the Developer Dashboard section.
+ * @returns Metadata configured for the Developer Dashboard section.
  */
 export function generateDeveloperDashboardMetadata(params: GenerateMetadataParams = {}): Metadata {
 	return generateMetadata({

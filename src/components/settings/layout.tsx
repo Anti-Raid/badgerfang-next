@@ -12,15 +12,12 @@ import { noOpFetcher, SettingComponent, SettingDataFetcher } from './components/
 import { DispatchResult } from '@/types/gosdk/types';
 
 /**
- * Renders a dashboard for managing guild settings.
+ * Displays an interactive dashboard for managing all settings of a specified guild.
  *
- * This component fetches the guild's base information using the provided guild ID and displays a settings dashboard.
- * While fetching data, it shows a loading indicator. If an error occurs, an error message is displayed with a retry option,
- * and a toast notification is triggered. Once the data is loaded, it renders a sticky header with the guild's icon and name,
- * along with various sections for managing server roles, members, scripts, key-value data, published scripts, and lockdown settings.
+ * Fetches and presents the guild's base information and settings templates, allowing users to view and modify various configuration sections dynamically. Handles loading and error states with user-friendly feedback and supports CRUD operations on settings entries through a unified fetcher interface.
  *
- * @param guildId - Unique identifier of the guild.
- * @returns A JSX element representing the settings dashboard.
+ * @param guildId - The unique identifier of the guild whose settings are being managed.
+ * @returns A JSX element representing the guild settings dashboard UI.
  */
 export default function Settings({ guildId }: { guildId: string }) {
 	const [guildData, setGuildData] = useState<any>(null);

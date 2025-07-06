@@ -6,9 +6,9 @@ import { listTemplateShop } from '@/lib/api';
 import { TemplateShopPartialTemplate } from '@/types/gosdk/types';
 
 /**
- * Displays the template shop page, fetching template data from the public settings API and handling loading and error states.
+ * Renders the template shop page, fetching template data from the public API and managing loading and error states.
  *
- * Shows a loading spinner while fetching data and an error message if the fetch fails.
+ * Displays a loading spinner while data is being fetched, shows the template shop when data is available, and presents an error message if the fetch fails.
  */
 
 export default function TemplateShopPage() {

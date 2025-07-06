@@ -154,7 +154,14 @@ const randomizeArray = <T,>(arr: T[]): T[] => {
 	return [...arr].sort(() => Math.random() - 0.5);
 };
 
-// Utility to extract subcommands and arguments from ApplicationCommandOption
+/**
+ * Separates an array of application command options into subcommands and arguments.
+ *
+ * Subcommands are options of type 1 (SubCommand) or 2 (SubCommandGroup); all other types are considered arguments.
+ *
+ * @param options - The list of application command options to process. Undefined entries are ignored.
+ * @returns An object containing `subcommands` and `args` arrays.
+ */
 function extractSubcommandsAndArgs(
 	options: (discordgo.ApplicationCommandOption | undefined)[] = []
 ) {
@@ -175,9 +182,9 @@ function extractSubcommandsAndArgs(
 }
 
 /**
- * Renders an interactive, responsive interface for browsing, searching, and filtering bot commands.
+ * Renders a responsive, interactive UI for browsing, searching, and filtering bot commands.
  *
- * Fetches bot command data and allows users to filter by module, perform full-text search, paginate results, and toggle between grid and list views. Users can expand commands to view detailed information, including subcommands, arguments, and required permissions. The UI adapts for desktop and mobile devices, and includes loading and error handling states.
+ * Fetches command data and provides module-based filtering, full-text search, pagination, and view toggling between grid and list layouts. Users can expand commands to view detailed information, including subcommands and arguments. The interface adapts for desktop and mobile devices and handles loading and error states.
  */
 export default function CommandInterface() {
 	const [botState, setBotState] = useState<BotState | null>(null);

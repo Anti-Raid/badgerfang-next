@@ -6,11 +6,11 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 /**
- * Renders the column test page content.
+ * Displays the developer settings content for a guild based on the `id` URL parameter.
  *
- * Extracts the guild ID from the URL search parameters using Next.js's routing hooks. If a valid guild ID is retrieved, the component renders the settings view; otherwise, it displays a message indicating that the guild ID is missing.
+ * Retrieves the guild ID from the URL search parameters and renders the settings input component if present, or an error message if missing.
  *
- * @returns A JSX element representing either the guild settings or an error message.
+ * @returns The guild settings input view or an error message if the guild ID is not provided.
  */
 function GuildContent() {
 	const searchParams = useSearchParams();
@@ -28,9 +28,9 @@ function GuildContent() {
 }
 
 /**
- * Renders the Developers Dashboard page, restricting access to authorized users.
+ * Renders the developer settings page for the dashboard, accessible only to authenticated users.
  *
- * Wraps the {@link Dashboard} component in a {@link ProtectedRoute} to ensure only authenticated users can view the dashboard.
+ * Displays the `GuildContent` component within a protected route, ensuring only authorized users can access the page.
  */
 export default function Settings() {
 	return (

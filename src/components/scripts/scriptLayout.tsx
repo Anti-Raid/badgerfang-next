@@ -13,14 +13,11 @@ interface ScriptLayoutProps {
 }
 
 /**
- * Renders a layout for viewing a script's details along with its related files.
+ * Displays a script template's details and its associated files in a read-only layout.
  *
- * This component displays a back navigation link to the Script Shop, a card with the script template details,
- * and a non-editable code editor presenting the script's associated files.
+ * Shows a back navigation link, a card with script information, and a non-editable code editor containing the script's files.
  *
- * @param script - The script template information to display.
- * @param files - An array of file objects containing details such as name, path, content, and type.
- * @returns A React element representing the script layout.
+ * @returns A React element rendering the script details and files.
  */
 export function ScriptLayout({ script, files }: ScriptLayoutProps) {
 	// Convert content object to files array for ScriptIDE
