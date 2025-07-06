@@ -108,12 +108,26 @@ const fillInSetting = async (setting: Setting, guildData: UserGuildBaseData, fie
 	// Insert title template
 	if (setting.title_template) {
 		try {
+			let titleFields: {[key: string]: unknown} = {}
+			for(let field of setting.columns) {
+				if (field.column_type.type === ColumnType.Widget) {
+					continue
+				}
+
+				if (field.column_type.inner.type === InnerColumnType.Json && field.column_type.inner.style == "template") {
+					continue
+				}
+
+				titleFields[field.id] = fields[field.id];
+			}
+
 			let title = await luauTemplate(setting.title_template, {
-				fields,
+				fields: titleFields,
 				guildData
 			})
-			if (typeof title === 'string' && title.trim() !== '') {
-				logger.info("SettingComponent", "Filled in title for setting: ", title);
+			
+			logger.info("SettingComponent", "Filled in title for setting: ", title);
+			if (typeof title === 'string') {
 				fields['title'] = title;
 			}
 		} catch (error) {
