@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { getUser } from '@/lib/auth/getUser';
 import { fetchClient } from '@/lib/fetchClient';
 import { AuthorizeRequest, CreateUserSessionResponse } from '@/types/splashtail/types';
+import { API_BASE_URL } from '@/lib/api';
 
 export default function AuthorizePage() {
 	const [error, setError] = useState<string | null>(null);
@@ -26,7 +27,7 @@ export default function AuthorizePage() {
 				redirect_uri: `${window.location.origin}/authorize`
 			};
 
-			const res = await fetchClient('https://splashtail-staging.antiraid.xyz/oauth2', {
+			const res = await fetchClient(`${API_BASE_URL}/oauth2`, {
 				method: 'POST',
 				body: JSON.stringify(json)
 			});

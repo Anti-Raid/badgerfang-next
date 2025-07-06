@@ -3,8 +3,7 @@ import axios from 'axios';
 import logger from '@/lib/logger';
 import { CreateUserSessionResponse } from '@/types/splashtail/types';
 import { SWRResponse } from 'swr';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://splashtail-staging.antiraid.xyz';
+import { API_BASE_URL } from '../api';
 
 export interface AuthData {
 	authorized: boolean;

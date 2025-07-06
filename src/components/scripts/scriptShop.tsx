@@ -1,14 +1,14 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence, useInView } from 'framer-motion';
+import { motion, AnimatePresence, useInView, Variants } from 'framer-motion';
 import { FiSearch, FiFilter, FiX, FiPackage, FiZap, FiGrid, FiList } from 'react-icons/fi';
-import type { TemplateShopProps } from '@/types/script';
 import { CommonCard } from './ScriptCard';
+import { TemplateShopPartialTemplate } from '@/types/gosdk/types';
 
-export const TemplateShop = ({ data }: { data: TemplateShopProps[] }) => {
+export const TemplateShop = ({ data }: { data: TemplateShopPartialTemplate[] }) => {
 	const [searchTerm, setSearchTerm] = useState('');
-	const [filteredData, setFilteredData] = useState<TemplateShopProps[]>([]);
+	const [filteredData, setFilteredData] = useState<TemplateShopPartialTemplate[]>([]);
 	const [isSearchFocused, setIsSearchFocused] = useState(false);
 	const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 	const searchRef = useRef<HTMLInputElement>(null);
@@ -37,8 +37,8 @@ export const TemplateShop = ({ data }: { data: TemplateShopProps[] }) => {
 		}
 	};
 
-	// Animation variants
-	const containerVariants = {
+	// Animation variants with proper typing
+	const containerVariants: Variants = {
 		hidden: { opacity: 0 },
 		visible: {
 			opacity: 1,
@@ -48,12 +48,15 @@ export const TemplateShop = ({ data }: { data: TemplateShopProps[] }) => {
 		}
 	};
 
-	const itemVariants = {
+	const itemVariants: Variants = {
 		hidden: { y: 20, opacity: 0 },
 		visible: {
 			y: 0,
 			opacity: 1,
-			transition: { type: 'spring', stiffness: 100 }
+			transition: { 
+				type: 'spring' as const, 
+				stiffness: 100 
+			}
 		}
 	};
 

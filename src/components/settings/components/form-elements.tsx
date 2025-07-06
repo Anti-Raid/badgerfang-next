@@ -4,7 +4,39 @@ import type React from 'react';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff } from 'lucide-react';
 import type { Icon } from 'lucide-react';
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
+
+interface BaseLabelAndDescriptionProps {
+	label?: string;
+	description?: string;
+	className?: string;
+	id?: string;
+	marginClass?: string;
+}
+
+export const BaseLabelAndDescription: React.FC<BaseLabelAndDescriptionProps> = ({
+	label,
+	description,
+	className = '',
+	id,
+	marginClass = 'mb-6'
+}) => {
+	return (
+		<div className={`${marginClass} group ${className}`}>
+			{label && (
+				<label className="block text-foreground font-medium mb-1.5 text-sm" id={`${id}-label`}>
+					{label}
+				</label>
+			)}
+
+			{description && (
+				<p className="text-sm text-muted-foreground mb-2.5" id={`${id}-desc`}>
+					{description}
+				</p>
+			)}
+		</div>
+	);
+};
 
 interface InputFieldProps {
 	label?: string;
@@ -12,12 +44,16 @@ interface InputFieldProps {
 	placeholder?: string;
 	type?: string;
 	value?: string;
-	onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+	onChange?: (
+		e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+	) => void;
 	options?: { value: string; label: string }[];
 	className?: string;
 	id?: string;
 	icon?: typeof Icon;
 	error?: string;
+	marginClass?: string;
+	disabled?: boolean;
 }
 
 export const InputField: React.FC<InputFieldProps> = ({
@@ -26,30 +62,44 @@ export const InputField: React.FC<InputFieldProps> = ({
 	placeholder,
 	type = 'text',
 	value,
+	disabled = false,
 	onChange,
 	options,
 	className = '',
 	id,
 	icon: IconComponent,
-	error
+	error,
+	marginClass = 'mb-6'
 }) => {
 	const [showPassword, setShowPassword] = useState(false);
 	const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
 
 	return (
-		<div className={`mb-6 group ${className}`}> 
+		<div className={`${marginClass} group ${className}`}>
 			{label && (
-				<label htmlFor={inputId} className="block text-foreground font-medium mb-1.5 text-sm" id={`${inputId}-label`}>
+				<label
+					htmlFor={inputId}
+					className="block text-foreground font-medium mb-1.5 text-sm"
+					id={`${inputId}-label`}
+				>
 					{label}
 				</label>
 			)}
 
-			{description && <p className="text-sm text-muted-foreground mb-2.5" id={`${inputId}-desc`}>{description}</p>}
+			{description && (
+				<p className="text-sm text-muted-foreground mb-2.5" id={`${inputId}-desc`}>
+					{description}
+				</p>
+			)}
 
 			<div className="relative">
 				{IconComponent && (
 					<div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-						<IconComponent className="w-4 h-4 text-muted-foreground" iconNode={[]} aria-hidden="true" />
+						<IconComponent
+							className="w-4 h-4 text-muted-foreground"
+							iconNode={[]}
+							aria-hidden="true"
+						/>
 					</div>
 				)}
 
@@ -57,10 +107,15 @@ export const InputField: React.FC<InputFieldProps> = ({
 					<select
 						id={inputId}
 						value={value}
-						onChange={onChange}
+						aria-placeholder={placeholder}
+						onChange={(e) => {
+							if (disabled) return;
+							if (onChange) onChange(e);
+						}}
+						disabled={disabled}
 						className={`w-full bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-3 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 appearance-none ${
 							IconComponent ? 'pl-10' : ''
-						} ${error ? 'border-destructive' : ''}`}
+						} ${error ? 'border-destructive' : ''} ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
 						aria-labelledby={`${inputId}-label`}
 						aria-describedby={description ? `${inputId}-desc` : undefined}
 					>
@@ -78,10 +133,14 @@ export const InputField: React.FC<InputFieldProps> = ({
 							type={showPassword ? 'text' : 'password'}
 							placeholder={placeholder}
 							value={value}
-							onChange={onChange}
+							disabled={disabled}
+							onChange={(e) => {
+								if (disabled) return;
+								if (onChange) onChange(e);
+							}}
 							className={`w-full bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-3 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${
 								IconComponent ? 'pl-10' : ''
-							} ${error ? 'border-destructive' : ''}`}
+							} ${error ? 'border-destructive' : ''} ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
 							aria-labelledby={`${inputId}-label`}
 							aria-describedby={description ? `${inputId}-desc` : undefined}
 							aria-required="true"
@@ -92,19 +151,43 @@ export const InputField: React.FC<InputFieldProps> = ({
 							onClick={() => setShowPassword(!showPassword)}
 							aria-label={showPassword ? 'Hide password' : 'Show password'}
 						>
-							{showPassword ? <EyeOff className="w-4 h-4" aria-hidden="true" /> : <Eye className="w-4 h-4" aria-hidden="true" />}
+							{showPassword ? (
+								<EyeOff className="w-4 h-4" aria-hidden="true" />
+							) : (
+								<Eye className="w-4 h-4" aria-hidden="true" />
+							)}
 						</button>
 					</div>
+				) : type === 'textarea' ? (
+					<textarea
+						id={inputId}
+						placeholder={placeholder}
+						value={value}
+						disabled={disabled}
+						onChange={(e) => {
+							if (disabled) return;
+							if (onChange) onChange(e);
+						}}
+						className={`w-full bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-3 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${
+							IconComponent ? 'pl-10' : ''
+						} ${error ? 'border-destructive' : ''} ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
+						aria-labelledby={`${inputId}-label`}
+						aria-describedby={description ? `${inputId}-desc` : undefined}
+					/>
 				) : (
 					<input
 						id={inputId}
 						type={type}
 						placeholder={placeholder}
 						value={value}
-						onChange={onChange}
+						disabled={disabled}
+						onChange={(e) => {
+							if (disabled) return;
+							if (onChange) onChange(e);
+						}}
 						className={`w-full bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-3 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${
 							IconComponent ? 'pl-10' : ''
-						} ${error ? 'border-destructive' : ''}`}
+						} ${error ? 'border-destructive' : ''} ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
 						aria-labelledby={`${inputId}-label`}
 						aria-describedby={description ? `${inputId}-desc` : undefined}
 						aria-required="true"
@@ -112,7 +195,11 @@ export const InputField: React.FC<InputFieldProps> = ({
 				)}
 			</div>
 
-			{error && <p className="mt-1.5 text-sm text-destructive" role="alert">{error}</p>}
+			{error && (
+				<p className="mt-1.5 text-sm text-destructive" role="alert">
+					{error}
+				</p>
+			)}
 		</div>
 	);
 };
@@ -122,18 +209,35 @@ interface RadioOptionProps {
 	name: string;
 	checked?: boolean;
 	onChange?: () => void;
+	disabled?: boolean;
+	marginClass?: string;
 }
 
 export const RadioOption: React.FC<RadioOptionProps> = ({
 	label,
 	name,
+	disabled = false,
 	checked = false,
+	marginClass = 'mr-6 mb-3',
 	onChange
 }) => {
 	return (
-		<label className="inline-flex items-center mr-6 mb-3 cursor-pointer group">
+		<label className={`inline-flex items-center ${marginClass} cursor-pointer group`}>
 			<div className="relative flex items-center">
-				<input type="radio" name={name} className="sr-only" checked={checked} onChange={onChange} aria-checked={checked} aria-label={label} tabIndex={0} />
+				<input
+					type="radio"
+					name={name}
+					className="sr-only"
+					disabled={disabled}
+					checked={checked}
+					onChange={() => {
+						if (disabled) return;
+						if (onChange) onChange();
+					}}
+					aria-checked={checked}
+					aria-label={label}
+					tabIndex={0}
+				/>
 				<div
 					className={`w-5 h-5 rounded-full border-2 transition-all duration-200 ${
 						checked
@@ -159,25 +263,113 @@ export const RadioOption: React.FC<RadioOptionProps> = ({
 	);
 };
 
+interface GroupedRadioOptionProps {
+	id: string;
+	label: string;
+	value: string;
+	allowedValues: string[];
+	description: string;
+	disabled?: boolean;
+	icon?: typeof Icon;
+	onChange: (v: string) => void;
+	marginClass?: string;
+	className?: string;
+}
+
+export const GroupedRadioOption: React.FC<GroupedRadioOptionProps> = ({
+	id,
+	label,
+	value,
+	disabled = false,
+	allowedValues,
+	description,
+	icon: IconComponent,
+	onChange,
+	marginClass = 'mb-6',
+	className = ''
+}) => {
+	const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
+
+	return (
+		<div className={`${marginClass} ${className}`}>
+			{label && (
+				<label
+					htmlFor={inputId}
+					className="block text-foreground font-medium mb-1.5 text-sm"
+					id={`${inputId}-label`}
+				>
+					{label}
+				</label>
+			)}
+
+			{description && (
+				<p className="text-sm text-muted-foreground mb-2.5" id={`${inputId}-desc`}>
+					{description}
+				</p>
+			)}
+
+			<div className="relative">
+				{IconComponent && (
+					<div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+						<IconComponent
+							className="w-4 h-4 text-muted-foreground"
+							iconNode={[]}
+							aria-hidden="true"
+						/>
+					</div>
+				)}
+
+				{allowedValues.map((v, idx) => (
+					<Fragment key={idx}>
+						<div className="group">
+							<RadioOption
+								name={id}
+								label={v}
+								checked={v == value}
+								disabled={disabled}
+								onChange={() => onChange(v)}
+								marginClass={idx != allowedValues.length - 1 ? 'mr-6 mb-3' : 'mr-6'}
+							/>
+						</div>
+					</Fragment>
+				))}
+			</div>
+		</div>
+	);
+};
+
 interface ToggleProps {
 	label: string;
 	description?: string;
 	checked: boolean;
+	disabled?: boolean;
 	onChange: () => void;
+	marginClass?: string;
 }
 
-export const Toggle: React.FC<ToggleProps> = ({ label, description, onChange, checked }) => {
+export const Toggle: React.FC<ToggleProps> = ({
+	label,
+	description,
+	onChange,
+	checked,
+	disabled = false,
+	marginClass = 'mb-5'
+}) => {
 	return (
-		<div className="mb-5">
+		<div className={marginClass}>
 			<div className="flex items-center">
 				<button
 					type="button"
 					role="switch"
 					aria-checked={checked}
+					disabled={disabled}
 					className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 ${
 						checked ? 'bg-primary' : 'bg-muted'
 					}`}
-					onClick={onChange}
+					onClick={() => {
+						if (disabled) return;
+						if (onChange) onChange();
+					}}
 					aria-label={label}
 					tabIndex={0}
 				>

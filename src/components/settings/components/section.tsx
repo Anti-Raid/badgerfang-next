@@ -6,7 +6,7 @@ import { ChevronDown, Plus } from 'lucide-react';
 
 interface SectionProps {
 	title: string;
-	description: string;
+	description?: string;
 	icon: React.ReactNode;
 	children?: React.ReactNode;
 	defaultOpen?: boolean;
