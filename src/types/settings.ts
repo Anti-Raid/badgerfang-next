@@ -114,6 +114,7 @@ export interface Setting {
 	columns: Column[];
 	operations: string[];
 	footer?: Footer;
+	icon?: string;
 }
 
 export interface Footer {

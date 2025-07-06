@@ -11,6 +11,7 @@ import { ApiResponse } from '@/types/dashboard/servers';
 import { BotStats } from '@/types/bot-stats';
 import * as forumTypes from '@/types/forums/types';
 import { api_url } from '@/components/common';
+import { DispatchResult } from '@/types/gosdk/types';
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || api_url;
 export const FORUM_API_URL = 'https://potsypaw.purrquinox.com';
@@ -104,12 +105,16 @@ export const getUserGuildBaseInfo = async (guildId: string): Promise<any> => {
 	return response.data;
 };
 
-export const getSettings = async (guildId: string): Promise<any> => {
+export const getSettings = async (guildId: string): Promise<{[template: string]: DispatchResult}> => {
 	const response = await axiosInstance.get(`/guilds/${guildId}/settings`);
+	if(response.status !== 200) {
+		let err = response.data
+		throw new Error(`Failed to fetch settings: ${JSON.stringify(err || {"error": "Unknown error"})}`);
+	}
 	return response.data;
 };
 
-export const executeSettings = async (guildId: string, payload: any): Promise<any> => {
+export const executeSettings = async (guildId: string, payload: any): Promise<{[template: string]: DispatchResult}> => {
 	const response = await axiosInstance.post(`/guilds/${guildId}/settings`, payload);
 	return response.data;
 };

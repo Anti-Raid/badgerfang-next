@@ -1,11 +1,13 @@
 'use client';
 
-import { Column, ColumnType, InnerColumnType } from '@/types/settings';
+import { Column, ColumnType, InnerColumnType, Setting } from '@/types/settings';
 import { useEffect, useState } from 'react';
-import { SettingsColumn, SettingsColumnList } from '../components/setting';
+import { noOpFetcher, SettingComponent, SettingDataFetcher } from '../components/setting';
+
 import { getUserGuildBaseInfo } from '@/lib/api';
 import { toast } from 'react-toastify';
-import { UserGuildBaseData } from '@/types/gosdk/types';
+import { DispatchResult, UserGuildBaseData } from '@/types/gosdk/types';
+import { SettingsColumnList } from '../components/settings-column';
 
 const column1: Column = {
 	id: 'column1',
@@ -262,6 +264,95 @@ export const ColumnInputTest: React.FC<ColumnInputTestProps> = ({ guildId }) => 
         column11: initialColumn11Value
 	});
 
+	let settingsFetcher: SettingDataFetcher = {
+		...noOpFetcher,
+		listEntries: async (setting: Setting): Promise<{[key: string]: DispatchResult}> => {
+			return {
+				builtins: {
+					type: "Ok",
+					data: [
+						{
+							id: '1',
+							column1: initialColumn1Value,
+							column2: initialColumn2Value,
+							column3: initialColumn3Value,
+							column4: initialColumn4Value,
+							column5: initialColumn5Value,
+							column6: initialColumn6Value,
+							column7: initialColumn7Value,
+							column8: initialColumn8Value,
+							column9: initialColumn9Value,
+							column10: initialColumn10Value,
+							column11: initialColumn11Value,
+							index: 1
+						},
+						{
+							id: '2',
+							column1: initialColumn1Value,
+							column2: initialColumn2Value,
+							column3: initialColumn3Value,
+							column4: initialColumn4Value,
+							column5: initialColumn5Value,
+							column6: initialColumn6Value,
+							column7: initialColumn7Value,
+							column8: initialColumn8Value,
+							column9: initialColumn9Value,
+							column10: initialColumn10Value,
+							column11: initialColumn11Value,
+							index: 2
+						}
+					]
+				}
+			};
+		},
+	}
+
+	let setting: Setting = {
+		id: "testsetting",
+		name: "Test Setting",
+		description: "This is a test setting for column input.",
+		title_template: "local data = ...; return `{#data.guildData.roles} roles with ID {data.fields.id} and index {data.fields.index}`",
+		columns: [
+			{
+				id: 'ID',
+				name: 'ID',
+				description: 'This is the ID for input.',
+				placeholder: 'Enter your value here',
+				primary_key: true,
+				nullable: true,
+				column_type: {
+					type: ColumnType.Scalar,
+					inner: {
+						type: InnerColumnType.String,
+						allowed_values: [],
+						kind: 'normal'
+					}
+				},
+				readonly: []
+			},
+			...columns,
+			{
+				id: 'index',
+				name: 'Index',
+				description: 'This is the index for input.',
+				placeholder: 'Enter your value here',
+				primary_key: true,
+				nullable: true,
+				column_type: {
+					type: ColumnType.Scalar,
+					inner: {
+						type: InnerColumnType.String,
+						allowed_values: [],
+						kind: 'normal'
+					}
+				},
+				readonly: []
+			},
+		],
+		index_by: "index",
+		operations: ["View", "Create", "Update", "Delete"],
+	}
+
 	return (
 		<>
 			<SettingsColumnList
@@ -273,6 +364,18 @@ export const ColumnInputTest: React.FC<ColumnInputTestProps> = ({ guildId }) => 
 			/>
 
 			<p>Column Data: {JSON.stringify(columnData)}</p>
+
+			{userGuildBaseData && (
+				<>
+					{/* Test settings display */}
+					<SettingComponent 
+						guildId={guildId}
+						setting={setting}
+						fetcher={settingsFetcher}
+						guildData={userGuildBaseData}
+					/>
+				</>
+			)}
 		</>
 	);
 };
