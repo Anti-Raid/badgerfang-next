@@ -542,7 +542,7 @@ export const SettingsColumn: React.FC<SettingsColumnProps> = ({
 		<>
 			{column.column_type.type === ColumnType.Scalar ? (
 				<>
-					<div className="items-center mt-2 bg-muted/30 p-3 rounded-lg">
+					<div className="items-center mt-2">
 						<SettingsInnerColumn
 							parentColumn={column}
 							column={column.column_type.inner}
@@ -560,7 +560,7 @@ export const SettingsColumn: React.FC<SettingsColumnProps> = ({
 				</>
 			) : column.column_type.type === ColumnType.Array ? (
 				<>
-					<div className="items-center mt-2 bg-muted/30 p-3 rounded-lg">
+					<div className="items-center mt-2">
 						{/* Edge case: no inputs in array, so we just show a label and then have the 3 buttons below it */}
 						{!value ||
 							(Array.isArray(value) && value.length === 0 && (
