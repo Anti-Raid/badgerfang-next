@@ -6,7 +6,6 @@ import Header from '@/components/static/Header';
 import Footer from '@/components/static/Footer';
 import { ThemeProvider } from '@/components/ui/ThemeProvider';
 import ToastProvider from '@/components/ui/ToastProvider';
-import { HelmetProvider } from 'react-helmet-async';
 import { SWRConfig } from 'swr';
 
 /**
@@ -29,7 +28,6 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 	}, []);
 
 	return (
-		<HelmetProvider>
 			<ThemeProvider defaultTheme="dark" attribute="class">
 				<SWRConfig>
 					<ToastProvider>
@@ -49,6 +47,5 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 					</ToastProvider>
 				</SWRConfig>
 			</ThemeProvider>
-		</HelmetProvider>
 	);
 }

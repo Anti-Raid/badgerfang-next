@@ -505,3 +505,16 @@
 ::view-transition-new(root) {
 	animation: 0.5s fade-in ease;
 }
+
+.blocklyMenu {
+  background-color: var(--background) !important; /* Example: #4a4a4a */
+}
+
+.blocklyMenuItem {
+  color: var(--foreground) !important; /* Example: #ffffff */
+}
+
+.blocklyMenuItem:hover {
+  background-color: var(--secondary) !important; /* Example: #333333 */
+  color: var(--secondary-foreground) !important; /* Example: #ffffff */
+}
