@@ -44,7 +44,7 @@ export default function Blockly() {
                 transition={{ duration: 0.5 }}
                 className="mt-8"
             >
-                <code className="whitespace-pre-wrap break-words p-4 bg-gray-100 rounded-lg mt-4">{code}</code>
+                <code className="whitespace-pre-wrap break-words bg-gray-100 text-black">{code}</code>
             </motion.div>
         </>
     );

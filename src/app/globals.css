@@ -510,6 +510,12 @@
   background-color: var(--background) !important; /* Example: #4a4a4a */
 }
 
+.blocklyDropDownContent, .blocklyDropDownDiv {
+  background-color: var(--background) !important; /* Example: #4a4a4a */
+  color: var(--foreground) !important; /* Example: #ffffff */
+  border: 1px solid var(--border) !important; /* Example: #333333 */
+}
+
 .blocklyMenuItem {
   color: var(--foreground) !important; /* Example: #ffffff */
 }
@@ -517,4 +523,22 @@
 .blocklyMenuItem:hover {
   background-color: var(--secondary) !important; /* Example: #333333 */
   color: var(--secondary-foreground) !important; /* Example: #ffffff */
+}
+
+.blocklyHtmlInput, .blocklyTooltipDiv > * {
+	color: black !important; 
+}
+
+.blocklyMenuItemCheckbox {
+	color: white !important;
+}
+
+.blocklyMenuItemSelected {
+  	color: var(--primary-foreground) !important; /* Example: #ffffff */
+	background: #268 75% 55% !important; /* Example: #268 */
+}
+
+.blocklyMenuItemSelected:hover {
+	opacity: 0.8 !important; /* Example: 0.8 */
+	background: #268 75% 55% !important; /* Example: #268 */
 }

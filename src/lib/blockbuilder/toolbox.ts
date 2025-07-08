@@ -128,7 +128,7 @@ export default {
         {
           type: 'controls_flow_statements',
           kind: 'block',
-          enabled: false,
+          enabled: true,
           fields: {
             FLOW: 'BREAK',
           },

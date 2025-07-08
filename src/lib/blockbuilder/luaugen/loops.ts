@@ -122,9 +122,9 @@ export function controls_forEach(
   const code =
     'for _, ' +
     variable0 +
-    ' in ipairs(' +
+    ' in ' +
     argument0 +
-    ') do \n' +
+    ' do \n' +
     branch +
     'end\n';
   return code;
