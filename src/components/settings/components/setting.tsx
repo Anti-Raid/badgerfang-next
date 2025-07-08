@@ -25,6 +25,8 @@ export const defaultNew = (setting: Setting) => {
         data[column.id] = 0;
       } else if (column.column_type.inner.type === InnerColumnType.Boolean) {
         data[column.id] = false;
+      } else if (column.column_type.inner.type === InnerColumnType.Json) {
+        data[column.id] = {};
       } else {
         data[column.id] = '';
       }
@@ -34,6 +36,7 @@ export const defaultNew = (setting: Setting) => {
       continue;
     }
   }
+  console.log("defaultNew", data);
   return data;
 };
 
