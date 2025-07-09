@@ -16,7 +16,7 @@ TBD
 
 ### Reporting Issues
 
-If you encounter ANY issues please report it to us on our [Discord Server](https://discord.gg/rCtD9RqWJf)
+If you encounter ANY issues, please report it to us on our [Discord Server](https://discord.gg/rCtD9RqWJf)
 
 ## Contributors
 
