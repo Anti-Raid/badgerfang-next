@@ -6,7 +6,7 @@ import { AlertCircle } from 'lucide-react';
 
 interface SettingsErrorDisplayProps {
   loadErrors: { [templateName: string]: string };
-  onRetry: () => void;
+  onRetry?: () => void;
 }
 
 export const SettingsErrorDisplay: React.FC<SettingsErrorDisplayProps> = ({ 
@@ -35,13 +35,15 @@ export const SettingsErrorDisplay: React.FC<SettingsErrorDisplayProps> = ({
           </div>
         ))}
       </div>
-      <button
-        onClick={onRetry}
-        className="ml-auto bg-destructive/20 hover:bg-destructive/30 text-destructive px-3 py-1 rounded-md text-sm transition-colors focus:outline focus:outline-2 focus:outline-destructive"
-        aria-label="Retry loading settings"
-      >
-        Retry
-      </button>
+      {onRetry && (
+        <button
+          onClick={onRetry}
+          className="ml-auto bg-destructive/20 hover:bg-destructive/30 text-destructive px-3 py-1 rounded-md text-sm transition-colors focus:outline focus:outline-2 focus:outline-destructive"
+          aria-label="Retry loading settings"
+        >
+          Retry
+        </button>
+      )}
     </motion.div>
   );
 };

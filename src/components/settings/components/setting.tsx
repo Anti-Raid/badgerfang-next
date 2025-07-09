@@ -93,7 +93,7 @@ export const fillInSetting = async (
     }
   }
 
-  if (setting.title_template) {
+  if (setting.view_template) {
     try {
       let titleFields: { [key: string]: unknown } = {};
       for (let field of setting.columns) {
@@ -102,22 +102,17 @@ export const fillInSetting = async (
         }
         if (
           field.column_type.inner.type === InnerColumnType.Json &&
-          field.column_type.inner.style == 'template'
+          field.column_type.inner.style == 'template-content'
         ) {
           continue;
         }
         titleFields[field.id] = fields[field.id];
       }
 
-      let title = await luauTemplate(setting.title_template, {
+      return await luauTemplate(setting.view_template, {
         fields: titleFields,
         guildData
       });
-
-      logger.info('SettingComponent', 'Filled in title for setting: ', title);
-      if (typeof title === 'string') {
-        fields['title'] = title;
-      }
     } catch (error) {
       onError(error?.toString() || 'Unknown error');
     }
@@ -218,6 +213,7 @@ export const SettingComponent: React.FC<SettingsManagerProps> = ({
   const [editingEntry, setEditingEntry] = useState<any>(null);
   const [loadErrors, setLoadErrors] = useState<{ [templateName: string]: string }>({});
   const [isReordered, setIsReordered] = useState(false);
+  const [clientSideError, setClientSideError] = useState<string | null>(null);
 
   const processRes = (res: { [templateName: string]: any }) => {
     let errors: { [templateName: string]: string } = {};
@@ -255,20 +251,24 @@ export const SettingComponent: React.FC<SettingsManagerProps> = ({
 
         if (Array.isArray(templateResult.data)) {
           for (let f of templateResult.data) {
-            mergedFields.push(
-              await fillInSetting(setting, guildData, f, (e) => {
-                errors[templateName] = e;
-                logger.error('SettingsManager', 'Failed to fill in setting:', e);
-              })
-            );
-          }
-        } else if (typeof templateResult.data === 'object') {
-          mergedFields.push(
-            await fillInSetting(setting, guildData, templateResult.data, (e) => {
+            const filledIn = await fillInSetting(setting, guildData, f, (e) => {
               errors[templateName] = e;
               logger.error('SettingsManager', 'Failed to fill in setting:', e);
             })
-          );
+
+            if (filledIn) {
+              mergedFields.push(filledIn);
+            }
+          }
+        } else if (typeof templateResult.data === 'object') {
+          const filledIn = await fillInSetting(setting, guildData, templateResult.data, (e) => {
+            errors[templateName] = e;
+            logger.error('SettingsManager', 'Failed to fill in setting:', e);
+          })
+
+          if (filledIn) {
+            mergedFields.push(filledIn);
+          }
         } else {
           errors[templateName] = `Unexpected data type returned by template ${templateName}`;
         }
@@ -304,7 +304,7 @@ export const SettingComponent: React.FC<SettingsManagerProps> = ({
         op: operation,
         fields: sendFields,
         entries,
-        guildData: guildData
+        guildData
       };
 
       try {
@@ -314,19 +314,55 @@ export const SettingComponent: React.FC<SettingsManagerProps> = ({
         }
       } catch (error) {
         logger.error('SettingsManager', `Failed to validate ${operation}:`, error);
-        toast.error(`Failed to validate ${operation} of ${setting.name}: ${error}`);
         throw error;
       }
     }
     return sendFields;
   };
 
+  const postSendOperation = async (operation: string, sendFields: any, resp: any) => {
+    if (setting.postsend_template) {
+      const params = {
+        op: operation,
+        fields: sendFields,
+        entries,
+        guildData,
+        resp
+      };
+
+      try {
+        const result = await luauTemplate(setting.postsend_template, params);
+        if (result !== null) {
+          return result as { [key: string]: unknown };
+        }
+      } catch (error) {
+        logger.error('SettingsManager', `Failed to validate ${operation}:`, error);
+        throw error;
+      }
+    }
+    return resp;
+  };
+
   const handleAddEntry = async () => {
+    let sendFields = structuredClone(newEntry);
+    
     try {
-      let sendFields = structuredClone(newEntry);
       sendFields = await validateOperation('Create', sendFields);
-      
+    } catch (error) {
+      setClientSideError(error?.toString() || 'Unknown error');
+      return;
+    }
+
+    try {      
       const res = await fetcher.createEntry(setting, sendFields);
+
+      try {
+        await postSendOperation('Create', sendFields, res)
+      } catch (error) {
+        setClientSideError(error?.toString() || 'Unknown error');
+        return;
+      }
+
       processRes(res);
       setNewEntry(null);
       setShowNewEntryForm(false);
@@ -338,8 +374,9 @@ export const SettingComponent: React.FC<SettingsManagerProps> = ({
   };
 
   const handleDeleteEntry = async (fields: { [key: string]: unknown }) => {
+    let sendFields: { [key: string]: unknown } = {};
+
     try {
-      let sendFields: { [key: string]: unknown } = {};
       for (let column of setting.columns) {
         if (column.primary_key) {
           let entry = fields[column.id];
@@ -352,7 +389,21 @@ export const SettingComponent: React.FC<SettingsManagerProps> = ({
       }
 
       sendFields = await validateOperation('Delete', sendFields);
+    } catch (error) {
+      setClientSideError(error?.toString() || 'Unknown error');
+      return;
+    }
+
+    try {
       const res = await fetcher.deleteEntry(setting, sendFields);
+
+      try {
+        await postSendOperation('Delete', sendFields, res)
+      } catch (error) {
+        setClientSideError(error?.toString() || 'Unknown error');
+        return;
+      }
+
       processRes(res);
       setEntries(entries.filter((entry) => entry !== fields));
     } catch (error) {
@@ -362,11 +413,24 @@ export const SettingComponent: React.FC<SettingsManagerProps> = ({
   };
 
   const handleSaveEdit = async () => {
+    let sendFields = structuredClone(editingEntry);
     try {
-      let sendFields = structuredClone(editingEntry);
       sendFields = await validateOperation('Update', sendFields);
-      
+    } catch (error) {
+      setClientSideError(error?.toString() || 'Unknown error');
+      return;
+    }
+
+    try {
       const res = await fetcher.updateEntry(setting, sendFields);
+
+      try {
+        await postSendOperation('Update', sendFields, res)
+      } catch (error) {
+        setClientSideError(error?.toString() || 'Unknown error');
+        return;
+      }
+
       processRes(res);
       setEditingEntry(null);
       fetchSetting();
@@ -377,8 +441,8 @@ export const SettingComponent: React.FC<SettingsManagerProps> = ({
   };
 
   const handleReorderEntry = async () => {
+    let sendFields: any[] = [];
     try {
-      let sendFields: any[] = [];
       for (let fields of entries) {
         let _sendFields: { [key: string]: unknown } = {};
         for (let column of setting.columns) {
@@ -396,8 +460,23 @@ export const SettingComponent: React.FC<SettingsManagerProps> = ({
       }
 
       sendFields = await validateOperation('Reorder', sendFields);
+    } catch (error) {
+      setClientSideError(error?.toString() || 'Unknown error');
+      return;
+    }
+
+    try {
       const res = await fetcher.reorderEntries(setting, sendFields);
+
+      try {
+        await postSendOperation('Reorder', sendFields, res)
+      } catch (error) {
+        setClientSideError(error?.toString() || 'Unknown error');
+        return;
+      }
+
       processRes(res);
+
       fetchSetting();
       setIsReordered(false);
     } catch (error) {
@@ -431,6 +510,12 @@ export const SettingComponent: React.FC<SettingsManagerProps> = ({
         loadErrors={loadErrors} 
         onRetry={fetchSetting} 
       />
+
+      {clientSideError && (
+        <SettingsErrorDisplay 
+          loadErrors={{"$client": clientSideError}} 
+        />
+      )}
       
       <SettingsHeader 
         settingName={setting.name} 

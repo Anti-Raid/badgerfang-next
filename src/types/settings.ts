@@ -117,13 +117,14 @@ export interface Setting {
   id: string;
   name: string;
   description?: string;
-  title_template?: string;
+  view_template?: string;
   index_by?: string;
   columns: Column[];
   operations: string[];
   footer?: Footer;
   icon?: string;
   validation_template?: string;
+  postsend_template?: string;
 }
 
 export interface Footer {
