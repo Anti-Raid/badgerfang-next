@@ -376,7 +376,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 	guildData,
 	marginClass
 }) => {
-	let [valueType, setValueType] = useState<string>('string');
+	let [valueType, setValueType] = useState<string>('json');
 	let [templateContent, setTemplateContent] = useState<any>(value);
 	let [jsonValue, setJsonValue] = useState(JSON.stringify(value));
 	let [isEditingNewScriptContent, setIsEditingNewScriptContent] = useState(false);
