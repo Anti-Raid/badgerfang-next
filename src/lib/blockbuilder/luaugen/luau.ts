@@ -14,7 +14,7 @@
 import * as lists from './lists';
 import * as logic from './logic';
 import * as loops from './loops';
-import {LuaGenerator} from './luau_generator';
+import { LuaGenerator } from './luau_generator';
 import * as math from './math';
 import * as procedures from './procedures';
 import * as text from './text';
@@ -29,14 +29,14 @@ export const luaGenerator = new LuaGenerator();
 
 // Install per-block-type generator functions:
 const generators: typeof luaGenerator.forBlock = {
-  ...lists,
-  ...logic,
-  ...loops,
-  ...math,
-  ...procedures,
-  ...text,
-  ...variables,
+	...lists,
+	...logic,
+	...loops,
+	...math,
+	...procedures,
+	...text,
+	...variables
 };
 for (const name in generators) {
-  luaGenerator.forBlock[name] = generators[name];
+	luaGenerator.forBlock[name] = generators[name];
 }

@@ -30,7 +30,7 @@ export async function GET() {
 	for (const { path, generator } of staticPages) {
 		const metadata = generator();
 		const canonical = metadata.alternates?.canonical;
-		
+
 		// Convert canonical to string properly
 		let canonicalUrl: string;
 		if (typeof canonical === 'string') {
@@ -44,7 +44,7 @@ export async function GET() {
 		} else {
 			canonicalUrl = `${websiteUrl}${path}`;
 		}
-		
+
 		urls.push(canonicalUrl);
 	}
 
@@ -67,7 +67,7 @@ export async function GET() {
 		status: 200,
 		headers: {
 			'Content-Type': 'application/xml',
-			'Cache-Control': 'public, max-age=86400, s-max-age=86400', // Cache for 24 hours
+			'Cache-Control': 'public, max-age=86400, s-max-age=86400' // Cache for 24 hours
 		}
 	});
 }

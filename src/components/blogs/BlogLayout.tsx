@@ -87,101 +87,101 @@ export default function BlogLayout() {
 	return (
 		<div className="min-h-screen bg-background">
 			{/* Header Section */}
-				<motion.div
-					ref={headerRef}
-					style={{ opacity: headerOpacity, scale: headerScale }}
-					className="relative overflow-hidden"
-				>
-					<div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-accent/5 pointer-events-none" />
+			<motion.div
+				ref={headerRef}
+				style={{ opacity: headerOpacity, scale: headerScale }}
+				className="relative overflow-hidden"
+			>
+				<div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-accent/5 pointer-events-none" />
 
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 relative z-10">
+				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 relative z-10">
+					<motion.div
+						initial={{ opacity: 0, y: -20 }}
+						animate={isHeaderInView ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
+						transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+						className="text-center"
+					>
 						<motion.div
-							initial={{ opacity: 0, y: -20 }}
-							animate={isHeaderInView ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
-							transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-							className="text-center"
+							initial={{ scale: 0.8, opacity: 0 }}
+							animate={isHeaderInView ? { scale: 1, opacity: 1 } : { scale: 0.8, opacity: 0 }}
+							transition={{ duration: 0.5, delay: 0.2 }}
+							className="inline-flex items-center justify-center mb-6 bg-accent/20 text-accent px-4 py-2 rounded-full"
 						>
-							<motion.div
-								initial={{ scale: 0.8, opacity: 0 }}
-								animate={isHeaderInView ? { scale: 1, opacity: 1 } : { scale: 0.8, opacity: 0 }}
-								transition={{ duration: 0.5, delay: 0.2 }}
-								className="inline-flex items-center justify-center mb-6 bg-accent/20 text-accent px-4 py-2 rounded-full"
-							>
-								<BookOpen size={18} className="mr-2" />
-								<span className="bg-primary bg-clip-text">Our Latest Insights</span>
-							</motion.div>
-
-							<motion.h1
-								initial={{ opacity: 0, y: 20 }}
-								animate={isHeaderInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-								transition={{ duration: 0.7, delay: 0.3 }}
-								className="font-monster text-4xl md:text-5xl lg:text-6xl font-bold mb-6"
-							>
-								<span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-									AntiRaid Blogs
-								</span>
-							</motion.h1>
-
-							<motion.p
-								initial={{ opacity: 0, y: 20 }}
-								animate={isHeaderInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-								transition={{ duration: 0.7, delay: 0.4 }}
-								className="font-inter text-lg text-muted-foreground max-w-2xl mx-auto mb-10"
-							>
-								Insights, updates, and stories from our team
-							</motion.p>
-
-							{/* Search Bar */}
-							<motion.div
-								initial={{ opacity: 0, y: 20 }}
-								animate={isHeaderInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-								transition={{ duration: 0.7, delay: 0.5 }}
-								className="relative max-w-xl mx-auto"
-							>
-								<div className="relative">
-									<Search
-										className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
-										size={20}
-									/>
-									<input
-										type="text"
-										placeholder="Search articles..."
-										value={searchTerm}
-										onChange={(e) => setSearchTerm(e.target.value)}
-										className="w-full pl-10 pr-4 py-3 rounded-full bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all duration-200"
-									/>
-								</div>
-							</motion.div>
+							<BookOpen size={18} className="mr-2" />
+							<span className="bg-primary bg-clip-text">Our Latest Insights</span>
 						</motion.div>
-					</div>
 
-					{/* Decorative elements */}
-					<motion.div
-						className="absolute -top-10 -right-10 w-40 h-40 bg-primary/10 rounded-full blur-3xl"
-						animate={{
-							scale: [1, 1.2, 1],
-							opacity: [0.5, 0.7, 0.5]
-						}}
-						transition={{
-							duration: 8,
-							repeat: Number.POSITIVE_INFINITY,
-							repeatType: 'reverse'
-						}}
-					/>
-					<motion.div
-						className="absolute -bottom-20 -left-20 w-60 h-60 bg-accent/10 rounded-full blur-3xl"
-						animate={{
-							scale: [1, 1.3, 1],
-							opacity: [0.5, 0.7, 0.5]
-						}}
-						transition={{
-							duration: 10,
-							repeat: Number.POSITIVE_INFINITY,
-							repeatType: 'reverse',
-							delay: 1
-						}}
-					/>
-				</motion.div>
+						<motion.h1
+							initial={{ opacity: 0, y: 20 }}
+							animate={isHeaderInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+							transition={{ duration: 0.7, delay: 0.3 }}
+							className="font-monster text-4xl md:text-5xl lg:text-6xl font-bold mb-6"
+						>
+							<span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+								AntiRaid Blogs
+							</span>
+						</motion.h1>
+
+						<motion.p
+							initial={{ opacity: 0, y: 20 }}
+							animate={isHeaderInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+							transition={{ duration: 0.7, delay: 0.4 }}
+							className="font-inter text-lg text-muted-foreground max-w-2xl mx-auto mb-10"
+						>
+							Insights, updates, and stories from our team
+						</motion.p>
+
+						{/* Search Bar */}
+						<motion.div
+							initial={{ opacity: 0, y: 20 }}
+							animate={isHeaderInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+							transition={{ duration: 0.7, delay: 0.5 }}
+							className="relative max-w-xl mx-auto"
+						>
+							<div className="relative">
+								<Search
+									className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
+									size={20}
+								/>
+								<input
+									type="text"
+									placeholder="Search articles..."
+									value={searchTerm}
+									onChange={(e) => setSearchTerm(e.target.value)}
+									className="w-full pl-10 pr-4 py-3 rounded-full bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all duration-200"
+								/>
+							</div>
+						</motion.div>
+					</motion.div>
+				</div>
+
+				{/* Decorative elements */}
+				<motion.div
+					className="absolute -top-10 -right-10 w-40 h-40 bg-primary/10 rounded-full blur-3xl"
+					animate={{
+						scale: [1, 1.2, 1],
+						opacity: [0.5, 0.7, 0.5]
+					}}
+					transition={{
+						duration: 8,
+						repeat: Number.POSITIVE_INFINITY,
+						repeatType: 'reverse'
+					}}
+				/>
+				<motion.div
+					className="absolute -bottom-20 -left-20 w-60 h-60 bg-accent/10 rounded-full blur-3xl"
+					animate={{
+						scale: [1, 1.3, 1],
+						opacity: [0.5, 0.7, 0.5]
+					}}
+					transition={{
+						duration: 10,
+						repeat: Number.POSITIVE_INFINITY,
+						repeatType: 'reverse',
+						delay: 1
+					}}
+				/>
+			</motion.div>
 
 			{/* Tags Section */}
 			{allTags.length > 0 && (

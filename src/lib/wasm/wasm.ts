@@ -37,7 +37,7 @@ export const luauTemplate = async (code: string, args: any): Promise<unknown> =>
 
 			if (data.code === LuauTemplateResultCode.Success) {
 				// Allow client side code to error
-				if(data.result && typeof data.result.error === 'string') {
+				if (data.result && typeof data.result.error === 'string') {
 					cb.reject(data.result.error);
 					return;
 				}
