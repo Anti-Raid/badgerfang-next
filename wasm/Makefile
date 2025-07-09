@@ -17,7 +17,7 @@ release:
      -s STACK_SIZE=16MB \
      -fexceptions \
      -flto \
-     -O3 --no-entry \
+     -Oz --no-entry \
      -L target/wasm32-unknown-emscripten/release \
      -lwasm \
      -o wasm.js

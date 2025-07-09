@@ -692,7 +692,7 @@ export default function CommandInterface() {
 											onChange={setShowCount}
 											options={[
 												{ value: '10', label: '10' },
-												{ value: '20', label: '20' },
+												{ value: '20', label: '20' }
 											]}
 											className="w-24"
 										/>

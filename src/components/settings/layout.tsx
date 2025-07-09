@@ -31,53 +31,53 @@ export default function Settings({ guildId }: { guildId: string }) {
 	const [error, setError] = useState<string | null>(null);
 
 	const fetcher: SettingDataFetcher = {
-  ...noOpFetcher,
-  listEntries: async (setting: Setting) => {
-    const payload = {
-      operation: 'View',
-      setting: setting.id,
-      fields: {}
-    };
-    const result = await executeSettings(guildId, payload);
-    return result as { [templateName: string]: DispatchResult };
-  },
-  createEntry: async (setting: Setting, entry: any) => {
-    const payload = {
-      operation: 'Create',
-      setting: setting.id,
-      fields: entry
-    };
-    const result = await executeSettings(guildId, payload);
-    return result as { [templateName: string]: DispatchResult };
-  },
-  updateEntry: async (setting: Setting, entry: any) => {
-    const payload = {
-      operation: 'Update',
-      setting: setting.id,
-      fields: entry
-    };
-    const result = await executeSettings(guildId, payload);
-    return result as { [templateName: string]: DispatchResult };
-  },
-  deleteEntry: async (setting: Setting, entry: any) => {
-    const payload = {
-      operation: 'Delete',
-      setting: setting.id,
-      fields: entry
-    };
-    const result = await executeSettings(guildId, payload);
-    return result as { [templateName: string]: DispatchResult };
-  },
-  reorderEntries: async (setting: Setting, entries: any[]) => {
-    const payload = {
-      operation: 'Reorder',
-      setting: setting.id,
-      fields: entries
-    };
-    const result = await executeSettings(guildId, payload);
-    return result as { [templateName: string]: DispatchResult };
-  }
-};
+		...noOpFetcher,
+		listEntries: async (setting: Setting) => {
+			const payload = {
+				operation: 'View',
+				setting: setting.id,
+				fields: {}
+			};
+			const result = await executeSettings(guildId, payload);
+			return result as { [templateName: string]: DispatchResult };
+		},
+		createEntry: async (setting: Setting, entry: any) => {
+			const payload = {
+				operation: 'Create',
+				setting: setting.id,
+				fields: entry
+			};
+			const result = await executeSettings(guildId, payload);
+			return result as { [templateName: string]: DispatchResult };
+		},
+		updateEntry: async (setting: Setting, entry: any) => {
+			const payload = {
+				operation: 'Update',
+				setting: setting.id,
+				fields: entry
+			};
+			const result = await executeSettings(guildId, payload);
+			return result as { [templateName: string]: DispatchResult };
+		},
+		deleteEntry: async (setting: Setting, entry: any) => {
+			const payload = {
+				operation: 'Delete',
+				setting: setting.id,
+				fields: entry
+			};
+			const result = await executeSettings(guildId, payload);
+			return result as { [templateName: string]: DispatchResult };
+		},
+		reorderEntries: async (setting: Setting, entries: any[]) => {
+			const payload = {
+				operation: 'Reorder',
+				setting: setting.id,
+				fields: entries
+			};
+			const result = await executeSettings(guildId, payload);
+			return result as { [templateName: string]: DispatchResult };
+		}
+	};
 
 	useEffect(() => {
 		const fetchData = async () => {
