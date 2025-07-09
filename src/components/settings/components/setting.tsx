@@ -95,22 +95,8 @@ export const fillInSetting = async (
 
 	if (setting.view_template) {
 		try {
-			let titleFields: { [key: string]: unknown } = {};
-			for (let field of setting.columns) {
-				if (field.column_type.type === ColumnType.Widget) {
-					continue;
-				}
-				if (
-					field.column_type.inner.type === InnerColumnType.Json &&
-					field.column_type.inner.style == 'template-content'
-				) {
-					continue;
-				}
-				titleFields[field.id] = fields[field.id];
-			}
-
 			return await luauTemplate(setting.view_template, {
-				fields: titleFields,
+				fields,
 				guildData
 			});
 		} catch (error) {
