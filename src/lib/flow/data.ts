@@ -1,0 +1,164 @@
+// Inspired from Kite
+// SPDX: GPL-3.0
+import { Edge, Node, NodeProps as XYNodeProps } from "@xyflow/react";
+import z from "zod";
+import { PermissionIndividual } from "./discordperms";
+
+export const numericRegex = /^[0-9]+$/;
+export const placeholderRegex = /^\{\{[a-z0-9_.]+\}\}$/;
+
+export interface FlowData {
+  nodes: Node<NodeData>[];
+  edges: Edge[];
+}
+
+export enum NodeTypeEnum {
+    /*
+    The base of a command
+     */
+    BaseCommand,
+    CommandArgument,
+    SetVariable,
+    ForLoop,
+    IfCondition,
+    UnknownNode,
+}
+
+export enum CommandArgumentType {
+    String = "string",
+    Integer = "integer",
+    Boolean = "boolean",
+    User = "user",
+    Channel = "channel",
+    Role = "role",
+    Member = "member",
+}
+
+export interface SharedNodeData {
+    node_name: string;
+    node_description?: string;
+}
+
+export interface BaseCommandNode {
+    type: NodeTypeEnum.BaseCommand;
+    data: SharedNodeData & {
+        command_name: string;
+        command_description: string[];
+        command_kittycat_permissions?: string[];
+    };
+}
+
+export interface CommandArgumentNode {
+    type: NodeTypeEnum.CommandArgument;
+    data: SharedNodeData & {
+        command_argument_type: CommandArgumentType;
+        command_argument_name: string;
+        command_argument_description?: string;
+        command_argument_required: boolean;
+    };
+}
+
+export interface VariableSetNode {
+    type: NodeTypeEnum.SetVariable;
+    data: SharedNodeData & {
+        variable_name?: string;
+        variable_value?: string;
+    }
+}
+
+export interface ForLoopNode {
+    type: NodeTypeEnum.ForLoop;
+    data: SharedNodeData & {
+        condition?: string;
+    };
+}
+
+export interface IfConditionNode {
+    type: NodeTypeEnum.IfCondition;
+    data: SharedNodeData & {
+        condition: string;
+        inner: FlowNodeData[];
+        elseif?: FlowNodeData[];
+        else?: FlowNodeData[];
+    };
+}
+
+export interface UnknownNode {
+    type: NodeTypeEnum.UnknownNode;
+    data: SharedNodeData & Record<string, unknown>;
+}
+
+export type FlowNodeData = BaseCommandNode | CommandArgumentNode | VariableSetNode | ForLoopNode | IfConditionNode | UnknownNode;
+
+export type NodeData = Record<string, unknown>;
+export type NodeExtData = FlowNodeData & Record<string, unknown>;
+
+export type NodeProps = XYNodeProps<Node<NodeData>>;
+
+export type NodeType = Node<NodeData>;
+
+//export const auditLogReasonSchema = z.string().max(512).optional();
+
+export const sharedNodeDataSchema = z.object({
+    node_name: z.string().max(32).min(1),
+    node_description: z.string().max(100).optional(),   
+});
+
+export const baseCommandNodeSchema = sharedNodeDataSchema.extend({
+  name: z
+    .string()
+    .max(32)
+    .min(1)
+    .regex(
+      /^[-_'\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$/ug,
+      "Must be only lowercase alphanumeric characters and underscores"
+    ),
+    description: z.string().max(100).min(1),
+    command_discord_permissions: z
+        .array(
+            z
+            .string()
+            .check(val => {
+                const permissions = val.value.split(",");
+                for(let perm of permissions) {
+                    if(!PermissionIndividual[perm]) {
+                        val.issues.push({
+                            code: "custom",
+                            input: val.value
+                        });
+                    }
+                }
+            })
+            .max(100)
+        )
+        .optional(),
+    command_kittycat_permissions: z
+        .array(z.string().max(100))
+        .optional()
+});
+
+export const commandArgumentNodeSchema = sharedNodeDataSchema.extend({
+    command_argument_type: z.enum(CommandArgumentType),
+    command_argument_name: z.string()
+    .regex(
+      /^[-_'\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$/ug,
+      "Must be only lowercase alphanumeric characters and underscores"
+    )
+    .max(32)
+    .min(1),
+    command_argument_description: z.string().max(100).optional(),
+    command_argument_required: z.boolean(),
+});
+
+export const variableSetNodeSchema = sharedNodeDataSchema.extend({
+    variable_name: z.string().min(1).optional(),
+    variable_value: z.string().min(1).optional(),
+});
+
+export const forLoopNodeSchema = sharedNodeDataSchema.extend({
+    condition: z.string().min(1),
+});
+
+export const ifConditionNodeSchema = sharedNodeDataSchema.extend({
+    condition: z.string().min(1),
+});
