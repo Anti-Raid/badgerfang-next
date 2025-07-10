@@ -1,3 +1,5 @@
+// Originated from Kite
+// SPDX: GPL-3.0
 import { NodeProps } from "@/lib/flow/data";
 import { ReactNode } from "react";
 import { primaryColor, useNodeValues } from "@/lib/flow/nodes";

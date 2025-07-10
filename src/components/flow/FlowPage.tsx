@@ -1,3 +1,5 @@
+// Originated from Kite
+// SPDX: GPL-3.0
 import { FlowData, NodeType } from "@/lib/flow/data";
 import { ReactFlowProvider, useReactFlow } from "@xyflow/react";
 import Flow from "./Flow";

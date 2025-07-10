@@ -1,3 +1,5 @@
+// Originated from Kite
+// SPDX: GPL-3.0
 import { Handle, Position } from "@xyflow/react";
 import { primaryColor } from "@/lib/flow/nodes";
 
