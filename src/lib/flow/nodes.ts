@@ -10,6 +10,7 @@ import {
   NodeData,
   NodeExtData,
   NodeTypeEnum,
+  TypedInputEnum,
 } from "./data";
 import { FlowContext } from "./context";
 
@@ -65,7 +66,10 @@ export const defaultNodeDataForType: Record<string, NodeExtData> = {
     data: {
       node_name: "Set Variable",
       variable_name: "",
-      variable_value: "",
+      variable_value: {
+        type: TypedInputEnum.String,
+        value: "",
+      },
     }
   }
 }

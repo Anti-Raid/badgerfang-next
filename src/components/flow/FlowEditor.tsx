@@ -185,7 +185,7 @@ export default function FlowEditor({
       className="!bg-background flex-auto"
       fitView
     >
-      <Controls showInteractive={false} />
+      <Controls showInteractive={true} />
       <Background
         variant={BackgroundVariant.Dots}
         gap={18}

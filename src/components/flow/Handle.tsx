@@ -1,6 +1,6 @@
 // Originated from Kite
 // SPDX: GPL-3.0
-import { Handle, Position } from "@xyflow/react";
+import { Handle, OnConnect, Position } from "@xyflow/react";
 import { primaryColor } from "@/lib/flow/nodes";
 
 interface Props {
@@ -8,6 +8,7 @@ interface Props {
   position: Position;
   color?: string;
   isConnectable?: boolean;
+  onConnect?: OnConnect;
   size?: "small" | "medium" | "large";
   id?: string;
 }
@@ -17,6 +18,7 @@ export default function FlowNodeHandle({
   position,
   color,
   isConnectable,
+  onConnect,
   size = "medium",
   id,
 }: Props) {
@@ -31,6 +33,7 @@ export default function FlowNodeHandle({
       id={id}
       type={type}
       position={position}
+      onConnect={onConnect}
       isConnectable={isConnectable}
       className="rounded-full"
       style={{

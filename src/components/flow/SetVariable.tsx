@@ -1,10 +1,10 @@
 import { Position } from "@xyflow/react";
 import FlowNodeBase from "./BaseNode";
 import Handle from "./Handle";
-import { NodeExtData, NodeProps, NodeTypeEnum } from "@/lib/flow/data";
+import { NodeExtData, NodeProps, NodeTypeEnum, TypedInput, TypedInputEnum } from "@/lib/flow/data";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { FlowContext } from "@/lib/flow/context";
-import { InputField } from "./Inputs";
+import { InputField, TypedInputField } from "./Inputs";
 
 export default function SetVariable(props: NodeProps) {
   const svi = useContext(FlowContext);
@@ -15,6 +15,7 @@ export default function SetVariable(props: NodeProps) {
   }
 
   const [variableName, setVariableName] = useState<string>(currentData.data.variable_name || "");
+  const [variableValue, setVariableValue] = useState<TypedInput>(currentData.data.variable_value || { type: TypedInputEnum.String, value: "" });
 
   useEffect(() => {
     console.log("Setting variable name to:", variableName);
@@ -23,9 +24,10 @@ export default function SetVariable(props: NodeProps) {
         data: {
             ...currentData.data,
             variable_name: variableName,
+            variable_value: variableValue
         }
     });
-  }, [variableName, props.id]);
+  }, [variableName, variableValue, props.id]);
 
   return (
     <FlowNodeBase {...props}>
@@ -43,6 +45,21 @@ export default function SetVariable(props: NodeProps) {
                 className="w-full"
                 error={!variableName ? "Variable name is required." : ""}
             /> 
+
+            <TypedInputField 
+                id={`${props.id}-variable-value`}
+                label="Variable Value"
+                value={variableValue}
+                onChange={(value) => {
+                  console.log("Setting variable value to:", value);
+                  setVariableValue(value)
+                }}
+                placeholder="Enter variable value"
+                className="w-full"
+                error={!variableValue.value ? "Variable value is required." : ""}
+                disabled={!variableName}
+                aria-label="Variable Value"
+            />
         </>
       )}
     </FlowNodeBase>

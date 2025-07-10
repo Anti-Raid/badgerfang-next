@@ -7,6 +7,53 @@ import { PermissionIndividual } from "./discordperms";
 export const numericRegex = /^[0-9]+$/;
 export const placeholderRegex = /^\{\{[a-z0-9_.]+\}\}$/;
 
+/**
+ * The different types that a value in Luau can be user-initialized to.
+ */
+export enum TypedInputEnum {
+    String = "String",
+    Number = "Number",
+    Table = "Table",
+    Boolean = "Boolean",
+}
+
+export const stringToTypedInputEnum = (value: string): TypedInputEnum => {
+    switch (value?.toLowerCase()) {
+        case "string":
+            return TypedInputEnum.String;
+        case "number":
+            return TypedInputEnum.Number;
+        case "table":
+            return TypedInputEnum.Table;
+        case "boolean":
+            return TypedInputEnum.Boolean;
+        default:
+            throw new Error(`Unknown TypedInputEnum value: ${value}`);
+    }
+};
+
+export interface TypedInputString {
+    type: TypedInputEnum.String;
+    value: string;
+}
+
+export interface TypedInputNumber {
+    type: TypedInputEnum.Number;
+    value: number;
+}
+
+export interface TypedInputTable {
+    type: TypedInputEnum.Table;
+    value: Record<string, unknown>;
+}
+
+export interface TypedInputBoolean {
+    type: TypedInputEnum.Boolean;
+    value: boolean;
+}
+
+export type TypedInput = TypedInputString | TypedInputNumber | TypedInputTable | TypedInputBoolean;
+
 export interface FlowData {
   nodes: Node<NodeData>[];
   edges: Edge[];
@@ -62,7 +109,7 @@ export interface VariableSetNode {
     type: NodeTypeEnum.SetVariable;
     data: SharedNodeData & {
         variable_name?: string;
-        variable_value?: string;
+        variable_value?: TypedInput;
     }
 }
 
