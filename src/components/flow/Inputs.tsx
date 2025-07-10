@@ -212,7 +212,7 @@ export const TypedInputField: React.FC<TypedInputProps> = (
 	}
 ) => {
 	const [type, setType] = useState<TypedInputEnum>(value.type || TypedInputEnum.String);
-	const [lvalue, setLValue] = useState<unknown>(value.value || '');
+	const [lvalue, setLValue] = useState<unknown>(value.value ? JSON.stringify(value.value) : '');
 	const [jsonOk, setJsonOk] = useState<boolean>(true);
 	return (
 		<>
