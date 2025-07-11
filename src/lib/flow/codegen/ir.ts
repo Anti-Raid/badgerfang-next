@@ -3,10 +3,10 @@
  * The different types that a value in Luau can be user-initialized to.
  */
 export enum ITypedInputEnum {
-    String = "String",
-    Number = "Number",
-    Table = "Table",
-    Boolean = "Boolean",
+    String,
+    Number,
+    Table,
+    Boolean,
 }
 
 export interface ITypedInputString {
@@ -36,42 +36,47 @@ export type ITypedInput = ITypedInputString | ITypedInputNumber | ITypedInputTab
  */
 export enum INodeTypeEnum {
     SetVariable,
-    ForLoop,
     IfCondition,
+    ForLoop,
     Block,
 }
 
-export interface VariableSetNode {
+export interface IVariableSetNode {
     type: INodeTypeEnum.SetVariable;
     data: {
-        variable_name?: string;
-        variable_value?: ITypedInput;
+        variable_name: string;
+        variable_value: ITypedInput;
     }
 }
 
-export interface ForLoopNode {
-    type: INodeTypeEnum.ForLoop;
-    data: {
-        condition?: string;
-        body: INode[];
-    };
-}
-
-export interface IfConditionNode {
+export interface IIfConditionNode {
     type: INodeTypeEnum.IfCondition;
     data: {
         condition: string;
         body: INode[];
-        elseifs?: INode[];
-        else?: INode;
+        elseifs?: IElseIf[];
+        else?: INode[];
     };
 }
 
-export interface BlockNode {
+export interface IElseIf {
+    condition: string;
+    body: INode[];
+}
+
+export interface IForLoopNode {
+    type: INodeTypeEnum.ForLoop;
+    data: {
+        condition: string;
+        body: INode[];
+    };
+}
+
+export interface IBlockNode {
     type: INodeTypeEnum.Block;
     data: {
         body: INode[];
     };
 }
 
-export type INode = VariableSetNode | ForLoopNode | IfConditionNode;
+export type INode = IVariableSetNode | IIfConditionNode | IForLoopNode;

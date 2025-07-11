@@ -81,17 +81,18 @@ export interface FlowData {
 }
 
 export enum NodeTypeEnum {
-    /*
-    The base of a command
-     */
-    BaseCommand,
-    CommandArgument,
     SetVariable,
-    ForLoop,
     IfCondition,
     ElseIfCondition,
     ElseCondition,
     EndCondition,
+
+    // Unsupported for now
+    ForLoop,
+    BaseCommand,
+    CommandArgument,
+    
+    // Special
     UnknownNode,
 }
 
@@ -137,13 +138,6 @@ export interface VariableSetNode {
     }
 }
 
-export interface ForLoopNode {
-    type: NodeTypeEnum.ForLoop;
-    data: SharedNodeData & {
-        condition?: string;
-    };
-}
-
 export interface IfConditionNode {
     type: NodeTypeEnum.IfCondition;
     data: SharedNodeData & {
@@ -169,13 +163,20 @@ export interface EndConditionNode {
     data: SharedNodeData;
 }
 
+export interface ForLoopNode {
+    type: NodeTypeEnum.ForLoop;
+    data: SharedNodeData & {
+        condition?: string;
+    };
+}
+
 export interface UnknownNode {
     type: NodeTypeEnum.UnknownNode;
     data: SharedNodeData & Record<string, unknown>;
 }
 
-export type FlowNodeData = BaseCommandNode | CommandArgumentNode | VariableSetNode | ForLoopNode | 
-IfConditionNode | ElseIfConditionNode | ElseConditionNode | EndConditionNode | UnknownNode;
+export type FlowNodeData = BaseCommandNode | CommandArgumentNode | VariableSetNode | 
+IfConditionNode | ElseIfConditionNode | ElseConditionNode | EndConditionNode | ForLoopNode | UnknownNode;
 
 export type NodeData = Record<string, unknown>;
 export type NodeExtData = FlowNodeData & Record<string, unknown>;
