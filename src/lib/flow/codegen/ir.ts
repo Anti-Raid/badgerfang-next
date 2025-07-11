@@ -88,3 +88,35 @@ export interface IBlockNode {
 }
 
 export type INode = IVariableSetNode | IIfConditionNode | IForLoopNode | ICustomCodeNode | IBlockNode;
+
+/**
+ * Internal representation class
+ */
+export class CodeGenIR {
+    /**
+     * The nodes in the IR.
+     */
+    public nodes: INode[];
+    /**
+     * Warnings generated during the IR generation.
+     */
+    public warnings: string[];
+    /**
+     * Dependencies that the generated code needs.
+     */
+    public dependencies: string[];
+
+    constructor(nodes: INode[] = [], warnings: string[] = [], dependencies: string[] = []) {
+        this.nodes = nodes;
+        this.warnings = warnings;
+        this.dependencies = dependencies;
+    }
+    
+    toJSON(): Record<string, unknown> {
+        return {
+            nodes: this.nodes,
+            warnings: this.warnings,
+            dependencies: this.dependencies,
+        };
+    }
+}

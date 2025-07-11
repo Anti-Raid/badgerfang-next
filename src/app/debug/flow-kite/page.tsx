@@ -19,11 +19,13 @@ export default function Blockly() {
 			)
 			.generate()
 
-			console.log("Generated IR", r);
-
 			return r
 		} catch (e) {
-			return `Error generating IR: ${e instanceof Error ? e.message : String(e)}`;
+			return {
+				toJSON: () => {
+					return `Error generating IR: ${e instanceof Error ? e.message : String(e)}`
+				}
+			};
 		}
 	}, [data, auxData]);
 
@@ -56,7 +58,7 @@ export default function Blockly() {
 				transition={{ duration: 0.5 }}
 				className="mt-8"
 			>
-				<code className="whitespace-pre-wrap break-words bg-gray-100 text-black">{JSON.stringify({data, auxData, codegennedIr})}</code>
+				<code className="whitespace-pre-wrap break-words bg-gray-100 text-black">{JSON.stringify({data, auxData, codegennedIr: codegennedIr.toJSON() })}</code>
 			</motion.div>
 		</>
 	);

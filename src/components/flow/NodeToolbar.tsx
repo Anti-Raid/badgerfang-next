@@ -3,8 +3,6 @@
 import { NodeValues, nodeTypes } from "@/lib/flow/nodes";
 import clsx from "clsx";
 import { DragEvent, useMemo, useState } from "react";
-import { useReactFlow } from "@xyflow/react";
-import { getNodeId } from "@/lib/flow/nodes";
 
 const nodeCategories = {
   action: [
