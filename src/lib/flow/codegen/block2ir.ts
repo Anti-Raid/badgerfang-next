@@ -30,16 +30,27 @@ interface VisitResult {
 export class CodeGenIRGenerator {
     private nodes: Node<NodeData>[];
     private edges: Edge[];
-    private auxData: Map<string, NodeExtData>;
+    private auxData: Record<string, NodeExtData>;
     private warnings: string[];
     private werror: boolean;
 
-    constructor(nodes: Node<NodeData>[], edges: Edge[], auxData: Map<string, NodeExtData>, werror: boolean = false) {
+    constructor(nodes: Node<NodeData>[], edges: Edge[], auxData: Record<string, NodeExtData>, werror: boolean = false) {
         this.nodes = nodes;
         this.edges = edges;
         this.auxData = auxData;
         this.warnings = [];
         this.werror = werror;
+    }
+
+    /**
+     * Generates the IR representation of the flow.
+     * @returns An array of IR nodes representing the flow.
+     */
+    public generate(): INode[] {
+        if (this.nodes.length === 0) {
+            return []
+        }
+        return this.visitNodeAndChildren(this.nodes[0].id);
     }
 
     /**
@@ -214,6 +225,10 @@ export class CodeGenIRGenerator {
                 this.pushWarning(`ElseIfCondition ${elseifId} has multiple outgoing connections, only the first will be considered.`);
             }
 
+            if (elseifChildren.length === 0) {
+                throw new Error(`ElseIfCondition ${elseifId} has no outgoing connections.`);
+            }
+
             elseIfs.push({
                 condition: elseifData.data.condition,
                 body: this.visitNodeAndChildren(elseifChildren[0].id),
@@ -294,7 +309,7 @@ export class CodeGenIRGenerator {
      * @returns The auxiliary data for the node.
      */
     private getAuxDataForNode(nodeId: string): NodeExtData {
-        const data = this.auxData.get(nodeId);
+        const data = this.auxData[nodeId];
         if (!data) {
             throw new Error(`Auxiliary data not found for node ${nodeId}`);
         }

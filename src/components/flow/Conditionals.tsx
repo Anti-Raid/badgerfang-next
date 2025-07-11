@@ -189,3 +189,19 @@ export const ElseIfCondition = (props: NodeProps) => {
     </FlowNodeBase>
   );
 }
+
+export const EndCondition = (props: NodeProps) => {
+  const svi = useContext(FlowContext);
+  const currentData = useMemo(() => svi.getData(props.id), [svi, props.id]);
+
+  if(currentData.type != NodeTypeEnum.EndCondition) {
+    return <div className="text-red-500">Invalid node type: {currentData.type}</div>;
+  }
+
+  return (
+    <FlowNodeBase {...props}>
+        <Handle type="target" position={Position.Top} />
+        <Handle type="source" position={Position.Bottom} />
+    </FlowNodeBase>
+  );
+}

@@ -64,18 +64,8 @@ export default function FlowEditor({
 
   const wrappedOnNodesChange = useCallback(
     (changes: NodeChange[]) => {
-      const filteredChanges = changes.filter((change) => {
-        if (change.type === "remove") {
-          const node = getNode(change.id);
-          const values = getNodeValues(node!.type!);
-          return !values.fixed;
-        }
-
-        return true;
-      });
-
-      if (filteredChanges.length > 0) {
-        onNodesChange(filteredChanges as any);
+      if (changes.length > 0) {
+        onNodesChange(changes);
         onChange();
       }      
     },
@@ -84,17 +74,8 @@ export default function FlowEditor({
 
   const wrappedOnEdgesChange = useCallback(
     (changes: EdgeChange[]) => {
-      const filteredChanges = changes.filter((change) => {
-        if (change.type === "remove") {
-          const edge = getEdge(change.id);
-          return edge?.type !== "fixed";
-        }
-
-        return true;
-      });
-
-      if (filteredChanges.length > 0) {
-        onEdgesChange(filteredChanges);
+      if (changes.length > 0) {
+        onEdgesChange(changes);
         onChange();
       }
     },

@@ -29,8 +29,6 @@ export interface NodeValues {
   defaultTitle: string;
   defaultDescription: string;
   dataSchema?: ZodType;
-  ownsChildren?: boolean;
-  fixed?: boolean;
   helpUrl?: string;
 }
 
@@ -63,6 +61,12 @@ export const nodeTypes: Record<string, NodeValues> = {
     icon: CircleHelpIcon,
     defaultTitle: "Else If Condition",
     defaultDescription: "Executes code based on condition .",
+  },
+  end_condition: {
+    color: primaryColor,
+    icon: CircleHelpIcon,
+    defaultTitle: "End Condition",
+    defaultDescription: "Ends the conditional chain.",
   }
 };
 export const defaultNodeDataForType: Record<string, NodeExtData> = {
@@ -99,6 +103,12 @@ export const defaultNodeDataForType: Record<string, NodeExtData> = {
       index: 1, // Default index for the first elseif
     }
   },
+  end_condition: {
+    type: NodeTypeEnum.EndCondition,
+    data: {
+      node_name: "End Condition",
+    }
+  }
 }
 
 export function getNodeValues(nodeType: string): NodeValues {

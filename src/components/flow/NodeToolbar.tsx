@@ -31,7 +31,7 @@ const nodeCategories = {
   control_flow: [
     {
       title: "Conditions",
-      nodeTypes: ["set_variable", "if_condition", "elseif_condition"],
+      nodeTypes: ["set_variable", "if_condition", "elseif_condition", "end_condition"],
       
     },
     {

@@ -3,10 +3,10 @@
  * The different types that a value in Luau can be user-initialized to.
  */
 export enum ITypedInputEnum {
-    String,
-    Number,
-    Table,
-    Boolean,
+    String = "String",
+    Number = "Number",
+    Table = "Table",
+    Boolean = "Boolean",
 }
 
 export interface ITypedInputString {
@@ -35,10 +35,10 @@ export type ITypedInput = ITypedInputString | ITypedInputNumber | ITypedInputTab
  * A internal representation node type for code generation.
  */
 export enum INodeTypeEnum {
-    SetVariable,
-    IfCondition,
-    ForLoop,
-    Block,
+    SetVariable = "SetVariable",
+    IfCondition = "IfCondition",
+    ForLoop = "ForLoop",
+    Block = "Block",
 }
 
 export interface IVariableSetNode {
