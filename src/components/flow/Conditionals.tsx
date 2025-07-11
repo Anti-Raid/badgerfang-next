@@ -74,8 +74,29 @@ registerValidationTarget("elseif_condition", (svi: FlowContext, srcCons: string[
         return false;
     }
 
-    if(srcData.type !== NodeTypeEnum.IfCondition && srcData.type !== NodeTypeEnum.ElseIfCondition) {
-        logger.error("Flow.ElseIfCondition", "ElseIfCondition can only be connected to an IfCondition/ElseIfCondition node.");
+    if(srcData.type !== NodeTypeEnum.IfCondition) {
+        logger.error("Flow.ElseIfCondition", "ElseIfCondition can only be connected to an IfCondition node.");
+        return false;
+    }
+
+    return true;
+});
+
+// Static validation for end_condition: ElseIf conditions can only have one source connection and also can only be connected to an IfCondition or ElseIfCondition node.
+registerValidationTarget("end_condition", (svi: FlowContext, srcCons: string[], tgtCons: string[], edge: Edge | Connection, source: Node<NodeData>, target: Node<NodeData>) => {
+    if(tgtCons.length >= 1) {
+        logger.error("Flow.EndCondition", "EndCondition can only have one source connection.");
+        return false;
+    }
+
+    let srcData = svi.getData(source.id);
+    if(!srcData) {
+        logger.error("Flow.EndCondition", "Source node data not found for EndCondition.");
+        return false;
+    }
+
+    if(![NodeTypeEnum.IfCondition, NodeTypeEnum.ForLoop].includes(srcData.type)) {
+        logger.error("Flow.EndCondition", "EndCondition can only be connected to an IfCondition/ForLoop node.");
         return false;
     }
 

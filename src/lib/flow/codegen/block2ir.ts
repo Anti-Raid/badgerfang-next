@@ -87,7 +87,7 @@ export class CodeGenIRGenerator {
             case NodeTypeEnum.IfCondition:
                 return this.visitIfCondition({ nodeId: node.id, data, currentIr });
             case NodeTypeEnum.ElseIfCondition, NodeTypeEnum.ElseCondition, NodeTypeEnum.EndCondition:
-                throw new Error(`An ${data.type} node must be connected to an IfCondition node.`);
+                throw new Error(`An ${data.type} node must be connected to an IfCondition node or a ForLoop node.`);
             case NodeTypeEnum.ForLoop:
                 return this.visitForLoop({ nodeId: node.id, data, currentIr });
             case NodeTypeEnum.CustomCode:

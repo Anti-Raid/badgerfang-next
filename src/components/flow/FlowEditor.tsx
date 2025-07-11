@@ -95,6 +95,8 @@ export default function FlowEditor({
           }
         );
       }
+
+      onChange();
     };
 
   const onDragOver = useCallback((e: DragEvent) => {
