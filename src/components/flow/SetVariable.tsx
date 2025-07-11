@@ -1,19 +1,33 @@
-import { Position } from "@xyflow/react";
+import { Node, Connection, Edge, Position } from "@xyflow/react";
 import FlowNodeBase from "./BaseNode";
-import Handle from "./Handle";
-import { NodeProps, NodeTypeEnum, TypedInput, TypedInputEnum } from "@/lib/flow/data";
+import { NodeData, NodeProps, NodeTypeEnum, registerValidationSource, TypedInput, TypedInputEnum } from "@/lib/flow/data";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { FlowContext } from "@/lib/flow/context";
 import { InputField, TypedInputField } from "./Inputs";
-import LimitedHandle from "./LimitedHandle";
 import { FlowExpanded } from "./FlowExpanded";
+import logger from "@/lib/logger";
+import Handle from "./Handle";
+
+// Static validation for SetVariable: SetVariable nodes can only have one source connection and one target connection.
+registerValidationSource("set_variable", (_svi: FlowContext, srcCons: string[], tgtCons: string[], _edge: Edge | Connection, _source: Node<NodeData>, _target: Node<NodeData>) => {
+    if(tgtCons.length > 1) {
+        logger.error("Flow.SetVariable", "SetVariable can only have one target connection.");
+        return false;
+    }
+
+    if(srcCons.length > 1) {
+        logger.error("Flow.SetVariable", "SetVariable can only have one source connection.");
+        return false;
+    }
+    return true;
+})
 
 export default function SetVariable(props: NodeProps) {
   const svi = useContext(FlowContext);
   const currentData = useMemo(() => svi.getData(props.id), [svi, props.id]);
 
-  if(currentData.type != NodeTypeEnum.SetVariable) {
-    return <div className="text-red-500">Invalid node type: {currentData.type}</div>;
+  if(currentData?.type != NodeTypeEnum.SetVariable) {
+    return <div className="text-red-500">Invalid node type: {currentData?.type}</div>;
   }
 
   const [variableName, setVariableName] = useState<string>(currentData.data.variable_name || "");
@@ -33,8 +47,8 @@ export default function SetVariable(props: NodeProps) {
 
   return (
     <FlowNodeBase {...props}>
-      <LimitedHandle type="target" position={Position.Top} validate={(cons) => cons.length < 1} />
-      <LimitedHandle type="source" position={Position.Bottom} validate={(cons) => cons.length < 1} />
+      <Handle type="target" position={Position.Top} />
+      <Handle type="source" position={Position.Bottom} />
 
       <FlowExpanded
         nodeProps={props}

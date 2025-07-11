@@ -38,6 +38,7 @@ export enum INodeTypeEnum {
     SetVariable = "SetVariable",
     IfCondition = "IfCondition",
     ForLoop = "ForLoop",
+    CustomCode = "CustomCode",
     Block = "Block",
 }
 
@@ -72,6 +73,13 @@ export interface IForLoopNode {
     };
 }
 
+export interface ICustomCodeNode {
+    type: INodeTypeEnum.CustomCode;
+    data: {
+        code: string;
+    };
+}
+
 export interface IBlockNode {
     type: INodeTypeEnum.Block;
     data: {
@@ -79,4 +87,4 @@ export interface IBlockNode {
     };
 }
 
-export type INode = IVariableSetNode | IIfConditionNode | IForLoopNode;
+export type INode = IVariableSetNode | IIfConditionNode | IForLoopNode | ICustomCodeNode | IBlockNode;

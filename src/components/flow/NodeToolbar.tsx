@@ -24,8 +24,7 @@ const nodeCategories = {
     },
     {
       title: "Other Actions",
-      nodeTypes: [
-      ],
+      nodeTypes: ["custom_code"],
     },
   ],
   control_flow: [
@@ -36,7 +35,7 @@ const nodeCategories = {
     },
     {
       title: "Loops",
-      nodeTypes: [],
+      nodeTypes: ["for_loop"],
       
     },
     {
@@ -81,6 +80,11 @@ export default function FlowNodeExplorer() {
             </div>
           ))}
         </div>
+      </div>
+
+      <h1 className="flex text-lg px-4 justify-between">Nodes</h1>
+      <div className="flex-none px-4 py-1 text-sm text-muted-foreground">
+        Current nodes.
       </div>
     </div>
   );
@@ -132,29 +136,15 @@ function NodeCategories({
 }
 
 function AvailableNode({ type, values }: { type: string; values: NodeValues }) {
-  const { addNodes } = useReactFlow();
-
   function onStartDrag(e: DragEvent) {
     e.dataTransfer.setData("application/reactflow", type);
     e.dataTransfer.effectAllowed = "move";
-  }
-
-  function onClick() {
-    addNodes([
-      {
-        id: getNodeId().toString(),
-        type,
-        position: { x: 0, y: 0 },
-        data: {},
-      },
-    ]);
   }
 
   return (
     <div
       className="p-1 hover:bg-muted rounded-md relative select-none cursor-grab"
       onDragStart={onStartDrag}
-      onClick={onClick}
       draggable
     >
       <div className="flex items-start space-x-3">

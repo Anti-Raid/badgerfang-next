@@ -4,9 +4,13 @@ For if statements in flow:
 1. a if statement can only have one non-continuing connection but may have an arbitrary number of continuing connections with the exception that an if may only have one connection to a end (a continuing connection is a connection targeting elseif, else or end)
 
 2. A elseif or else block may only be connected to a if source
+
+For loops in flow:
+
+For loops can only have one source connection but may have two targets of which one must be the loop body and the other must be a end condition.
  */
 
-import { Connection, Edge, Node, NodeConnection, Position } from "@xyflow/react";
+import { Connection, Edge, Node, Position } from "@xyflow/react";
 import FlowNodeBase from "./BaseNode";
 import Handle from "./Handle";
 import { NodeData, NodeProps, NodeTypeEnum, registerValidationSource, registerValidationTarget } from "@/lib/flow/data";
@@ -18,8 +22,6 @@ import logger from "@/lib/logger";
 
 // Static validation for if_condition: If conditions have rule 1 for source connections, meaning they can only have one source connection
 registerValidationSource("if_condition", (svi: FlowContext, srcCons: string[], tgtCons: string[], edge: Edge | Connection, source: Node<NodeData>, target: Node<NodeData>) => {
-    console.log("Validating connection for IfCondition:", { srcCons, target });
-
     let numContinuationConnections = 0;
     let numEnds = 0; // Number of end connections
     let numBlocks = 0; // Non-continuing connections
@@ -31,7 +33,7 @@ registerValidationSource("if_condition", (svi: FlowContext, srcCons: string[], t
             return false;
         }
         
-        console.log("Adding in node:", { nodeId: nodeId, nodeType: node.type, node, numContinuationConnections, numEnds, numBlocks });
+        //console.log("Adding in node:", { nodeId: nodeId, nodeType: node.type, node, numContinuationConnections, numEnds, numBlocks });
 
         if(node.type === NodeTypeEnum.ElseIfCondition || node.type === NodeTypeEnum.ElseCondition || node.type === NodeTypeEnum.EndCondition) {
             numContinuationConnections++;
@@ -41,14 +43,6 @@ registerValidationSource("if_condition", (svi: FlowContext, srcCons: string[], t
             }
         } else {
             numBlocks++;
-        }
-
-        if (numBlocks > 1) {
-            logger.error("Flow.IfCondition", "IfCondition can only have one non-continuing connection.");
-        }
-
-        if (numEnds > 1) {
-            logger.error("Flow.IfCondition", "IfCondition can only have one end connection.");
         }
 
         return numBlocks <= 1 && numEnds <= 1;
@@ -92,8 +86,8 @@ export const IfCondition = (props: NodeProps) => {
   const svi = useContext(FlowContext);
   const currentData = useMemo(() => svi.getData(props.id), [svi, props.id]);
 
-  if(currentData.type != NodeTypeEnum.IfCondition) {
-    return <div className="text-red-500">Invalid node type: {currentData.type}</div>;
+  if(currentData?.type != NodeTypeEnum.IfCondition) {
+    return <div className="text-red-500">Invalid node type: {currentData?.type}</div>;
   }
 
   const [condition, setCondition] = useState<string>(currentData.data.condition || "");
@@ -134,8 +128,8 @@ export const ElseIfCondition = (props: NodeProps) => {
   const svi = useContext(FlowContext);
   const currentData = useMemo(() => svi.getData(props.id), [svi, props.id]);
 
-  if(currentData.type != NodeTypeEnum.ElseIfCondition) {
-    return <div className="text-red-500">Invalid node type: {currentData.type}</div>;
+  if(currentData?.type != NodeTypeEnum.ElseIfCondition) {
+    return <div className="text-red-500">Invalid node type: {currentData?.type}</div>;
   }
 
   const [condition, setCondition] = useState<string>(currentData.data.condition || "");
@@ -194,14 +188,95 @@ export const EndCondition = (props: NodeProps) => {
   const svi = useContext(FlowContext);
   const currentData = useMemo(() => svi.getData(props.id), [svi, props.id]);
 
-  if(currentData.type != NodeTypeEnum.EndCondition) {
-    return <div className="text-red-500">Invalid node type: {currentData.type}</div>;
+  if(currentData?.type != NodeTypeEnum.EndCondition) {
+    return <div className="text-red-500">Invalid node type: {currentData?.type}</div>;
   }
 
   return (
     <FlowNodeBase {...props}>
         <Handle type="target" position={Position.Top} />
         <Handle type="source" position={Position.Bottom} />
+    </FlowNodeBase>
+  );
+}
+
+// Static validation for ForLoop: ForLoop nodes can only have one source connection and one target connection.
+registerValidationSource("for_loop", (svi: FlowContext, srcCons: string[], tgtCons: string[], _edge: Edge | Connection, _source: Node<NodeData>, target: Node<NodeData>) => {
+    let numContinuationConnections = 0;
+    let numEnds = 0; // Number of end connections
+    let numBlocks = 0; // Non-continuing connections
+
+    const addNode = (nodeId: string): boolean => {
+        const node = svi.getData(nodeId);
+        if (!node) {
+            // If the node type is not defined, we cannot validate it
+            return false;
+        }
+        
+        console.log("Adding in node:", { nodeId: nodeId, nodeType: node.type, node, numContinuationConnections, numEnds, numBlocks });
+
+        if(node.type === NodeTypeEnum.ElseIfCondition || node.type === NodeTypeEnum.ElseCondition) {
+            return false // ForLoop cannot have ElseIf or Else conditions
+        }
+
+        if (node.type === NodeTypeEnum.EndCondition) {
+            numEnds++;
+        } else {
+            numBlocks++;
+        }
+
+        return numBlocks <= 1 && numEnds <= 1;
+    }
+
+    if(!addNode(target.id)) {
+        return false;
+    }
+
+    for (const conn of srcCons) {
+        if (!addNode(conn)) {
+            return false;
+        }
+    }
+
+    return true;
+})
+
+export const ForLoop = (props: NodeProps) => {
+  const svi = useContext(FlowContext);
+  const currentData = useMemo(() => svi.getData(props.id), [svi, props.id]);
+
+  if(currentData?.type != NodeTypeEnum.ForLoop) {
+    return <div className="text-red-500">Invalid node type: {currentData?.type}</div>;
+  }
+
+  const [condition, setCondition] = useState<string>(currentData.data.condition || "");
+
+  useEffect(() => {
+    svi.setData(props.id, {
+        ...currentData,
+        data: {
+            ...currentData.data,
+            condition: condition,
+        }
+    });
+  }, [condition, props.id]);
+
+  return (
+    <FlowNodeBase {...props}>
+        <Handle type="target" position={Position.Top} />
+        <Handle type="source" position={Position.Bottom} />
+
+        <FlowExpanded nodeProps={props}>
+            <InputField 
+                id={`${props.id}-condition`}
+                label="Condition"
+                value={condition}
+                onChange={(e) => setCondition(e.target.value)}
+                placeholder="Enter condition"
+                className="w-full"
+                error={!condition ? "Condition is required." : ""}
+            /> 
+        </FlowExpanded>
     </FlowNodeBase>
   );
 }

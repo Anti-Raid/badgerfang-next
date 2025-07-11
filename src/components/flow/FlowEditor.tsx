@@ -12,6 +12,7 @@ import {
   getOutgoers,
   Node,
   NodeChange,
+  OnInit,
   OnSelectionChangeFunc,
   ReactFlow,
   useEdgesState,
@@ -82,7 +83,7 @@ export default function FlowEditor({
     [flowContext, getEdge, onEdgesChange, onChange]
   );
 
-  const onNodesDelete = useCallback(
+  const onNodesDelete = 
     (deletedNodes: Node[]) => {
       console.log("onNodesDelete", deletedNodes);
       for (const node of deletedNodes) {
@@ -94,9 +95,7 @@ export default function FlowEditor({
           }
         );
       }
-    },
-    [flowContext, nodes, edges, setEdges, setNodes]
-  );
+    };
 
   const onDragOver = useCallback((e: DragEvent) => {
     e.preventDefault();
@@ -117,6 +116,7 @@ export default function FlowEditor({
         x: e.clientX,
         y: e.clientY,
       });
+
       const [newNodes, newEdges] = createNode(type, position, svi);
 
       setNodes((nds) => nds.concat(newNodes));
@@ -184,6 +184,7 @@ export default function FlowEditor({
     [getNode, flowContext, getNodes, getEdges, getOutgoers]
   );
 
+
   return (
     <ReactFlow
       nodes={nodes}
@@ -204,7 +205,11 @@ export default function FlowEditor({
         hideAttribution: true,
       }}
       className="!bg-background flex-auto"
-      fitView
+      defaultViewport={{
+        zoom: 1.5,
+        x: 0,
+        y: 0,
+      }}
     >
       <Controls showInteractive={true} />
       <Background

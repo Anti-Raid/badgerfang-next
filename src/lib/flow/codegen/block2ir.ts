@@ -1,4 +1,4 @@
-import { IfConditionNode, NodeData, NodeExtData, NodeTypeEnum, TypedInput, TypedInputEnum, VariableSetNode } from "../data";
+import { CustomCodeNode, ForLoopNode, IfConditionNode, NodeData, NodeExtData, NodeTypeEnum, TypedInput, TypedInputEnum, VariableSetNode } from "../data";
 import { Node, Edge, getOutgoers } from "@xyflow/react";
 import { IElseIf, INode, INodeTypeEnum, ITypedInput, ITypedInputEnum } from "./ir";
 
@@ -82,13 +82,12 @@ export class CodeGenIRGenerator {
                 return this.visitSetVariable({ nodeId: node.id, data });
             case NodeTypeEnum.IfCondition:
                 return this.visitIfCondition({ nodeId: node.id, data });
-            case NodeTypeEnum.ElseIfCondition | NodeTypeEnum.ElseCondition | NodeTypeEnum.EndCondition:
+            case NodeTypeEnum.ElseIfCondition, NodeTypeEnum.ElseCondition, NodeTypeEnum.EndCondition:
                 throw new Error(`An ${data.type} node must be connected to an IfCondition node.`);
-            case NodeTypeEnum.UnknownNode:
-                this.pushWarning(`Unknown node type: ${data.type} for node ${node.id}`);
             case NodeTypeEnum.ForLoop:
-                // ForLoop is not implemented yet
-                throw new Error(`ForLoop is not implemented yet for node ${node.id}`);
+                return this.visitForLoop({ nodeId: node.id, data });
+            case NodeTypeEnum.CustomCode:
+                return this.visitCustomCode({ nodeId: node.id, data });
             default:
                 throw new Error(`Unknown node type: ${data.type} for node ${node.id}`);
         }
@@ -150,6 +149,36 @@ export class CodeGenIRGenerator {
                 data: {
                     variable_name: variableName,
                     variable_value: this.visitTypedInput(variableValue),
+                },
+            },
+            nextNode,
+        };
+    }
+
+    /**
+     * Visits a CustomCodeNode and returns its IR representation.
+     */
+    private visitCustomCode(node: Visit<CustomCodeNode>): VisitResult {
+        let code = node.data.data.code;
+
+        if (code === undefined) {
+            throw new Error(`CustomCodeNode ${node.nodeId} is missing code.`);
+        }
+
+        let children = this.getChildrenOfNode(node.nodeId);
+        let nextNode: string | null = null;
+        if (children.length == 1) {
+            nextNode = children[0].id; // Take the first child as the next node
+        } else if (children.length > 1) {
+            this.pushWarning(`CustomCodeNode ${node.nodeId} has multiple children, only the first will be considered.`);
+            nextNode = children[0].id; // Take the first child
+        }
+
+        return {
+            ir: {
+                type: INodeTypeEnum.CustomCode,
+                data: {
+                    code: code,
                 },
             },
             nextNode,
@@ -267,6 +296,63 @@ export class CodeGenIRGenerator {
                     body: bodyNodes,
                     elseifs: elseIfs.length > 0 ? elseIfs : undefined,
                     else: elseBlock,
+                },
+            },
+            nextNode, // The next node is the EndCondition's first child, if any
+        }
+    }
+
+    /**
+     * Visits a ForLoop and returns its IR representation.
+     */
+    private visitForLoop(node: Visit<ForLoopNode>): VisitResult {
+        // Find the block, continuation statement and end condition nodes from children
+        let children = this.getChildrenOfNode(node.nodeId);
+        let bodyStart: string | null = null;
+        let endNodeId: string | null = null;
+
+        for (const child of children) {
+            const childData = this.getAuxDataForNode(child.id);
+            switch (childData.type) {
+                case NodeTypeEnum.EndCondition:
+                    if (endNodeId) {
+                        this.pushWarning(`ForLoop ${node.nodeId} has multiple End nodes, only the first will be considered.`);
+                    } else {
+                        endNodeId = child.id;
+                    }
+                    break;
+                default:
+                    if (bodyStart) {
+                        this.pushWarning(`ForLoop ${node.nodeId} has multiple Block nodes, only the first will be considered.`);
+                    } else {
+                        bodyStart = child.id;
+                    }
+                    break;
+            }
+        }
+
+        let bodyNodes: INode[] = [];
+        if (bodyStart) {
+            bodyNodes = this.visitNodeAndChildren(bodyStart);
+        }
+
+        if (!endNodeId) {
+            throw new Error(`ForLoop ${node.nodeId} is missing a/an matching EndCondition node.`);
+        }
+
+        let endChildren = this.getChildrenOfNode(endNodeId);
+        if (endChildren.length > 1) {
+            this.pushWarning(`EndCondition ${endNodeId} has multiple outgoing connections, only the first will be considered.`);
+        }
+
+        let nextNode: string | null = endChildren.length > 0 ? endChildren[0].id : null;
+
+        return {
+            ir: {
+                type: INodeTypeEnum.ForLoop,
+                data: {
+                    condition: node.data.data.condition,
+                    body: bodyNodes,
                 },
             },
             nextNode, // The next node is the EndCondition's first child, if any

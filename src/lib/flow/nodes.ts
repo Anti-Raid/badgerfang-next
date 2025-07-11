@@ -28,7 +28,6 @@ export interface NodeValues {
   icon: ExoticComponent<{ className: string }>;
   defaultTitle: string;
   defaultDescription: string;
-  dataSchema?: ZodType;
   helpUrl?: string;
 }
 
@@ -67,20 +66,28 @@ export const nodeTypes: Record<string, NodeValues> = {
     icon: CircleHelpIcon,
     defaultTitle: "End Condition",
     defaultDescription: "Ends the conditional chain.",
-  }
+  },
+  for_loop: {
+    color: primaryColor,
+    icon: CircleHelpIcon,
+    defaultTitle: "For Loop",
+    defaultDescription: "Executes code in a loop based on condition.",
+  },
+  custom_code: {
+    color: primaryColor,
+    icon: CircleHelpIcon,
+    defaultTitle: "Custom Code",
+    defaultDescription: "Executes custom code.",
+  },
 };
 export const defaultNodeDataForType: Record<string, NodeExtData> = {
   unknown: {
     type: NodeTypeEnum.UnknownNode,
-    data: {
-      node_name: "Unknown Node",
-      node_description: "This is an unknown node type.",
-    }
+    data: {}
   },
   set_variable: {
     type: NodeTypeEnum.SetVariable,
     data: {
-      node_name: "Set Variable",
       variable_name: "",
       variable_value: {
         type: TypedInputEnum.String,
@@ -91,24 +98,32 @@ export const defaultNodeDataForType: Record<string, NodeExtData> = {
   if_condition: {
     type: NodeTypeEnum.IfCondition,
     data: {
-      node_name: "If Condition",
       condition: "",
     }
   },
   elseif_condition: {
     type: NodeTypeEnum.ElseIfCondition,
     data: {
-      node_name: "Else If Condition",
       condition: "",
       index: 1, // Default index for the first elseif
     }
   },
   end_condition: {
     type: NodeTypeEnum.EndCondition,
+    data: {}
+  },
+  for_loop: {
+    type: NodeTypeEnum.ForLoop,
     data: {
-      node_name: "End Condition",
+      condition: "",
     }
-  }
+  },
+  custom_code: {
+    type: NodeTypeEnum.CustomCode,
+    data: {
+      code: "",
+    }
+  },
 }
 
 export function getNodeValues(nodeType: string): NodeValues {

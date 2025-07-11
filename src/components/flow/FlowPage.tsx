@@ -26,7 +26,7 @@ function InnerFlowPage({
   };
 
   return (
-    <div className="h-[75dvh] w-[75dvw] flex flex-col">
+    <div className="h-[75dvh] w-[85dvw] flex flex-col">
       <FlowContext.Provider value={flowContext}>
         <Flow flowData={flowData} flowContext={flowContext} onChange={save} />
       </FlowContext.Provider>
