@@ -99,7 +99,6 @@ export const IfCondition = (props: NodeProps) => {
   const [condition, setCondition] = useState<string>(currentData.data.condition || "");
 
   useEffect(() => {
-    console.log("Setting condition to:", condition);
     svi.setData(props.id, {
         ...currentData,
         data: {
@@ -140,17 +139,18 @@ export const ElseIfCondition = (props: NodeProps) => {
   }
 
   const [condition, setCondition] = useState<string>(currentData.data.condition || "");
+  const [index, setIndex] = useState<number>(currentData.data.index || 0);
 
   useEffect(() => {
-    console.log("Setting condition to:", condition);
     svi.setData(props.id, {
         ...currentData,
         data: {
             ...currentData.data,
             condition: condition,
+            index: index,
         }
     });
-  }, [condition, props.id]);
+  }, [condition, index, props.id]);
 
   return (
     <FlowNodeBase {...props}>
@@ -166,6 +166,24 @@ export const ElseIfCondition = (props: NodeProps) => {
                 placeholder="Enter condition"
                 className="w-full"
                 error={!condition ? "Condition is required." : ""}
+            /> 
+
+            <InputField 
+                id={`${props.id}-index`}
+                label="Index"
+                value={index?.toString()}
+                type="number"
+                onChange={(e) => {
+                    const value = parseInt(e.target.value);
+                    if (!isNaN(value)) {
+                        setIndex(value);
+                    } else {
+                        setIndex(1); // Reset to 1 if invalid input
+                    }
+                }}
+                placeholder="Index in chain"
+                className="w-full"
+                error={!index ? "Index is required." : ""}
             /> 
         </FlowExpanded>
     </FlowNodeBase>

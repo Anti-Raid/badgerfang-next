@@ -96,6 +96,7 @@ export const defaultNodeDataForType: Record<string, NodeExtData> = {
     data: {
       node_name: "Else If Condition",
       condition: "",
+      index: 1, // Default index for the first elseif
     }
   },
 }

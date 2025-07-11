@@ -155,6 +155,7 @@ export interface ElseIfConditionNode {
     type: NodeTypeEnum.ElseIfCondition;
     data: SharedNodeData & {
         condition: string;
+        index: number; // Index of the elseif in the chain
     };
 }
 
