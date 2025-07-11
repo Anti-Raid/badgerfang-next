@@ -23,11 +23,6 @@ const nodeCategories = {
       ],
     },
     {
-      title: "Variables",
-      nodeTypes: [
-      ],
-    },
-    {
       title: "Other Actions",
       nodeTypes: [
       ],
@@ -36,7 +31,7 @@ const nodeCategories = {
   control_flow: [
     {
       title: "Conditions",
-      nodeTypes: ["set_variable"],
+      nodeTypes: ["set_variable", "if_condition", "elseif_condition"],
       
     },
     {

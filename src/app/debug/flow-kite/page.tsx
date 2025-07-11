@@ -14,7 +14,10 @@ export default function Blockly() {
                 flowData={data}
                 onChange={setData}
 				flowContext={{
-					getData: (id: string) => auxData[id] || {},
+					getData: (id: string) => {
+						console.log("Getting aux data for", { id, auxData }, auxData);
+						return auxData[id]
+					},
 					setData: (id: string, data: NodeExtData) => {
 						console.log("Setting aux data for", id, "to", data);
 						setAuxData((prev) => ({ ...prev, [id]: data }));

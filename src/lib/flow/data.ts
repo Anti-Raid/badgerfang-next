@@ -1,11 +1,32 @@
 // Inspired from Kite
 // SPDX: GPL-3.0
-import { Edge, Node, NodeProps as XYNodeProps } from "@xyflow/react";
+import { Connection, Edge, Node, NodeProps as XYNodeProps } from "@xyflow/react";
 import z from "zod";
 import { PermissionIndividual } from "./discordperms";
+import { FlowContext } from "./context";
 
 export const numericRegex = /^[0-9]+$/;
 export const placeholderRegex = /^\{\{[a-z0-9_.]+\}\}$/;
+
+export type GlobalStaticValidation = (svi: FlowContext, srcCons: string[], tgtCons: string[], value: Edge | Connection, source: Node<NodeData>, target: Node<NodeData>) => boolean;
+
+const isValidationSourceReg: {[key: string]: GlobalStaticValidation} = {}
+export const registerValidationSource = (source: string, validation: GlobalStaticValidation) => {
+    isValidationSourceReg[source] = validation;
+}
+
+export const getValidationSource = (source: string): GlobalStaticValidation | undefined => {
+    return isValidationSourceReg[source];
+}
+
+const isValidationTargetReg: {[key: string]: GlobalStaticValidation} = {}
+export const registerValidationTarget = (target: string, validation: GlobalStaticValidation) => {
+    isValidationTargetReg[target] = validation;
+}
+
+export const getValidationTarget = (target: string): GlobalStaticValidation | undefined => {
+    return isValidationTargetReg[target];
+}
 
 /**
  * The different types that a value in Luau can be user-initialized to.
@@ -68,6 +89,9 @@ export enum NodeTypeEnum {
     SetVariable,
     ForLoop,
     IfCondition,
+    ElseIfCondition,
+    ElseCondition,
+    EndCondition,
     UnknownNode,
 }
 
@@ -124,10 +148,24 @@ export interface IfConditionNode {
     type: NodeTypeEnum.IfCondition;
     data: SharedNodeData & {
         condition: string;
-        inner: FlowNodeData[];
-        elseif?: FlowNodeData[];
-        else?: FlowNodeData[];
     };
+}
+
+export interface ElseIfConditionNode {
+    type: NodeTypeEnum.ElseIfCondition;
+    data: SharedNodeData & {
+        condition: string;
+    };
+}
+
+export interface ElseConditionNode {
+    type: NodeTypeEnum.ElseCondition;
+    data: SharedNodeData;
+}
+
+export interface EndConditionNode {
+    type: NodeTypeEnum.EndCondition;
+    data: SharedNodeData;
 }
 
 export interface UnknownNode {
@@ -135,7 +173,8 @@ export interface UnknownNode {
     data: SharedNodeData & Record<string, unknown>;
 }
 
-export type FlowNodeData = BaseCommandNode | CommandArgumentNode | VariableSetNode | ForLoopNode | IfConditionNode | UnknownNode;
+export type FlowNodeData = BaseCommandNode | CommandArgumentNode | VariableSetNode | ForLoopNode | 
+IfConditionNode | ElseIfConditionNode | ElseConditionNode | EndConditionNode | UnknownNode;
 
 export type NodeData = Record<string, unknown>;
 export type NodeExtData = FlowNodeData & Record<string, unknown>;

@@ -51,6 +51,18 @@ export const nodeTypes: Record<string, NodeValues> = {
     icon: CircleHelpIcon,
     defaultTitle: "Set Variable",
     defaultDescription: "Sets a variable to a value.",
+  },
+  if_condition: {
+    color: primaryColor,
+    icon: CircleHelpIcon,
+    defaultTitle: "If Condition",
+    defaultDescription: "Executes code based on condition.",
+  },
+  elseif_condition: {
+    color: primaryColor,
+    icon: CircleHelpIcon,
+    defaultTitle: "Else If Condition",
+    defaultDescription: "Executes code based on condition .",
   }
 };
 export const defaultNodeDataForType: Record<string, NodeExtData> = {
@@ -71,7 +83,21 @@ export const defaultNodeDataForType: Record<string, NodeExtData> = {
         value: "",
       },
     }
-  }
+  },
+  if_condition: {
+    type: NodeTypeEnum.IfCondition,
+    data: {
+      node_name: "If Condition",
+      condition: "",
+    }
+  },
+  elseif_condition: {
+    type: NodeTypeEnum.ElseIfCondition,
+    data: {
+      node_name: "Else If Condition",
+      condition: "",
+    }
+  },
 }
 
 export function getNodeValues(nodeType: string): NodeValues {

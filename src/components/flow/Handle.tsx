@@ -1,6 +1,6 @@
 // Originated from Kite
 // SPDX: GPL-3.0
-import { Handle, OnConnect, Position } from "@xyflow/react";
+import { Handle, OnConnect, IsValidConnection, Position } from "@xyflow/react";
 import { primaryColor } from "@/lib/flow/nodes";
 
 interface Props {
@@ -8,9 +8,13 @@ interface Props {
   position: Position;
   color?: string;
   isConnectable?: boolean;
+  isConnectableStart?: boolean;
+  isConnectableEnd?: boolean;
+  isValidConnection?: IsValidConnection;
   onConnect?: OnConnect;
   size?: "small" | "medium" | "large";
   id?: string;
+  blockCycles?: boolean;
 }
 
 export default function FlowNodeHandle({
@@ -18,6 +22,9 @@ export default function FlowNodeHandle({
   position,
   color,
   isConnectable,
+  isConnectableStart,
+  isConnectableEnd,
+  isValidConnection,
   onConnect,
   size = "medium",
   id,
@@ -35,6 +42,9 @@ export default function FlowNodeHandle({
       position={position}
       onConnect={onConnect}
       isConnectable={isConnectable}
+      isConnectableStart={isConnectableStart}
+      isConnectableEnd={isConnectableEnd}
+      isValidConnection={isValidConnection}
       className="rounded-full"
       style={{
         backgroundColor: color ?? primaryColor,

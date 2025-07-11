@@ -26,10 +26,6 @@ interface Props {
 export default function Flow({ flowData, flowContext, onChange }: Props) {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
-  const { setNodes } = useReactFlow<Node<NodeProps>>();
-
-  //const { setNodes } = useReactFlow<NodeType>();
-
   const onSelectionChange = useCallback(
     ({ nodes }: OnSelectionChangeParams) => {
       if (nodes.length === 1) {
@@ -49,13 +45,12 @@ export default function Flow({ flowData, flowContext, onChange }: Props) {
         <FlowNodeExplorer />
       </div>
       <div className="flex-auto">
-        <FlowContext.Provider value={flowContext}>
-          <FlowEditor
-            initialData={flowData}
-            onChange={onChange}
-            onSelectionChange={onSelectionChange}
-          />
-        </FlowContext.Provider>
+        <FlowEditor
+          initialData={flowData}
+          flowContext={flowContext}
+          onChange={onChange}
+          onSelectionChange={onSelectionChange}
+        />
       </div>
     </div>
   );

@@ -61,6 +61,10 @@ export default function FlowEdgeDeleteButton({
           <XIcon className="h-3 w-3 text-foreground" />
         </div>
       </EdgeLabelRenderer>
+
+        <circle r="4" fill="#ff0073">
+          <animateMotion dur="1s" repeatCount="indefinite" path={edgePath} />
+        </circle>
     </>
   );
 }

@@ -1,6 +1,6 @@
 // Originated from Kite
 // SPDX: GPL-3.0
-import React, { DragEvent, useCallback, useContext } from "react";
+import React, { DragEvent, useCallback, useContext, useEffect } from "react";
 import {
   addEdge,
   Background,
@@ -9,6 +9,7 @@ import {
   Controls,
   Edge,
   EdgeChange,
+  getOutgoers,
   Node,
   NodeChange,
   OnSelectionChangeFunc,
@@ -19,19 +20,21 @@ import {
 } from "@xyflow/react";
 
 import "@xyflow/react/dist/base.css";
-import { FlowData } from "@/lib/flow/data";
+import { FlowData, getValidationSource, getValidationTarget, NodeData } from "@/lib/flow/data";
 import { createNode, getNodeValues } from "@/lib/flow/nodes";
 import { edgeTypes, nodeTypes } from "@/lib/flow/components";
 import { FlowContext } from "@/lib/flow/context";
 
 interface Props {
   initialData?: FlowData;
+  flowContext: FlowContext;
   onChange: () => void;
   onSelectionChange?: OnSelectionChangeFunc;
 }
 
 export default function FlowEditor({
   initialData,
+  flowContext,
   onChange,
   onSelectionChange,
 }: Props) {
@@ -42,12 +45,22 @@ export default function FlowEditor({
     initialData?.edges || []
   );
   const svi = useContext(FlowContext);
-  const { getEdge, getNode, screenToFlowPosition } = useReactFlow();
+  const { getEdge, getNode, getNodes, getEdges, screenToFlowPosition } = useReactFlow();
 
   const onConnect = useCallback(
     (con: Connection) => setEdges((eds) => addEdge(con, eds)),
     [setEdges]
   );
+
+  const [removedNodes, setRemovedNodes] = React.useState<Node<NodeData>[]>([]);
+  useEffect(() => {
+    if(removedNodes.length === 0) return;
+    console.log("Removing node aux data", removedNodes);
+    for(const node of removedNodes) {
+      svi.removeData(node.id);
+    }
+    setRemovedNodes([]);
+  }, [removedNodes]);
 
   const wrappedOnNodesChange = useCallback(
     (changes: NodeChange[]) => {
@@ -64,9 +77,9 @@ export default function FlowEditor({
       if (filteredChanges.length > 0) {
         onNodesChange(filteredChanges as any);
         onChange();
-      }
+      }      
     },
-    [onNodesChange, onChange, getNode]
+    [flowContext, onNodesChange, onChange, getNode]
   );
 
   const wrappedOnEdgesChange = useCallback(
@@ -85,38 +98,23 @@ export default function FlowEditor({
         onChange();
       }
     },
-    [getEdge, onEdgesChange, onChange]
+    [flowContext, getEdge, onEdgesChange, onChange]
   );
 
   const onNodesDelete = useCallback(
     (deletedNodes: Node[]) => {
+      console.log("onNodesDelete", deletedNodes);
       for (const node of deletedNodes) {
-        const nodeValues = getNodeValues(node.type!);
-
-        svi.removeData(node.id);
-
-        // delete children if this node owns them
-        if (nodeValues.ownsChildren) {
-          const childIds = edges
-            .filter((edge) => edge.source === node.id)
-            .map((edge) => edge.target);
-
-          setEdges((edges) => edges.filter((edge) => edge.source !== node.id));
-          setNodes((nodes) =>
-            nodes.filter((n) => {
-              let toKeep = n.id !== node.id && !childIds.includes(n.id)
-
-              if(!toKeep) {
-                svi.removeData(n.id);
-              }
-
-              return toKeep;
-            })
-          );
-        }
+        setEdges((edges) => edges.filter((edge) => edge.source !== node.id));
+        setNodes((nodes) => {
+            let toRemove = nodes.filter((n) => n.id === node.id);
+            setRemovedNodes((prev) => prev.concat(toRemove)); // trigger removal of aux data
+            return nodes.filter((n) => !toRemove.includes(n));
+          }
+        );
       }
     },
-    [edges, setEdges, setNodes]
+    [flowContext, nodes, edges, setEdges, setNodes]
   );
 
   const onDragOver = useCallback((e: DragEvent) => {
@@ -150,17 +148,59 @@ export default function FlowEditor({
     (con: Connection | Edge) => {
       if (!con.source || !con.target) return false;
 
-      //const source = getNode(con.source)!;
-      //const target = getNode(con.target)!;
+      // Block cycles (https://reactflow.dev/examples/interaction/prevent-cycles)
+      const nodes = getNodes();
+      const edges = getEdges();
 
-      /*if (target.type === "command" && !source.type?.startsWith("option"))
+      let source: Node | undefined = undefined;
+      let target: Node | undefined = undefined;
+
+      for(const node of nodes) {
+        if(node.id === con.source) {
+          source = node;
+        }
+        if(node.id === con.target) {
+          target = node;
+        }
+      }
+
+      const hasCycle = (node: Node, visited = new Set()) => {
+        if (visited.has(node.id)) return false;
+ 
+        visited.add(node.id);
+ 
+        for (const outgoer of getOutgoers(node, nodes, edges)) {
+          if (outgoer.id === con.source) return true;
+          if (hasCycle(outgoer, visited)) return true;
+        }
+      };
+      
+      if(!source) return false;
+      if(!target) return false;
+      if (target.id === con.source) return false;
+      if (hasCycle(target)) {
         return false;
-      if (source.type?.startsWith("option") && target.type !== "entry_command")
-        return false;*/
+      }
+
+      // Lastly, perform static validations
+      const validationSource = getValidationSource(source.type!);
+      const validationTarget = getValidationTarget(target.type!);
+      if(validationSource || validationTarget) {
+        const srcNodeIds = getOutgoers(source, nodes, edges).map((n) => n.id);
+        const tgtNodeIds = getOutgoers(target, nodes, edges).map((n) => n.id);
+
+        if (validationSource && !validationSource(flowContext, srcNodeIds, tgtNodeIds, con, source, target)) {
+          return false;
+        }
+
+        if (validationTarget && !validationTarget(flowContext, srcNodeIds, tgtNodeIds, con, source, target)) {
+          return false;
+        }
+      }
 
       return true;
     },
-    [getNode]
+    [getNode, flowContext, getNodes, getEdges, getOutgoers]
   );
 
   return (
