@@ -49,7 +49,9 @@ export class VarFinder {
         const visitedNodes = new Set<string>();
         const stack: string[] = [nodeId];
         for(const node of stack) {
-            if (!node || visitedNodes.has(node)) continue;
+            if (!node || visitedNodes.has(node)) {
+                logger.warn("VarFinder", `Skipping node ${node} as it is already visited or invalid.`);
+            };
             visitedNodes.add(node);
 
             // Visit the node and collect variables
