@@ -13,12 +13,14 @@ For loops can only have one source connection but may have two targets of which 
 import { Connection, Edge, Node, Position } from "@xyflow/react";
 import FlowNodeBase from "./BaseNode";
 import Handle from "./Handle";
-import { NodeData, NodeProps, NodeTypeEnum, registerValidationSource, registerValidationTarget } from "@/lib/flow/data";
+import { ForLoopType, ForLoopTypeEnum, NodeData, NodeProps, NodeTypeEnum, registerValidationSource, registerValidationTarget, TypedInputEnum } from "@/lib/flow/data";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { FlowContext } from "@/lib/flow/context";
-import { InputField } from "./Inputs";
+import { BaseLabelAndDescription, InputField, TypedInputField } from "./Inputs";
 import { FlowExpanded } from "./FlowExpanded";
 import logger from "@/lib/logger";
+import React from "react";
+import { SmallGhost, SmallInlineGhost } from "../ui/Buttons";
 
 // Static validation for if_condition: If conditions have rule 1 for source connections, meaning they can only have one source connection
 registerValidationSource("if_condition", (svi: FlowContext, srcCons: string[], tgtCons: string[], edge: Edge | Connection, source: Node<NodeData>, target: Node<NodeData>) => {
@@ -270,7 +272,14 @@ export const ForLoop = (props: NodeProps) => {
     return <div className="text-red-500">Invalid node type: {currentData?.type}</div>;
   }
 
-  const [condition, setCondition] = useState<string>(currentData.data.condition || "");
+  const [condition, setCondition] = useState<ForLoopType>(currentData.data.condition || {
+    type: ForLoopTypeEnum.GeneralizedIteration,
+    varbinds: [],
+    iterable: {
+        type: TypedInputEnum.String,
+        value: "",
+    }
+  });
 
   useEffect(() => {
     svi.setData(props.id, {
@@ -288,16 +297,299 @@ export const ForLoop = (props: NodeProps) => {
         <Handle type="source" position={Position.Bottom} />
 
         <FlowExpanded nodeProps={props}>
-            <InputField 
+            <ForLoopTypeInputField 
                 id={`${props.id}-condition`}
-                label="Condition"
                 value={condition}
-                onChange={(e) => setCondition(e.target.value)}
-                placeholder="Enter condition"
-                className="w-full"
-                error={!condition ? "Condition is required." : ""}
+                onChange={setCondition}
             /> 
         </FlowExpanded>
     </FlowNodeBase>
   );
+}
+
+
+interface ForLoopTypeProps {
+	value: ForLoopType;
+	onChange: (data: ForLoopType) => void;
+	id: string;
+	disabled?: boolean;
+}
+
+export const ForLoopTypeInputField: React.FC<ForLoopTypeProps> = (
+	{
+		value,
+		disabled = false,
+		onChange,
+		id,
+	}
+) => {
+	return (
+        <>
+            <InputField
+                label="Type"
+                description="The type of for loop"
+                value={value.type}
+                type="select"
+                options={[
+                    { value: ForLoopTypeEnum.GeneralizedIteration, label: "Iterate over value" },
+                    { value: ForLoopTypeEnum.Range, label: "Range/Numeric For" },
+                    { value: ForLoopTypeEnum.Raw, label: "Raw Condition" }
+                ]}
+                onChange={(e) => {
+                    if (disabled) return;
+                    const newType = e.target.value as ForLoopTypeEnum;
+                    let newValue: ForLoopType;
+
+                    switch (newType) {
+                        case ForLoopTypeEnum.GeneralizedIteration:
+                            newValue = {
+                                type: ForLoopTypeEnum.GeneralizedIteration,
+                                varbinds: [],
+                                iterable: {
+                                    type: TypedInputEnum.String,
+                                    value: "",
+                                }
+                            };
+                            break;
+                        case ForLoopTypeEnum.Range:
+                            newValue = {
+                                type: ForLoopTypeEnum.Range,
+                                varbind: "i",
+                                start: 0,
+                                end: 0,
+                            };
+                            break;
+                        case ForLoopTypeEnum.Raw:
+                            newValue = {
+                                type: ForLoopTypeEnum.Raw,
+                                condition: ""
+                            };
+                            break;
+                        default:
+                            throw new Error("Unknown for loop type");
+                    }
+
+                    onChange(newValue);
+                }}
+            />
+
+            {value.type === ForLoopTypeEnum.GeneralizedIteration ? (
+                <>
+                    <TypedInputField 
+                        label="Iterable"
+                        description="The iterable to loop over"
+                        value={value.iterable}
+                        onChange={(data) => onChange({
+                            ...value,
+                            iterable: data
+                        })}
+                        id={`${id}-iterable`}
+                        placeholder="Enter iterable"
+                        disabled={disabled}
+                    />
+
+                    {/* Edge case: no inputs in array, so we just show a label and then have the 3 buttons below it */}
+                    {!value.varbinds ||
+                        (Array.isArray(value.varbinds) && value.varbinds.length === 0 && (
+                            <>
+                                <BaseLabelAndDescription
+                                    id={`${id}-varbinds-label`}
+                                    label={"Variable Binds"}
+                                    description={"Variable binds available in the for loops body."}
+                                    marginClass="mb-1"
+                                />
+
+                                <SmallInlineGhost
+                                    Title="Add Element"
+                                    disabled={disabled}
+                                    onClick={() => {
+                                        let newElement: any = '';
+                                        const newArray = value.varbinds.toSpliced(1, 0, newElement);
+                                        onChange({
+                                            ...value,
+                                            varbinds: newArray
+                                        });
+                                    }}
+                                />
+                            </>
+                        ))}
+
+                    {value.varbinds.map((item, index) => (
+                        <React.Fragment key={index}>
+                            <InputField
+                                key={`${id}-varbinds-${index}`}
+                                label={`Variable Bind (${index + 1})`}
+                                id={`${id}-varbinds-${index}`}
+                                value={item}
+                                disabled={disabled}
+                                onChange={(e) => {
+                                    if (disabled) return;
+                                    const newArray = [...value.varbinds];
+                                    newArray[index] = e.target.value;
+                                    onChange({
+                                        ...value,
+                                        varbinds: newArray
+                                    });
+                                }}
+                            />
+
+                            {!disabled && (
+                                <>
+                                    <span className="mr-2">
+                                        <SmallInlineGhost
+                                            Title="Add Above"
+                                            onClick={() => {
+                                                let newElement: any = '';
+                                                const newArray = value.varbinds.toSpliced(index, 0, newElement);
+                                                onChange({
+                                                    ...value,
+                                                    varbinds: newArray
+                                                });
+                                            }}
+                                        />
+                                    </span>
+                                    <span className="mr-2">
+                                        <SmallInlineGhost
+                                            Title="Add Below"
+                                            onClick={() => {
+                                                let newElement: any = '';
+                                                const newArray = value.varbinds.toSpliced(index + 1, 0, newElement);
+                                                onChange(
+                                                    {
+                                                        ...value,
+                                                        varbinds: newArray
+                                                    }
+                                                );
+                                            }}
+                                        />
+                                    </span>
+                                    <span className="mr-2">
+                                        <SmallInlineGhost
+                                            Title="Delete"
+                                            onClick={() => {
+                                                const newArray = value.varbinds.filter((_, idx) => idx !== index);
+                                                onChange(
+                                                    {
+                                                        ...value,
+                                                        varbinds: newArray
+                                                    }
+                                                );
+                                            }}
+                                        />
+                                    </span>
+                                </>
+                            )}
+                            {index != value.varbinds.length - 1 && <div className="mt-3"></div>}
+                        </React.Fragment>
+                    ))
+                    }
+                </>
+            ) : value.type == ForLoopTypeEnum.Range ? (
+                <>
+                    <InputField
+                        label="Start"
+                        description="The start of the range"
+                        value={value.start?.toString() || ""}
+                        type="number"
+                        onChange={(e) => {
+                            const newValue = parseInt(e.target.value);
+                            if (!isNaN(newValue)) {
+                                onChange({
+                                    ...value,
+                                    start: newValue
+                                });
+                            }
+                        }}
+                        id={`${id}-start`}
+                        placeholder="Enter start value"
+                        disabled={disabled}
+                    />
+
+                    <InputField
+                        label="End"
+                        description="The end of the range"
+                        value={value.end?.toString() || ""}
+                        type="number"
+                        onChange={(e) => {
+                            const newValue = parseInt(e.target.value);
+                            if (!isNaN(newValue)) {
+                                onChange({
+                                    ...value,
+                                    end: newValue
+                                });
+                            }
+                        }}
+                        id={`${id}-end`}
+                        placeholder="Enter end value"
+                        disabled={disabled}
+                    />
+
+                    <InputField
+                        label="Step"
+                        description="The step value for the range (optional)"
+                        value={value.step?.toString() || ""}
+                        type="number"
+                        onChange={(e) => {
+                            const newValue = parseInt(e.target.value);
+                            if (!isNaN(newValue)) {
+                                onChange({
+                                    ...value,
+                                    step: newValue
+                                });
+                            }
+                        }}
+                        id={`${id}-step`}
+                        placeholder="Enter step value (optional)"
+                        disabled={disabled}
+                    />
+
+                    <SmallGhost 
+                        Title="Clear Step"
+                        disabled={disabled}
+                        onClick={() => {
+                            if (disabled) return;
+                            onChange({
+                                ...value,
+                                step: undefined
+                            });
+                        }}
+                    />
+
+                    <InputField
+                        label="Variable Bind"
+                        description="The variable bind for the range loop"
+                        value={value.varbind || ""}
+                        onChange={(e) => {
+                            if (disabled) return;
+                            onChange({
+                                ...value,
+                                varbind: e.target.value
+                            });
+                        }}
+                        id={`${id}-varbind`}
+                        placeholder="Enter variable bind"
+                        disabled={disabled}
+                    />
+                </>
+            ) : (
+                <>
+                    <InputField
+                        label="Condition"
+                        description="The raw condition for the loop"
+                        value={value.condition || ""}
+                        onChange={(e) => {
+                            if (disabled) return;
+                            onChange({
+                                ...value,
+                                condition: e.target.value
+                            });
+                        }}
+                        id={`${id}-condition`}
+                        placeholder="Enter raw condition"
+                        disabled={disabled}
+                    />
+                </>
+            )}
+        </>
+    )
 }

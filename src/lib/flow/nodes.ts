@@ -7,6 +7,7 @@ import {
 import { ExoticComponent, useContext, useMemo } from "react";
 import { ZodType } from "zod";
 import {
+  ForLoopTypeEnum,
   NodeData,
   NodeExtData,
   NodeTypeEnum,
@@ -115,7 +116,14 @@ export const defaultNodeDataForType: Record<string, NodeExtData> = {
   for_loop: {
     type: NodeTypeEnum.ForLoop,
     data: {
-      condition: "",
+      condition: {
+        type: ForLoopTypeEnum.GeneralizedIteration,
+        varbinds: [],
+        iterable: {
+          type: TypedInputEnum.String,
+          value: "",
+        }
+      },
     }
   },
   custom_code: {

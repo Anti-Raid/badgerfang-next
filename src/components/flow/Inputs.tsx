@@ -3,6 +3,38 @@ import { motion } from "framer-motion";
 import { AlertCircle, Eye, EyeOff, Icon } from "lucide-react";
 import { useState } from "react";
 
+interface BaseLabelAndDescriptionProps {
+	label?: string;
+	description?: string;
+	className?: string;
+	id?: string;
+	marginClass?: string;
+}
+
+export const BaseLabelAndDescription: React.FC<BaseLabelAndDescriptionProps> = ({
+	label,
+	description,
+	className = '',
+	id,
+	marginClass = 'mb-1'
+}) => {
+	return (
+		<div className={`${marginClass} group ${className}`}>
+			{label && (
+				<label className="block text-foreground font-medium mb-1.5 text-sm" id={`${id}-label`}>
+					{label}
+				</label>
+			)}
+
+			{description && (
+				<p className="text-sm text-muted-foreground" id={`${id}-desc`}>
+					{description}
+				</p>
+			)}
+		</div>
+	);
+};
+
 interface InputFieldProps {
 	label?: string;
 	description?: string;
@@ -222,6 +254,7 @@ export const TypedInputField: React.FC<TypedInputProps> = (
 				placeholder={placeholder}
 				value={lvalue as string}
 				disabled={disabled}
+				className={className}
 				onChange={(e) => {
 					if (disabled) return;
 					setLValue(e.target.value);
@@ -260,42 +293,34 @@ export const TypedInputField: React.FC<TypedInputProps> = (
 				}}
 				id={id}
 				aria-required="true"
-				marginClass={marginClass}
 			/>
 
-			<div
-				className="flex items-center mt-1"
-				role="radiogroup"
-				aria-label="Type"
-			>
-				<label className="text-sm font-medium text-foreground" id="value-type-label">
-					Type:
-				</label>
-				<div className="flex bg-muted/30 rounded-lg p-1" aria-labelledby="value-type-label">
-					{['string', 'number', 'table', 'boolean'].map(typ => stringToTypedInputEnum(typ)).map((typ) => (
-						<button
-							key={typ}
-							disabled={disabled}
-							onClick={() => {
-								if (disabled) return;
-								setType(typ);
-								setLValue(defaultLValue(typ));
-							}}
-							className={`px-1 py-1 rounded-md text-sm transition-colors ${
-								typ === type
-									? 'bg-primary text-primary-foreground outline outline-2 outline-primary'
-									: 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-							} ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
-							role="radio"
-							aria-checked={typ === type}
-							tabIndex={0}
-							aria-label={typ.toString().charAt(0).toUpperCase() + typ.toString().slice(1)}
-						>
-							{typ.toString().charAt(0).toUpperCase() + typ.toString().slice(1)}
-						</button>
-					))}
-				</div>
-			</div>
+			<InputField 
+				type="select"
+				label={`${label ? label + ' Type' : 'Type'}`}
+				value={type}
+				disabled={disabled}
+				className={className}
+				marginClass={marginClass}
+				onChange={(e) => {
+					if (disabled) return;
+					const newType = stringToTypedInputEnum(e.target.value);
+					setType(newType);
+					setLValue(defaultLValue(newType));
+					// Dispatch onChange with default value for new type
+					onChange({ type: newType, value: defaultLValue(newType) as any });
+				}}
+				options={[
+					{ value: TypedInputEnum.String, label: 'String' },
+					{ value: TypedInputEnum.Number, label: 'Number' },
+					{ value: TypedInputEnum.Table, label: 'Table' },
+					{ value: TypedInputEnum.Boolean, label: 'Boolean' },
+				]}
+				id={`${id}-type`}
+				aria-label={`${label ? label + ' Type' : 'Type'}`}
+				aria-describedby={description ? `${id}-desc` : undefined}
+				aria-labelledby={`${id}-label`}
+			/>
 
 			{!jsonOk && (
 				<>
@@ -320,3 +345,4 @@ export const TypedInputField: React.FC<TypedInputProps> = (
 		</>
 	)
 }
+

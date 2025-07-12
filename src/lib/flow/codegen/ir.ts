@@ -7,6 +7,7 @@ export enum ITypedInputEnum {
     Number = "Number",
     Table = "Table",
     Boolean = "Boolean",
+    Raw = "Raw",
 }
 
 export interface ITypedInputString {
@@ -29,7 +30,45 @@ export interface ITypedInputBoolean {
     value: boolean;
 }
 
-export type ITypedInput = ITypedInputString | ITypedInputNumber | ITypedInputTable | ITypedInputBoolean;
+export interface ITypedInputRaw {
+    type: ITypedInputEnum.Raw;
+    value: string; // Raw code or expression
+}   
+
+export type ITypedInput = ITypedInputString | ITypedInputNumber | ITypedInputTable | ITypedInputBoolean | ITypedInputRaw;
+
+export enum IForLoopTypeEnum {
+    GeneralizedIteration = "GeneralizedIteration",
+    Range = "Range",
+    Raw = "Raw",
+}
+
+/**
+ * Luau generalized for loop (for varbinds in iterable do ... end)
+ */
+export interface IForLoopGeneralizedIteration {
+    type: IForLoopTypeEnum.GeneralizedIteration;
+    varbinds: string[]
+    iterable: ITypedInput;
+}
+
+/**
+ * Luau numeric for loop (for i = start, end [, step] do ... end)
+ */
+export interface IForLoopRange {
+    type: IForLoopTypeEnum.Range;
+    varbind: string;
+    start: number;
+    end: number;
+    step?: number; // Optional step value
+}
+
+export interface IForLoopRaw {
+    type: IForLoopTypeEnum.Raw;
+    condition: string; // Raw condition for the loop
+}
+
+export type IForLoopType = IForLoopGeneralizedIteration | IForLoopRange | IForLoopRaw;
 
 /**
  * A internal representation node type for code generation.
@@ -68,7 +107,7 @@ export interface IElseIf {
 export interface IForLoopNode {
     type: INodeTypeEnum.ForLoop;
     data: {
-        condition: string;
+        condition: IForLoopType;
         body: INode[];
     };
 }

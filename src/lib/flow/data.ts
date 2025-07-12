@@ -1,8 +1,6 @@
 // Inspired from Kite
 // SPDX: GPL-3.0
 import { Connection, Edge, Node, NodeProps as XYNodeProps } from "@xyflow/react";
-import z from "zod";
-import { PermissionIndividual } from "./discordperms";
 import { FlowContext } from "./context";
 
 export const numericRegex = /^[0-9]+$/;
@@ -36,6 +34,7 @@ export enum TypedInputEnum {
     Number = "Number",
     Table = "Table",
     Boolean = "Boolean",
+    Raw = "Raw",
 }
 
 export const stringToTypedInputEnum = (value: string): TypedInputEnum => {
@@ -48,6 +47,8 @@ export const stringToTypedInputEnum = (value: string): TypedInputEnum => {
             return TypedInputEnum.Table;
         case "boolean":
             return TypedInputEnum.Boolean;
+        case "raw":
+            return TypedInputEnum.Raw;
         default:
             throw new Error(`Unknown TypedInputEnum value: ${value}`);
     }
@@ -73,7 +74,45 @@ export interface TypedInputBoolean {
     value: boolean;
 }
 
-export type TypedInput = TypedInputString | TypedInputNumber | TypedInputTable | TypedInputBoolean;
+export interface TypedInputRaw {
+    type: TypedInputEnum.Raw;
+    value: string; // Raw code or expression
+}
+
+export type TypedInput = TypedInputString | TypedInputNumber | TypedInputTable | TypedInputBoolean | TypedInputRaw;
+
+export enum ForLoopTypeEnum {
+    GeneralizedIteration = "GeneralizedIteration",
+    Range = "Range",
+    Raw = "Raw",
+}
+
+/**
+ * Luau generalized for loop (for varbinds in iterable do ... end)
+ */
+export interface ForLoopGeneralizedIteration {
+    type: ForLoopTypeEnum.GeneralizedIteration;
+    varbinds: string[]
+    iterable: TypedInput;
+}
+
+/**
+ * Luau numeric for loop (for i = start, end [, step] do ... end)
+ */
+export interface ForLoopRange {
+    type: ForLoopTypeEnum.Range;
+    varbind: string;
+    start: number;
+    end: number;
+    step?: number; // Optional step value
+}
+
+export interface ForLoopRaw {
+    type: ForLoopTypeEnum.Raw;
+    condition: string; // Raw condition for the loop
+}
+
+export type ForLoopType = ForLoopGeneralizedIteration | ForLoopRange | ForLoopRaw;
 
 export interface FlowData {
   nodes: Node<NodeData>[];
@@ -173,7 +212,7 @@ export interface CustomCodeNode {
 export interface ForLoopNode {
     type: NodeTypeEnum.ForLoop;
     data: SharedNodeData & {
-        condition: string;
+        condition: ForLoopType;
     };
 }
 
@@ -193,68 +232,3 @@ export type NodeProps = XYNodeProps<Node<NodeData>>;
 
 export type NodeType = Node<NodeData>;
 
-//export const auditLogReasonSchema = z.string().max(512).optional();
-
-export const sharedNodeDataSchema = z.object({
-    node_name: z.string().max(32).min(1),
-    node_description: z.string().max(100).optional(),   
-});
-
-export const baseCommandNodeSchema = sharedNodeDataSchema.extend({
-  name: z
-    .string()
-    .max(32)
-    .min(1)
-    .regex(
-      /^[-_'\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$/ug,
-      "Must be only lowercase alphanumeric characters and underscores"
-    ),
-    description: z.string().max(100).min(1),
-    command_discord_permissions: z
-        .array(
-            z
-            .string()
-            .check(val => {
-                const permissions = val.value.split(",");
-                for(let perm of permissions) {
-                    if(!PermissionIndividual[perm]) {
-                        val.issues.push({
-                            code: "custom",
-                            input: val.value
-                        });
-                    }
-                }
-            })
-            .max(100)
-        )
-        .optional(),
-    command_kittycat_permissions: z
-        .array(z.string().max(100))
-        .optional()
-});
-
-export const commandArgumentNodeSchema = sharedNodeDataSchema.extend({
-    command_argument_type: z.enum(CommandArgumentType),
-    command_argument_name: z.string()
-    .regex(
-      /^[-_'\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$/ug,
-      "Must be only lowercase alphanumeric characters and underscores"
-    )
-    .max(32)
-    .min(1),
-    command_argument_description: z.string().max(100).optional(),
-    command_argument_required: z.boolean(),
-});
-
-export const variableSetNodeSchema = sharedNodeDataSchema.extend({
-    variable_name: z.string().min(1).optional(),
-    variable_value: z.string().min(1).optional(),
-});
-
-export const forLoopNodeSchema = sharedNodeDataSchema.extend({
-    condition: z.string().min(1),
-});
-
-export const ifConditionNodeSchema = sharedNodeDataSchema.extend({
-    condition: z.string().min(1),
-});

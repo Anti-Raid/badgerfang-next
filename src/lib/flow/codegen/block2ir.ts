@@ -1,6 +1,6 @@
-import { CustomCodeNode, ForLoopNode, IfConditionNode, NodeData, NodeExtData, NodeTypeEnum, TypedInput, TypedInputEnum, VariableSetNode } from "../data";
+import { CustomCodeNode, ForLoopNode, ForLoopType, ForLoopTypeEnum, IfConditionNode, NodeData, NodeExtData, NodeTypeEnum, TypedInput, TypedInputEnum, VariableSetNode } from "../data";
 import { Node, Edge, getOutgoers } from "@xyflow/react";
-import { CodeGenIR, IElseIf, INode, INodeTypeEnum, ITypedInput, ITypedInputEnum } from "./ir";
+import { CodeGenIR, IElseIf, IForLoopType, IForLoopTypeEnum, INode, INodeTypeEnum, ITypedInput, ITypedInputEnum } from "./ir";
 
 interface Visit<T> {
     /**
@@ -355,7 +355,7 @@ export class CodeGenIRGenerator {
             ir: {
                 type: INodeTypeEnum.ForLoop,
                 data: {
-                    condition: node.data.data.condition,
+                    condition: this.visitForLoopType(node.data.data.condition),
                     body: bodyNodes,
                 },
             },
@@ -390,6 +390,40 @@ export class CodeGenIRGenerator {
                     type: ITypedInputEnum.Boolean,
                     value: value.value,
                 }
+            case TypedInputEnum.Raw:
+                return {
+                    type: ITypedInputEnum.Raw, // Raw is treated as a string in IR
+                    value: value.value,
+                }
+        }
+    }
+
+    /**
+     * Visits a ForLoopType value and returns its IR representation.
+     * @param value The ForLoopType value to convert to IR.
+     * @returns The IR representation of the ForLoopType value.
+     */
+    private visitForLoopType(value: ForLoopType): IForLoopType {
+        switch (value.type) {
+            case ForLoopTypeEnum.GeneralizedIteration:
+                return {
+                    type: IForLoopTypeEnum.GeneralizedIteration,
+                    varbinds: value.varbinds,
+                    iterable: this.visitTypedInput(value.iterable),
+                };
+            case ForLoopTypeEnum.Range:
+                return {
+                    type: IForLoopTypeEnum.Range,
+                    varbind: value.varbind,
+                    start: value.start,
+                    end: value.end,
+                    step: value.step, // Optional step value
+                };
+            case ForLoopTypeEnum.Raw:
+                return {
+                    type: IForLoopTypeEnum.Raw,
+                    condition: value.condition, // Raw condition for the loop
+                };
         }
     }
 
