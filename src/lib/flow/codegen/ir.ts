@@ -1,4 +1,3 @@
-
 /**
  * The different types that a value in Luau can be user-initialized to.
  */
@@ -74,17 +73,11 @@ export type IForLoopType = IForLoopGeneralizedIteration | IForLoopRange | IForLo
  * A internal representation node type for code generation.
  */
 export enum INodeTypeEnum {
-    Root = "Root",
     SetVariable = "SetVariable",
     IfCondition = "IfCondition",
     ForLoop = "ForLoop",
     CustomCode = "CustomCode",
     Block = "Block",
-}
-
-export interface IRootNode {
-    type: INodeTypeEnum.Root;
-    data: {}
 }
 
 export interface IVariableSetNode {
@@ -132,16 +125,67 @@ export interface IBlockNode {
     };
 }
 
-export type INode = IRootNode | IVariableSetNode | IIfConditionNode | IForLoopNode | ICustomCodeNode | IBlockNode;
+export type INode = IVariableSetNode | IIfConditionNode | IForLoopNode | ICustomCodeNode | IBlockNode;
+
+export interface ICommandArgument {
+    type: ICommandArgumentType;
+    name: string;
+    description?: string;
+    required: boolean;
+}
+
+export enum IPreludeTypeEnum {
+    // No prelude, just start up the flow
+    Library = "Library",
+    // Command node that starts the flow for a command
+    Command = "Command",
+}
+
+export interface IPreludeLibrary {
+    type: IPreludeTypeEnum.Library;
+}
+
+export interface IPreludeCommand {
+    type: IPreludeTypeEnum.Command;
+    data: {
+        name: string;
+        description: string[];
+        arguments: ICommandArgument[];
+    };
+}
+
+export type IPreludeData = IPreludeLibrary | IPreludeCommand;
+
+/**
+ * Command argument types for the command nodes.
+ */
+export enum ICommandArgumentType {
+    String = "string",
+    Integer = "integer",
+    Boolean = "boolean",
+    User = "user",
+    Channel = "channel",
+    Role = "role",
+    Member = "member",
+}
 
 /**
  * Internal representation class
  */
 export class CodeGenIR {
     /**
+     * Start node type
+     */
+    public prelude: IPreludeData;
+
+    /**
      * The nodes in the IR.
      */
     public nodes: INode[];
+    /**
+     * Error messages generated during the IR generation.
+     */
+    public errors: string[];
     /**
      * Warnings generated during the IR generation.
      */
@@ -156,8 +200,10 @@ export class CodeGenIR {
      */
     public dependencies: string[];
 
-    constructor(nodes: INode[] = [], warnings: string[] = [], dependencies: string[] = [], fatalError?: string) {
+    constructor(prelude: IPreludeData = {type: IPreludeTypeEnum.Library}, nodes: INode[] = [], errors: string[] = [], warnings: string[] = [], dependencies: string[] = [], fatalError?: string) {
+        this.prelude = prelude;
         this.nodes = nodes;
+        this.errors = errors;
         this.warnings = warnings;
         this.dependencies = dependencies;
         this.fatalError = fatalError;
@@ -166,7 +212,9 @@ export class CodeGenIR {
     toJSON(): Record<string, unknown> {
         return {
             nodes: this.nodes,
+            prelude: this.prelude,
             warnings: this.warnings,
+            errors: this.errors,
             dependencies: this.dependencies,
             fatalError: this.fatalError,
         };

@@ -16,6 +16,7 @@ registerValidationSource("start", (svi: FlowContext, srcCons: string[], tgtCons:
     return true;
 });
 
+// TODO: Support command type
 export const StartNode = (props: NodeProps) => {
   const svi = useContext(FlowContext);
   const currentData = useMemo(() => svi.getData(props.id), [svi, props.id]);

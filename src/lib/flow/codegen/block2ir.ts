@@ -1,6 +1,7 @@
-import { CustomCodeNode, ForLoopNode, ForLoopType, ForLoopTypeEnum, IfConditionNode, NodeData, NodeExtData, NodeTypeEnum, StartNode, TypedInput, TypedInputEnum, VariableSetNode } from "../data";
+import { CommandArgument, CommandArgumentType, CustomCodeNode, ForLoopNode, ForLoopType, ForLoopTypeEnum, IfConditionNode, NodeData, NodeExtData, NodeTypeEnum, StartNode, StartNodeData, StartNodeTypeEnum, TypedInput, TypedInputEnum, VariableSetNode } from "../data";
 import { Node, Edge, getOutgoers } from "@xyflow/react";
-import { CodeGenIR, IElseIf, IForLoopType, IForLoopTypeEnum, INode, INodeTypeEnum, ITypedInput, ITypedInputEnum } from "./ir";
+import { CodeGenIR, ICommandArgument, ICommandArgumentType, IElseIf, IForLoopType, IForLoopTypeEnum, INode, INodeTypeEnum, IPreludeData, IPreludeTypeEnum, ITypedInput, ITypedInputEnum } from "./ir";
+import { baseCommandNodeSchema } from "../validation";
 
 interface Visit<T> {
     /**
@@ -21,7 +22,7 @@ interface VisitResult {
     /**
      * The IR representation of the node being visited.
      */
-    ir: INode;
+    ir: INode | null;
     /**
      * The next node to visit in the flow.
      */
@@ -78,10 +79,19 @@ export class CodeGenIRGenerator {
      */
     private pushWarning(currentIr: CodeGenIR, message: string): void {
         if (this.werror) {
-            throw new Error(message);
+            currentIr.errors.push(message);
         }
         currentIr.warnings.push(message);
     }
+
+    /**
+     * Utility to push an error to the errors array.
+     * @param message The error message to push.
+     */
+    private pushError(currentIr: CodeGenIR, message: string): void {
+        currentIr.errors.push(message);
+    }
+
 
     /**
      * Helper to return the direct children of a node
@@ -138,7 +148,9 @@ export class CodeGenIRGenerator {
             }
 
             const visitResult = this.visitNode(currentIr, node);
-            irNodes.push(visitResult.ir);
+            if (visitResult.ir) {
+                irNodes.push(visitResult.ir);
+            }
             currentNodeId = visitResult.nextNode;
         }
 
@@ -149,6 +161,9 @@ export class CodeGenIRGenerator {
      * Visits a StartNode and returns its IR representation.
      */
     private visitStartNode(node: Visit<StartNode>): VisitResult {
+        // Visit start node data and set the start node type in the IR
+        node.currentIr.prelude = this.visitStartNodeData(node.currentIr, node.data.data.nodeType);
+
         let children = this.getChildrenOfNode(node.nodeId);
         let nextNode: string | null = null;
         if (children.length == 1) {
@@ -159,10 +174,7 @@ export class CodeGenIRGenerator {
         }
 
         return {
-            ir: {
-                type: INodeTypeEnum.Root,
-                data: {},
-            },
+            ir: null,
             nextNode
         }
     }
@@ -481,5 +493,92 @@ export class CodeGenIRGenerator {
             throw new Error(`Auxiliary data not found for node ${nodeId}`);
         }
         return data;
+    }
+
+    /**
+     * Returns the IR representation of a StartNodeData.
+     * @param startNodeData The StartNodeData to convert to IR.
+     * @returns The IR representation of the StartNodeData.
+     */
+    private visitStartNodeData(currentIr: CodeGenIR, startNodeData: StartNodeData): IPreludeData {
+        switch (startNodeData.type) {
+            case StartNodeTypeEnum.Library:
+                return { type: IPreludeTypeEnum.Library };
+            case StartNodeTypeEnum.Command:
+                return { 
+                    type: IPreludeTypeEnum.Command,
+                    data: {
+                        name: startNodeData.data.name,
+                        description: startNodeData.data.description,
+                        arguments: startNodeData.data.arguments.map(arg => this.visitCommandArgument(currentIr, arg)),
+
+                    }
+                };
+        }
+    }
+
+    /**
+     * Returns the IR representation of a CommandArgument.
+     * @param arg The CommandArgument to convert to IR.
+     * @returns The IR representation of the CommandArgument.
+     */
+    private visitCommandArgument(currentIr: CodeGenIR, arg: CommandArgument): ICommandArgument {
+        let res = baseCommandNodeSchema.safeParse(arg); // Validate the argument structure
+
+        if(res.error) {
+            this.pushError(currentIr, res.error.message);
+        }
+
+        switch (arg.type) {
+            case CommandArgumentType.String:
+                return {
+                    type: ICommandArgumentType.String,
+                    name: arg.name,
+                    description: arg.description,
+                    required: arg.required,
+                }
+            case CommandArgumentType.Integer:
+                return {
+                    type: ICommandArgumentType.Integer,
+                    name: arg.name,
+                    description: arg.description,
+                    required: arg.required,
+                }
+            case CommandArgumentType.Boolean:
+                return {
+                    type: ICommandArgumentType.Boolean,
+                    name: arg.name,
+                    description: arg.description,
+                    required: arg.required,
+                }
+            case CommandArgumentType.User:
+                return {
+                    type: ICommandArgumentType.User,
+                    name: arg.name,
+                    description: arg.description,
+                    required: arg.required,
+                }
+            case CommandArgumentType.Channel:
+                return {
+                    type: ICommandArgumentType.Channel,
+                    name: arg.name,
+                    description: arg.description,
+                    required: arg.required, 
+                }
+            case CommandArgumentType.Role:
+                return {
+                    type: ICommandArgumentType.Role,
+                    name: arg.name,
+                    description: arg.description,
+                    required: arg.required,
+                }
+            case CommandArgumentType.Member:
+                return {
+                    type: ICommandArgumentType.Member, 
+                    name: arg.name,
+                    description: arg.description,
+                    required: arg.required,
+                }
+        }
     }
 }

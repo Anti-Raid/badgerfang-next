@@ -4,9 +4,8 @@ import z from "zod";
 import { PermissionIndividual } from "./discordperms";
 import { CommandArgumentType } from "./data";
 
-export const sharedNodeDataSchema = z.object({
-    node_name: z.string().max(32).min(1),
-    node_description: z.string().max(100).optional(),   
+export const sharedNodeDataSchema = z.looseObject({
+    comment: z.string().optional(),   
 });
 
 export const baseCommandNodeSchema = sharedNodeDataSchema.extend({
@@ -19,27 +18,6 @@ export const baseCommandNodeSchema = sharedNodeDataSchema.extend({
       "Must be only lowercase alphanumeric characters and underscores"
     ),
     description: z.string().max(100).min(1),
-    command_discord_permissions: z
-        .array(
-            z
-            .string()
-            .check(val => {
-                const permissions = val.value.split(",");
-                for(let perm of permissions) {
-                    if(!PermissionIndividual[perm]) {
-                        val.issues.push({
-                            code: "custom",
-                            input: val.value
-                        });
-                    }
-                }
-            })
-            .max(100)
-        )
-        .optional(),
-    command_kittycat_permissions: z
-        .array(z.string().max(100))
-        .optional()
 });
 
 export const commandArgumentNodeSchema = sharedNodeDataSchema.extend({

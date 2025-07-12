@@ -142,10 +142,34 @@ export interface SharedNodeData {
     comment?: string;
 }
 
-export interface StartNode {
-    type: NodeTypeEnum.StartNode;
-    data: SharedNodeData;
+export interface CommandArgument {
+    type: CommandArgumentType;
+    name: string;
+    description?: string;
+    required: boolean;
 }
+
+export enum StartNodeTypeEnum {
+    // No prelude, just start up the flow
+    Library = "Library",
+    // Command node that starts the flow for a command
+    Command = "Command",
+}
+
+export interface StartNodeLibrary {
+    type: StartNodeTypeEnum.Library;
+}
+
+export interface StartNodeCommand {
+    type: StartNodeTypeEnum.Command;
+    data: {
+        name: string;
+        description: string[];
+        arguments: CommandArgument[];
+    };
+}
+
+export type StartNodeData = StartNodeLibrary | StartNodeCommand;
 
 /**
  * Command argument types for the command nodes.
@@ -160,25 +184,12 @@ export enum CommandArgumentType {
     Member = "member",
 }
 
-/* To be merged into StartNode
-export interface BaseCommandNode {
-    type: NodeTypeEnum.BaseCommand;
+export interface StartNode {
+    type: NodeTypeEnum.StartNode;
     data: SharedNodeData & {
-        command_name: string;
-        command_description: string[];
-        command_kittycat_permissions?: string[];
+        nodeType: StartNodeData;
     };
 }
-
-export interface CommandArgumentNode {
-    type: NodeTypeEnum.CommandArgument;
-    data: SharedNodeData & {
-        command_argument_type: CommandArgumentType;
-        command_argument_name: string;
-        command_argument_description?: string;
-        command_argument_required: boolean;
-    };
-}*/
 
 export interface VariableSetNode {
     type: NodeTypeEnum.SetVariable;

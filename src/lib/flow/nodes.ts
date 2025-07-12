@@ -7,6 +7,7 @@ import {
   NodeData,
   NodeExtData,
   NodeTypeEnum,
+  StartNodeTypeEnum,
   TypedInputEnum,
 } from "./data";
 import { FlowContext } from "./context";
@@ -63,7 +64,11 @@ export const defaultNodeDataForType: Record<string, NodeExtData> = {
   },
   start: {
     type: NodeTypeEnum.StartNode,
-    data: {} // No specific data for start node
+    data: {
+      nodeType: {
+        type: StartNodeTypeEnum.Library
+      }
+    } // No specific data for start node
   },
   set_variable: {
     type: NodeTypeEnum.SetVariable,
