@@ -107,7 +107,7 @@ function NodeCategories({
           Actions
         </div>
         <div
-          className={clsx("h-1 rounde", category === "action" && "bg-primary")}
+          className={clsx("h-1 rounded", category === "action" && "bg-primary")}
         ></div>
       </div>
       <div

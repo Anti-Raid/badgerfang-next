@@ -26,7 +26,6 @@ export const suspendColor = "#d946ef";
 
 export interface NodeValues {
   color: string;
-  icon: ExoticComponent<{ className: string }>;
   defaultTitle: string;
   defaultDescription: string;
   helpUrl?: string;
@@ -37,7 +36,6 @@ Add node types here
 */
 const unknownNodeType: NodeValues = {
   color: "#ff0000",
-  icon: CircleHelpIcon,
   defaultTitle: "Unknown",
   defaultDescription: "Unknown node type.",
 };
@@ -46,37 +44,31 @@ export const nodeTypes: Record<string, NodeValues> = {
   unknown: unknownNodeType,
   set_variable: {
     color: primaryColor,
-    icon: CircleHelpIcon,
     defaultTitle: "Set Variable",
     defaultDescription: "Sets a variable to a value.",
   },
   if_condition: {
     color: primaryColor,
-    icon: CircleHelpIcon,
     defaultTitle: "If Condition",
     defaultDescription: "Executes code based on condition.",
   },
   elseif_condition: {
     color: primaryColor,
-    icon: CircleHelpIcon,
     defaultTitle: "Else If Condition",
     defaultDescription: "Executes code based on condition .",
   },
   end_condition: {
     color: primaryColor,
-    icon: CircleHelpIcon,
     defaultTitle: "End Condition",
     defaultDescription: "Ends the conditional chain.",
   },
   for_loop: {
     color: primaryColor,
-    icon: CircleHelpIcon,
     defaultTitle: "For Loop",
     defaultDescription: "Executes code in a loop based on condition.",
   },
   custom_code: {
     color: primaryColor,
-    icon: CircleHelpIcon,
     defaultTitle: "Custom Code",
     defaultDescription: "Executes custom code.",
   },
@@ -151,7 +143,7 @@ export function createNode(
   position: XYPosition,
   context: FlowContext,
   data?: NodeExtData
-): [Node<NodeData>, Edge[]] {
+): Node<NodeData> {
   const id = getNodeId();
 
   const nodes: Node<NodeData> = {
@@ -165,9 +157,7 @@ export function createNode(
   const nodeData = data ? data : defaultNodeDataForType[type] || defaultNodeDataForType["unknown"]
   context.setData(id, nodeData);
 
-  const edges: Edge[] = [];
-
-  return [nodes, edges];
+  return nodes;
 }
 
 export function getUniqueId(): number {

@@ -1,5 +1,3 @@
-// Originated from Kite
-// SPDX: GPL-3.0
 import React, { DragEvent, useCallback, useContext, useEffect } from "react";
 import {
   addEdge,
@@ -12,8 +10,6 @@ import {
   getOutgoers,
   Node,
   NodeChange,
-  OnInit,
-  OnSelectionChangeFunc,
   ReactFlow,
   useEdgesState,
   useNodesState,
@@ -30,14 +26,12 @@ interface Props {
   initialData?: FlowData;
   flowContext: FlowContext;
   onChange: () => void;
-  onSelectionChange?: OnSelectionChangeFunc;
 }
 
 export default function FlowEditor({
   initialData,
   flowContext,
   onChange,
-  onSelectionChange,
 }: Props) {
   const [nodes, setNodes, onNodesChange] = useNodesState(
     initialData?.nodes || []
@@ -61,8 +55,10 @@ export default function FlowEditor({
       svi.removeData(node.id);
     }
     setRemovedNodes([]);
+    onChange();
   }, [removedNodes]);
 
+  // Custom onNodesChange that triggers onChange when nodes change
   const wrappedOnNodesChange = useCallback(
     (changes: NodeChange[]) => {
       if (changes.length > 0) {
@@ -73,6 +69,7 @@ export default function FlowEditor({
     [flowContext, onNodesChange, onChange, getNode]
   );
 
+  // Custom onEdgesChange that triggers onChange when edges change
   const wrappedOnEdgesChange = useCallback(
     (changes: EdgeChange[]) => {
       if (changes.length > 0) {
@@ -95,8 +92,6 @@ export default function FlowEditor({
           }
         );
       }
-
-      onChange();
     };
 
   const onDragOver = useCallback((e: DragEvent) => {
@@ -104,27 +99,26 @@ export default function FlowEditor({
     e.dataTransfer!.dropEffect = "move";
   }, []);
 
+  // https://reactflow.dev/examples/interaction/drag-and-drop
   const onDrop = useCallback(
-    (e: DragEvent) => {
-      e.preventDefault();
-
-      // Get type of node being dragged
-      const type = e.dataTransfer?.getData("application/reactflow");
+    (event: DragEvent) => {
+      event.preventDefault();
+ 
+      // check if the dropped element is valid
+      const type = event.dataTransfer?.getData("application/reactflow");
       if (!type) {
         return;
       }
-
+ 
       const position = screenToFlowPosition({
-        x: e.clientX,
-        y: e.clientY,
+        x: event.clientX,
+        y: event.clientY,
       });
-
-      const [newNodes, newEdges] = createNode(type, position, svi);
-
-      setNodes((nds) => nds.concat(newNodes));
-      setEdges((eds) => eds.concat(newEdges));
+      const newNode = createNode(type, position, svi);;
+ 
+      setNodes((nds) => nds.concat(newNode));
     },
-    [screenToFlowPosition, setNodes, setEdges]
+    [screenToFlowPosition, setNodes, svi],
   );
 
   const isValidConnection = useCallback(
@@ -200,8 +194,7 @@ export default function FlowEditor({
       onDragOver={onDragOver}
       onConnect={onConnect}
       isValidConnection={isValidConnection}
-      onSelectionChange={onSelectionChange}
-      colorMode={"dark"}
+      colorMode={"dark"} // Always force dark mode
       defaultEdgeOptions={{ type: "delete_button" }}
       proOptions={{
         hideAttribution: true,
@@ -215,7 +208,7 @@ export default function FlowEditor({
     >
       <Controls showInteractive={true} />
       <Background
-        variant={BackgroundVariant.Dots}
+        variant={BackgroundVariant.Cross}
         gap={18}
         size={1}
         className="!bg-muted/20"

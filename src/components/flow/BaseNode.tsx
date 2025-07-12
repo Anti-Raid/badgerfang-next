@@ -10,7 +10,6 @@ interface Props extends NodeProps {
   description?: string;
   children: ReactNode;
   highlight?: boolean;
-  showConnectedMarker?: boolean;
   color?: string;
   className?: string;
 }
@@ -18,7 +17,6 @@ interface Props extends NodeProps {
 export default function FlowNodeBase(props: Props) {
   const {
     color: defaultColor,
-    icon: Icon,
     defaultTitle,
     defaultDescription,
   } = useNodeValues(props.type);
@@ -37,12 +35,6 @@ export default function FlowNodeBase(props: Props) {
       }}
     >
       <div className="flex items-start space-x-2">
-        <div
-          className="rounded-md w-8 h-8 flex justify-center items-center flex-none"
-          style={{ backgroundColor: color }}
-        >
-          <Icon className="h-5 w-5 text-white" />
-        </div>
         <div className="overflow-hidden">
           <div className="text-sm font-medium text-foreground leading-5 mb-1 truncate">
             {props.title || props.data.custom_label as string || defaultTitle}
@@ -54,8 +46,6 @@ export default function FlowNodeBase(props: Props) {
       </div>
 
       {props.children}
-
-      {/*<FlowNodeMarkers {...props} />*/}
     </div>
   );
 }

@@ -1,11 +1,8 @@
-// Originated from Kite
-// SPDX: GPL-3.0
-import { FlowData, NodeData, NodeProps } from "@/lib/flow/data";
+import { FlowData } from "@/lib/flow/data";
 import FlowEditor from "./FlowEditor";
-//import FlowNodeEditor from "./FlowNodeEditor";
 import FlowNodeExplorer from "./NodeToolbar";
-import { OnSelectionChangeParams, Node, useReactFlow } from "@xyflow/react";
-import { useCallback, useMemo, useState } from "react";
+import { OnSelectionChangeParams } from "@xyflow/react";
+import { useCallback, useState } from "react";
 import { FlowContext } from "@/lib/flow/context";
 
 interface Props {
@@ -24,21 +21,6 @@ interface Props {
 }
 
 export default function Flow({ flowData, flowContext, onChange }: Props) {
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-
-  const onSelectionChange = useCallback(
-    ({ nodes }: OnSelectionChangeParams) => {
-      if (nodes.length === 1) {
-        console.log("Selected node:", nodes[0].id);
-
-        setSelectedNodeId(nodes[0].id);
-      } else {
-        setSelectedNodeId(null);
-      }
-    },
-    []
-  );
-
   return (
     <div className="flex flex-auto overflow-y-hidden relative">
       <div className="flex-none">
@@ -49,7 +31,6 @@ export default function Flow({ flowData, flowContext, onChange }: Props) {
           initialData={flowData}
           flowContext={flowContext}
           onChange={onChange}
-          onSelectionChange={onSelectionChange}
         />
       </div>
     </div>
