@@ -2,8 +2,10 @@ import { ElseIfCondition, EndCondition, ForLoop, IfCondition } from "@/component
 import CustomCode from "@/components/flow/CustomCodeNode"
 import DeleteEdge from "@/components/flow/DeleteEdge"
 import SetVariable from "@/components/flow/SetVariable"
+import { StartNode } from "@/components/flow/StartNode"
 
 export const nodeTypes = {
+    start: StartNode,
     set_variable: SetVariable,
     if_condition: IfCondition,
     elseif_condition: ElseIfCondition,

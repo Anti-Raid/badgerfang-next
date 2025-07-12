@@ -10,23 +10,15 @@ export default function Blockly() {
 	const [auxData, setAuxData] = useState<Record<string, NodeExtData>>({});
 
 	const codegennedIr = useMemo(() => {
-		try {
-			console.log("Generating IR for data", data, auxData);
-			let r = new CodeGenIRGenerator(
-				data.nodes,
-				data.edges,
-				auxData
-			)
-			.generate()
+		console.log("Generating IR for data", data, auxData);
+		let r = new CodeGenIRGenerator(
+			data.nodes,
+			data.edges,
+			auxData
+		)
+		.generate()
 
-			return r
-		} catch (e) {
-			return {
-				toJSON: () => {
-					return `Error generating IR: ${e instanceof Error ? e.message : String(e)}`
-				}
-			};
-		}
+		return r
 	}, [data, auxData]);
 
 	return (

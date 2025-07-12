@@ -120,22 +120,36 @@ export interface FlowData {
 }
 
 export enum NodeTypeEnum {
+    StartNode = "StartNode",
     SetVariable = "SetVariable",
     IfCondition = "IfCondition",
     ElseIfCondition = "ElseIfCondition",
     ElseCondition = "ElseCondition",
     EndCondition = "EndCondition",
     CustomCode = "CustomCode",
-
-    // Unsupported for now
     ForLoop = "ForLoop",
+
+    /* To be merged into StartNode
     BaseCommand = "BaseCommand",
     CommandArgument = "CommandArgument",
+    */
     
     // Special
     UnknownNode = "UnknownNode",
 }
 
+export interface SharedNodeData {
+    comment?: string;
+}
+
+export interface StartNode {
+    type: NodeTypeEnum.StartNode;
+    data: SharedNodeData;
+}
+
+/**
+ * Command argument types for the command nodes.
+ */
 export enum CommandArgumentType {
     String = "string",
     Integer = "integer",
@@ -146,10 +160,7 @@ export enum CommandArgumentType {
     Member = "member",
 }
 
-export interface SharedNodeData {
-    comment?: string;
-}
-
+/* To be merged into StartNode
 export interface BaseCommandNode {
     type: NodeTypeEnum.BaseCommand;
     data: SharedNodeData & {
@@ -167,7 +178,7 @@ export interface CommandArgumentNode {
         command_argument_description?: string;
         command_argument_required: boolean;
     };
-}
+}*/
 
 export interface VariableSetNode {
     type: NodeTypeEnum.SetVariable;
@@ -221,7 +232,7 @@ export interface UnknownNode {
     data: SharedNodeData & Record<string, unknown>;
 }
 
-export type FlowNodeData = BaseCommandNode | CommandArgumentNode | VariableSetNode | 
+export type FlowNodeData = StartNode | VariableSetNode | 
 IfConditionNode | ElseIfConditionNode | ElseConditionNode | EndConditionNode | CustomCodeNode |
 ForLoopNode | UnknownNode;
 

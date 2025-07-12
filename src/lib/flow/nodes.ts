@@ -27,6 +27,10 @@ const unknownNodeType: NodeValues = {
 
 export const nodeTypes: Record<string, NodeValues> = {
   unknown: unknownNodeType,
+  start: {
+    defaultTitle: "Start Node",
+    defaultDescription: "The starting point of the flow.",
+  },
   set_variable: {
     defaultTitle: "Set Variable",
     defaultDescription: "Sets a variable to a value.",
@@ -56,6 +60,10 @@ export const defaultNodeDataForType: Record<string, NodeExtData> = {
   unknown: {
     type: NodeTypeEnum.UnknownNode,
     data: {}
+  },
+  start: {
+    type: NodeTypeEnum.StartNode,
+    data: {} // No specific data for start node
   },
   set_variable: {
     type: NodeTypeEnum.SetVariable,

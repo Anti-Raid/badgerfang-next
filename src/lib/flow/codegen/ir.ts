@@ -74,11 +74,17 @@ export type IForLoopType = IForLoopGeneralizedIteration | IForLoopRange | IForLo
  * A internal representation node type for code generation.
  */
 export enum INodeTypeEnum {
+    Root = "Root",
     SetVariable = "SetVariable",
     IfCondition = "IfCondition",
     ForLoop = "ForLoop",
     CustomCode = "CustomCode",
     Block = "Block",
+}
+
+export interface IRootNode {
+    type: INodeTypeEnum.Root;
+    data: {}
 }
 
 export interface IVariableSetNode {
@@ -126,7 +132,7 @@ export interface IBlockNode {
     };
 }
 
-export type INode = IVariableSetNode | IIfConditionNode | IForLoopNode | ICustomCodeNode | IBlockNode;
+export type INode = IRootNode | IVariableSetNode | IIfConditionNode | IForLoopNode | ICustomCodeNode | IBlockNode;
 
 /**
  * Internal representation class
@@ -141,14 +147,20 @@ export class CodeGenIR {
      */
     public warnings: string[];
     /**
+     * Fatal error that occurred during the IR generation.
+     * If this is set, the IR generation failed and should not be used.
+     */
+    public fatalError?: string;
+    /**
      * Dependencies that the generated code needs.
      */
     public dependencies: string[];
 
-    constructor(nodes: INode[] = [], warnings: string[] = [], dependencies: string[] = []) {
+    constructor(nodes: INode[] = [], warnings: string[] = [], dependencies: string[] = [], fatalError?: string) {
         this.nodes = nodes;
         this.warnings = warnings;
         this.dependencies = dependencies;
+        this.fatalError = fatalError;
     }
     
     toJSON(): Record<string, unknown> {
@@ -156,6 +168,7 @@ export class CodeGenIR {
             nodes: this.nodes,
             warnings: this.warnings,
             dependencies: this.dependencies,
+            fatalError: this.fatalError,
         };
     }
 }

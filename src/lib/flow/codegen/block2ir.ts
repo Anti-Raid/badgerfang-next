@@ -1,4 +1,4 @@
-import { CustomCodeNode, ForLoopNode, ForLoopType, ForLoopTypeEnum, IfConditionNode, NodeData, NodeExtData, NodeTypeEnum, TypedInput, TypedInputEnum, VariableSetNode } from "../data";
+import { CustomCodeNode, ForLoopNode, ForLoopType, ForLoopTypeEnum, IfConditionNode, NodeData, NodeExtData, NodeTypeEnum, StartNode, TypedInput, TypedInputEnum, VariableSetNode } from "../data";
 import { Node, Edge, getOutgoers } from "@xyflow/react";
 import { CodeGenIR, IElseIf, IForLoopType, IForLoopTypeEnum, INode, INodeTypeEnum, ITypedInput, ITypedInputEnum } from "./ir";
 
@@ -46,14 +46,29 @@ export class CodeGenIRGenerator {
 
     /**
      * Generates the IR representation of the flow.
+     * 
+     * Note that this function is guaranteed to not throw an error, but will instead return a CodeGenIR with a fatalError set if an error occurs.
+     * 
      * @returns An array of IR nodes representing the flow.
      */
     public generate(): CodeGenIR {
         let currentIr = new CodeGenIR();
-        if (this.nodes.length === 0) {
-            return currentIr
+
+        // Find start node
+        const startNode = this.nodes.filter(node => this.auxData[node.id]?.type === NodeTypeEnum.StartNode);
+
+        if (startNode.length === 0) {
+            currentIr.fatalError = "No StartNode found in the flow.";
+            return currentIr;
+        } else if (startNode.length > 1) {
+            currentIr.fatalError = "Multiple StartNodes found in the flow.";
+            return currentIr;
         }
-        currentIr.nodes = this.visitNodeAndChildren(currentIr, this.nodes[0].id);
+        try {
+            currentIr.nodes = this.visitNodeAndChildren(currentIr, startNode[0].id);
+        } catch (error) {
+            currentIr.fatalError = `Error generating IR: ${error instanceof Error ? error.message : String(error)}`;
+        }
         return currentIr;
     }
 
@@ -82,18 +97,24 @@ export class CodeGenIRGenerator {
         const data = this.getAuxDataForNode(node.id);
 
         switch (data.type) {
+            case NodeTypeEnum.StartNode:
+                return this.visitStartNode({ nodeId: node.id, data, currentIr });
             case NodeTypeEnum.SetVariable:
                 return this.visitSetVariable({ nodeId: node.id, data, currentIr });
             case NodeTypeEnum.IfCondition:
                 return this.visitIfCondition({ nodeId: node.id, data, currentIr });
-            case NodeTypeEnum.ElseIfCondition, NodeTypeEnum.ElseCondition, NodeTypeEnum.EndCondition:
-                throw new Error(`An ${data.type} node must be connected to an IfCondition node or a ForLoop node.`);
+            case NodeTypeEnum.ElseIfCondition:
+                throw new Error(`An ElseIfCondition node must be connected to an IfCondition node or a ForLoop node.`);
+            case NodeTypeEnum.ElseCondition:
+                throw new Error(`An ElseCondition node must be connected to an IfCondition node or a ForLoop node.`);
+            case NodeTypeEnum.EndCondition:
+                throw new Error(`An EndCondition node must be connected to an IfCondition node or a ForLoop node.`);
             case NodeTypeEnum.ForLoop:
                 return this.visitForLoop({ nodeId: node.id, data, currentIr });
             case NodeTypeEnum.CustomCode:
                 return this.visitCustomCode({ nodeId: node.id, data, currentIr });
-            default:
-                throw new Error(`Unknown node type: ${data.type} for node ${node.id}`);
+            case NodeTypeEnum.UnknownNode:
+                throw new Error(`Unknown node type ${data.type} encountered.`);
         }
     }
 
@@ -122,6 +143,28 @@ export class CodeGenIRGenerator {
         }
 
         return irNodes;
+    }
+
+    /**
+     * Visits a StartNode and returns its IR representation.
+     */
+    private visitStartNode(node: Visit<StartNode>): VisitResult {
+        let children = this.getChildrenOfNode(node.nodeId);
+        let nextNode: string | null = null;
+        if (children.length == 1) {
+            nextNode = children[0].id; // Take the first child as the next node
+        } else if (children.length > 1) {
+            this.pushWarning(node.currentIr, `StartNode ${node.nodeId} has multiple children, only the first will be considered.`);
+            nextNode = children[0].id; // Take the first child
+        }
+
+        return {
+            ir: {
+                type: INodeTypeEnum.Root,
+                data: {},
+            },
+            nextNode
+        }
     }
 
     /**
