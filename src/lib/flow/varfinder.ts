@@ -1,7 +1,7 @@
 import logger from "../logger";
 import { FlowContext } from "./context";
 import { ForLoopNode, ForLoopTypeEnum, NodeData, NodeTypeEnum, VariableSetNode } from "./data";
-import { Node, Edge } from "@xyflow/react";
+import { Node, Edge, getIncomers } from "@xyflow/react";
 
 interface Visit<T> {
     /**
@@ -61,7 +61,7 @@ export class VarFinder {
             }
 
             // Add source nodes
-            let srcNodes = this.nodes.filter(n => n.id === node).map(n => n.id);
+            let srcNodes = getIncomers({ id: node }, this.nodes, this.edges).map(n => n.id);
             if(srcNodes.length > 1) {
                 logger.warn("VarFinder", `Multiple source nodes found for node ${node}. This may lead to unexpected results.`);
             }
