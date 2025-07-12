@@ -1,7 +1,6 @@
 // Originated from Kite
 // SPDX: GPL-3.0
 import { Handle, OnConnect, IsValidConnection, Position } from "@xyflow/react";
-import { primaryColor } from "@/lib/flow/nodes";
 
 interface Props {
   type: "source" | "target";
@@ -47,7 +46,7 @@ export default function FlowNodeHandle({
       isValidConnection={isValidConnection}
       className="rounded-full"
       style={{
-        backgroundColor: color ?? primaryColor,
+        backgroundColor: color ?? "#3B82F6",
         translate:
           position === Position.Top
             ? "0 -3px"

@@ -1,11 +1,7 @@
 // Originated from Kite
 // SPDX: GPL-3.0
-import { Edge, Node, XYPosition } from "@xyflow/react";
-import {
-  CircleHelpIcon,
-} from "lucide-react";
-import { ExoticComponent, useContext, useMemo } from "react";
-import { ZodType } from "zod";
+import { Node, XYPosition } from "@xyflow/react";
+import { useMemo } from "react";
 import {
   ForLoopTypeEnum,
   NodeData,
@@ -15,17 +11,7 @@ import {
 } from "./data";
 import { FlowContext } from "./context";
 
-export const primaryColor = "#3B82F6";
-
-export const actionColor = "#3b82f6";
-export const entryColor = "#eab308";
-export const errorColor = "#ef4444";
-export const controlColor = "#22c55e";
-export const optionColor = "#8b5cf6";
-export const suspendColor = "#d946ef";
-
 export interface NodeValues {
-  color: string;
   defaultTitle: string;
   defaultDescription: string;
   helpUrl?: string;
@@ -35,7 +21,6 @@ export interface NodeValues {
 Add node types here
 */
 const unknownNodeType: NodeValues = {
-  color: "#ff0000",
   defaultTitle: "Unknown",
   defaultDescription: "Unknown node type.",
 };
@@ -43,32 +28,26 @@ const unknownNodeType: NodeValues = {
 export const nodeTypes: Record<string, NodeValues> = {
   unknown: unknownNodeType,
   set_variable: {
-    color: primaryColor,
     defaultTitle: "Set Variable",
     defaultDescription: "Sets a variable to a value.",
   },
   if_condition: {
-    color: primaryColor,
     defaultTitle: "If Condition",
     defaultDescription: "Executes code based on condition.",
   },
   elseif_condition: {
-    color: primaryColor,
     defaultTitle: "Else If Condition",
     defaultDescription: "Executes code based on condition .",
   },
   end_condition: {
-    color: primaryColor,
     defaultTitle: "End Condition",
     defaultDescription: "Ends the conditional chain.",
   },
   for_loop: {
-    color: primaryColor,
     defaultTitle: "For Loop",
     defaultDescription: "Executes code in a loop based on condition.",
   },
   custom_code: {
-    color: primaryColor,
     defaultTitle: "Custom Code",
     defaultDescription: "Executes custom code.",
   },

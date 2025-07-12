@@ -2,8 +2,7 @@
 // SPDX: GPL-3.0
 import { NodeProps } from "@/lib/flow/data";
 import { ReactNode } from "react";
-import { primaryColor, useNodeValues } from "@/lib/flow/nodes";
-//import FlowNodeMarkers from "./FlowNodeMarkers";
+import { useNodeValues } from "@/lib/flow/nodes";
 
 interface Props extends NodeProps {
   title?: string;
@@ -16,21 +15,18 @@ interface Props extends NodeProps {
 
 export default function FlowNodeBase(props: Props) {
   const {
-    color: defaultColor,
     defaultTitle,
     defaultDescription,
   } = useNodeValues(props.type);
-
-  const color = props.color || defaultColor;
 
   return (
     <div
       className="pl-1 pr-1 py-1 shadow-md rounded bg-muted border-2 relative max-w-sm min-w-16 cursor-grab"
       style={{
         borderColor: props.selected
-          ? primaryColor
+          ? "#3B82F6"
           : props.highlight
-          ? color
+          ? "#3B82F6"
           : undefined,
       }}
     >

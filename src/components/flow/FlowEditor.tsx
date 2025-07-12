@@ -18,7 +18,7 @@ import {
 
 import "@xyflow/react/dist/base.css";
 import { FlowData, getValidationSource, getValidationTarget, NodeData } from "@/lib/flow/data";
-import { createNode, getNodeValues } from "@/lib/flow/nodes";
+import { createNode } from "@/lib/flow/nodes";
 import { edgeTypes, nodeTypes } from "@/lib/flow/components";
 import { FlowContext } from "@/lib/flow/context";
 
@@ -99,7 +99,7 @@ export default function FlowEditor({
     e.dataTransfer!.dropEffect = "move";
   }, []);
 
-  // https://reactflow.dev/examples/interaction/drag-and-drop
+  // Copyright webkid GmbH, https://reactflow.dev/examples/interaction/drag-and-drop.
   const onDrop = useCallback(
     (event: DragEvent) => {
       event.preventDefault();
@@ -125,7 +125,7 @@ export default function FlowEditor({
     (con: Connection | Edge) => {
       if (!con.source || !con.target) return false;
 
-      // Block cycles (https://reactflow.dev/examples/interaction/prevent-cycles)
+      // Block cycles. Copyright webkid GmbH, (https://reactflow.dev/examples/interaction/prevent-cycles)
       const nodes = getNodes();
       const edges = getEdges();
 

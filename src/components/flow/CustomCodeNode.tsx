@@ -3,7 +3,7 @@ import FlowNodeBase from "./BaseNode";
 import { NodeData, NodeProps, NodeTypeEnum, registerValidationSource } from "@/lib/flow/data";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { FlowContext } from "@/lib/flow/context";
-import { InputField, TypedInputField } from "./Inputs";
+import { InputField } from "./Inputs";
 import { FlowExpanded } from "./FlowExpanded";
 import logger from "@/lib/logger";
 import Handle from "./Handle";
