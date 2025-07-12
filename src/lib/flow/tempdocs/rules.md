@@ -16,4 +16,5 @@ An end condition must be connected to either a ``If Statement`` or a ``For Loop`
 
 ## TODO
 
-Expose a UI for command start nodes
+- Expose a UI for command start nodes
+- Add a undefined variable check to CodeGenIR
