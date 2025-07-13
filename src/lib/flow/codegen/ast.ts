@@ -170,9 +170,9 @@ export enum ICommandArgumentType {
 }
 
 /**
- * Internal representation class
+ * AST class
  */
-export class CodeGenIR {
+export class CodeGenAST {
     /**
      * Start node type
      */

@@ -1,7 +1,7 @@
-import { IRValidityCheck, IRVState } from "./baseirvalidity";
-import { IForLoopNode, IIfConditionNode, INode, INodeTypeEnum, IVariableSetNode } from "./ir";
+import { ASTValidityCheck, ASTVState } from "./baseastvalidity";
+import { IForLoopNode, IIfConditionNode, INode, INodeTypeEnum, IVariableSetNode } from "./ast";
 
-export class UndefinedVariableCheckState extends IRVState {
+export class UndefinedVariableCheckState extends ASTVState {
     /**
      * Currently known variables in the current scope.
      */
@@ -20,12 +20,12 @@ export class UndefinedVariableCheckState extends IRVState {
 }
 
 /**
- * Check for undefined variables in the IR.
+ * Check for undefined variables in the AST.
  * 
  * This doesn't do much yet (besides warning about shadowed variables)
  * as using variables in a TypedInput etc is not yet implemented.
  */
-export class UndefinedVariableCheck extends IRValidityCheck<UndefinedVariableCheckState> {
+export class UndefinedVariableCheck extends ASTValidityCheck<UndefinedVariableCheckState> {
     getInitialState(): UndefinedVariableCheckState {
         return new UndefinedVariableCheckState();
     }
@@ -47,7 +47,7 @@ export class UndefinedVariableCheck extends IRValidityCheck<UndefinedVariableChe
     visitSetVariable(inode: IVariableSetNode, state: UndefinedVariableCheckState): void {
         if (state.knownVariables.has(inode.data.variable_name)) {
             // Push a warning
-            this.ir.warnings.push(`Variable "${inode.data.variable_name}" is already defined in the current scope. As such, the previous variable declaration will be shadowed by the new one`);
+            this.ast.warnings.push(`Variable "${inode.data.variable_name}" is already defined in the current scope. As such, the previous variable declaration will be shadowed by the new one`);
             return;
         }
         // Add the variable to the known variables set

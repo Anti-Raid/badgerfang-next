@@ -3,15 +3,14 @@ import { useMemo, useState } from 'react';
 import Flow from '@/components/flow/FlowPage';
 import { FlowData, NodeExtData } from '@/lib/flow/data';
 import { motion } from 'framer-motion';
-import { CodeGenIRGenerator } from '@/lib/flow/codegen/block2ir';
+import { CodeGenASTGenerator } from '@/lib/flow/codegen/block2ast';
 
 export default function Blockly() {
 	const [data, setData] = useState<FlowData>({nodes: [], edges: []})
 	const [auxData, setAuxData] = useState<Record<string, NodeExtData>>({});
 
-	const codegennedIr = useMemo(() => {
-		console.log("Generating IR for data", data, auxData);
-		let r = new CodeGenIRGenerator(
+	const codegennedAst = useMemo(() => {
+		let r = new CodeGenASTGenerator(
 			data.nodes,
 			data.edges,
 			auxData
@@ -50,7 +49,7 @@ export default function Blockly() {
 				transition={{ duration: 0.5 }}
 				className="mt-8"
 			>
-				<code className="whitespace-pre-wrap break-words bg-gray-100 text-black">{JSON.stringify({data, auxData, codegennedIr: codegennedIr.toJSON() })}</code>
+				<code className="whitespace-pre-wrap break-words bg-gray-100 text-black">{JSON.stringify({data, auxData, codegennedAst: codegennedAst.toJSON() })}</code>
 			</motion.div>
 		</>
 	);

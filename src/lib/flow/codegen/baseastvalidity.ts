@@ -1,27 +1,27 @@
-import { CodeGenIR, INode } from "./ir";
+import { CodeGenAST, INode } from "./ast";
 
 /**
- * Stores the state for a IR validity check.
+ * Stores the state for a AST validity check.
  * 
  * A state must be cloneable (so it can be cloned when descending into a different scope)
  */
-export abstract class IRVState {
+export abstract class ASTVState {
     /**
      * Clones the current state.
      * 
      * This is used to create a new state when descending into a different scope.
      */
-    public abstract clone(): IRVState;
+    public abstract clone(): ASTVState;
 }
 
 /**
- * A IR validity check
+ * A AST validity check
  */
-export abstract class IRValidityCheck<State extends IRVState> {
-    ir: CodeGenIR;
+export abstract class ASTValidityCheck<State extends ASTVState> {
+    ast: CodeGenAST;
 
-    constructor(ir: CodeGenIR) {
-        this.ir = ir;
+    constructor(ast: CodeGenAST) {
+        this.ast = ast;
     }
 
     /**
@@ -64,14 +64,14 @@ export abstract class IRValidityCheck<State extends IRVState> {
 }
 
 /**
- * Base class for performing all IR validity checks on a CodeGenIR
+ * Base class for performing all validity checks on a CodeGenAST
  */
-export abstract class IRValidator {
-    public ir: CodeGenIR;
-    public checks: IRValidityCheck<IRVState>[];
+export abstract class ASTValidator {
+    public ast: CodeGenAST;
+    public checks: ASTValidityCheck<ASTVState>[];
 
-    constructor(ir: CodeGenIR) {
-        this.ir = ir;
+    constructor(ast: CodeGenAST) {
+        this.ast = ast;
         this.checks = [];
     }
 
@@ -80,7 +80,7 @@ export abstract class IRValidator {
      * 
      * @param check The validity check to add.
      */
-    public addCheck(check: IRValidityCheck<IRVState>): void {
+    public addCheck(check: ASTValidityCheck<ASTVState>): void {
         this.checks.push(check);
     } 
 
@@ -89,23 +89,23 @@ export abstract class IRValidator {
      * 
      * @param checkClass The class of the validity check to add.
      */
-    public addCheckClass(checkClass: new (ir: CodeGenIR) => IRValidityCheck<IRVState>): void {
-        const check = new checkClass(this.ir);
+    public addCheckClass(checkClass: new (ast: CodeGenAST) => ASTValidityCheck<ASTVState>): void {
+        const check = new checkClass(this.ast);
         this.addCheck(check);
     }
 
     /**
-     * Runs all validity checks on the IR.
+     * Runs all validity checks on the AST.
      * 
-     * Errors will be added to the IR's errors array.
+     * Errors will be added to the AST's errors array.
      */
     public runChecks(): void {
         for (const check of this.checks) {
             const initialState = check.getInitialState();
             try {
-                check.visitNodes(this.ir.nodes, initialState);
+                check.visitNodes(this.ast.nodes, initialState);
             } catch (error) {
-                this.ir.fatalError = `IR validity check failed unexpectedly: ${error?.toString()}`;
+                this.ast.fatalError = `AST validity check failed unexpectedly: ${error?.toString()}`;
                 return;
             }
         }
