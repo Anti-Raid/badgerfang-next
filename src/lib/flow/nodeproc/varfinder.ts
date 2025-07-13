@@ -1,4 +1,4 @@
-import { ForLoopNode, ForLoopTypeEnum, NodeTypeEnum, VariableSetNode } from "../data";
+import { CustomCodeNode, ForLoopNode, ForLoopTypeEnum, NodeTypeEnum, VariableSetNode } from "../data";
 import { BaseUpwardNodeProcessor, BaseUpwardNodeProcessorVisit } from "./basenodeproc";
 
 /** 
@@ -27,18 +27,20 @@ export class VarFinder extends BaseUpwardNodeProcessor<null, string[]> {
     /**
      * Given a single node, adds all variables to the set.
      */
-    protected visitNode(state: null, currentOutput: string[], nodeId: string): string[] {
+    protected visitNode(state: null, currentOutput: string[], nodeId: string): [string[], boolean] {
         const data = this.context.getData(nodeId);
-        if (!data) return currentOutput;
+        if (!data) return [currentOutput, true]; // Passthrough and continue
 
         switch (data.type) {
             case NodeTypeEnum.SetVariable:
-                return this.addVariablesFromSetVariable({ state, currentOutput, nodeId, data });
+                return [this.addVariablesFromSetVariable({ state, currentOutput, nodeId, data }), true];
             case NodeTypeEnum.ForLoop:
-                return this.addVariablesFromForLoop({ state, currentOutput, nodeId, data });
+                return [this.addVariablesFromForLoop({ state, currentOutput, nodeId, data }), true];
+            case NodeTypeEnum.CustomCode:
+                return this.addVariablesFromCustomCode({ state, currentOutput, nodeId, data });
             default:
                 // For other node types, we don't extract variables.
-                return currentOutput;
+                return [currentOutput, true];
         }
     }
 
@@ -69,5 +71,14 @@ export class VarFinder extends BaseUpwardNodeProcessor<null, string[]> {
                 // Unknown loop type, so we preserve the current output.
                 return data.currentOutput;
         }
+    }
+
+    /**
+     * Add variables from a CustomCode node.
+     * 
+     * Right now, this just passes through the current output and then tells the processor to stop processing upwards as CustomCode may redefine variables defined above it.
+     */
+    private addVariablesFromCustomCode(data: BaseUpwardNodeProcessorVisit<null, string[], CustomCodeNode>): [string[], boolean] {
+        return [data.currentOutput, !data.data.data.code.startsWith("--@flow-redefines-vars")]; // We need to stop processing upwards as CustomCode may redefine variables [so anything above it is not relevant]
     }
 }

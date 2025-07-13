@@ -1,4 +1,4 @@
-import { ForLoopNode, ForLoopTypeEnum, NodeTypeEnum, TypedInput, TypedInputEnum, VariableSetNode } from "../data";
+import { CustomCodeNode, ForLoopNode, ForLoopTypeEnum, NodeTypeEnum, TypedInput, TypedInputEnum, VariableSetNode } from "../data";
 import { BaseUpwardNodeProcessor, BaseUpwardNodeProcessorVisit } from "./basenodeproc";
 
 export interface InferredVariable {
@@ -38,18 +38,20 @@ export class TypeInferrer extends BaseUpwardNodeProcessor<TypeInferrerState, Inf
     /**
      * Given a single node, adds all variables to the set.
      */
-    protected visitNode(state: TypeInferrerState, currentOutput: InferredVariable[], nodeId: string): InferredVariable[] {
+    protected visitNode(state: TypeInferrerState, currentOutput: InferredVariable[], nodeId: string): [InferredVariable[], boolean] {
         const data = this.context.getData(nodeId);
-        if (!data) return currentOutput;
+        if (!data) return [currentOutput, true]; // Passthrough and continue
 
         switch (data.type) {
             case NodeTypeEnum.SetVariable:
-                return this.addVariablesFromSetVariable({ state, currentOutput, nodeId, data });
+                return [this.addVariablesFromSetVariable({ state, currentOutput, nodeId, data }), true];
             case NodeTypeEnum.ForLoop:
-                return this.addVariablesFromForLoop({ state, currentOutput, nodeId, data });
+                return [this.addVariablesFromForLoop({ state, currentOutput, nodeId, data }), true];
+            case NodeTypeEnum.CustomCode:
+                return this.addVariablesFromCustomCode({ state, currentOutput, nodeId, data });
             default:
                 // For other node types, we don't extract variables.
-                return currentOutput;
+                return [currentOutput, true];
         }
     }
 
@@ -100,10 +102,10 @@ export class TypeInferrer extends BaseUpwardNodeProcessor<TypeInferrerState, Inf
     /**
      * Add variables from a CustomCode node.
      * 
-     * This function right now clears the entire current output as CustomCode nodes may redefine variables.
+     * Right now, this just passes through the current output and then tells the processor to stop processing upwards if flow-redefines-vars is marked at the top of the code.
      */
-    private addVariablesFromCustomCode(_data: BaseUpwardNodeProcessorVisit<TypeInferrerState, InferredVariable[], any>): InferredVariable[] {
-        return []; // Clear current output as CustomCode may redefine variables
+    private addVariablesFromCustomCode(data: BaseUpwardNodeProcessorVisit<TypeInferrerState, InferredVariable[], CustomCodeNode>): [InferredVariable[], boolean] {
+        return [data.currentOutput, !data.data.data.code.startsWith("--@flow-redefines-vars")]; // We need to stop processing upwards as CustomCode may redefine variables [so anything above it is not relevant]
     }
 
     private inferFromTypedInput(typedInput: TypedInput): string {

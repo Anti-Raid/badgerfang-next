@@ -49,6 +49,7 @@ export abstract class BaseUpwardNodeProcessor<State, Output> {
         let output: Output = this.getInitialOutput();
         const visitedNodes = new Set<string>();
         const stack: string[] = [nodeId];
+        let continueFlag = true; // Flag to stop processing if needed
         for(const node of stack) {
             if (!node || visitedNodes.has(node)) {
                 logger.warn("BaseUpwardNodeProcessor", `Skipping node ${node} as it is already visited or invalid.`);
@@ -56,7 +57,12 @@ export abstract class BaseUpwardNodeProcessor<State, Output> {
             visitedNodes.add(node);
 
             // Visit the node and collect outputs
-            output = this.visitNode(state, output, node);
+            [output, continueFlag] = this.visitNode(state, output, node);
+
+            if (!continueFlag) {
+                logger.debug("BaseUpwardNodeProcessor", `Stopping processing at node ${node} as per visitNode return value.`);
+                break; // Stop processing if visitNode indicates to stop
+            }
 
             // Add source nodes
             let srcNodes = getIncomers({ id: node }, this.nodes, this.edges).map(n => n.id);
@@ -71,8 +77,10 @@ export abstract class BaseUpwardNodeProcessor<State, Output> {
 
     /**
      * Performs the action on a sigle node and returns the output.
+     * 
+     * The second return value indicates whether the processor should continue processing (true) or not (false)
      */
-    protected abstract visitNode(state: State, currentOutput: Output, nodeId: string): Output;
+    protected abstract visitNode(state: State, currentOutput: Output, nodeId: string): [Output, boolean];
 
     /**
      * Returns the starting value for the output.
