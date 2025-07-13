@@ -39,7 +39,7 @@ export interface LiteralRaw {
 export type LiteralValue = LiteralString | LiteralNumber | LiteralTable | LiteralBoolean | LiteralRaw;
 
 /**
- * A abstract syntax tree type for code generation.
+ * A final representation type for code generation.
  */
 export enum ReprEnum {
     LocalVariableDeclaration = "LocalVariableDeclaration",
@@ -52,6 +52,7 @@ export enum ReprEnum {
     FunctionDeclaration = "FunctionDeclaration",
     FunctionCall = "FunctionCall",
     ForLoop = "ForLoop",
+    WhileLoop = "WhileLoop",
 }
 
 /**
@@ -61,10 +62,11 @@ export const expressions = [
     ReprEnum.Raw,
     ReprEnum.Literal,
     ReprEnum.FunctionDeclaration,
+    ReprEnum.FunctionCall,
 ]
 
 /**
- * Statements that can be used in the AST.
+ * Statements that can be used in the final representation.
  * 
  * Note: comments are not considered statements or expressions but are special
  */
@@ -192,7 +194,13 @@ export interface FunctionCall {
     args: LiteralValue[]; // The arguments to pass to the function
 }
 
-export type IRepr = LocalVariableDeclaration | GlobalDeclaration | Comment | Raw | Literal | IfCondition | LocalFunctionDeclaration | FunctionDeclaration | ForLoop | FunctionCall;
+export interface WhileLoop {
+    type: ReprEnum.WhileLoop; 
+    condition: string; // The condition for the while loop
+    body: IRepr[]; // The body of the while loop
+}
+
+export type IRepr = LocalVariableDeclaration | GlobalDeclaration | Comment | Raw | Literal | IfCondition | LocalFunctionDeclaration | FunctionDeclaration | ForLoop | FunctionCall | WhileLoop;
 
 /**
  * Writer class to help handle code generation.
@@ -310,6 +318,8 @@ export class FinalRepr {
                 return this.visitForLoop(writer, inode);
             case ReprEnum.FunctionCall:
                 return this.visitFunctionCall(writer, inode);
+            case ReprEnum.WhileLoop:
+                return this.visitWhileLoop(writer, inode);
         }
     }
 
@@ -339,6 +349,17 @@ export class FinalRepr {
         }
         this.assertStatement(inode);
         return this.visitRepr(writer, inode);
+    }
+
+    /**
+     * Visits a LocalVariableDeclaration and returns the string representation.
+     * It also checks that the lvalue does not contain a dot (.)
+     */
+    private visitStatementOrCommentNodes(writer: Writer, inodes: IRepr[]) {
+        for (const inode of inodes) {
+            this.visitStatementOrComment(writer, inode);
+        }
+        return;
     }
 
     /**
@@ -511,9 +532,7 @@ export class FinalRepr {
         let lvw = new Writer();
         
         // First handle body statements
-        for (const b of inode.data.body) {
-            this.visitStatementOrComment(lvw, b);
-        }
+        this.visitStatementOrCommentNodes(lvw, inode.data.body);
 
         for (const b of lvw.getCode()) {
             writer.write(`\t${b}`);
@@ -524,10 +543,8 @@ export class FinalRepr {
             for (const elseif of inode.data.elseifs) {
                 writer.write(`elseif ${elseif.condition} then\n`);
 
-                for (const b of elseif.body) {
-                    this.visitStatementOrComment(lvw, b);
-                }
-
+                this.visitStatementOrCommentNodes(lvw, elseif.body);
+                
                 for (const b of lvw.getCode()) {
                     writer.write(`\t${b}`);
                 }
@@ -539,9 +556,7 @@ export class FinalRepr {
         if (inode.data.else) {
             writer.write("else\n");
             lvw.clear(); // Clear the writer for else statements
-            for (const b of inode.data.else) {
-                this.visitStatementOrComment(lvw, b);
-            }
+            this.visitStatementOrCommentNodes(lvw, inode.data.else);
             for (const b of lvw.getCode()) {
                 writer.write(`\t${b}`);
             }
@@ -565,9 +580,8 @@ export class FinalRepr {
         writer.write(`local function ${inode.name}(${params})${inode.returnType.type ? ": " + inode.returnType.type : ""}\n`);
         
         let lvw = new Writer();
-        for (const b of inode.body) {
-            this.visitStatementOrComment(lvw, b);
-        }
+        this.visitStatementOrCommentNodes(lvw, inode.body);
+
         for (const b of lvw.getCode()) {
             writer.write(`\t${b}`);
         }
@@ -589,9 +603,8 @@ export class FinalRepr {
         writer.write(`function ${inode.name}(${params})${inode.returnType.type ? ": " + inode.returnType.type : ""}\n`);
         
         let lvw = new Writer();
-        for (const b of inode.body) {
-            this.visitStatementOrComment(lvw, b);
-        }
+        this.visitStatementOrCommentNodes(lvw, inode.body);
+
         for (const b of lvw.getCode()) {
             writer.write(`\t${b}`);
         }
@@ -605,12 +618,12 @@ export class FinalRepr {
     private visitForLoop(writer: Writer, inode: ForLoop) {
         this.visitLiteralForLoopType(writer, inode.data.condition);
         let lvw = new Writer();
-        for (const b of inode.data.body) {
-            this.visitStatementOrComment(lvw, b);
-        }
+        this.visitStatementOrCommentNodes(lvw, inode.data.body);
+
         for (const b of lvw.getCode()) {
             writer.write(`\t${b}`);
         }
+
         writer.write("end\n");
         return;
     }
@@ -654,6 +667,22 @@ export class FinalRepr {
         }
         
         writer.write(`${inode.name}(${args})\n`);
+    }
+
+    /**
+     * Visits a WhileLoop and returns the string representation.
+     */
+    private visitWhileLoop(writer: Writer, inode: WhileLoop) {
+        writer.write(`while ${inode.condition} do\n`);
+        let lvw = new Writer();
+        this.visitStatementOrCommentNodes(lvw, inode.body);
+
+        for (const b of lvw.getCode()) {
+            writer.write(`\t${b}`);
+        }
+        writer.write("end\n");
+        
+        return;
     }
 
     /**
