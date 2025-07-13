@@ -1,5 +1,3 @@
-import { write } from "fs";
-
 const MAX_ELEMENTS_TILL_INDENT = 5; // Max elements in a table before we indent it
 
 /**
@@ -52,6 +50,7 @@ export enum ReprEnum {
     IfCondition = "IfCondition",
     LocalFunctionDeclaration = "LocalFunctionDeclaration",
     FunctionDeclaration = "FunctionDeclaration",
+    FunctionCall = "FunctionCall",
     ForLoop = "ForLoop",
 }
 
@@ -187,7 +186,13 @@ export interface LiteralForLoopRaw {
 
 export type LiteralForLoopType = LiteralForLoopGeneralizedIteration | LiteralForLoopRange | LiteralForLoopRaw;
 
-export type IRepr = LocalVariableDeclaration | GlobalDeclaration | Comment | Raw | Literal | IfCondition | LocalFunctionDeclaration | FunctionDeclaration | ForLoop;
+export interface FunctionCall {
+    type: ReprEnum.FunctionCall;
+    name: string; // The name of the function to call (may have dots in it if its in a table/class/userdata)
+    args: LiteralValue[]; // The arguments to pass to the function
+}
+
+export type IRepr = LocalVariableDeclaration | GlobalDeclaration | Comment | Raw | Literal | IfCondition | LocalFunctionDeclaration | FunctionDeclaration | ForLoop | FunctionCall;
 
 /**
  * Writer class to help handle code generation.
@@ -303,6 +308,8 @@ export class FinalRepr {
                 return this.visitFunctionDeclaration(writer, inode);
             case ReprEnum.ForLoop:
                 return this.visitForLoop(writer, inode);
+            case ReprEnum.FunctionCall:
+                return this.visitFunctionCall(writer, inode);
         }
     }
 
@@ -388,7 +395,7 @@ export class FinalRepr {
     /**
      * Visit a LiteralValue and return the string representation.
      */
-    private visitLiteralValue(writer: Writer, value: LiteralValue) {
+    private visitLiteralValue(writer: Writer, value: LiteralValue, onlyNewline: boolean = false) {
         switch (value.type) {
             case LiteralEnum.String:
                 if (value.value.includes("\n")) {
@@ -401,10 +408,10 @@ export class FinalRepr {
                 return writer.write(value.value.toString());
             case LiteralEnum.Table:
                 if (Array.isArray(value.value)) {
-                    return this.visitLiteralValueTable(writer, value.value);
+                    return this.visitLiteralValueTable(writer, value.value, onlyNewline);
                 }
 
-                return this.visitLiteralValueTableMap(writer, value.value);
+                return this.visitLiteralValueTableMap(writer, value.value, onlyNewline);
             case LiteralEnum.Boolean:
                 return writer.write(value.value ? "true" : "false"); // Convert boolean to string
             case LiteralEnum.Raw:
@@ -418,14 +425,14 @@ export class FinalRepr {
     /**
      * Write an table of literal values to the writer.
      */
-    private visitLiteralValueTable(writer: Writer, values: LiteralValue[]) {
+    private visitLiteralValueTable(writer: Writer, values: LiteralValue[], onlyNewline: boolean) {
         let lvw = new Writer();
         for(const val of values) {
             this.visitLiteralValue(lvw, val)
         };
 
         let tabStart = "{"
-        if (lvw.getCode().length > MAX_ELEMENTS_TILL_INDENT) {
+        if (onlyNewline || lvw.getCode().length > MAX_ELEMENTS_TILL_INDENT) {
             for (let i = 0; i < writer.getCode().length; i++) {
                 if (i === 0) {
                     tabStart += `\n\t${lvw.getCode()[i]}`;
@@ -447,9 +454,9 @@ export class FinalRepr {
      * @param writer The writer to write to.
      * @param value The value to write.
      */
-    private visitLiteralValueTableMap(writer: Writer, value: Record<string | number, LiteralValue>) {
+    private visitLiteralValueTableMap(writer: Writer, value: Record<string | number, LiteralValue>, onlyNewline: boolean) {
         let tabStart = "{";
-        if (Object.keys(value).length > MAX_ELEMENTS_TILL_INDENT) {
+        if (onlyNewline || Object.keys(value).length > MAX_ELEMENTS_TILL_INDENT) {
             let entries = Object.entries(value)
             for (let i = 0; i < entries.length; i++) {
                 const [key, val] = entries[i];
@@ -611,6 +618,10 @@ export class FinalRepr {
     /**
      * Visits a LiteralForLoopType and returns the string representation.
      */
+
+    /**
+     * Visits a LiteralForLoopType and returns the string representation.
+     */
     private visitLiteralForLoopType(writer: Writer, condition: LiteralForLoopType): void {
         switch (condition.type) {
             case LiteralForLoopEnum.GeneralizedIteration:
@@ -625,6 +636,24 @@ export class FinalRepr {
             case LiteralForLoopEnum.Raw:
                 return writer.write(`for ${condition.condition} do\n`); // Raw condition for the loop
         }
+    }
+
+    /**
+     * Visits a FunctionCall and returns the string representation.
+     */
+    private visitFunctionCall(writer: Writer, inode: FunctionCall) {
+        let args = inode.args.map(arg => {
+            let argWriter = new Writer();
+            this.visitLiteralValue(argWriter, arg, true);
+            return argWriter.getCodeString();
+        }).join(",\n\t");
+        
+        // Ensure name is valid (contains only letters, numbers, underscores, dots and one colon at the end if a method call)
+        if (!(/^[a-zA-Z0-9_.]+(:[a-zA-Z0-9_]*)?$/.test(inode.name) || inode.name.endsWith(":") || inode.name.endsWith("."))) {
+            this.pushError(`Function name "${inode.name}" is not valid. It can only contain letters, numbers, underscores, dots and one colon at the final indexing if a method call. If this is incorrect, please report this as a bug.`);
+        }
+        
+        writer.write(`${inode.name}(${args})\n`);
     }
 
     /**
