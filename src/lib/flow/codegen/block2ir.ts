@@ -36,13 +36,11 @@ export class CodeGenIRGenerator {
     private nodes: Node<NodeData>[];
     private edges: Edge[];
     private auxData: Record<string, NodeExtData>;
-    private werror: boolean;
 
-    constructor(nodes: Node<NodeData>[], edges: Edge[], auxData: Record<string, NodeExtData>, werror: boolean = false) {
+    constructor(nodes: Node<NodeData>[], edges: Edge[], auxData: Record<string, NodeExtData>) {
         this.nodes = nodes;
         this.edges = edges;
         this.auxData = auxData;
-        this.werror = werror;
     }
 
     /**
@@ -78,9 +76,6 @@ export class CodeGenIRGenerator {
      * @param message The warning message to push.
      */
     private pushWarning(currentIr: CodeGenIR, message: string): void {
-        if (this.werror) {
-            currentIr.errors.push(message);
-        }
         currentIr.warnings.push(message);
     }
 
