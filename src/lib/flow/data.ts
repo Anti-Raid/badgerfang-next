@@ -156,6 +156,17 @@ export enum StartNodeTypeEnum {
     Command = "Command",
 }
 
+export const stringToStartNodeTypeEnum = (value: string): StartNodeTypeEnum => {
+    switch (value?.toLowerCase()) {
+        case "library":
+            return StartNodeTypeEnum.Library;
+        case "command":
+            return StartNodeTypeEnum.Command;
+        default:
+            throw new Error(`Unknown StartNodeTypeEnum value: ${value}`);
+    }
+};
+
 export interface StartNodeLibrary {
     type: StartNodeTypeEnum.Library;
 }
@@ -164,7 +175,7 @@ export interface StartNodeCommand {
     type: StartNodeTypeEnum.Command;
     data: {
         name: string;
-        description: string[];
+        description: string;
         arguments: CommandArgument[];
     };
 }

@@ -70,7 +70,7 @@ export interface IForLoopRaw {
 export type IForLoopType = IForLoopGeneralizedIteration | IForLoopRange | IForLoopRaw;
 
 /**
- * A internal representation node type for code generation.
+ * A abstract syntax tree node type for code generation.
  */
 export enum INodeTypeEnum {
     SetVariable = "SetVariable",
@@ -149,7 +149,7 @@ export interface IPreludeCommand {
     type: IPreludeTypeEnum.Command;
     data: {
         name: string;
-        description: string[];
+        description: string;
         arguments: ICommandArgument[];
     };
 }
