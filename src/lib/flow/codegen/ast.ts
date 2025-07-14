@@ -2,11 +2,11 @@
  * The different types that a value in Luau can be user-initialized to.
  */
 export enum ITypedInputEnum {
-    String = "String",
-    Number = "Number",
-    Table = "Table",
-    Boolean = "Boolean",
-    Raw = "Raw",
+    String = "IString",
+    Number = "INumber",
+    Table = "ITable",
+    Boolean = "IBoolean",
+    Raw = "IRaw",
 }
 
 export interface ITypedInputString {
@@ -37,9 +37,9 @@ export interface ITypedInputRaw {
 export type ITypedInput = ITypedInputString | ITypedInputNumber | ITypedInputTable | ITypedInputBoolean | ITypedInputRaw;
 
 export enum IForLoopTypeEnum {
-    GeneralizedIteration = "GeneralizedIteration",
-    Range = "Range",
-    Raw = "Raw",
+    GeneralizedIteration = "IGeneralizedIteration",
+    Range = "IRange",
+    Raw = "IRaw",
 }
 
 /**
@@ -73,11 +73,11 @@ export type IForLoopType = IForLoopGeneralizedIteration | IForLoopRange | IForLo
  * A abstract syntax tree node type for code generation.
  */
 export enum INodeTypeEnum {
-    SetVariable = "SetVariable",
-    IfCondition = "IfCondition",
-    ForLoop = "ForLoop",
-    CustomCode = "CustomCode",
-    Block = "Block",
+    SetVariable = "ISetVariable",
+    IfCondition = "IIfCondition",
+    ForLoop = "IForLoop",
+    CustomCode = "ICustomCode",
+    Block = "IBlock",
 }
 
 export interface IVariableSetNode {
@@ -136,9 +136,9 @@ export interface ICommandArgument {
 
 export enum IPreludeTypeEnum {
     // No prelude, just start up the flow
-    Library = "Library",
+    Library = "ILibrary",
     // Command node that starts the flow for a command
-    Command = "Command",
+    Command = "ICommand",
 }
 
 export interface IPreludeLibrary {
@@ -160,13 +160,13 @@ export type IPreludeData = IPreludeLibrary | IPreludeCommand;
  * Command argument types for the command nodes.
  */
 export enum ICommandArgumentType {
-    String = "string",
-    Integer = "integer",
-    Boolean = "boolean",
-    User = "user",
-    Channel = "channel",
-    Role = "role",
-    Member = "member",
+    String = "IString",
+    Integer = "IInteger",
+    Boolean = "IBoolean",
+    User = "IUser",
+    Channel = "IChannel",
+    Role = "IRole",
+    Member = "IMember",
 }
 
 /**
