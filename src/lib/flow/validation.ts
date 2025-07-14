@@ -1,7 +1,6 @@
 //export const auditLogReasonSchema = z.string().max(512).optional();
 
 import z from "zod";
-import { PermissionIndividual } from "./discordperms";
 import { CommandArgumentType } from "./data";
 
 export const sharedNodeDataSchema = z.looseObject({
