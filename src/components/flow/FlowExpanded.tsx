@@ -31,35 +31,57 @@ export const FlowExpanded: React.FC<FlowExpandedProps> = ({ nodeProps, children,
         }
     }, [dialogRef, isExpanded])
 
+    /* 
+TODO: Refactor this to use a div 
+
+  const modal = (
+    <div className="fixed inset-0 z-[1000] bg-black/40 backdrop-blur-sm flex items-center justify-center">
+      <div className="bg-white dark:bg-neutral-900 rounded-lg shadow-lg w-full max-w-md p-6">
+        <h2 className="text-lg font-bold text-black dark:text-white">
+          {title || Editing ${nodeProps.id}}
+        </h2>
+        <div className="py-4 text-black dark:text-white">{children}</div>
+        <div className="flex justify-end mt-4">
+          <Ghost
+            Title="Close"
+            onClick={() => setExpanded(false)}
+            aria-label="Close Modal"
+          />
+        </div>
+      </div>
+    </div>
+  );
+    */
+    const modal = (
+        <dialog
+            ref={dialogRef}
+            className="modal"
+            onClose={() => {
+                setExpanded(false);
+            }}
+            open={false}
+        >
+            <div 
+                className="modal-box"
+            >
+                <h2 className="text-lg font-bold">{title || `Editting ${nodeProps.id}`}</h2>
+                <div className="py-4">
+                    {children}
+                </div>
+                <div className="modal-action">
+                    <Ghost Title="Close" onClick={() => {
+                        if (dialogRef.current?.open) {
+                            dialogRef.current.close();
+                        }
+                    }} aria-label="Close Modal" />
+                </div>
+            </div>
+        </dialog>
+    );
+
     return (
         <>
-            {createPortal(
-                <dialog
-                    ref={dialogRef}
-                    className="modal"
-                    onClose={() => {
-                        setExpanded(false);
-                    }}
-                    open={false}
-                >
-                    <div 
-                        className="modal-box"
-                    >
-                        <h2 className="text-lg font-bold">{title || `Editting ${nodeProps.id}`}</h2>
-                        <div className="py-4">
-                            {children}
-                        </div>
-                        <div className="modal-action">
-                            <Ghost Title="Close" onClick={() => {
-                                if (dialogRef.current?.open) {
-                                    dialogRef.current.close();
-                                }
-                            }} aria-label="Close Modal" />
-                        </div>
-                    </div>
-                </dialog>, 
-                document.body
-            )}
+            {createPortal(modal, document.body)}
 
             <div className="flex items-center justify-center text-sm">
                 <SmallGhost 
