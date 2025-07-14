@@ -7,8 +7,8 @@ import { DragEvent, useMemo, useState } from "react";
 const nodeCategories = {
   action: [
     {
-      title: "Start Node",
-      nodeTypes: ["start"],
+      title: "Start Here",
+      nodeTypes: ["library", "command", "command_argument"],
     },
     {
       title: "Commands",

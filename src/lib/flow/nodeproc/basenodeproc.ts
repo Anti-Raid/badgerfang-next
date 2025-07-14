@@ -1,6 +1,6 @@
 import { Edge, getIncomers, Node } from "@xyflow/react";
 import { FlowContext } from "../context";
-import { NodeData } from "../data";
+import { NodeData, NodeTypeEnum } from "../data";
 import logger from "@/lib/logger";
 
 export interface BaseUpwardNodeProcessorVisit<State, Output, T> {
@@ -67,7 +67,11 @@ export abstract class BaseUpwardNodeProcessor<State, Output> {
             // Add source nodes
             let srcNodes = getIncomers({ id: node }, this.nodes, this.edges).map(n => n.id);
             if(srcNodes.length > 1) {
-                logger.warn("BaseUpwardNodeProcessor", `Multiple source nodes found for node ${node}. This may lead to unexpected results.`);
+                // Check if CommandNode, if so, this is fully expected
+                if (this.context.getData(node)?.type !== NodeTypeEnum.CommandNode) {
+                    // Otherwise, log a warning
+                    logger.warn("BaseUpwardNodeProcessor", `Multiple source nodes found for node ${node}. This may lead to unexpected results.`);
+                }
             }
             stack.concat(srcNodes)
         }

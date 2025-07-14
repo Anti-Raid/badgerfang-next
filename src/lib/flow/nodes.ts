@@ -3,11 +3,11 @@
 import { Node, XYPosition } from "@xyflow/react";
 import { useMemo } from "react";
 import {
+  CommandArgumentType,
   ForLoopTypeEnum,
   NodeData,
   NodeExtData,
   NodeTypeEnum,
-  StartNodeTypeEnum,
   TypedInputEnum,
 } from "./data";
 import { FlowContext } from "./context";
@@ -28,9 +28,17 @@ const unknownNodeType: NodeValues = {
 
 export const nodeTypes: Record<string, NodeValues> = {
   unknown: unknownNodeType,
-  start: {
-    defaultTitle: "Start Node",
-    defaultDescription: "The starting point of the flow.",
+  library: {
+    defaultTitle: "Library",
+    defaultDescription: "The starting point of a library.",
+  },
+  command: {
+    defaultTitle: "Command",
+    defaultDescription: "The starting point of a Discord command.",
+  },
+  command_argument: {
+    defaultTitle: "Command Argument",
+    defaultDescription: "An argument for a command.",
   },
   set_variable: {
     defaultTitle: "Set Variable",
@@ -62,13 +70,25 @@ export const defaultNodeDataForType: Record<string, NodeExtData> = {
     type: NodeTypeEnum.UnknownNode,
     data: {}
   },
-  start: {
-    type: NodeTypeEnum.StartNode,
+  library: {
+    type: NodeTypeEnum.LibraryNode,
+    data: {} // No specific data for start node
+  },
+  command: {
+    type: NodeTypeEnum.CommandNode,
     data: {
-      nodeType: {
-        type: StartNodeTypeEnum.Library
-      }
-    } // No specific data for start node
+      name: "",
+      description: "",
+    } 
+  },
+  command_argument: {
+    type: NodeTypeEnum.CommandArgumentNode,
+    data: {
+      name: "",
+      description: "",
+      type: CommandArgumentType.String, // Default type
+      required: false, // Default to not required
+    }
   },
   set_variable: {
     type: NodeTypeEnum.SetVariable,

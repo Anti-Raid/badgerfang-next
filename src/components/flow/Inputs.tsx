@@ -346,3 +346,57 @@ export const TypedInputField: React.FC<TypedInputProps> = (
 	)
 }
 
+interface ToggleProps {
+	label: string;
+	description?: string;
+	checked: boolean;
+	disabled?: boolean;
+	onChange: () => void;
+	marginClass?: string;
+}
+
+
+export const Toggle: React.FC<ToggleProps> = ({
+	label,
+	description,
+	onChange,
+	checked,
+	disabled = false,
+	marginClass = 'mb-1'
+}) => {
+	return (
+		<div className={marginClass}>
+			<div className="flex items-center">
+				<button
+					type="button"
+					role="switch"
+					aria-checked={checked}
+					disabled={disabled}
+					className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 ${
+						checked ? 'bg-primary' : 'bg-muted'
+					}`}
+					onClick={() => {
+						if (disabled) return;
+						if (onChange) onChange();
+					}}
+					aria-label={label}
+					tabIndex={0}
+				>
+					<motion.span
+						className="inline-block h-4 w-4 transform rounded-full bg-white"
+						animate={{
+							translateX: checked ? '1.5rem' : '0.25rem'
+						}}
+						transition={{
+							type: 'spring',
+							stiffness: 500,
+							damping: 30
+						}}
+					/>
+				</button>
+				<span className="ml-3 font-medium text-foreground">{label}</span>
+			</div>
+			{description && <p className="text-sm text-muted-foreground mt-1 ml-14">{description}</p>}
+		</div>
+	);
+};

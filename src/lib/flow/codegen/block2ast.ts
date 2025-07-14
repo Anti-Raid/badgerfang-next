@@ -1,6 +1,6 @@
-import { CommandArgument, CommandArgumentType, CustomCodeNode, ForLoopNode, ForLoopType, ForLoopTypeEnum, IfConditionNode, NodeData, NodeExtData, NodeTypeEnum, StartNode, StartNodeData, StartNodeTypeEnum, TypedInput, TypedInputEnum, VariableSetNode } from "../data";
-import { Node, Edge, getOutgoers } from "@xyflow/react";
-import { CodeGenAST, ICommandArgument, ICommandArgumentType, IElseIf, IForLoopType, IForLoopTypeEnum, INode, INodeTypeEnum, IPreludeData, IPreludeTypeEnum, ITypedInput, ITypedInputEnum } from "./ast";
+import { CommandArgumentNode, CommandArgumentType, CommandNode, CustomCodeNode, ForLoopNode, ForLoopType, ForLoopTypeEnum, IfConditionNode, LibraryNode, NodeData, NodeExtData, NodeTypeEnum, TypedInput, TypedInputEnum, VariableSetNode } from "../data";
+import { Node, Edge, getOutgoers, getIncomers } from "@xyflow/react";
+import { CodeGenAST, ICommandArgument, ICommandArgumentType, IElseIf, IForLoopType, IForLoopTypeEnum, INode, INodeTypeEnum, IPreludeTypeEnum, ITypedInput, ITypedInputEnum } from "./ast";
 import { baseCommandNodeSchema } from "../validation";
 
 interface Visit<T> {
@@ -29,6 +29,11 @@ interface VisitResult {
     nextNode: string | null;
 }
 
+const startNodeTypes = [
+    NodeTypeEnum.LibraryNode,
+    NodeTypeEnum.CommandNode
+]
+
 /**
  * Given nodes, edges and auxData, creates the CodeGen AST for the flow.
  */
@@ -53,14 +58,14 @@ export class CodeGenASTGenerator {
     public generate(): CodeGenAST {
         let currentAst= new CodeGenAST();
 
-        // Find start node
-        const startNode = this.nodes.filter(node => this.auxData[node.id]?.type === NodeTypeEnum.StartNode);
+        // Find a start node
+        const startNode = this.nodes.filter(node => startNodeTypes.includes(this.auxData[node.id]?.type));
 
         if (startNode.length === 0) {
-            currentAst.fatalError = "No StartNode found in the flow.";
+            currentAst.fatalError = "No Start Node (Library/Command nodes) found in the flow.";
             return currentAst;
         } else if (startNode.length > 1) {
-            currentAst.fatalError = "Multiple StartNodes found in the flow.";
+            currentAst.fatalError = "Multiple Start Nodes (Library/Command nodes) found in the flow.";
             return currentAst;
         }
         try {
@@ -87,6 +92,12 @@ export class CodeGenASTGenerator {
         currentAst.errors.push(message);
     }
 
+    /**
+     * Helper to return the parents of a node
+     */
+    private getParentOfNode(nodeId: string): Node<NodeData>[] {
+        return getIncomers({id: nodeId}, this.nodes, this.edges);
+    }
 
     /**
      * Helper to return the direct children of a node
@@ -102,8 +113,12 @@ export class CodeGenASTGenerator {
         const data = this.getAuxDataForNode(node.id);
 
         switch (data.type) {
-            case NodeTypeEnum.StartNode:
-                return this.visitStartNode({ nodeId: node.id, data, currentAst});
+            case NodeTypeEnum.LibraryNode:
+                return this.visitLibraryNode({ nodeId: node.id, data, currentAst});
+            case NodeTypeEnum.CommandNode:
+                return this.visitCommandNode({ nodeId: node.id, data, currentAst});
+            case NodeTypeEnum.CommandArgumentNode:
+                throw new Error(`CommandArgumentNode ${node.id} should not be visited directly, it should be the source of a CommandNode.`);
             case NodeTypeEnum.SetVariable:
                 return this.visitSetVariable({ nodeId: node.id, data, currentAst});
             case NodeTypeEnum.IfCondition:
@@ -153,11 +168,50 @@ export class CodeGenASTGenerator {
     }
 
     /**
-     * Visits a StartNode and returns its AST representation.
+     * Visits a LibraryNode and returns its AST representation.
      */
-    private visitStartNode(node: Visit<StartNode>): VisitResult {
+    private visitLibraryNode(node: Visit<LibraryNode>): VisitResult {
         // Visit start node data and set the start node type in the AST
-        node.currentAst.prelude = this.visitStartNodeData(node.currentAst, node.data.data.nodeType);
+        node.currentAst.prelude = { type: IPreludeTypeEnum.Library };
+
+        let children = this.getChildrenOfNode(node.nodeId);
+        let nextNode: string | null = null;
+        if (children.length == 1) {
+            nextNode = children[0].id; // Take the first child as the next node
+        } else if (children.length > 1) {
+            this.pushWarning(node.currentAst, `StartNode ${node.nodeId} has multiple children, only the first will be considered.`);
+            nextNode = children[0].id; // Take the first child
+        }
+
+        return {
+            ast: null,
+            nextNode
+        }
+    }
+
+    /**
+     * Visits a CommandNode and returns its AST representation.
+     */
+    private visitCommandNode(node: Visit<CommandNode>): VisitResult {
+        let incoming = this.getParentOfNode(node.nodeId);
+        let commandArguments: ICommandArgument[] = [];
+        for (const parent of incoming) {
+            if (parent.type !== NodeTypeEnum.CommandArgumentNode) {
+                this.pushError(node.currentAst, `CommandNode ${node.nodeId} has a parent of type ${parent.type}, expected CommandArgumentNode.`);
+                continue;
+            }
+
+            const argData = this.getAuxDataForNode(parent.id);
+            if (argData.type !== NodeTypeEnum.CommandArgumentNode) {
+                this.pushError(node.currentAst, `CommandNode ${node.nodeId} has a parent of type ${argData.type}, expected CommandArgumentNode. Invalid aux data?`);
+                continue;
+            }
+
+            commandArguments.push(this.visitCommandArgumentNode(node.currentAst, argData))
+        }
+
+        // Visit start node data and set the start node type in the AST
+        node.currentAst.prelude = { type: IPreludeTypeEnum.Command, data: { name: node.data.data.name, description: node.data.data.description, arguments: commandArguments } };
 
         let children = this.getChildrenOfNode(node.nodeId);
         let nextNode: string | null = null;
@@ -491,88 +545,66 @@ export class CodeGenASTGenerator {
     }
 
     /**
-     * Returns the AST representation of a StartNodeData.
-     * @param startNodeData The StartNodeData to convert to AST.
-     * @returns The AST representation of the StartNodeData.
-     */
-    private visitStartNodeData(currentAst: CodeGenAST, startNodeData: StartNodeData): IPreludeData {
-        switch (startNodeData.type) {
-            case StartNodeTypeEnum.Library:
-                return { type: IPreludeTypeEnum.Library };
-            case StartNodeTypeEnum.Command:
-                return { 
-                    type: IPreludeTypeEnum.Command,
-                    data: {
-                        name: startNodeData.data.name,
-                        description: startNodeData.data.description,
-                        arguments: startNodeData.data.arguments.map(arg => this.visitCommandArgument(currentAst, arg)),
-
-                    }
-                };
-        }
-    }
-
-    /**
      * Returns the AST representation of a CommandArgument.
      * @param arg The CommandArgument to convert to AST.
      * @returns The AST representation of the CommandArgument.
      */
-    private visitCommandArgument(currentAst: CodeGenAST, arg: CommandArgument): ICommandArgument {
+    private visitCommandArgumentNode(currentAst: CodeGenAST, arg: CommandArgumentNode): ICommandArgument {
         let res = baseCommandNodeSchema.safeParse(arg); // Validate the argument structure
 
         if(res.error) {
             this.pushError(currentAst, res.error.message);
         }
 
-        switch (arg.type) {
+        switch (arg.data.type) {
             case CommandArgumentType.String:
                 return {
                     type: ICommandArgumentType.String,
-                    name: arg.name,
-                    description: arg.description,
-                    required: arg.required,
+                    name: arg.data.name,
+                    description: arg.data.description,
+                    required: arg.data.required,
                 }
             case CommandArgumentType.Integer:
                 return {
                     type: ICommandArgumentType.Integer,
-                    name: arg.name,
-                    description: arg.description,
-                    required: arg.required,
+                    name: arg.data.name,
+                    description: arg.data.description,
+                    required: arg.data.required,
                 }
             case CommandArgumentType.Boolean:
                 return {
                     type: ICommandArgumentType.Boolean,
-                    name: arg.name,
-                    description: arg.description,
-                    required: arg.required,
+                    name: arg.data.name,
+                    description: arg.data.description,
+                    required: arg.data.required,
                 }
             case CommandArgumentType.User:
                 return {
                     type: ICommandArgumentType.User,
-                    name: arg.name,
-                    description: arg.description,
-                    required: arg.required,
+                    name: arg.data.name,
+                    description: arg.data.description,
+                    required: arg.data.required,
                 }
             case CommandArgumentType.Channel:
                 return {
                     type: ICommandArgumentType.Channel,
-                    name: arg.name,
-                    description: arg.description,
-                    required: arg.required, 
+                    name: arg.data.name,
+                    description: arg.data.description,
+                    required: arg.data.required, 
                 }
             case CommandArgumentType.Role:
                 return {
                     type: ICommandArgumentType.Role,
-                    name: arg.name,
-                    description: arg.description,
-                    required: arg.required,
+                    name: arg.data.name,
+                    description: arg.data.description,
+                    required: arg.data.required,
                 }
             case CommandArgumentType.Member:
                 return {
                     type: ICommandArgumentType.Member, 
-                    name: arg.name,
-                    description: arg.description,
-                    required: arg.required,
+                    name: arg.data.name,
+                    description: arg.data.description,
+                    required: arg.data.required,
                 }
         }
     }

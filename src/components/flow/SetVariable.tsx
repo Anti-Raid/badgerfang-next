@@ -34,7 +34,6 @@ export default function SetVariable(props: NodeProps) {
   const [variableValue, setVariableValue] = useState<TypedInput>(currentData.data.variable_value || { type: TypedInputEnum.String, value: "" });
 
   useEffect(() => {
-    console.log("Setting variable name to:", variableName);
     svi.setData(props.id, {
         ...currentData,
         data: {

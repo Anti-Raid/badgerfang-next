@@ -1,4 +1,4 @@
-import { CustomCodeNode, ForLoopNode, ForLoopTypeEnum, NodeTypeEnum, VariableSetNode } from "../data";
+import { CommandArgumentNode, CustomCodeNode, ForLoopNode, ForLoopTypeEnum, NodeTypeEnum, VariableSetNode } from "../data";
 import { BaseUpwardNodeProcessor, BaseUpwardNodeProcessorVisit } from "./basenodeproc";
 
 /** 
@@ -38,6 +38,8 @@ export class VarFinder extends BaseUpwardNodeProcessor<null, string[]> {
                 return [this.addVariablesFromForLoop({ state, currentOutput, nodeId, data }), true];
             case NodeTypeEnum.CustomCode:
                 return this.addVariablesFromCustomCode({ state, currentOutput, nodeId, data });
+            case NodeTypeEnum.CommandArgumentNode:
+                return this.addVariablesFromCommandArgument({ state, currentOutput, nodeId, data });
             default:
                 // For other node types, we don't extract variables.
                 return [currentOutput, true];
@@ -80,5 +82,13 @@ export class VarFinder extends BaseUpwardNodeProcessor<null, string[]> {
      */
     private addVariablesFromCustomCode(data: BaseUpwardNodeProcessorVisit<null, string[], CustomCodeNode>): [string[], boolean] {
         return [data.currentOutput, !data.data.data.code.startsWith("--@flow-redefines-vars")]; // We need to stop processing upwards as CustomCode may redefine variables [so anything above it is not relevant]
+    }
+
+    /**
+     * Add variables from a CommandArgumentNode
+     */
+    private addVariablesFromCommandArgument(data: BaseUpwardNodeProcessorVisit<null, string[], CommandArgumentNode>): [string[], boolean] {
+        // CommandArgumentNodes do not define variables, so we just passthrough the current output.
+        return [this.mergeOutputs(data.currentOutput, [data.data.data.name]), true];
     }
 }

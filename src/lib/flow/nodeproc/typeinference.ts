@@ -1,4 +1,4 @@
-import { CustomCodeNode, ForLoopNode, ForLoopTypeEnum, NodeTypeEnum, TypedInput, TypedInputEnum, VariableSetNode } from "../data";
+import { CommandArgumentNode, CommandArgumentType, CustomCodeNode, ForLoopNode, ForLoopTypeEnum, NodeTypeEnum, TypedInput, TypedInputEnum, VariableSetNode } from "../data";
 import { BaseUpwardNodeProcessor, BaseUpwardNodeProcessorVisit } from "./basenodeproc";
 
 export interface InferredVariable {
@@ -27,9 +27,14 @@ export class TypeInferrer extends BaseUpwardNodeProcessor<TypeInferrerState, Inf
         // If we already have the variable in 'a', then do nothing as we are now at a earlier scope.
         // Otherwise, add it to the output.
         for(let variable of b) {
-            if(!a.includes(variable)) {
-                a.push(variable);
+            for (let existing of a) {
+                if(existing.name === variable.name) {
+                    continue; // Variable already exists, skip adding it again.
+                }
             }
+            
+            // Add the variable to the output
+            a.push(variable);
         }
 
         return a;
@@ -49,6 +54,8 @@ export class TypeInferrer extends BaseUpwardNodeProcessor<TypeInferrerState, Inf
                 return [this.addVariablesFromForLoop({ state, currentOutput, nodeId, data }), true];
             case NodeTypeEnum.CustomCode:
                 return this.addVariablesFromCustomCode({ state, currentOutput, nodeId, data });
+            case NodeTypeEnum.CommandArgumentNode:
+                return this.addVariablesFromCommandArgumentNode({ state, currentOutput, nodeId, data });
             default:
                 // For other node types, we don't extract variables.
                 return [currentOutput, true];
@@ -106,6 +113,48 @@ export class TypeInferrer extends BaseUpwardNodeProcessor<TypeInferrerState, Inf
      */
     private addVariablesFromCustomCode(data: BaseUpwardNodeProcessorVisit<TypeInferrerState, InferredVariable[], CustomCodeNode>): [InferredVariable[], boolean] {
         return [data.currentOutput, !data.data.data.code.startsWith("--@flow-redefines-vars")]; // We need to stop processing upwards as CustomCode may redefine variables [so anything above it is not relevant]
+    }
+
+    /**
+     * Add variables from a CommandArgument node.
+     * 
+     * Right now, this just passes through the current output and then tells the processor to stop processing upwards if flow-redefines-vars is marked at the top of the code.
+     */
+    private addVariablesFromCommandArgumentNode(data: BaseUpwardNodeProcessorVisit<TypeInferrerState, InferredVariable[], CommandArgumentNode>): [InferredVariable[], boolean] {
+        let type = "unknown"; // Default type if not specified
+        switch (data.data.data.type) {
+            case CommandArgumentType.String:
+                type = "string";
+                break;
+            case CommandArgumentType.Integer:
+                type = "number";
+                break;
+            case CommandArgumentType.Boolean:
+                type = "boolean";
+                break;
+            case CommandArgumentType.Channel:
+                type = "string"; // Channel ID
+                break;
+            case CommandArgumentType.Role:
+                type = "string"; // Role ID
+                break;
+            case CommandArgumentType.User:
+                type = "string"; // User ID
+                break;
+            case CommandArgumentType.Member:
+                type = "string"; // User ID
+                break;
+        }
+
+        return [
+            this.mergeOutputs(data.currentOutput, [
+                {
+                    name: data.data.data.name,
+                    type: type
+                }
+            ]),
+            true // Continue processing upwards
+        ];
     }
 
     private inferFromTypedInput(typedInput: TypedInput): string {

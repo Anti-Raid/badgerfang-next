@@ -120,7 +120,12 @@ export interface FlowData {
 }
 
 export enum NodeTypeEnum {
-    StartNode = "StartNode",
+    // Start nodes of the flow
+    LibraryNode = "LibraryNode",
+    CommandNode = "CommandNode",
+    CommandArgumentNode = "CommandArgumentNode",
+
+    // Basic ops
     SetVariable = "SetVariable",
     IfCondition = "IfCondition",
     ElseIfCondition = "ElseIfCondition",
@@ -128,59 +133,10 @@ export enum NodeTypeEnum {
     EndCondition = "EndCondition",
     CustomCode = "CustomCode",
     ForLoop = "ForLoop",
-
-    /* To be merged into StartNode
-    BaseCommand = "BaseCommand",
-    CommandArgument = "CommandArgument",
-    */
     
     // Special
     UnknownNode = "UnknownNode",
 }
-
-export interface SharedNodeData {
-    comment?: string;
-}
-
-export interface CommandArgument {
-    type: CommandArgumentType;
-    name: string;
-    description?: string;
-    required: boolean;
-}
-
-export enum StartNodeTypeEnum {
-    // No prelude, just start up the flow
-    Library = "Library",
-    // Command node that starts the flow for a command
-    Command = "Command",
-}
-
-export const stringToStartNodeTypeEnum = (value: string): StartNodeTypeEnum => {
-    switch (value?.toLowerCase()) {
-        case "library":
-            return StartNodeTypeEnum.Library;
-        case "command":
-            return StartNodeTypeEnum.Command;
-        default:
-            throw new Error(`Unknown StartNodeTypeEnum value: ${value}`);
-    }
-};
-
-export interface StartNodeLibrary {
-    type: StartNodeTypeEnum.Library;
-}
-
-export interface StartNodeCommand {
-    type: StartNodeTypeEnum.Command;
-    data: {
-        name: string;
-        description: string;
-        arguments: CommandArgument[];
-    };
-}
-
-export type StartNodeData = StartNodeLibrary | StartNodeCommand;
 
 /**
  * Command argument types for the command nodes.
@@ -195,10 +151,72 @@ export enum CommandArgumentType {
     Member = "member",
 }
 
-export interface StartNode {
-    type: NodeTypeEnum.StartNode;
+export const stringToCommandArgumentType = (value: string): CommandArgumentType => {
+    switch (value?.toLowerCase()) {
+        case "string":
+            return CommandArgumentType.String;
+        case "integer":
+            return CommandArgumentType.Integer;
+        case "boolean":
+            return CommandArgumentType.Boolean;
+        case "user":
+            return CommandArgumentType.User;
+        case "channel":
+            return CommandArgumentType.Channel;
+        case "role":
+            return CommandArgumentType.Role;
+        case "member":
+            return CommandArgumentType.Member;
+        default:
+            throw new Error(`Unknown CommandArgumentType value: ${value}`);
+    }
+};
+
+export const commandArgumentTypeToString = (type: CommandArgumentType): string => {
+    switch (type) {
+        case CommandArgumentType.String:
+            return "string";
+        case CommandArgumentType.Integer:
+            return "integer";
+        case CommandArgumentType.Boolean:
+            return "boolean";
+        case CommandArgumentType.User:
+            return "user";
+        case CommandArgumentType.Channel:
+            return "channel";
+        case CommandArgumentType.Role:
+            return "role";
+        case CommandArgumentType.Member:
+            return "member";
+        default:
+            throw new Error(`Unknown CommandArgumentType: ${type}`);
+    }
+};
+
+export interface SharedNodeData {
+    comment?: string;
+}
+
+export interface LibraryNode {
+    type: NodeTypeEnum.LibraryNode;
+    data: SharedNodeData;
+}
+
+export interface CommandNode {
+    type: NodeTypeEnum.CommandNode;
     data: SharedNodeData & {
-        nodeType: StartNodeData;
+        name: string;
+        description: string;
+    };
+}
+
+export interface CommandArgumentNode {
+    type: NodeTypeEnum.CommandArgumentNode;
+    data: SharedNodeData & {
+        type: CommandArgumentType;
+        name: string;
+        description: string;
+        required: boolean;
     };
 }
 
@@ -254,7 +272,7 @@ export interface UnknownNode {
     data: SharedNodeData & Record<string, unknown>;
 }
 
-export type FlowNodeData = StartNode | VariableSetNode | 
+export type FlowNodeData = LibraryNode | CommandNode | CommandArgumentNode | VariableSetNode | 
 IfConditionNode | ElseIfConditionNode | ElseConditionNode | EndConditionNode | CustomCodeNode |
 ForLoopNode | UnknownNode;
 
