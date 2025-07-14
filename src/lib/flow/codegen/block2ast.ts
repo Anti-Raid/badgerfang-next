@@ -568,29 +568,19 @@ export class CodeGenASTGenerator {
             this.pushError(currentAst, z.prettifyError(res.error));
         }
 
-        let type = ICommandArgumentType.String; // Default type
-        switch (arg.data.type) {
-            case CommandArgumentType.String:
-                type = ICommandArgumentType.String;
-                break;
-            case CommandArgumentType.Integer:
-                type = ICommandArgumentType.Integer;
-                break;
-            case CommandArgumentType.Boolean:
-                type = ICommandArgumentType.Boolean;
-                break;
-            case CommandArgumentType.User:
-                type = ICommandArgumentType.User;
-                break;
-            case CommandArgumentType.Channel:
-                type = ICommandArgumentType.Channel;
-                break;
-            case CommandArgumentType.Role:
-                type = ICommandArgumentType.Role;
-                break;
-            case CommandArgumentType.Member:
-                type = ICommandArgumentType.Member;
-                break;
+        const cmdArgTypeMap = {
+            [CommandArgumentType.String]: ICommandArgumentType.String,
+            [CommandArgumentType.Integer]: ICommandArgumentType.Integer,
+            [CommandArgumentType.Boolean]: ICommandArgumentType.Boolean,
+            [CommandArgumentType.User]: ICommandArgumentType.User,
+            [CommandArgumentType.Channel]: ICommandArgumentType.Channel,
+            [CommandArgumentType.Role]: ICommandArgumentType.Role,
+            [CommandArgumentType.Member]: ICommandArgumentType.Member,
+        }
+
+        let type = cmdArgTypeMap[arg.data.type];
+        if (!type) {
+            throw new Error(`Unknown CommandArgumentType ${arg.data.type} for argument ${arg.data.name} in command argument \`${arg.data.name}\``);
         }
 
         return {
