@@ -43,6 +43,17 @@ export class CodeGenASTGenerator {
     private edges: Edge[];
     private auxData: Record<string, NodeExtData>;
 
+    /**
+     * Creates a new CodeGenASTGenerator instance to convert between the nodes and edges of a flow
+     * into a CodeGenAST (Block2AST)
+     * 
+     * The reason this is not a static method on AST directly is to separate the type definition of AST
+     * from the conversion code.
+     * 
+     * @param nodes The nodes of the graph
+     * @param edges The edges of the graph
+     * @param auxData The auxiliary data for the nodes, containing additional information about each node.
+     */
     constructor(nodes: Node<NodeData>[], edges: Edge[], auxData: Record<string, NodeExtData>) {
         this.nodes = nodes;
         this.edges = edges;
@@ -557,56 +568,36 @@ export class CodeGenASTGenerator {
             this.pushError(currentAst, z.prettifyError(res.error));
         }
 
+        let type = ICommandArgumentType.String; // Default type
         switch (arg.data.type) {
             case CommandArgumentType.String:
-                return {
-                    type: ICommandArgumentType.String,
-                    name: arg.data.name,
-                    description: arg.data.description,
-                    required: arg.data.required,
-                }
+                type = ICommandArgumentType.String;
+                break;
             case CommandArgumentType.Integer:
-                return {
-                    type: ICommandArgumentType.Integer,
-                    name: arg.data.name,
-                    description: arg.data.description,
-                    required: arg.data.required,
-                }
+                type = ICommandArgumentType.Integer;
+                break;
             case CommandArgumentType.Boolean:
-                return {
-                    type: ICommandArgumentType.Boolean,
-                    name: arg.data.name,
-                    description: arg.data.description,
-                    required: arg.data.required,
-                }
+                type = ICommandArgumentType.Boolean;
+                break;
             case CommandArgumentType.User:
-                return {
-                    type: ICommandArgumentType.User,
-                    name: arg.data.name,
-                    description: arg.data.description,
-                    required: arg.data.required,
-                }
+                type = ICommandArgumentType.User;
+                break;
             case CommandArgumentType.Channel:
-                return {
-                    type: ICommandArgumentType.Channel,
-                    name: arg.data.name,
-                    description: arg.data.description,
-                    required: arg.data.required, 
-                }
+                type = ICommandArgumentType.Channel;
+                break;
             case CommandArgumentType.Role:
-                return {
-                    type: ICommandArgumentType.Role,
-                    name: arg.data.name,
-                    description: arg.data.description,
-                    required: arg.data.required,
-                }
+                type = ICommandArgumentType.Role;
+                break;
             case CommandArgumentType.Member:
-                return {
-                    type: ICommandArgumentType.Member, 
-                    name: arg.data.name,
-                    description: arg.data.description,
-                    required: arg.data.required,
-                }
+                type = ICommandArgumentType.Member;
+                break;
+        }
+
+        return {
+            type,
+            name: arg.data.name,
+            description: arg.data.description,
+            required: arg.data.required,
         }
     }
 }
