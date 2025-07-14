@@ -23,8 +23,8 @@ export default function Blockly() {
 	return (
 		<>
 			<Flow 
-                flowData={data}
-                onChange={setData}
+				flowData={data}
+				onChange={setData}
 				flowContext={{
 					getData: (id: string) => {
 						console.debug("Getting aux data for", { id, auxData }, auxData);
@@ -42,7 +42,7 @@ export default function Blockly() {
 						});
 					}
 				}}
-            />
+			/>
 			<motion.div
 				initial={{ opacity: 0, y: 10 }}
 				animate={{ opacity: 1, y: 0 }}

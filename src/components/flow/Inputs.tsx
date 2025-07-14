@@ -110,7 +110,7 @@ export const InputField: React.FC<InputFieldProps> = ({
 							if (onChange) onChange(e);
 						}}
 						disabled={disabled}
-						className={`w-56 bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-1 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 appearance-none ${
+						className={`w-96 bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-1 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 appearance-none ${
 							IconComponent ? 'pl-10' : ''
 						} ${error ? 'border-destructive' : ''} ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
 						aria-labelledby={`${inputId}-label`}
@@ -135,7 +135,7 @@ export const InputField: React.FC<InputFieldProps> = ({
 								if (disabled) return;
 								if (onChange) onChange(e);
 							}}
-							className={`w-56 bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-3 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${
+							className={`w-96 bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-3 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${
 								IconComponent ? 'pl-10' : ''
 							} ${error ? 'border-destructive' : ''} ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
 							aria-labelledby={`${inputId}-label`}
@@ -165,7 +165,7 @@ export const InputField: React.FC<InputFieldProps> = ({
 							if (disabled) return;
 							if (onChange) onChange(e);
 						}}
-						className={`w-56 bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-1 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${
+						className={`w-96 bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-1 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${
 							IconComponent ? 'pl-10' : ''
 						} ${error ? 'border-destructive' : ''} ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
 						aria-labelledby={`${inputId}-label`}
@@ -182,7 +182,7 @@ export const InputField: React.FC<InputFieldProps> = ({
 							if (disabled) return;
 							if (onChange) onChange(e);
 						}}
-						className={`w-56 bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-1 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${
+						className={`w-96 bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-1 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${
 							IconComponent ? 'pl-10' : ''
 						} ${error ? 'border-destructive' : ''} ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
 						aria-labelledby={`${inputId}-label`}
@@ -243,8 +243,10 @@ export const TypedInputField: React.FC<TypedInputProps> = (
 		marginClass = 'mb-1'
 	}
 ) => {
+	let lvalueInit = value.value ? (value.type == TypedInputEnum.Table ? JSON.stringify(value.value) : value.value.toString()) : '';
+
 	const [type, setType] = useState<TypedInputEnum>(value.type || TypedInputEnum.String);
-	const [lvalue, setLValue] = useState<unknown>(value.value ? JSON.stringify(value.value) : '');
+	const [lvalue, setLValue] = useState<unknown>(lvalueInit);
 	const [jsonOk, setJsonOk] = useState<boolean>(true);
 	return (
 		<>
@@ -325,7 +327,7 @@ export const TypedInputField: React.FC<TypedInputProps> = (
 			{!jsonOk && (
 				<>
 					<motion.div
-						className="bg-yellow-100 border border-yellow-300 rounded-lg p-4 flex items-center gap-3 mb-2"
+						className="w-96 bg-yellow-100 border border-yellow-300 rounded-lg p-4 flex items-center gap-3 mb-2"
 						initial={{ opacity: 0, y: 10 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ duration: 0.3 }}

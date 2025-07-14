@@ -506,41 +506,40 @@
 	animation: 0.5s fade-in ease;
 }
 
-.blocklyMenu {
-	background-color: var(--background) !important; /* Example: #4a4a4a */
+.modal {
+	position: fixed;
+	z-index: 200;
+	left: 0;
+	max-width: 100%;
+	overflow: auto;
+	border: rgb(245, 238, 238) solid 1px;
 }
 
-.blocklyDropDownContent,
-.blocklyDropDownDiv {
-	background-color: var(--background) !important; /* Example: #4a4a4a */
-	color: var(--foreground) !important; /* Example: #ffffff */
-	border: 1px solid var(--border) !important; /* Example: #333333 */
+.modal::backdrop {
+	background: rgba(0, 0, 0, 0.3);
+	width:100vw; 
+	height:100vh; 
+	z-index: 10;
 }
-
-.blocklyMenuItem {
-	color: var(--foreground) !important; /* Example: #ffffff */
+.modal-box {
+	padding: 1em;
 }
-
-.blocklyMenuItem:hover {
-	background-color: var(--secondary) !important; /* Example: #333333 */
-	color: var(--secondary-foreground) !important; /* Example: #ffffff */
+.modal[open] {
+	animation: zoom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-
-.blocklyHtmlInput,
-.blocklyTooltipDiv > * {
-	color: black !important;
+@keyframes zoom {
+	from {
+		transform: scale(0.95);
+	}
+	to {
+		transform: scale(1);
+	}
 }
-
-.blocklyMenuItemCheckbox {
-	color: white !important;
+.modal[open]::backdrop {
+	animation: fade-in 0.2s ease-out;
 }
-
-.blocklyMenuItemSelected {
-	color: var(--primary-foreground) !important; /* Example: #ffffff */
-	background: #268 75% 55% !important; /* Example: #268 */
-}
-
-.blocklyMenuItemSelected:hover {
-	opacity: 0.8 !important; /* Example: 0.8 */
-	background: #268 75% 55% !important; /* Example: #268 */
+.modal-action {
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.5em;
 }

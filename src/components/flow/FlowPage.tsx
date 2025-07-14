@@ -36,8 +36,10 @@ function InnerFlowPage({
 
 export default function FlowPage(props: Props) {
   return (
-    <ReactFlowProvider>
-      <InnerFlowPage {...props} />
-    </ReactFlowProvider>
+    <>
+      <ReactFlowProvider>
+        <InnerFlowPage {...props} />
+      </ReactFlowProvider>
+    </>
   );
 }

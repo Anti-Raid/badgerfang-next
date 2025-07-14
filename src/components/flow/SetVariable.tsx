@@ -56,7 +56,10 @@ export default function SetVariable(props: NodeProps) {
             id={`${props.id}-variable-name`}
             label="Variable Name"
             value={variableName}
-            onChange={(e) => setVariableName(e.target.value)}
+            onChange={(e) => {
+              console.log("Setting variable name to:", e.target.value);
+              setVariableName(e.target.value)
+            }}
             placeholder="Enter variable name"
             className="w-full"
             error={!variableName ? "Variable name is required." : ""}
@@ -73,7 +76,6 @@ export default function SetVariable(props: NodeProps) {
             placeholder="Enter variable value"
             className="w-full"
             error={!variableValue.value ? "Variable value is required." : ""}
-            disabled={!variableName}
             aria-label="Variable Value"
         />
       </FlowExpanded>

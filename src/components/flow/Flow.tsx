@@ -1,8 +1,6 @@
 import { FlowData } from "@/lib/flow/data";
 import FlowEditor from "./FlowEditor";
 import FlowNodeExplorer from "./NodeToolbar";
-import { OnSelectionChangeParams } from "@xyflow/react";
-import { useCallback, useState } from "react";
 import { FlowContext } from "@/lib/flow/context";
 
 interface Props {
