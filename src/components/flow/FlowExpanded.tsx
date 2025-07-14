@@ -16,7 +16,7 @@ export const FlowExpanded: React.FC<FlowExpandedProps> = ({ nodeProps, children,
     const [isExpanded, setExpanded] = useState(false);
 
     const modal = (
-    <div tabIndex={-1} role="dialog" aria-dialog={true} autoFocus={true} className="fixed inset-0 z-[1000] bg-black/40 backdrop-blur-sm flex items-center justify-center">
+    <div tabIndex={-1} role="dialog" aria-modal={true} autoFocus={true} className="fixed inset-0 z-[1000] bg-black/40 backdrop-blur-sm flex items-center justify-center">
       <div className="bg-white dark:bg-neutral-900 rounded-lg shadow-lg w-full max-w-md p-6">
         <h2 className="text-lg font-bold text-black dark:text-white">
           {title || `Editing ${nodeProps.id}`}
