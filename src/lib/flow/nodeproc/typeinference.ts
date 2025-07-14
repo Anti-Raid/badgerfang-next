@@ -66,13 +66,13 @@ export class TypeInferrer extends BaseUpwardNodeProcessor<TypeInferrerState, Inf
      * Adds variables from a SetVariable node.
      */
     private addVariablesFromSetVariable(data: BaseUpwardNodeProcessorVisit<TypeInferrerState, InferredVariable[], VariableSetNode>): InferredVariable[] {
-        if (data.data.data.variable_name) {
+        if (data.data.data.name) {
             return this.mergeOutputs(
                 data.currentOutput,
                 [
                     {
-                        name: data.data.data.variable_name,
-                        type: data.data.data.variable_value ? this.inferFromTypedInput(data.data.data.variable_value) : "unknown"
+                        name: data.data.data.name,
+                        type: data.data.data.value ? this.inferFromTypedInput(data.data.data.value) : "unknown"
                     }
                 ]
             );

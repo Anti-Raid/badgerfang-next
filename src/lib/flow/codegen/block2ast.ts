@@ -244,14 +244,14 @@ export class CodeGenASTGenerator {
      * Visits a VariableSetNode and returns its AST representation.
      */
     private visitSetVariable(node: Visit<VariableSetNode>): VisitResult {
-        let variableName = node.data.data.variable_name;
-        let variableValue = node.data.data.variable_value;
+        let variableName = node.data.data.name;
+        let variableValue = node.data.data.value;
 
         if (!variableName) {
-            throw new Error(`VariableSetNode ${node.nodeId} is missing variable_name.`);
+            throw new Error(`VariableSetNode ${node.nodeId} is missing variable name.`);
         }
         if (!variableValue) {
-            throw new Error(`VariableSetNode ${node.nodeId} is missing variable_value.`);
+            throw new Error(`VariableSetNode ${node.nodeId} is missing variable value.`);
         }
 
         let children = this.getChildrenOfNode(node.nodeId);
@@ -267,8 +267,8 @@ export class CodeGenASTGenerator {
             ast: {
                 type: INodeTypeEnum.SetVariable,
                 data: {
-                    variable_name: variableName,
-                    variable_value: this.visitTypedInput(variableValue),
+                    name: variableName,
+                    value: this.visitTypedInput(variableValue),
                 },
             },
             nextNode,

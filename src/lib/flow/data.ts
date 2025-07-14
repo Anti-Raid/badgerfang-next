@@ -223,8 +223,8 @@ export interface CommandArgumentNode {
 export interface VariableSetNode {
     type: NodeTypeEnum.SetVariable;
     data: SharedNodeData & {
-        variable_name?: string;
-        variable_value?: TypedInput;
+        name?: string;
+        value?: TypedInput;
     }
 }
 

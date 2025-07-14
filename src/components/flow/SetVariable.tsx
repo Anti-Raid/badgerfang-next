@@ -30,16 +30,16 @@ export default function SetVariable(props: NodeProps) {
     return <div className="text-red-500">Invalid node type: {currentData?.type}</div>;
   }
 
-  const [variableName, setVariableName] = useState<string>(currentData.data.variable_name || "");
-  const [variableValue, setVariableValue] = useState<TypedInput>(currentData.data.variable_value || { type: TypedInputEnum.String, value: "" });
+  const [variableName, setVariableName] = useState<string>(currentData.data.name || "");
+  const [variableValue, setVariableValue] = useState<TypedInput>(currentData.data.value || { type: TypedInputEnum.String, value: "" });
 
   useEffect(() => {
     svi.setData(props.id, {
         ...currentData,
         data: {
             ...currentData.data,
-            variable_name: variableName,
-            variable_value: variableValue
+            name: variableName,
+            value: variableValue
         }
     });
   }, [variableName, variableValue, props.id]);

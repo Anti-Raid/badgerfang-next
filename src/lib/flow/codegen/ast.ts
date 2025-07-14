@@ -83,8 +83,8 @@ export enum INodeTypeEnum {
 export interface IVariableSetNode {
     type: INodeTypeEnum.SetVariable;
     data: {
-        variable_name: string;
-        variable_value: ITypedInput;
+        name: string;
+        value: ITypedInput;
     }
 }
 
