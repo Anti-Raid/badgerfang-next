@@ -1,12 +1,12 @@
 // Inspired from Kite
 // SPDX: GPL-3.0
-import { Connection, Edge, Node, NodeProps as XYNodeProps } from "@xyflow/react";
+import { Connection, Edge, Node, ReactFlowInstance, NodeProps as XYNodeProps } from "@xyflow/react";
 import { FlowContext } from "./context";
 
 export const numericRegex = /^[0-9]+$/;
 export const placeholderRegex = /^\{\{[a-z0-9_.]+\}\}$/;
 
-export type GlobalStaticValidation = (svi: FlowContext, srcCons: string[], tgtCons: string[], value: Edge | Connection, source: Node<NodeData>, target: Node<NodeData>) => boolean;
+export type GlobalStaticValidation = (srcCons: string[], tgtCons: string[], value: Edge | Connection, source: Node<NodeExtData>, target: Node<NodeExtData>, getNode: (id: string) => Node<NodeExtData> | undefined) => boolean;
 
 const isValidationSourceReg: {[key: string]: GlobalStaticValidation} = {}
 export const registerValidationSource = (source: string, validation: GlobalStaticValidation) => {
@@ -115,7 +115,7 @@ export interface ForLoopRaw {
 export type ForLoopType = ForLoopGeneralizedIteration | ForLoopRange | ForLoopRaw;
 
 export interface FlowData {
-  nodes: Node<NodeData>[];
+  nodes: Node<NodeExtData>[];
   edges: Edge[];
 }
 
@@ -279,7 +279,7 @@ ForLoopNode | UnknownNode;
 export type NodeData = Record<string, unknown>;
 export type NodeExtData = FlowNodeData & Record<string, unknown>;
 
-export type NodeProps = XYNodeProps<Node<NodeData>>;
+export type NodeProps = XYNodeProps<Node<NodeExtData>>;
 
-export type NodeType = Node<NodeData>;
+export type NodeType = Node<NodeExtData>;
 

@@ -50,8 +50,8 @@ export class VarFinder extends BaseUpwardNodeProcessor<null, string[]> {
      * Adds variables from a SetVariable node.
      */
     private addVariablesFromSetVariable(data: BaseUpwardNodeProcessorVisit<null, string[], VariableSetNode>): string[] {
-        if (data.data.data.variable_name) {
-            return this.mergeOutputs(data.currentOutput, [data.data.data.variable_name])
+        if (data.data.data.name) {
+            return this.mergeOutputs(data.currentOutput, [data.data.data.name])
         }
 
         return data.currentOutput;

@@ -5,12 +5,10 @@ import { useMemo } from "react";
 import {
   CommandArgumentType,
   ForLoopTypeEnum,
-  NodeData,
   NodeExtData,
   NodeTypeEnum,
   TypedInputEnum,
 } from "./data";
-import { FlowContext } from "./context";
 
 export interface NodeValues {
   defaultTitle: string;
@@ -93,8 +91,8 @@ export const defaultNodeDataForType: Record<string, NodeExtData> = {
   set_variable: {
     type: NodeTypeEnum.SetVariable,
     data: {
-      variable_name: "",
-      variable_value: {
+      name: "",
+      value: {
         type: TypedInputEnum.String,
         value: "",
       },
@@ -153,21 +151,16 @@ export function useNodeValues(nodeType: string): NodeValues {
 export function createNode(
   type: string,
   position: XYPosition,
-  context: FlowContext,
   data?: NodeExtData
-): Node<NodeData> {
+): Node<NodeExtData> {
   const id = getNodeId();
 
-  const nodes: Node<NodeData> = {
+  const nodes: Node<NodeExtData> = {
     id,
     type,
     position,
-    data: {},
+    data: data ? data : defaultNodeDataForType[type] || defaultNodeDataForType["unknown"],
   };
-
-  // Store default data
-  const nodeData = data ? data : defaultNodeDataForType[type] || defaultNodeDataForType["unknown"]
-  context.setData(id, nodeData);
 
   return nodes;
 }

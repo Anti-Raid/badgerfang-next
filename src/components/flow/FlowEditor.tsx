@@ -17,7 +17,7 @@ import {
 } from "@xyflow/react";
 
 import "@xyflow/react/dist/base.css";
-import { FlowData, getValidationSource, getValidationTarget, NodeData } from "@/lib/flow/data";
+import { FlowData, getValidationSource, getValidationTarget, NodeExtData } from "@/lib/flow/data";
 import { createNode } from "@/lib/flow/nodes";
 import { edgeTypes, nodeTypes } from "@/lib/flow/components";
 import { FlowContext } from "@/lib/flow/context";
@@ -36,10 +36,15 @@ export default function FlowEditor({
   const [nodes, setNodes, onNodesChange] = useNodesState(
     initialData?.nodes || []
   );
+
+  // Trigger onChange when nodes change
+  useEffect(() => {
+    onChange();
+  }, [nodes])
+
   const [edges, setEdges, onEdgesChange] = useEdgesState(
     initialData?.edges || []
   );
-  const svi = useContext(FlowContext);
   const { getEdge, getNode, getNodes, getEdges, screenToFlowPosition } = useReactFlow();
 
   const onConnect = useCallback(
@@ -47,26 +52,15 @@ export default function FlowEditor({
     [setEdges]
   );
 
-  const [removedNodes, setRemovedNodes] = React.useState<Node<NodeData>[]>([]);
-  useEffect(() => {
-    if(removedNodes.length === 0) return;
-    console.log("Removing node aux data", removedNodes);
-    for(const node of removedNodes) {
-      svi.removeData(node.id);
-    }
-    setRemovedNodes([]);
-    onChange();
-  }, [removedNodes]);
-
   // Custom onNodesChange that triggers onChange when nodes change
   const wrappedOnNodesChange = useCallback(
-    (changes: NodeChange[]) => {
+    (changes: NodeChange<Node<NodeExtData>>[]) => {
       if (changes.length > 0) {
         onNodesChange(changes);
         onChange();
       }      
     },
-    [flowContext, onNodesChange, onChange, getNode]
+    [onNodesChange, onChange, getNode]
   );
 
   // Custom onEdgesChange that triggers onChange when edges change
@@ -77,20 +71,15 @@ export default function FlowEditor({
         onChange();
       }
     },
-    [flowContext, getEdge, onEdgesChange, onChange]
+    [getEdge, onEdgesChange, onChange]
   );
 
   const onNodesDelete = 
     (deletedNodes: Node[]) => {
       console.log("onNodesDelete", deletedNodes);
       for (const node of deletedNodes) {
-        setEdges((edges) => edges.filter((edge) => edge.source !== node.id));
-        setNodes((nodes) => {
-            let toRemove = nodes.filter((n) => n.id === node.id);
-            setRemovedNodes((prev) => prev.concat(toRemove)); // trigger removal of aux data
-            return nodes.filter((n) => !toRemove.includes(n));
-          }
-        );
+        setEdges((edges) => edges.filter((edge) => edge.source !== node.id && edge.target !== node.id));
+        setNodes((nodes) => nodes.filter((n) => n.id !== node.id));
       }
     };
 
@@ -114,11 +103,11 @@ export default function FlowEditor({
         x: event.clientX,
         y: event.clientY,
       });
-      const newNode = createNode(type, position, svi);;
+      const newNode = createNode(type, position);;
  
       setNodes((nds) => nds.concat(newNode));
     },
-    [screenToFlowPosition, setNodes, svi],
+    [screenToFlowPosition, setNodes],
   );
 
   const isValidConnection = useCallback(
@@ -166,18 +155,18 @@ export default function FlowEditor({
         const srcNodeIds = getOutgoers(source, nodes, edges).map((n) => n.id);
         const tgtNodeIds = getOutgoers(target, nodes, edges).map((n) => n.id);
 
-        if (validationSource && !validationSource(flowContext, srcNodeIds, tgtNodeIds, con, source, target)) {
+        if (validationSource && !validationSource(srcNodeIds, tgtNodeIds, con, source as Node<NodeExtData>, target as Node<NodeExtData>, getNode as (id: string) => Node<NodeExtData> | undefined)) {
           return false;
         }
 
-        if (validationTarget && !validationTarget(flowContext, srcNodeIds, tgtNodeIds, con, source, target)) {
+        if (validationTarget && !validationTarget(srcNodeIds, tgtNodeIds, con, source as Node<NodeExtData>, target as Node<NodeExtData>, getNode as (id: string) => Node<NodeExtData> | undefined)) {
           return false;
         }
       }
 
       return true;
     },
-    [getNode, flowContext, getNodes, getEdges, getOutgoers]
+    [getNode, getNodes, getEdges, getOutgoers]
   );
 
 

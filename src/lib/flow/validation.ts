@@ -63,8 +63,8 @@ export const commandArgumentNodeSchema = sharedNodeDataSchema.extend({
 });
 
 export const variableSetNodeSchema = sharedNodeDataSchema.extend({
-    variable_name: z.string().min(1).optional(),
-    variable_value: z.string().min(1).optional(),
+    name: z.string().min(1).optional(),
+    value: z.string().min(1).optional(),
 });
 
 export const forLoopNodeSchema = sharedNodeDataSchema.extend({

@@ -1,15 +1,15 @@
 import { FlowContext } from "@/lib/flow/context";
 import { CommandArgumentType, commandArgumentTypeToString, NodeData, NodeProps, NodeTypeEnum, registerValidationSource, registerValidationTarget, stringToCommandArgumentType } from "@/lib/flow/data";
 import logger from "@/lib/logger";
-import { Connection, Edge, Node, Position } from "@xyflow/react";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { Connection, Edge, Node, Position, useReactFlow } from "@xyflow/react";
+import { useEffect, useState } from "react";
 import FlowNodeBase from "./BaseNode";
 import Handle from "./Handle";
 import { FlowExpanded } from "./FlowExpanded";
 import { InputField, Toggle } from "./Inputs";
 
 // Static validation for Library: Only have one target connection.
-registerValidationSource("library", (svi: FlowContext, srcCons: string[], tgtCons: string[], edge: Edge | Connection, source: Node<NodeData>, target: Node<NodeData>) => {
+registerValidationSource("library", (srcCons: string[]) => {
     if(srcCons.length >= 1) {
         logger.error("Flow.Library", "Library can only have one target connection.");
         return false;
@@ -19,7 +19,7 @@ registerValidationSource("library", (svi: FlowContext, srcCons: string[], tgtCon
 });
 
 // Static validation for Command: Only have one target connection.
-registerValidationSource("command", (svi: FlowContext, srcCons: string[], tgtCons: string[], edge: Edge | Connection, source: Node<NodeData>, target: Node<NodeData>) => {
+registerValidationSource("command", (srcCons: string[]) => {
     if(srcCons.length >= 1) {
         logger.error("Flow.Command", "Command can only have one target connection.");
         return false;
@@ -29,9 +29,9 @@ registerValidationSource("command", (svi: FlowContext, srcCons: string[], tgtCon
 });
 
 // Static validation for Command: Can only have a source of CommandArgument.
-registerValidationTarget("command", (svi: FlowContext, srcCons: string[], tgtCons: string[], edge: Edge | Connection, source: Node<NodeData>, target: Node<NodeData>) => {
-    let data = svi.getData(source.id);
-    if (!data || data.type !== NodeTypeEnum.CommandArgumentNode) {
+registerValidationTarget("command", (srcCons: string[], tgtCons: string[], edge: Edge | Connection, source: Node<NodeData>, target: Node<NodeData>, getNodes) => {
+    let data = getNodes(source.id);
+    if (!data || data.data.type !== NodeTypeEnum.CommandArgumentNode) {
         logger.error("Flow.Command", "Command can only have a source of CommandArgument.");
         return false;
     }
@@ -40,11 +40,8 @@ registerValidationTarget("command", (svi: FlowContext, srcCons: string[], tgtCon
 });
 
 export const Library = (props: NodeProps) => {
-  const svi = useContext(FlowContext);
-  const currentData = useMemo(() => svi.getData(props.id), [svi, props.id]);
-
-  if(currentData?.type != NodeTypeEnum.LibraryNode) {
-    return <div className="text-red-500">Invalid node type: {currentData?.type}</div>;
+  if(props?.data?.type != NodeTypeEnum.LibraryNode) {
+    return <div className="text-red-500">Invalid node type: {props?.data?.type}</div>;
   }
 
   return (
@@ -55,24 +52,20 @@ export const Library = (props: NodeProps) => {
 }
 
 export const Command = (props: NodeProps) => {
-  const svi = useContext(FlowContext);
-  const currentData = useMemo(() => svi.getData(props.id), [svi, props.id]);
-
-  if(currentData?.type != NodeTypeEnum.CommandNode) {
-    return <div className="text-red-500">Invalid node type: {currentData?.type}</div>;
+  if(props?.data?.type != NodeTypeEnum.CommandNode) {
+    return <div className="text-red-500">Invalid node type: {JSON.stringify(props.data)}</div>;
   }
 
-  const [name, setName] = useState(currentData?.data.name || "");
-  const [description, setDescription] = useState(currentData?.data.description || "");
+  const flow = useReactFlow();
+  const [name, setName] = useState(props.data.data.name || "");
+  const [description, setDescription] = useState(props.data.data.description || "");
 
   useEffect(() => {
-    svi.setData(props.id, {
-        ...currentData,
-        data: {
-            ...currentData.data,
-            name: name,
-            description: description
-        }
+    flow.updateNodeData(props.id, {
+      data: {
+        name: name,
+        description: description
+      }
     });
   }, [name, description, props.id]);
 
@@ -105,15 +98,14 @@ export const Command = (props: NodeProps) => {
 }
 
 // Static validation for CommandArgument: Can only have a target of Command.
-registerValidationSource("command_argument", (svi: FlowContext, srcCons: string[], tgtCons: string[], edge: Edge | Connection, source: Node<NodeData>, target: Node<NodeData>) => {
+registerValidationSource("command_argument", (srcCons: string[], tgtCons: string[], edge: Edge | Connection, source: Node<NodeData>, target: Node<NodeData>, getNodes) => {
     if(srcCons.length >= 1) {
         logger.error("Flow.CommandArgument", "Command can only have one target connection.");
         return false;
     }
 
-    let data = svi.getData(target.id);
-    if (!data || data.type !== NodeTypeEnum.CommandNode) {
-        console.log(data.type)
+    let data = getNodes(target.id);
+    if (!data || data.data.type !== NodeTypeEnum.CommandNode) {
         logger.error("Flow.CommandArgument", "CommandArgument can only be used as a target node.");
         return false;
     }
@@ -122,33 +114,29 @@ registerValidationSource("command_argument", (svi: FlowContext, srcCons: string[
 });
 
 export const CommandArgument = (props: NodeProps) => {
-  const svi = useContext(FlowContext);
-  const currentData = useMemo(() => svi.getData(props.id), [svi, props.id]);
-
-  if(currentData?.type != NodeTypeEnum.CommandArgumentNode) {
-    return <div className="text-red-500">Invalid node type: {currentData?.type}</div>;
+  if(props?.data?.type != NodeTypeEnum.CommandArgumentNode) {
+    return <div className="text-red-500">Invalid node type: {props?.data?.type}</div>;
   }
 
-  const [name, setName] = useState(currentData?.data.name || "");
-  const [description, setDescription] = useState(currentData?.data.description || "");
-  const [type, setType] = useState(currentData?.data.type || CommandArgumentType.String);
-  const [required, setRequired] = useState(currentData?.data.required || false);
+  const flow = useReactFlow();
+  const [name, setName] = useState(props.data.data.name || "");
+  const [description, setDescription] = useState(props.data.data.description || "");
+  const [type, setType] = useState(props.data.data.type || CommandArgumentType.String);
+  const [required, setRequired] = useState(props.data.data.required || false);
 
   useEffect(() => {
-    svi.setData(props.id, {
-        ...currentData,
-        data: {
-            ...currentData.data,
-            name: name,
-            description: description,
-            type: type,
-            required: required
-        }
+    flow.updateNodeData(props.id, {
+      data: {
+        name: name,
+        description: description,
+        type: type,
+        required: required
+      }
     });
   }, [name, description, type, required, props.id]);
 
   return (
-    <FlowNodeBase {...props} title={currentData?.data.name ? `${currentData?.data.name} (${currentData?.data.type})` : "Command Argument"}>
+    <FlowNodeBase {...props} title={props.data.data.name ? `${props.data.data.name} (${props.data.data.type})` : "Command Argument"}>
         <Handle type="source" position={Position.Bottom} />
 
         <FlowExpanded nodeProps={props}>

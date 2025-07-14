@@ -45,13 +45,13 @@ export class UndefinedVariableCheck extends ASTValidityCheck<UndefinedVariableCh
     }
 
     visitSetVariable(inode: IVariableSetNode, state: UndefinedVariableCheckState): void {
-        if (state.knownVariables.has(inode.data.variable_name)) {
+        if (state.knownVariables.has(inode.data.name)) {
             // Push a warning
-            this.ast.warnings.push(`Variable "${inode.data.variable_name}" is already defined in the current scope. As such, the previous variable declaration will be shadowed by the new one`);
+            this.ast.warnings.push(`Variable "${inode.data.name}" is already defined in the current scope. As such, the previous variable declaration will be shadowed by the new one`);
             return;
         }
         // Add the variable to the known variables set
-        state.knownVariables.add(inode.data.variable_name);
+        state.knownVariables.add(inode.data.name);
     }
 
     visitIfCondition(inode: IIfConditionNode, state: UndefinedVariableCheckState): void {

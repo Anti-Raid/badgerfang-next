@@ -13,12 +13,11 @@ export default function Blockly() {
 		let r = new CodeGenASTGenerator(
 			data.nodes,
 			data.edges,
-			auxData
 		)
 		.generate()
 
 		return r
-	}, [data, auxData]);
+	}, [data]);
 
 	return (
 		<>
@@ -40,7 +39,11 @@ export default function Blockly() {
 							delete newAuxData[id];
 							return newAuxData;
 						});
-					}
+					},
+					onChange: (nodes, edges) => {
+						console.debug("Flow changed", { nodes, edges });
+						setData({ nodes, edges });
+					}	
 				}}
 			/>
 			<motion.div

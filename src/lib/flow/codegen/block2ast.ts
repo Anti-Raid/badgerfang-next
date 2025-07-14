@@ -1,4 +1,4 @@
-import { CommandArgumentNode, CommandArgumentType, CommandNode, CustomCodeNode, ForLoopNode, ForLoopType, ForLoopTypeEnum, IfConditionNode, LibraryNode, NodeData, NodeExtData, NodeTypeEnum, TypedInput, TypedInputEnum, VariableSetNode } from "../data";
+import { CommandArgumentNode, CommandArgumentType, CommandNode, CustomCodeNode, ForLoopNode, ForLoopType, ForLoopTypeEnum, IfConditionNode, LibraryNode, NodeExtData, NodeTypeEnum, TypedInput, TypedInputEnum, VariableSetNode } from "../data";
 import { Node, Edge, getOutgoers, getIncomers } from "@xyflow/react";
 import { CodeGenAST, ICommandArgument, ICommandArgumentType, IElseIf, IForLoopType, IForLoopTypeEnum, INode, INodeTypeEnum, IPreludeTypeEnum, ITypedInput, ITypedInputEnum } from "./ast";
 import { baseCommandNodeSchema } from "../validation";
@@ -27,7 +27,7 @@ interface VisitResult {
     /**
      * The next node to visit in the flow.
      */
-    nextNode: string | null;
+    nextNode: Node<NodeExtData> | null;
 }
 
 const startNodeTypes = [
@@ -39,9 +39,8 @@ const startNodeTypes = [
  * Given nodes, edges and auxData, creates the CodeGen AST for the flow.
  */
 export class CodeGenASTGenerator {
-    private nodes: Node<NodeData>[];
+    private nodes: Node<NodeExtData>[];
     private edges: Edge[];
-    private auxData: Record<string, NodeExtData>;
 
     /**
      * Creates a new CodeGenASTGenerator instance to convert between the nodes and edges of a flow
@@ -54,10 +53,9 @@ export class CodeGenASTGenerator {
      * @param edges The edges of the graph
      * @param auxData The auxiliary data for the nodes, containing additional information about each node.
      */
-    constructor(nodes: Node<NodeData>[], edges: Edge[], auxData: Record<string, NodeExtData>) {
+    constructor(nodes: Node<NodeExtData>[], edges: Edge[]) {
         this.nodes = nodes;
         this.edges = edges;
-        this.auxData = auxData;
     }
 
     /**
@@ -71,7 +69,7 @@ export class CodeGenASTGenerator {
         let currentAst= new CodeGenAST();
 
         // Find a start node
-        const startNode = this.nodes.filter(node => startNodeTypes.includes(this.auxData[node.id]?.type));
+        const startNode = this.nodes.filter(node => startNodeTypes.includes(node.data.type));
 
         if (startNode.length === 0) {
             currentAst.fatalError = "No Start Node (Library/Command nodes) found in the flow.";
@@ -81,7 +79,7 @@ export class CodeGenASTGenerator {
             return currentAst;
         }
         try {
-            currentAst.nodes = this.visitNodeAndChildren(currentAst, startNode[0].id);
+            currentAst.nodes = this.visitNodeAndChildren(currentAst, startNode[0]);
         } catch (error) {
             currentAst.fatalError = `Error generating AST: ${error instanceof Error ? error.message : String(error)}`;
         }
@@ -107,22 +105,22 @@ export class CodeGenASTGenerator {
     /**
      * Helper to return the parents of a node
      */
-    private getParentOfNode(nodeId: string): Node<NodeData>[] {
+    private getParentOfNode(nodeId: string): Node<NodeExtData>[] {
         return getIncomers({id: nodeId}, this.nodes, this.edges);
     }
 
     /**
      * Helper to return the direct children of a node
      */
-    private getChildrenOfNode(nodeId: string): Node<NodeData>[] {
+    private getChildrenOfNode(nodeId: string): Node<NodeExtData>[] {
         return getOutgoers({id: nodeId}, this.nodes, this.edges);
     }
 
     /**
      * Visits a node and returns its AST representation.
      */
-    private visitNode(currentAst: CodeGenAST, node: Node<NodeData>): VisitResult {
-        const data = this.getAuxDataForNode(node.id);
+    private visitNode(currentAst: CodeGenAST, node: Node<NodeExtData>): VisitResult {
+        const data = node.data
 
         switch (data.type) {
             case NodeTypeEnum.LibraryNode:
@@ -153,27 +151,22 @@ export class CodeGenASTGenerator {
     /**
      * Helper to continuously visit nodes and their children and return their AST representation
      */
-    private visitNodeAndChildren(currentAst: CodeGenAST, nodeId: string): INode[] {
-        let currentNodeId: string | null = nodeId;
+    private visitNodeAndChildren(currentAst: CodeGenAST, node: Node<NodeExtData>): INode[] {
+        let currentNode: Node<NodeExtData> | null = node;
         let astNodes: INode[] = [];
         let visited = new Set<string>();
-        while (currentNodeId) {
-            if (visited.has(currentNodeId)) {
-                throw new Error(`Cycle detected in flow starting from node ${nodeId} at node ${currentNodeId}`);
+        while (currentNode) {
+            if (visited.has(currentNode.id)) {
+                throw new Error(`Cycle detected in flow starting from node ${node.id} at node ${currentNode.id}`);
             }
 
-            visited.add(currentNodeId);
-
-            const node = this.nodes.find(n => n.id === currentNodeId);
-            if (!node) {
-                throw new Error(`Node with ID ${currentNodeId} not found`);
-            }
+            visited.add(currentNode.id);
 
             const visitResult = this.visitNode(currentAst, node);
             if (visitResult.ast) {
                 astNodes.push(visitResult.ast);
             }
-            currentNodeId = visitResult.nextNode;
+            currentNode = visitResult.nextNode;
         }
 
         return astNodes;
@@ -187,12 +180,12 @@ export class CodeGenASTGenerator {
         node.currentAst.prelude = { type: IPreludeTypeEnum.Library };
 
         let children = this.getChildrenOfNode(node.nodeId);
-        let nextNode: string | null = null;
+        let nextNode: Node<NodeExtData> | null = null;
         if (children.length == 1) {
-            nextNode = children[0].id; // Take the first child as the next node
+            nextNode = children[0]; // Take the first child as the next node
         } else if (children.length > 1) {
             this.pushWarning(node.currentAst, `StartNode ${node.nodeId} has multiple children, only the first will be considered.`);
-            nextNode = children[0].id; // Take the first child
+            nextNode = children[0]; // Take the first child
         }
 
         return {
@@ -208,13 +201,12 @@ export class CodeGenASTGenerator {
         let incoming = this.getParentOfNode(node.nodeId);
         let commandArguments: ICommandArgument[] = [];
         for (const parent of incoming) {
-            const argData = this.getAuxDataForNode(parent.id);
-            if (argData.type !== NodeTypeEnum.CommandArgumentNode) {
-                this.pushError(node.currentAst, `CommandNode ${node.nodeId} has a parent of type ${argData.type}, expected CommandArgumentNode. Invalid aux data?`);
+            if (parent.data.type !== NodeTypeEnum.CommandArgumentNode) {
+                this.pushError(node.currentAst, `CommandNode ${node.nodeId} has a parent of type ${parent.data.type}, expected CommandArgumentNode. Invalid data?`);
                 continue;
             }
 
-            commandArguments.push(this.visitCommandArgumentNode(node.currentAst, argData))
+            commandArguments.push(this.visitCommandArgumentNode(node.currentAst, parent.data))
         }
 
         // Visit start node data and set the start node type in the AST
@@ -226,12 +218,12 @@ export class CodeGenASTGenerator {
         node.currentAst.prelude = { type: IPreludeTypeEnum.Command, data: { name: node.data.data.name, description: node.data.data.description, arguments: commandArguments } };
 
         let children = this.getChildrenOfNode(node.nodeId);
-        let nextNode: string | null = null;
+        let nextNode: Node<NodeExtData> | null = null;
         if (children.length == 1) {
-            nextNode = children[0].id; // Take the first child as the next node
+            nextNode = children[0]; // Take the first child as the next node
         } else if (children.length > 1) {
             this.pushWarning(node.currentAst, `StartNode ${node.nodeId} has multiple children, only the first will be considered.`);
-            nextNode = children[0].id; // Take the first child
+            nextNode = children[0]; // Take the first child
         }
 
         return {
@@ -255,12 +247,12 @@ export class CodeGenASTGenerator {
         }
 
         let children = this.getChildrenOfNode(node.nodeId);
-        let nextNode: string | null = null;
+        let nextNode: Node<NodeExtData> | null = null;
         if (children.length == 1) {
-            nextNode = children[0].id; // Take the first child as the next node
+            nextNode = children[0]; // Take the first child as the next node
         } else if (children.length > 1) {
             this.pushWarning(node.currentAst, `VariableSetNode ${node.nodeId} has multiple children, only the first will be considered.`);
-            nextNode = children[0].id; // Take the first child
+            nextNode = children[0]; // Take the first child
         }
 
         return {
@@ -286,12 +278,12 @@ export class CodeGenASTGenerator {
         }
 
         let children = this.getChildrenOfNode(node.nodeId);
-        let nextNode: string | null = null;
+        let nextNode: Node<NodeExtData> | null = null;
         if (children.length == 1) {
-            nextNode = children[0].id; // Take the first child as the next node
+            nextNode = children[0]; // Take the first child as the next node
         } else if (children.length > 1) {
             this.pushWarning(node.currentAst, `CustomCodeNode ${node.nodeId} has multiple children, only the first will be considered.`);
-            nextNode = children[0].id; // Take the first child
+            nextNode = children[0]; // Take the first child
         }
 
         return {
@@ -311,49 +303,46 @@ export class CodeGenASTGenerator {
     private visitIfCondition(node: Visit<IfConditionNode>): VisitResult {
         // Find the block, continuation statement and end condition nodes from children
         let children = this.getChildrenOfNode(node.nodeId);
-        let bodyStart: string | null = null;
-        let elseifNodeIds: string[] = [];
-        let elseNodeId: string | null = null;
-        let endNodeId: string | null = null;
+        let bodyStart: Node<NodeExtData> | null = null;
+        let elseifNodes: Node<NodeExtData>[] = [];
+        let elseNode: Node<NodeExtData> | null = null;
+        let endNode: Node<NodeExtData> | null = null;
 
         for (const child of children) {
-            const childData = this.getAuxDataForNode(child.id);
-            switch (childData.type) {
+            switch (child.data.type) {
                 case NodeTypeEnum.ElseIfCondition:
-                    elseifNodeIds.push(child.id);
+                    elseifNodes.push(child);
                     break;
                 case NodeTypeEnum.ElseCondition:
-                    if (elseNodeId) {
+                    if (elseNode) {
                         this.pushWarning(node.currentAst, `IfCondition ${node.nodeId} has multiple Else nodes, only the first will be considered.`);
                     } else {
-                        elseNodeId = child.id;
+                        elseNode = child;
                     }
                     break;
                 case NodeTypeEnum.EndCondition:
-                    if (endNodeId) {
+                    if (endNode) {
                         this.pushWarning(node.currentAst, `IfCondition ${node.nodeId} has multiple End nodes, only the first will be considered.`);
                     } else {
-                        endNodeId = child.id;
+                        endNode = child;
                     }
                     break;
                 default:
                     if (bodyStart) {
                         this.pushWarning(node.currentAst, `IfCondition ${node.nodeId} has multiple Block nodes, only the first will be considered.`);
                     } else {
-                        bodyStart = child.id;
+                        bodyStart = child;
                     }
                     break;
             }
         }
 
         // Sort the elseif nodes by their index
-        elseifNodeIds.sort((a, b) => {
-            const aData = this.getAuxDataForNode(a);
-            const bData = this.getAuxDataForNode(b);
-            if (aData.type !== NodeTypeEnum.ElseIfCondition || bData.type !== NodeTypeEnum.ElseIfCondition) {
-                throw new Error(`Expected ElseIfCondition nodes, but got ${aData.type} and ${bData.type}`);
+        elseifNodes.sort((a, b) => {
+            if (a.data.type !== NodeTypeEnum.ElseIfCondition || b.data.type !== NodeTypeEnum.ElseIfCondition) {
+                throw new Error(`Expected ElseIfCondition nodes, but got ${a.data.type} and ${b.data.type}`);
             }
-            return aData.data.index - bData.data.index;
+            return a.data.data.index - b.data.data.index;
         });
 
         let bodyNodes: INode[] = [];
@@ -362,51 +351,49 @@ export class CodeGenASTGenerator {
         }
 
         let elseIfs: IElseIf[] = [];
-        for (const elseifId of elseifNodeIds) {
-            const elseifData = this.getAuxDataForNode(elseifId);
-            if (elseifData.type !== NodeTypeEnum.ElseIfCondition) {
-                throw new Error(`Expected ElseIfCondition node, but got ${elseifData.type}`);
+        for (const elseif of elseifNodes) {
+            if (elseif.data.type !== NodeTypeEnum.ElseIfCondition) {
+                throw new Error(`Expected ElseIfCondition node, but got ${elseif.data.type}`);
             }
 
             // Get the outgoing nodes from the elseif node
-            const elseifChildren = this.getChildrenOfNode(elseifId);
+            const elseifChildren = this.getChildrenOfNode(elseif.id);
             if (elseifChildren.length !== 1) {
-                this.pushWarning(node.currentAst, `ElseIfCondition ${elseifId} has multiple outgoing connections, only the first will be considered.`);
+                this.pushWarning(node.currentAst, `ElseIfCondition ${elseif.id} has multiple outgoing connections, only the first will be considered.`);
             }
 
             if (elseifChildren.length === 0) {
-                throw new Error(`ElseIfCondition ${elseifId} has no outgoing connections.`);
+                throw new Error(`ElseIfCondition ${elseif.id} has no outgoing connections.`);
             }
 
             elseIfs.push({
-                condition: elseifData.data.condition,
-                body: this.visitNodeAndChildren(node.currentAst, elseifChildren[0].id),
+                condition: elseif.data.data.condition,
+                body: this.visitNodeAndChildren(node.currentAst, elseifChildren[0]),
             });
         }
 
         let elseBlock: INode[] | undefined = undefined;
-        if (elseNodeId) {
-            const elseData = this.getAuxDataForNode(elseNodeId);
-            if (elseData.type !== NodeTypeEnum.ElseCondition) {
-                throw new Error(`Expected ElseCondition node, but got ${elseData.type}`);
+        if (elseNode) {
+            if (elseNode.data.type !== NodeTypeEnum.ElseCondition) {
+                throw new Error(`Expected ElseCondition node, but got ${elseNode.data.type}`);
             }
-            const elseChildren = this.getChildrenOfNode(elseNodeId);
+            const elseChildren = this.getChildrenOfNode(elseNode.id);
             if (elseChildren.length !== 1) {
-                this.pushWarning(node.currentAst, `ElseCondition ${elseNodeId} has multiple outgoing connections, only the first will be considered.`);
+                this.pushWarning(node.currentAst, `ElseCondition ${elseNode.id} has multiple outgoing connections, only the first will be considered.`);
             }
-            elseBlock = this.visitNodeAndChildren(node.currentAst, elseChildren[0].id);
+            elseBlock = this.visitNodeAndChildren(node.currentAst, elseChildren[0]);
         }
 
-        if (!endNodeId) {
+        if (!endNode) {
             throw new Error(`IfCondition ${node.nodeId} is missing a/an matching EndCondition node.`);
         }
 
-        let endChildren = this.getChildrenOfNode(endNodeId);
+        let endChildren = this.getChildrenOfNode(endNode.id);
         if (endChildren.length > 1) {
-            this.pushWarning(node.currentAst, `EndCondition ${endNodeId} has multiple outgoing connections, only the first will be considered.`);
+            this.pushWarning(node.currentAst, `EndCondition ${endNode.id} has multiple outgoing connections, only the first will be considered.`);
         }
 
-        let nextNode: string | null = endChildren.length > 0 ? endChildren[0].id : null;
+        let nextNode: Node<NodeExtData> | null = endChildren.length > 0 ? endChildren[0] : null;
 
         return {
             ast: {
@@ -428,24 +415,24 @@ export class CodeGenASTGenerator {
     private visitForLoop(node: Visit<ForLoopNode>): VisitResult {
         // Find the block, continuation statement and end condition nodes from children
         let children = this.getChildrenOfNode(node.nodeId);
-        let bodyStart: string | null = null;
-        let endNodeId: string | null = null;
+        let bodyStart: Node<NodeExtData> | null = null;
+        let endNode: Node<NodeExtData> | null = null;
 
         for (const child of children) {
             const childData = this.getAuxDataForNode(child.id);
             switch (childData.type) {
                 case NodeTypeEnum.EndCondition:
-                    if (endNodeId) {
+                    if (endNode) {
                         this.pushWarning(node.currentAst, `ForLoop ${node.nodeId} has multiple End nodes, only the first will be considered.`);
                     } else {
-                        endNodeId = child.id;
+                        endNode = child;
                     }
                     break;
                 default:
                     if (bodyStart) {
                         this.pushWarning(node.currentAst, `ForLoop ${node.nodeId} has multiple Block nodes, only the first will be considered.`);
                     } else {
-                        bodyStart = child.id;
+                        bodyStart = child;
                     }
                     break;
             }
@@ -456,16 +443,16 @@ export class CodeGenASTGenerator {
             bodyNodes = this.visitNodeAndChildren(node.currentAst, bodyStart);
         }
 
-        if (!endNodeId) {
+        if (!endNode) {
             throw new Error(`ForLoop ${node.nodeId} is missing a/an matching EndCondition node.`);
         }
 
-        let endChildren = this.getChildrenOfNode(endNodeId);
+        let endChildren = this.getChildrenOfNode(endNode.id);
         if (endChildren.length > 1) {
-            this.pushWarning(node.currentAst, `EndCondition ${endNodeId} has multiple outgoing connections, only the first will be considered.`);
+            this.pushWarning(node.currentAst, `EndCondition ${endNode.id} has multiple outgoing connections, only the first will be considered.`);
         }
 
-        let nextNode: string | null = endChildren.length > 0 ? endChildren[0].id : null;
+        let nextNode: Node<NodeExtData> | null = endChildren.length > 0 ? endChildren[0] : null;
 
         return {
             ast: {
@@ -544,16 +531,18 @@ export class CodeGenASTGenerator {
     }
 
     /**
-     * Returns the auxilliary data for the given node ID.
+     * Helper to return the auxilliary data for the given node ID.
      * @param nodeId The ID of the node to get auxiliary data for.
      * @returns The auxiliary data for the node.
      */
     private getAuxDataForNode(nodeId: string): NodeExtData {
-        const data = this.auxData[nodeId];
-        if (!data) {
-            throw new Error(`Auxiliary data not found for node ${nodeId}`);
+        for (const node of this.nodes) {
+            if (node.id === nodeId) {
+                return node.data; // Return the aux data directly from the node
+            }
         }
-        return data;
+
+        throw new Error(`Node with ID ${nodeId} not found in the flow.`);
     }
 
     /**

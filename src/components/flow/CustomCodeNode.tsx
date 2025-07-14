@@ -1,7 +1,7 @@
-import { Node, Connection, Edge, Position } from "@xyflow/react";
+import { Node, Connection, Edge, Position, useReactFlow } from "@xyflow/react";
 import FlowNodeBase from "./BaseNode";
 import { NodeData, NodeProps, NodeTypeEnum, registerValidationSource } from "@/lib/flow/data";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { FlowContext } from "@/lib/flow/context";
 import { InputField } from "./Inputs";
 import { FlowExpanded } from "./FlowExpanded";
@@ -9,7 +9,7 @@ import logger from "@/lib/logger";
 import Handle from "./Handle";
 
 // Static validation for CustomCode: CustomCode nodes can only have one source connection and one target connection.
-registerValidationSource("custom_code", (_svi: FlowContext, srcCons: string[], tgtCons: string[], _edge: Edge | Connection, _source: Node<NodeData>, _target: Node<NodeData>) => {
+registerValidationSource("custom_code", (srcCons: string[], tgtCons: string[]) => {
     if(tgtCons.length > 1) {
         logger.error("Flow.CustomCode", "CustomCode can only have one target connection.");
         return false;
@@ -23,23 +23,17 @@ registerValidationSource("custom_code", (_svi: FlowContext, srcCons: string[], t
 })
 
 export default function CustomCode(props: NodeProps) {
-  const svi = useContext(FlowContext);
-  const currentData = useMemo(() => svi.getData(props.id), [svi, props.id]);
-
-  if(currentData?.type != NodeTypeEnum.CustomCode) {
-    return <div className="text-red-500">Invalid node type: {currentData?.type}</div>;
+  const flow = useReactFlow();
+  if(props?.data?.type != NodeTypeEnum.CustomCode) {
+    return <div className="text-red-500">Invalid node type: {props?.data?.type}</div>;
   }
 
-  const [code, setCode] = useState<string>(currentData.data.code || "");
+  const [code, setCode] = useState<string>(props.data.data.code || "");
 
   useEffect(() => {
-    svi.setData(props.id, {
-        ...currentData,
-        data: {
-            ...currentData.data,
-            code: code,
-        }
-    });
+      flow.updateNodeData(props.id, {
+        code: code,
+      }, { replace: true });
   }, [code, props.id]);
 
   return (
