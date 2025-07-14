@@ -2,6 +2,7 @@ import { CommandArgumentNode, CommandArgumentType, CommandNode, CustomCodeNode, 
 import { Node, Edge, getOutgoers, getIncomers } from "@xyflow/react";
 import { CodeGenAST, ICommandArgument, ICommandArgumentType, IElseIf, IForLoopType, IForLoopTypeEnum, INode, INodeTypeEnum, IPreludeTypeEnum, ITypedInput, ITypedInputEnum } from "./ast";
 import { baseCommandNodeSchema } from "../validation";
+import z from "zod";
 
 interface Visit<T> {
     /**
@@ -196,11 +197,6 @@ export class CodeGenASTGenerator {
         let incoming = this.getParentOfNode(node.nodeId);
         let commandArguments: ICommandArgument[] = [];
         for (const parent of incoming) {
-            if (parent.type !== NodeTypeEnum.CommandArgumentNode) {
-                this.pushError(node.currentAst, `CommandNode ${node.nodeId} has a parent of type ${parent.type}, expected CommandArgumentNode.`);
-                continue;
-            }
-
             const argData = this.getAuxDataForNode(parent.id);
             if (argData.type !== NodeTypeEnum.CommandArgumentNode) {
                 this.pushError(node.currentAst, `CommandNode ${node.nodeId} has a parent of type ${argData.type}, expected CommandArgumentNode. Invalid aux data?`);
@@ -211,6 +207,11 @@ export class CodeGenASTGenerator {
         }
 
         // Visit start node data and set the start node type in the AST
+        let res = baseCommandNodeSchema.safeParse(node.data.data); // Validate the command node data
+        if (res.error) {
+            this.pushError(node.currentAst, z.prettifyError(res.error));
+        }
+
         node.currentAst.prelude = { type: IPreludeTypeEnum.Command, data: { name: node.data.data.name, description: node.data.data.description, arguments: commandArguments } };
 
         let children = this.getChildrenOfNode(node.nodeId);
@@ -550,10 +551,10 @@ export class CodeGenASTGenerator {
      * @returns The AST representation of the CommandArgument.
      */
     private visitCommandArgumentNode(currentAst: CodeGenAST, arg: CommandArgumentNode): ICommandArgument {
-        let res = baseCommandNodeSchema.safeParse(arg); // Validate the argument structure
+        let res = baseCommandNodeSchema.safeParse(arg.data); // Validate the argument structure
 
         if(res.error) {
-            this.pushError(currentAst, res.error.message);
+            this.pushError(currentAst, z.prettifyError(res.error));
         }
 
         switch (arg.data.type) {

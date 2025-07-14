@@ -30,7 +30,8 @@ registerValidationSource("command", (svi: FlowContext, srcCons: string[], tgtCon
 
 // Static validation for Command: Can only have a source of CommandArgument.
 registerValidationTarget("command", (svi: FlowContext, srcCons: string[], tgtCons: string[], edge: Edge | Connection, source: Node<NodeData>, target: Node<NodeData>) => {
-    if(source.data.type !== NodeTypeEnum.CommandArgumentNode) {
+    let data = svi.getData(source.id);
+    if (!data || data.type !== NodeTypeEnum.CommandArgumentNode) {
         logger.error("Flow.Command", "Command can only have a source of CommandArgument.");
         return false;
     }
@@ -106,12 +107,14 @@ export const Command = (props: NodeProps) => {
 // Static validation for CommandArgument: Can only have a target of Command.
 registerValidationSource("command_argument", (svi: FlowContext, srcCons: string[], tgtCons: string[], edge: Edge | Connection, source: Node<NodeData>, target: Node<NodeData>) => {
     if(srcCons.length >= 1) {
-        logger.error("Flow.Command", "Command can only have one target connection.");
+        logger.error("Flow.CommandArgument", "Command can only have one target connection.");
         return false;
     }
 
-    if (target.data.type !== NodeTypeEnum.CommandNode) {
-        logger.error("Flow.CommandArgument", "CommandArgument can only have a target of Command.");
+    let data = svi.getData(target.id);
+    if (!data || data.type !== NodeTypeEnum.CommandNode) {
+        console.log(data.type)
+        logger.error("Flow.CommandArgument", "CommandArgument can only be used as a target node.");
         return false;
     }
 
@@ -145,7 +148,7 @@ export const CommandArgument = (props: NodeProps) => {
   }, [name, description, type, required, props.id]);
 
   return (
-    <FlowNodeBase {...props}>
+    <FlowNodeBase {...props} title={currentData?.data.name ? `${currentData?.data.name} (${currentData?.data.type})` : "Command Argument"}>
         <Handle type="source" position={Position.Bottom} />
 
         <FlowExpanded nodeProps={props}>

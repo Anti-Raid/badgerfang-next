@@ -13,9 +13,39 @@ export const baseCommandNodeSchema = sharedNodeDataSchema.extend({
     .string()
     .max(32)
     .min(1)
-    .regex(
-      /^[-_'\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$/ug,
-      "Must be only lowercase alphanumeric characters and underscores"
+    .check(
+      (ctx) => {
+        let arg = ctx.value;
+        if (!arg) {
+          ctx.issues.push({
+            code: "custom",
+            input: arg,
+            message: "No arg found"
+          })
+          return;
+        }
+        let split = arg.split(" ");
+        if (split.length > 3) {
+          ctx.issues.push({
+            code: "custom",
+            input: arg,
+            message: "Command name can have at most 3 words (base command, subcommand, subcommand group"
+          })
+          return;
+        }
+
+        for (let word of split) {
+          if (!/^[-_'\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$/ug.test(word)) {
+            ctx.issues.push({
+              code: "custom",
+              input: word,
+              message: `Each part of a command name must be only lowercase alphanumeric characters and underscores`
+            })
+          }
+        }
+
+        return;
+      }
     ),
     description: z.string().max(100).min(1),
 });
