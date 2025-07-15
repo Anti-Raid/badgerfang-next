@@ -11,7 +11,7 @@ export default function Group(props: NodeProps) {
           : undefined,
       }}
     >
-        <NodeResizer isVisible={props.selected} minWidth={0} minHeight={0} keepAspectRatio={true} />
+        <NodeResizer isVisible={props.selected} minWidth={0} minHeight={0} />
     </div>
   );
 }

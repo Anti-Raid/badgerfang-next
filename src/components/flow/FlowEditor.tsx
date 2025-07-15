@@ -42,7 +42,7 @@ export default function FlowEditor({
   const [edges, setEdges, onEdgesChange] = useEdgesState(
     initialData?.edges || []
   );
-  const { getEdge, getNode, getNodes, getEdges, screenToFlowPosition } = useReactFlow();
+  const { getEdge, getNode, getNodes, getEdges, screenToFlowPosition, getIntersectingNodes } = useReactFlow();
 
   const onConnect = useCallback(
     (con: Connection) => setEdges((eds) => addEdge(con, eds)),
@@ -97,30 +97,39 @@ export default function FlowEditor({
       }
  
       const position = screenToFlowPosition({
-        x: event.clientX - 20, // Offset to center the node under the cursor
-        y: event.clientY - 20, // Offset to center the node under the cursor
+        x: event.clientX, 
+        y: event.clientY,
       });
+      
+      const newNode = createNode(type, position);
 
       // Check if the X/Y intersects with an existing node
-      const existingNode = getNodes().filter((node) => {
-        if (!subflowComps.includes(node.type || "")) {
-          return false;
-        }
-
-        return (
-          position.x >= node.position.x &&
-          position.x <= node.position.x + (node.width || 0) &&
-          position.y >= node.position.y &&
-          position.y <= node.position.y + (node.height || 0)
-        );
+      const existingNode = getIntersectingNodes(newNode, true, getNodes()).filter((node) => {
+        return subflowComps.includes(node.type || "")  
       });
 
       let parent = undefined;
       if (existingNode.length > 0) {
-        parent = existingNode[existingNode.length - 1].id;
+        console.log("Found existing node at position", position, ":", existingNode);
+        // Choose the node with the smallest area
+        let minArea = Infinity;
+        let minNode: Node | undefined = existingNode[0];
+        for (const node of existingNode) {
+          const area = (node.width || 0) * (node.height || 0);
+          if (area < minArea) {
+            minArea = area;
+            minNode = node;
+          }
+        }
+
+        parent = minNode.id;
       }
-      
-      const newNode = createNode(type, position, undefined, parent);
+
+      if(parent) {
+        newNode.parentId = parent; // Set parent ID if provided
+        newNode.expandParent = true;
+        newNode.extent = "parent";
+      }
  
       setNodes((nds) => nds.concat(newNode));
     },
