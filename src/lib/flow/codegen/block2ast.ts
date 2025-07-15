@@ -1,4 +1,4 @@
-import { CommandArgumentNode, CommandArgumentType, CommandNode, CustomCodeNode, ForLoopNode, ForLoopType, ForLoopTypeEnum, IfConditionNode, LibraryNode, NodeExtData, NodeTypeEnum, TypedInput, TypedInputEnum, VariableSetNode } from "../data";
+import { CommandArgumentNode, CommandArgumentType, CommandNode, CustomCodeNode, ForLoopNode, ForLoopType, ForLoopTypeEnum, GroupNode, IfConditionNode, LibraryNode, NodeExtData, NodeTypeEnum, TypedInput, TypedInputEnum, VariableSetNode } from "../data";
 import { Node, Edge, getOutgoers, getIncomers } from "@xyflow/react";
 import { CodeGenAST, ICommandArgument, ICommandArgumentType, IElseIf, IForLoopType, IForLoopTypeEnum, INode, INodeTypeEnum, IPreludeTypeEnum, ITypedInput, ITypedInputEnum } from "./ast";
 import { baseCommandNodeSchema } from "../validation";
@@ -145,6 +145,8 @@ export class CodeGenASTGenerator {
                 return this.visitCustomCode({ nodeId: node.id, data, currentAst});
             case NodeTypeEnum.UnknownNode:
                 throw new Error(`Unknown node type ${data.type} encountered.`);
+            case NodeTypeEnum.Group:
+                throw new Error("Unreachable node GroupNode: GroupNodes be transparent and unconnected")
         }
     }
 

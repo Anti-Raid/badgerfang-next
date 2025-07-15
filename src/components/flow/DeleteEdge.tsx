@@ -54,8 +54,9 @@ export default function FlowEdgeDeleteButton({
             // everything inside EdgeLabelRenderer has no pointer events by default
             // if you have an interactive element, set pointer-events: all
             pointerEvents: "all",
+            zIndex: 100,
           }}
-          className="nodrag nopan cursor-pointer h-4 w-4 rounded-full flex items-center justify-center bg-muted"
+          className="nodrag nopan cursor-pointer h-4 w-4 rounded-full flex items-center justify-center bg-muted cursor-pointer hover:cursor-pointer hover:bg-muted/50"
           onClick={onEdgeClick}
         >
           <XIcon className="h-3 w-3 text-foreground" />

@@ -1,8 +1,7 @@
-import { Node, Connection, Edge, Position, useReactFlow } from "@xyflow/react";
+import { Position, useReactFlow } from "@xyflow/react";
 import FlowNodeBase from "./BaseNode";
-import { NodeData, NodeProps, NodeTypeEnum, registerValidationSource } from "@/lib/flow/data";
+import { NodeProps, NodeTypeEnum, registerValidationSource } from "@/lib/flow/data";
 import { useEffect, useState } from "react";
-import { FlowContext } from "@/lib/flow/context";
 import { InputField } from "./Inputs";
 import { FlowExpanded } from "./FlowExpanded";
 import logger from "@/lib/logger";
@@ -23,11 +22,11 @@ registerValidationSource("custom_code", (srcCons: string[], tgtCons: string[]) =
 })
 
 export default function CustomCode(props: NodeProps) {
-  const flow = useReactFlow();
   if(props?.data?.type != NodeTypeEnum.CustomCode) {
     return <div className="text-red-500">Invalid node type: {props?.data?.type}</div>;
   }
 
+  const flow = useReactFlow();
   const [code, setCode] = useState<string>(props.data.data.code || "");
 
   useEffect(() => {

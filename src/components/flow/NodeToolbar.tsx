@@ -42,7 +42,7 @@ const nodeCategories = {
     },
     {
       title: "Others",
-      nodeTypes: [],
+      nodeTypes: ["group_x"],
       
     },
   ],

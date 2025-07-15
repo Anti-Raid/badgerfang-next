@@ -135,6 +135,7 @@ export enum NodeTypeEnum {
     
     // Special
     UnknownNode = "UnknownNode",
+    Group = "Group",
 }
 
 /**
@@ -271,9 +272,13 @@ export interface UnknownNode {
     data: SharedNodeData & Record<string, unknown>;
 }
 
+export interface GroupNode {
+    type: NodeTypeEnum.Group;
+}
+
 export type FlowNodeData = LibraryNode | CommandNode | CommandArgumentNode | VariableSetNode | 
 IfConditionNode | ElseIfConditionNode | ElseConditionNode | EndConditionNode | CustomCodeNode |
-ForLoopNode | UnknownNode;
+ForLoopNode | UnknownNode | GroupNode;
 
 export type NodeData = Record<string, unknown>;
 export type NodeExtData = FlowNodeData & Record<string, unknown>;

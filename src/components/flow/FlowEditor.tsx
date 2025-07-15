@@ -19,7 +19,7 @@ import {
 import "@xyflow/react/dist/base.css";
 import { FlowData, getValidationSource, getValidationTarget, NodeExtData } from "@/lib/flow/data";
 import { createNode } from "@/lib/flow/nodes";
-import { edgeTypes, nodeTypes } from "@/lib/flow/components";
+import { edgeTypes, nodeTypes, subflowComps } from "@/lib/flow/components";
 
 interface Props {
   initialData?: FlowData;
@@ -100,7 +100,27 @@ export default function FlowEditor({
         x: event.clientX,
         y: event.clientY,
       });
-      const newNode = createNode(type, position);;
+
+      // Check if the X/Y intersects with an existing node
+      const existingNode = getNodes().find((node) => {
+        if (!subflowComps.includes(node.type || "")) {
+          return false;
+        }
+
+        return (
+          position.x >= node.position.x &&
+          position.x <= node.position.x + (node.width || 0) &&
+          position.y >= node.position.y &&
+          position.y <= node.position.y + (node.height || 0)
+        );
+      });
+
+      let parent = undefined;
+      if (existingNode) {
+        parent = existingNode.id;
+      }
+      
+      const newNode = createNode(type, position, undefined, parent);
  
       setNodes((nds) => nds.concat(newNode));
     },

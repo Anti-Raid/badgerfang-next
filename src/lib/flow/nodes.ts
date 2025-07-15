@@ -62,6 +62,10 @@ export const nodeTypes: Record<string, NodeValues> = {
     defaultTitle: "Custom Code",
     defaultDescription: "Executes custom code.",
   },
+  group_x: {
+    defaultTitle: "Group",
+    defaultDescription: "Groups nodes together for organization.",
+  },
 };
 export const defaultNodeDataForType: Record<string, NodeExtData> = {
   unknown: {
@@ -134,6 +138,10 @@ export const defaultNodeDataForType: Record<string, NodeExtData> = {
       code: "",
     }
   },
+  group_x: {
+    type: NodeTypeEnum.Group,
+    data: {}
+  }
 }
 
 export function getNodeValues(nodeType: string): NodeValues {
