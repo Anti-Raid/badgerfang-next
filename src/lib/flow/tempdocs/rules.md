@@ -16,5 +16,6 @@ An end condition must be connected to either a `If Statement` or a `For Loop`.
 
 ## TODO
 
-- Expose a UI for command start nodes
-- Add a undefined variable check to CodeGenIR
+### CodegenAST Prelude Removal
+
+It would help if there was a intermediate step in which the prelude etc is removed and replaced with a new CodeGenAST function delcaration/function call wrapper instead
