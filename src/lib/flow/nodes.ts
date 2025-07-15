@@ -52,8 +52,8 @@ export const nodeTypes: Record<string, NodeValues> = {
 		defaultDescription: 'Executes code based on condition .'
 	},
 	end_condition: {
-		defaultTitle: 'End Condition',
-		defaultDescription: 'Ends the conditional chain.'
+		defaultTitle: 'End Condition/Loop',
+		defaultDescription: 'Ends the conditional chain/loop.'
 	},
 	for_loop: {
 		defaultTitle: 'For Loop',
