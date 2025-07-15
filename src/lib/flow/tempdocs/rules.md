@@ -12,7 +12,7 @@ For loops can only have one source connection but may have two targets of which 
 
 ## End Condition
 
-An end condition must be connected to either a `If Statement` or a `For Loop`.
+An end condition must be connected to either a `If Statement`, a `For Loop` or a ``While Loop``
 
 ## TODO
 
