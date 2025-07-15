@@ -10,6 +10,10 @@
 
 For loops can only have one source connection but may have two targets of which one must be the loop body and the other must be a end condition.
 
+## While Loops
+
+While loops can only have one source connection but may have two targets of which one must be the loop body and the other must be a end condition. While loops must also have a full condition (no ``Unselected`` options)
+
 ## End Condition
 
 An end condition must be connected to either a `If Statement`, a `For Loop` or a ``While Loop``
