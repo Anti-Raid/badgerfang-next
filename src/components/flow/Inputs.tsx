@@ -1,7 +1,7 @@
-import { stringToTypedInputEnum, TypedInput, TypedInputEnum } from "@/lib/flow/data";
-import { motion } from "framer-motion";
-import { AlertCircle, Eye, EyeOff, Icon } from "lucide-react";
-import { useState } from "react";
+import { stringToTypedInputEnum, TypedInput, TypedInputEnum } from '@/lib/flow/data';
+import { motion } from 'framer-motion';
+import { AlertCircle, Eye, EyeOff, Icon } from 'lucide-react';
+import { useState } from 'react';
 
 interface BaseLabelAndDescriptionProps {
 	label?: string;
@@ -220,7 +220,7 @@ const defaultLValue = (type: TypedInputEnum): unknown => {
 		case TypedInputEnum.String:
 			return '';
 		case TypedInputEnum.Table:
-			return "{}";
+			return '{}';
 		case TypedInputEnum.Number:
 			return 0;
 		case TypedInputEnum.Boolean:
@@ -228,22 +228,24 @@ const defaultLValue = (type: TypedInputEnum): unknown => {
 		default:
 			return '';
 	}
-}
+};
 
-export const TypedInputField: React.FC<TypedInputProps> = (
-	{
-		label,
-		description,
-		placeholder,
-		value,
-		disabled = false,
-		onChange,
-		className = '',
-		id,
-		marginClass = 'mb-1'
-	}
-) => {
-	let lvalueInit = value.value ? (value.type == TypedInputEnum.Table ? JSON.stringify(value.value) : value.value.toString()) : '';
+export const TypedInputField: React.FC<TypedInputProps> = ({
+	label,
+	description,
+	placeholder,
+	value,
+	disabled = false,
+	onChange,
+	className = '',
+	id,
+	marginClass = 'mb-1'
+}) => {
+	let lvalueInit = value.value
+		? value.type == TypedInputEnum.Table
+			? JSON.stringify(value.value)
+			: value.value.toString()
+		: '';
 
 	const [type, setType] = useState<TypedInputEnum>(value.type || TypedInputEnum.String);
 	const [lvalue, setLValue] = useState<unknown>(lvalueInit);
@@ -297,7 +299,7 @@ export const TypedInputField: React.FC<TypedInputProps> = (
 				aria-required="true"
 			/>
 
-			<InputField 
+			<InputField
 				type="select"
 				label={`${label ? label + ' Type' : 'Type'}`}
 				value={type}
@@ -316,7 +318,7 @@ export const TypedInputField: React.FC<TypedInputProps> = (
 					{ value: TypedInputEnum.String, label: 'String' },
 					{ value: TypedInputEnum.Number, label: 'Number' },
 					{ value: TypedInputEnum.Table, label: 'Table' },
-					{ value: TypedInputEnum.Boolean, label: 'Boolean' },
+					{ value: TypedInputEnum.Boolean, label: 'Boolean' }
 				]}
 				id={`${id}-type`}
 				aria-label={`${label ? label + ' Type' : 'Type'}`}
@@ -345,8 +347,8 @@ export const TypedInputField: React.FC<TypedInputProps> = (
 				</>
 			)}
 		</>
-	)
-}
+	);
+};
 
 interface ToggleProps {
 	label: string;
@@ -356,7 +358,6 @@ interface ToggleProps {
 	onChange: () => void;
 	marginClass?: string;
 }
-
 
 export const Toggle: React.FC<ToggleProps> = ({
 	label,

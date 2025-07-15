@@ -7,34 +7,29 @@ import { CodeGenASTGenerator } from '@/lib/flow/codegen/block2ast';
 import { ConditionalTypeField } from '@/components/flow/ConditionalType';
 
 export default function Blockly() {
-	const [data, setData] = useState<FlowData>({nodes: [], edges: []})
+	const [data, setData] = useState<FlowData>({ nodes: [], edges: [] });
 	const [dbgConditional, setDbgConditional] = useState<ConditionalType>({
 		type: ConditionalTypeEnum.Unselected
 	});
 
 	const codegennedAst = useMemo(() => {
-		let r = new CodeGenASTGenerator(
-			data.nodes,
-			data.edges,
-		)
-		.generate()
+		let r = new CodeGenASTGenerator(data.nodes, data.edges).generate();
 
-		return r
+		return r;
 	}, [data]);
 
 	return (
 		<>
-			<Flow 
-				flowData={data}
-				onChange={setData}
-			/>
+			<Flow flowData={data} onChange={setData} />
 			<motion.div
 				initial={{ opacity: 0, y: 10 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 0.5 }}
 				className="mt-8"
 			>
-				<code className="whitespace-pre-wrap break-words bg-gray-100 text-black">{JSON.stringify(data)}</code>
+				<code className="whitespace-pre-wrap break-words bg-gray-100 text-black">
+					{JSON.stringify(data)}
+				</code>
 			</motion.div>
 
 			<h2 className="text-lg">CodeGen AST</h2>

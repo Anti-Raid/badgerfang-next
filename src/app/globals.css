@@ -517,8 +517,8 @@
 
 .modal::backdrop {
 	background: rgba(0, 0, 0, 0.3);
-	width:100vw; 
-	height:100vh; 
+	width: 100vw;
+	height: 100vh;
 	z-index: 10;
 }
 .modal-box {

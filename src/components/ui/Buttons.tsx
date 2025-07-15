@@ -153,7 +153,6 @@ export const SmallGhost: React.FC<ButtonProps> = ({
 	);
 };
 
-
 export const SmallInlineGhost: React.FC<ButtonProps> = ({
 	Title,
 	onClick,
