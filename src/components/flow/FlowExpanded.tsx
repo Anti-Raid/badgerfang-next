@@ -19,7 +19,7 @@ export const FlowExpanded: React.FC<FlowExpandedProps> = ({ nodeProps, children,
     <div tabIndex={-1} role="dialog" aria-modal={true} autoFocus={true} className="fixed inset-0 z-[1000] bg-black/40 backdrop-blur-sm flex items-center justify-center">
       <div className="bg-white dark:bg-neutral-900 rounded-lg shadow-lg w-full max-w-md p-6">
         <h2 className="text-lg font-bold text-black dark:text-white">
-          {title || `Editing ${nodeProps.id}`}
+          {title || `Editing ${nodeProps.data.type}`}
         </h2>
         <div className="py-4 text-black dark:text-white">{children}</div>
         <div className="flex justify-end mt-4">
