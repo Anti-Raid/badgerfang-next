@@ -1,3 +1,5 @@
+import { ASTPreludeApply } from "./ast_transforms";
+
 /**
  * The different types that a value in Luau can be user-initialized to.
  */
@@ -145,7 +147,11 @@ export enum INodeTypeEnum {
 	ForLoop = 'IForLoop',
 	WhileLoop = 'IWhileLoop',
 	CustomCode = 'ICustomCode',
-	Block = 'IBlock'
+	Block = 'IBlock',
+
+	LocalFunctionDeclaration = "LocalFunctionDeclaration",
+	FunctionDeclaration = "FunctionDeclaration"
+
 }
 
 export interface IVariableSetNode {
@@ -201,13 +207,40 @@ export interface IBlockNode {
 	};
 }
 
+export interface ILocalFunctionDeclaration {
+	type: INodeTypeEnum.LocalFunctionDeclaration;
+	name: string; // The name of the function
+	params: IFunctionParameter[]; // The parameters of the function
+	body: INode[]; // The body of the function
+	returnType: IFunctionReturn; // Optional return type of the function
+}
+
+export interface IFunctionDeclaration {
+	type: INodeTypeEnum.FunctionDeclaration;
+	name: string; // The name of the function
+	params: IFunctionParameter[]; // The parameters of the function
+	body: INode[]; // The body of the function
+	returnType: IFunctionReturn; // Optional return type of the function
+}
+
+export interface IFunctionParameter {
+	name: string; // The name of the parameter
+	type?: string; // Optional type of the parameter
+}
+
+export interface IFunctionReturn {
+	type?: string; // The type of the return value
+}
+
 export type INode =
 	| IVariableSetNode
 	| IIfConditionNode
 	| IForLoopNode
 	| WhileLoopNode
 	| ICustomCodeNode
-	| IBlockNode;
+	| IBlockNode
+	| ILocalFunctionDeclaration
+	| IFunctionDeclaration;
 
 export interface ICommandArgument {
 	type: ICommandArgumentType;
@@ -220,7 +253,13 @@ export enum IPreludeTypeEnum {
 	// No prelude, just start up the flow
 	Library = 'ILibrary',
 	// Command node that starts the flow for a command
-	Command = 'ICommand'
+	Command = 'ICommand',
+	// Prelude has already been applied
+	Applied = "IApplied"
+}
+
+export interface IPreludeApplied {
+	type: IPreludeTypeEnum.Applied
 }
 
 export interface IPreludeLibrary {
@@ -236,7 +275,7 @@ export interface IPreludeCommand {
 	};
 }
 
-export type IPreludeData = IPreludeLibrary | IPreludeCommand;
+export type IPreludeData = IPreludeLibrary | IPreludeCommand | IPreludeApplied;
 
 /**
  * Command argument types for the command nodes.
@@ -280,14 +319,14 @@ export class CodeGenAST {
 	/**
 	 * Dependencies that the generated code needs.
 	 */
-	public dependencies: string[];
+	public dependencies: Record<string, string>;
 
 	constructor(
 		prelude: IPreludeData = { type: IPreludeTypeEnum.Library },
 		nodes: INode[] = [],
 		errors: string[] = [],
 		warnings: string[] = [],
-		dependencies: string[] = [],
+		dependencies: Record<string, string> = {},
 		fatalError?: string
 	) {
 		this.prelude = prelude;
@@ -307,5 +346,27 @@ export class CodeGenAST {
 			dependencies: this.dependencies,
 			fatalError: this.fatalError
 		};
+	}
+
+	isError(): boolean {
+		return this.errors.length > 0 || !!this.fatalError;
+	}
+
+	applyTransform(transform: (ast: CodeGenAST) => void): void {
+		if (this.isError()) {
+			throw new Error("Cannot apply transforms to an AST with errors or a fatal error");
+		}
+
+		try {
+			transform(this);
+		} catch (error) {
+			this.fatalError = `AST transform failed unexpectedly: ${error?.toString()}`;
+		}
+	}
+
+	applyDefaultTransforms(): void {
+		this.applyTransform((ast) => {
+			new ASTPreludeApply(ast).transform();
+		});
 	}
 }

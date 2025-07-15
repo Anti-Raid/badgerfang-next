@@ -15,7 +15,16 @@ export default function Blockly() {
 	const codegennedAst = useMemo(() => {
 		let r = new CodeGenASTGenerator(data.nodes, data.edges).generate();
 
-		return r;
+		let stage1 = r.toJSON();
+
+		let stage2: any = "Cannot proceed further due to AST errors"
+
+		if (!r.isError()) {
+			r.applyDefaultTransforms();
+			stage2 = r.toJSON();
+		}
+
+		return { stage1, stage2 }
 	}, [data]);
 
 	return (
@@ -41,7 +50,7 @@ export default function Blockly() {
 				className="mt-8 bg-gray-100 p-1"
 			>
 				<code className="whitespace-pre-wrap break-words text-black">
-					{JSON.stringify(codegennedAst.toJSON(), null, 2)}
+					{JSON.stringify(codegennedAst, null, 2)}
 				</code>
 			</motion.div>
 

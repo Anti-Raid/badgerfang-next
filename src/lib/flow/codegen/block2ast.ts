@@ -162,7 +162,6 @@ export class CodeGenASTGenerator {
 	 * Visits a node and returns its AST representation.
 	 */
 	private visitNode(currentAst: CodeGenAST, node: Node<NodeExtData>): VisitResult {
-		console.log("Visiting node:", node.id, "Type:", node.data.type);
 		const data = node.data;
 
 		switch (data.type) {
