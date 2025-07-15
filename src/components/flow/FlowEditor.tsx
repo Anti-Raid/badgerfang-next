@@ -1,4 +1,4 @@
-import React, { DragEvent, useCallback, useContext, useEffect } from "react";
+import React, { DragEvent, MouseEvent, useCallback, useContext, useEffect } from "react";
 import {
   addEdge,
   Background,
@@ -42,7 +42,8 @@ export default function FlowEditor({
   const [edges, setEdges, onEdgesChange] = useEdgesState(
     initialData?.edges || []
   );
-  const { getEdge, getNode, getNodes, getEdges, screenToFlowPosition, getIntersectingNodes } = useReactFlow();
+  const { getEdge, getNode, getNodes, getEdges, screenToFlowPosition } = useReactFlow();
+  const { getIntersectingNodes, updateNode } = useReactFlow()
 
   const onConnect = useCallback(
     (con: Connection) => setEdges((eds) => addEdge(con, eds)),
@@ -99,38 +100,11 @@ export default function FlowEditor({
       const position = screenToFlowPosition({
         x: event.clientX, 
         y: event.clientY,
-      });
+      }, { snapToGrid: true });
+      console.log("onDrop", type, position);
       
       const newNode = createNode(type, position);
 
-      // Check if the X/Y intersects with an existing node
-      const existingNode = getIntersectingNodes(newNode, true, getNodes()).filter((node) => {
-        return subflowComps.includes(node.type || "")  
-      });
-
-      let parent = undefined;
-      if (existingNode.length > 0) {
-        console.log("Found existing node at position", position, ":", existingNode);
-        // Choose the node with the smallest area
-        let minArea = Infinity;
-        let minNode: Node | undefined = existingNode[0];
-        for (const node of existingNode) {
-          const area = (node.width || 0) * (node.height || 0);
-          if (area < minArea) {
-            minArea = area;
-            minNode = node;
-          }
-        }
-
-        parent = minNode.id;
-      }
-
-      if(parent) {
-        newNode.parentId = parent; // Set parent ID if provided
-        newNode.expandParent = true;
-        newNode.extent = "parent";
-      }
- 
       setNodes((nds) => nds.concat(newNode));
     },
     [screenToFlowPosition, setNodes],
@@ -195,6 +169,64 @@ export default function FlowEditor({
     [getNode, getNodes, getEdges, getOutgoers]
   );
 
+  const onDragEnd = useCallback(
+    (_event: MouseEvent, node: Node<NodeExtData>) => {
+      // Check if the X/Y intersects with an existing node
+      const existingNode = getIntersectingNodes(node, false).filter((node) => {
+        return subflowComps.includes(node.type || "")  
+      });
+
+      let parent = undefined;
+      if (existingNode.length > 0) {
+        console.log("Found existing node", node, ":", existingNode);
+        // Choose the node with smaller area
+        let minArea = Infinity;
+        let closestNode: Node = existingNode[0];
+        for (const node of existingNode) {
+          const area = (node.width || 0) * (node.height || 0);
+          if (area < minArea) {
+            minArea = area;
+            closestNode = node;
+          }
+        }
+
+        parent = closestNode;
+      }
+
+      if(parent) {
+        // Ensure we are not moving from a child to a parent
+        if (node.parentId) {
+          let origParent = getNode(node.parentId);
+          if (!origParent || origParent.id === parent.id) {
+            return;
+          }
+          while (origParent.parentId) {
+            let p = getNode(origParent.parentId);
+            if (!p || p.id === parent.id) {
+              return;
+            }
+            origParent = p;
+          }
+        }
+
+        updateNode(node.id, (node) => {
+          return {
+            ...node,
+            parentId: parent.id,
+            expandParent: true,
+            position: {
+              x: node.position.x - parent.position.x,
+              y: node.position.y - parent.position.y,
+            },
+            extent: "parent",
+          }
+        })
+
+      }
+ 
+    },
+    [getIntersectingNodes]
+  );
 
   return (
     <ReactFlow
@@ -203,6 +235,7 @@ export default function FlowEditor({
       onNodesChange={wrappedOnNodesChange}
       onEdgesChange={wrappedOnEdgesChange}
       onNodesDelete={onNodesDelete}
+      onNodeDragStop={onDragEnd}
       nodeTypes={nodeTypes}
       edgeTypes={edgeTypes}
       onDrop={onDrop}
