@@ -1,8 +1,7 @@
-import { Node, Connection, Edge, Position, useReactFlow } from "@xyflow/react";
+import { Position, useReactFlow } from "@xyflow/react";
 import FlowNodeBase from "./BaseNode";
-import { NodeData, NodeProps, NodeTypeEnum, registerValidationSource, TypedInput, TypedInputEnum } from "@/lib/flow/data";
-import { useContext, useEffect, useMemo, useState } from "react";
-import { FlowContext } from "@/lib/flow/context";
+import { NodeProps, NodeTypeEnum, registerValidationSource, TypedInput, TypedInputEnum } from "@/lib/flow/data";
+import { useEffect, useState } from "react";
 import { InputField, TypedInputField } from "./Inputs";
 import { FlowExpanded } from "./FlowExpanded";
 import logger from "@/lib/logger";
@@ -41,7 +40,7 @@ export default function SetVariable(props: NodeProps) {
   }, [variableName, variableValue, props.id, flow]);
 
   return (
-    <FlowNodeBase {...props}>
+    <FlowNodeBase {...props} title={props.data.data.name ? `Set Variable ${props.data.data.name}` : "Set Variable"} className="bg-blue-100 hover:bg-blue-200">
       <Handle type="target" position={Position.Top} />
       <Handle type="source" position={Position.Bottom} />
 

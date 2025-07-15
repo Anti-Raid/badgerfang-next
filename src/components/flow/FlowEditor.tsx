@@ -97,12 +97,12 @@ export default function FlowEditor({
       }
  
       const position = screenToFlowPosition({
-        x: event.clientX,
-        y: event.clientY,
+        x: event.clientX - 20, // Offset to center the node under the cursor
+        y: event.clientY - 20, // Offset to center the node under the cursor
       });
 
       // Check if the X/Y intersects with an existing node
-      const existingNode = getNodes().find((node) => {
+      const existingNode = getNodes().filter((node) => {
         if (!subflowComps.includes(node.type || "")) {
           return false;
         }
@@ -116,8 +116,8 @@ export default function FlowEditor({
       });
 
       let parent = undefined;
-      if (existingNode) {
-        parent = existingNode.id;
+      if (existingNode.length > 0) {
+        parent = existingNode[existingNode.length - 1].id;
       }
       
       const newNode = createNode(type, position, undefined, parent);

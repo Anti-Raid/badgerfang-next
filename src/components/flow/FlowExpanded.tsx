@@ -37,7 +37,7 @@ export const FlowExpanded: React.FC<FlowExpandedProps> = ({ nodeProps, children,
         <>
             {isExpanded && createPortal(modal, document.body)}
 
-            <div className="flex items-center justify-center text-sm">
+            <div className="flex justify-center text-sm">
                 <SmallGhost 
                     Title={isExpanded ? "Collapse" : "Expand"}
                     onClick={() => setExpanded(!isExpanded)}
