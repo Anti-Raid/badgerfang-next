@@ -69,6 +69,43 @@ export interface IForLoopRaw {
 
 export type IForLoopType = IForLoopGeneralizedIteration | IForLoopRange | IForLoopRaw;
 
+export enum IConditionalTypeEnum {
+    IfEq = "IIfEq",
+    IfNeq = "IIfNeq",
+    IfGt = "IIfGt",
+    IfGte = "IIfGte",
+    IfLt = "IIfLt",
+    IfLte = "IIfLte",
+    And = "IAnd",
+    Or = "IOr",
+    ParensBlock = "IParensBlock",
+    Raw = "IRaw",
+}
+
+export interface IConditionalTypeLogic {
+    type: IConditionalTypeEnum.IfEq | IConditionalTypeEnum.IfNeq | IConditionalTypeEnum.IfGt | IConditionalTypeEnum.IfGte | IConditionalTypeEnum.IfLt | IConditionalTypeEnum.IfLte;
+    left: ITypedInput;
+    right: ITypedInput;
+}
+
+export interface IConditionalTypeAndOr {
+    type: IConditionalTypeEnum.And | IConditionalTypeEnum.Or;
+    a: IConditionalType;
+    b: IConditionalType;
+}
+
+export interface IConditionalTypeParensBlock {
+    type: IConditionalTypeEnum.ParensBlock;
+    condition: IConditionalType; // The condition inside the parentheses
+}
+
+export interface IConditionalTypeRaw {
+    type: IConditionalTypeEnum.Raw;
+    condition: string; // Raw condition for the if statement
+}
+
+export type IConditionalType = IConditionalTypeLogic | IConditionalTypeAndOr | IConditionalTypeRaw;
+
 /**
  * A abstract syntax tree node type for code generation.
  */

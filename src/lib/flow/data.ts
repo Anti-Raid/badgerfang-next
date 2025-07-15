@@ -113,6 +113,98 @@ export interface ForLoopRaw {
 
 export type ForLoopType = ForLoopGeneralizedIteration | ForLoopRange | ForLoopRaw;
 
+export enum ConditionalLogicTypeEnum {
+    IfEq = "IfEq",
+    IfNeq = "IfNeq",
+    IfGt = "IfGt",
+    IfGte = "IfGte",
+    IfLt = "IfLt",
+    IfLte = "IfLte",
+    Unselected = "Unselected", // Used for UI to indicate no logic condition is selected
+}
+
+export const stringToConditionalLogicTypeEnum = (value: string): ConditionalLogicTypeEnum => {
+    switch (value?.toLowerCase()) {
+        case "ifeq":
+            return ConditionalLogicTypeEnum.IfEq;
+        case "ifneq":
+            return ConditionalLogicTypeEnum.IfNeq;
+        case "ifgt":
+            return ConditionalLogicTypeEnum.IfGt;
+        case "ifgte":
+            return ConditionalLogicTypeEnum.IfGte;
+        case "iflt":
+            return ConditionalLogicTypeEnum.IfLt;
+        case "iflte":
+            return ConditionalLogicTypeEnum.IfLte;
+        case "unselected":
+            return ConditionalLogicTypeEnum.Unselected;
+        default:
+            throw new Error(`Unknown ConditionalLogicTypeEnum value: ${value}`);
+    }
+}
+
+export const conditionalLogicTypeEnumToString = (type: ConditionalLogicTypeEnum): string => {
+    switch (type) {
+        case ConditionalLogicTypeEnum.IfEq:
+            return "ifeq";
+        case ConditionalLogicTypeEnum.IfNeq:
+            return "ifneq";
+        case ConditionalLogicTypeEnum.IfGt:
+            return "ifgt";
+        case ConditionalLogicTypeEnum.IfGte:
+            return "ifgte";
+        case ConditionalLogicTypeEnum.IfLt:
+            return "iflt";
+        case ConditionalLogicTypeEnum.IfLte:
+            return "iflte";
+        case ConditionalLogicTypeEnum.Unselected:
+            return "unselected"; // For UI purposes
+    }
+}
+
+export interface ConditionalLogicType {
+    type: ConditionalLogicTypeEnum;
+    left: TypedInput;
+    right: TypedInput;
+}
+
+export enum ConditionalTypeEnum {
+    LogicExpr = "LogicExpr",
+    ParensBlock = "ParensBlock",
+    Raw = "Raw",
+    Unselected = "Unselected", // Used for UI to indicate no condition is selected
+}
+
+export interface ConditionalTypeContinuable {
+    op: "and" | "or";
+    condition: ConditionalType; // The next condition in the chain
+}
+
+export interface ConditionalTypeLogic {
+    type: ConditionalTypeEnum.LogicExpr;
+    condition: ConditionalLogicType; // The logic condition (e.g., IfEq, IfGt)
+    next?: ConditionalTypeContinuable; // Optional next condition in the chain
+}
+
+export interface ConditionalTypeParensBlock {
+    type: ConditionalTypeEnum.ParensBlock;
+    condition: ConditionalType; // The condition inside the parentheses
+    next?: ConditionalTypeContinuable; // Optional next condition in the chain
+}
+
+export interface ConditionalTypeRaw {
+    type: ConditionalTypeEnum.Raw;
+    condition: string; // Raw condition for the if statement
+    next?: ConditionalTypeContinuable; // Optional next condition in the chain
+}
+
+export interface ConditionalTypeUnselected {
+    type: ConditionalTypeEnum.Unselected;
+}
+
+export type ConditionalType = ConditionalTypeLogic | ConditionalTypeParensBlock | ConditionalTypeRaw | ConditionalTypeUnselected;
+
 export interface FlowData {
   nodes: Node<NodeExtData>[];
   edges: Edge[];
