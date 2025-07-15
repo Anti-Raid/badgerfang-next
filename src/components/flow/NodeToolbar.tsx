@@ -11,10 +11,6 @@ const nodeCategories = {
 			nodeTypes: ['library', 'command', 'command_argument']
 		},
 		{
-			title: 'Commands',
-			nodeTypes: []
-		},
-		{
 			title: 'Discord',
 			nodeTypes: []
 		},
