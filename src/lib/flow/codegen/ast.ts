@@ -74,48 +74,59 @@ export interface IForLoopRaw {
 
 export type IForLoopType = IForLoopGeneralizedIteration | IForLoopRange | IForLoopRaw;
 
+export enum IConditionalLogicTypeEnum {
+    IfEq = 'IIfEq',
+    IfNeq = 'IIfNeq',
+    IfGt = 'IIfGt',
+    IfGte = 'IIfGte',
+    IfLt = 'IIfLt',
+    IfLte = 'IIfLte',
+}
+
+export interface IConditionalLogicType {
+    type: IConditionalLogicTypeEnum;
+    left: ITypedInput;
+    right: ITypedInput;
+}
+
 export enum IConditionalTypeEnum {
-	IfEq = 'IIfEq',
-	IfNeq = 'IIfNeq',
-	IfGt = 'IIfGt',
-	IfGte = 'IIfGte',
-	IfLt = 'IIfLt',
-	IfLte = 'IIfLte',
-	And = 'IAnd',
-	Or = 'IOr',
-	ParensBlock = 'IParensBlock',
-	Raw = 'IRaw'
+    LogicExpr = 'ILogicExpr',
+    ParensBlock = 'IParensBlock',
+    Raw = 'IRaw',
+}
+
+export enum IConditionalTypeContinuableEnum {
+    And = 'IAnd',
+    Or = 'IOr'
+}
+
+export interface IConditionalTypeContinuable {
+    op: IConditionalTypeContinuableEnum;
+    condition: IConditionalType; // The next condition in the chain
 }
 
 export interface IConditionalTypeLogic {
-	type:
-		| IConditionalTypeEnum.IfEq
-		| IConditionalTypeEnum.IfNeq
-		| IConditionalTypeEnum.IfGt
-		| IConditionalTypeEnum.IfGte
-		| IConditionalTypeEnum.IfLt
-		| IConditionalTypeEnum.IfLte;
-	left: ITypedInput;
-	right: ITypedInput;
-}
-
-export interface IConditionalTypeAndOr {
-	type: IConditionalTypeEnum.And | IConditionalTypeEnum.Or;
-	a: IConditionalType;
-	b: IConditionalType;
+    type: IConditionalTypeEnum.LogicExpr;
+    condition: IConditionalLogicType; // The logic condition (e.g., IfEq, IfGt)
+    next?: IConditionalTypeContinuable; // Optional next condition in the chain
 }
 
 export interface IConditionalTypeParensBlock {
-	type: IConditionalTypeEnum.ParensBlock;
-	condition: IConditionalType; // The condition inside the parentheses
+    type: IConditionalTypeEnum.ParensBlock;
+    condition: IConditionalType; // The condition inside the parentheses
+    next?: IConditionalTypeContinuable; // Optional next condition in the chain
 }
 
 export interface IConditionalTypeRaw {
-	type: IConditionalTypeEnum.Raw;
-	condition: string; // Raw condition for the if statement
+    type: IConditionalTypeEnum.Raw;
+    condition: string; // Raw condition for the if statement
+    next?: IConditionalTypeContinuable; // Optional next condition in the chain
 }
 
-export type IConditionalType = IConditionalTypeLogic | IConditionalTypeAndOr | IConditionalTypeRaw;
+export type IConditionalType =
+    | IConditionalTypeLogic
+    | IConditionalTypeParensBlock
+    | IConditionalTypeRaw;
 
 /**
  * A abstract syntax tree node type for code generation.
@@ -139,7 +150,7 @@ export interface IVariableSetNode {
 export interface IIfConditionNode {
 	type: INodeTypeEnum.IfCondition;
 	data: {
-		condition: string;
+		condition: IConditionalType;
 		body: INode[];
 		elseifs?: IElseIf[];
 		else?: INode[];
@@ -147,7 +158,7 @@ export interface IIfConditionNode {
 }
 
 export interface IElseIf {
-	condition: string;
+	condition: IConditionalType;
 	body: INode[];
 }
 

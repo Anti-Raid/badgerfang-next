@@ -9,7 +9,7 @@ import {
 	stringToConditionalLogicTypeEnum,
 	TypedInputEnum
 } from '@/lib/flow/data';
-import { Ghost, InlineGhost, SmallGhost } from '../ui/Buttons';
+import { InlineGhost, SmallGhost } from '../ui/Buttons';
 import { InputField, TypedInputField } from './Inputs';
 
 export interface ConditionalTypeProps {
@@ -61,7 +61,7 @@ export const ConditionalTypeField: React.FC<ConditionalTypeProps> = ({ value, on
 				</>
 			) : value.type === ConditionalTypeEnum.LogicExpr ? (
 				<ConditionalTypeLogicField
-					value={value as ConditionalTypeLogic}
+					value={value}
 					onChange={(logic) => {
 						onChange({
 							...value,
@@ -218,10 +218,6 @@ const ConditionalTypeLogicField: React.FC<ConditionalTypeLogicProps> = ({ value,
 					value={conditionalLogicTypeEnumToString(value.condition.type)}
 					options={[
 						{
-							label: 'Unselected',
-							value: stringToConditionalLogicTypeEnum(ConditionalLogicTypeEnum.Unselected)
-						},
-						{
 							label: 'Equals',
 							value: stringToConditionalLogicTypeEnum(ConditionalLogicTypeEnum.IfEq)
 						},
@@ -251,7 +247,7 @@ const ConditionalTypeLogicField: React.FC<ConditionalTypeLogicProps> = ({ value,
 							...value,
 							condition: {
 								...value.condition,
-								type: stringToConditionalLogicTypeEnum(e.target.value)
+								type: stringToConditionalLogicTypeEnum(e.target.value || "unselected")
 							}
 						});
 					}}

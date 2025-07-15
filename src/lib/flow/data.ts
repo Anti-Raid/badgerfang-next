@@ -126,13 +126,13 @@ export interface ForLoopRaw {
 export type ForLoopType = ForLoopGeneralizedIteration | ForLoopRange | ForLoopRaw;
 
 export enum ConditionalLogicTypeEnum {
+	Unselected = 'Unselected', // Used for UI to indicate no logic condition is selected
 	IfEq = 'IfEq',
 	IfNeq = 'IfNeq',
 	IfGt = 'IfGt',
 	IfGte = 'IfGte',
 	IfLt = 'IfLt',
 	IfLte = 'IfLte',
-	Unselected = 'Unselected' // Used for UI to indicate no logic condition is selected
 }
 
 export const stringToConditionalLogicTypeEnum = (value: string): ConditionalLogicTypeEnum => {
@@ -152,26 +152,28 @@ export const stringToConditionalLogicTypeEnum = (value: string): ConditionalLogi
 		case 'unselected':
 			return ConditionalLogicTypeEnum.Unselected;
 		default:
-			throw new Error(`Unknown ConditionalLogicTypeEnum value: ${value}`);
+			return ConditionalLogicTypeEnum.Unselected; // Fallback for unknown types
 	}
 };
 
 export const conditionalLogicTypeEnumToString = (type: ConditionalLogicTypeEnum): string => {
 	switch (type) {
 		case ConditionalLogicTypeEnum.IfEq:
-			return 'ifeq';
+			return 'IfEq';
 		case ConditionalLogicTypeEnum.IfNeq:
-			return 'ifneq';
+			return 'IfNeq';
 		case ConditionalLogicTypeEnum.IfGt:
-			return 'ifgt';
+			return 'IfGt';
 		case ConditionalLogicTypeEnum.IfGte:
-			return 'ifgte';
+			return 'IfGte';
 		case ConditionalLogicTypeEnum.IfLt:
-			return 'iflt';
+			return 'IfLt';
 		case ConditionalLogicTypeEnum.IfLte:
-			return 'iflte';
+			return 'IfLte';
 		case ConditionalLogicTypeEnum.Unselected:
-			return 'unselected'; // For UI purposes
+			return 'Unselected'; // For UI purposes
+		default:
+			return "Unselected"; // Fallback for unknown types
 	}
 };
 
@@ -339,14 +341,14 @@ export interface VariableSetNode {
 export interface IfConditionNode {
 	type: NodeTypeEnum.IfCondition;
 	data: SharedNodeData & {
-		condition: string;
+		condition: ConditionalType;
 	};
 }
 
 export interface ElseIfConditionNode {
 	type: NodeTypeEnum.ElseIfCondition;
 	data: SharedNodeData & {
-		condition: string;
+		condition: ConditionalType;
 		index: number; // Index of the elseif in the chain
 	};
 }

@@ -14,6 +14,8 @@ import { Connection, Edge, Node, Position, useReactFlow } from '@xyflow/react';
 import FlowNodeBase from './BaseNode';
 import Handle from './Handle';
 import {
+	ConditionalType,
+	ConditionalTypeEnum,
 	ForLoopType,
 	ForLoopTypeEnum,
 	NodeData,
@@ -24,13 +26,13 @@ import {
 	registerValidationTarget,
 	TypedInputEnum
 } from '@/lib/flow/data';
-import { useContext, useEffect, useMemo, useState } from 'react';
-import { FlowContext } from '@/lib/flow/context';
+import { useEffect, useState } from 'react';
 import { BaseLabelAndDescription, InputField, TypedInputField } from './Inputs';
 import { FlowExpanded } from './FlowExpanded';
 import logger from '@/lib/logger';
 import React from 'react';
 import { SmallGhost, SmallInlineGhost } from '../ui/Buttons';
+import { ConditionalTypeField } from './ConditionalType';
 
 // Static validation for if_condition: If conditions have rule 1 for source connections, meaning they can only have one source connection
 registerValidationSource(
@@ -162,7 +164,9 @@ export const IfCondition = (props: NodeProps) => {
 
 	const flow = useReactFlow();
 
-	const [condition, setCondition] = useState<string>(props.data.data.condition || '');
+	const [condition, setCondition] = useState<ConditionalType>(props.data.data.condition || {
+		type: ConditionalTypeEnum.Unselected,
+	});
 
 	useEffect(() => {
 		flow.updateNodeData(props.id, {
@@ -180,14 +184,9 @@ export const IfCondition = (props: NodeProps) => {
 			<Handle type="source" position={Position.Bottom} />
 
 			<FlowExpanded nodeProps={props}>
-				<InputField
-					id={`${props.id}-condition`}
-					label="Condition"
+				<ConditionalTypeField
 					value={condition}
-					onChange={(e) => setCondition(e.target.value)}
-					placeholder="Enter condition"
-					className="w-full"
-					error={!condition ? 'Condition is required.' : ''}
+					onChange={setCondition}
 				/>
 			</FlowExpanded>
 		</FlowNodeBase>
@@ -201,7 +200,9 @@ export const ElseIfCondition = (props: NodeProps) => {
 
 	const flow = useReactFlow();
 
-	const [condition, setCondition] = useState<string>(props.data.data.condition || '');
+	const [condition, setCondition] = useState<ConditionalType>(props.data.data.condition || {
+		type: ConditionalTypeEnum.Unselected,
+	});
 	const [index, setIndex] = useState<number>(props.data.data.index || 0);
 
 	useEffect(() => {
@@ -220,16 +221,6 @@ export const ElseIfCondition = (props: NodeProps) => {
 
 			<FlowExpanded nodeProps={props}>
 				<InputField
-					id={`${props.id}-condition`}
-					label="Condition"
-					value={condition}
-					onChange={(e) => setCondition(e.target.value)}
-					placeholder="Enter condition"
-					className="w-full"
-					error={!condition ? 'Condition is required.' : ''}
-				/>
-
-				<InputField
 					id={`${props.id}-index`}
 					label="Index"
 					value={index?.toString()}
@@ -245,6 +236,11 @@ export const ElseIfCondition = (props: NodeProps) => {
 					placeholder="Index in chain"
 					className="w-full"
 					error={!index ? 'Index is required.' : ''}
+				/>
+
+				<ConditionalTypeField
+					value={condition}
+					onChange={setCondition}
 				/>
 			</FlowExpanded>
 		</FlowNodeBase>

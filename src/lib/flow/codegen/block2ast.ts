@@ -2,6 +2,13 @@ import {
 	CommandArgumentNode,
 	CommandArgumentType,
 	CommandNode,
+	ConditionalLogicType,
+	ConditionalLogicTypeEnum,
+	ConditionalType,
+	ConditionalTypeContinuable,
+	ConditionalTypeEnum,
+	ConditionalTypeLogic,
+	ConditionalTypeParensBlock,
 	CustomCodeNode,
 	ForLoopNode,
 	ForLoopType,
@@ -20,6 +27,13 @@ import {
 	CodeGenAST,
 	ICommandArgument,
 	ICommandArgumentType,
+	IConditionalLogicTypeEnum,
+	IConditionalType,
+	IConditionalTypeContinuable,
+	IConditionalTypeContinuableEnum,
+	IConditionalTypeEnum,
+	IConditionalTypeLogic,
+	IConditionalTypeParensBlock,
 	IElseIf,
 	IForLoopType,
 	IForLoopTypeEnum,
@@ -145,6 +159,7 @@ export class CodeGenASTGenerator {
 	 * Visits a node and returns its AST representation.
 	 */
 	private visitNode(currentAst: CodeGenAST, node: Node<NodeExtData>): VisitResult {
+		console.log("Visiting node:", node.id, "Type:", node.data.type);
 		const data = node.data;
 
 		switch (data.type) {
@@ -193,17 +208,19 @@ export class CodeGenASTGenerator {
 		while (currentNode) {
 			if (visited.has(currentNode.id)) {
 				throw new Error(
-					`Cycle detected in flow starting from node ${node.id} at node ${currentNode.id}`
+					`Cycle detected in flow starting from node ${node.id} (${node.data.type}) at node ${currentNode.id} (${currentNode.data.type}), have visited nodes: ${Array.from(visited).join(', ')} so far`
 				);
 			}
 
 			visited.add(currentNode.id);
 
-			const visitResult = this.visitNode(currentAst, node);
+			const visitResult = this.visitNode(currentAst, currentNode);
 			if (visitResult.ast) {
 				astNodes.push(visitResult.ast);
 			}
 			currentNode = visitResult.nextNode;
+			//throw new Error(`Visited: ${Array.from(visited).join(', ')}, next=${JSON.stringify(visitResult.nextNode)}`);
+			console.log(`Next node: ${JSON.stringify(currentNode)}`);
 		}
 
 		return astNodes;
@@ -443,7 +460,7 @@ export class CodeGenASTGenerator {
 			}
 
 			elseIfs.push({
-				condition: elseif.data.data.condition,
+				condition: this.visitConditionalType(node.currentAst, elseif.data.data.condition),
 				body: this.visitNodeAndChildren(node.currentAst, elseifChildren[0])
 			});
 		}
@@ -481,7 +498,7 @@ export class CodeGenASTGenerator {
 			ast: {
 				type: INodeTypeEnum.IfCondition,
 				data: {
-					condition: node.data.data.condition,
+					condition: this.visitConditionalType(node.currentAst, node.data.data.condition),
 					body: bodyNodes,
 					elseifs: elseIfs.length > 0 ? elseIfs : undefined,
 					else: elseBlock
@@ -673,6 +690,127 @@ export class CodeGenASTGenerator {
 			name: arg.data.name,
 			description: arg.data.description,
 			required: arg.data.required
+		};
+	}
+
+	/** Visits a ConditionalType and returns its AST representation.
+	 * 
+	 * @param data The ConditionalType to convert to AST.
+	 * @return The AST representation of the ConditionalType.
+	 */
+	private visitConditionalType(
+		currentAst: CodeGenAST,
+		data: ConditionalType
+	): IConditionalType {
+		switch (data.type) {
+			case ConditionalTypeEnum.Unselected:
+				this.pushError(currentAst, `Unselected ConditionalLogicType encountered.`);
+				return {
+					type: IConditionalTypeEnum.Raw,
+					condition: ""
+				}
+			case ConditionalTypeEnum.LogicExpr:
+				return this.visitConditionalLogicType(currentAst, data)
+			case ConditionalTypeEnum.ParensBlock:
+				return {
+					type: IConditionalTypeEnum.ParensBlock,
+					condition: this.visitConditionalTypeParensBlock(currentAst, data)
+				}	
+			case ConditionalTypeEnum.Raw:
+				return {
+					type: IConditionalTypeEnum.Raw,
+					condition: data.condition // Raw condition for the logic expression
+				};	
+			default:
+				this.pushError(currentAst, `Unknown ConditionalType ${JSON.stringify(data)} encountered.`);
+				return {
+					type: IConditionalTypeEnum.Raw,
+					condition: "" // Default to an empty string for raw condition
+				};		
+		}
+	}
+
+	/**
+	 * Visits a ConditionalTypeContinuable and returns its AST representation.
+	 * @param data The ConditionalTypeContinuable to convert to AST.
+	 * @return The AST representation of the ConditionalTypeContinuable.
+	 */
+	private visitConditionalTypeContinuable(
+		currentAst: CodeGenAST,
+		data: ConditionalTypeContinuable,
+	): IConditionalTypeContinuable {
+		let op = IConditionalTypeContinuableEnum.And
+		if (data.op === 'or') {
+			op = IConditionalTypeContinuableEnum.Or;
+		}
+
+		return {
+			op: op,
+			condition: this.visitConditionalType(currentAst, data.condition)
+		};
+	}
+
+    /**
+     * Visits a ConditionalLogicType and returns its AST representation.
+     * @param data The ConditionalLogicType to convert to AST.
+     * @returns The AST representation of the ConditionalLogicType.
+     */
+    private visitConditionalLogicType(
+        currentAst: CodeGenAST,
+        data: ConditionalTypeLogic,
+    ): IConditionalTypeLogic {
+        if(data.condition.type === ConditionalLogicTypeEnum.Unselected) {
+            this.pushError(currentAst, `Unselected ConditionalLogicType encountered.`);
+            return {
+				type: IConditionalTypeEnum.LogicExpr,
+				condition: {
+					type: IConditionalLogicTypeEnum.IfEq,
+					left: {
+						type: ITypedInputEnum.String,
+						value: ""
+					},
+					right: {
+						type: ITypedInputEnum.String,
+						value: ""
+					}
+				}
+			}
+        }
+
+        const typeMap = {
+            [ConditionalLogicTypeEnum.IfEq]: IConditionalLogicTypeEnum.IfEq,
+            [ConditionalLogicTypeEnum.IfNeq]: IConditionalLogicTypeEnum.IfNeq,
+            [ConditionalLogicTypeEnum.IfGt]: IConditionalLogicTypeEnum.IfGt,
+            [ConditionalLogicTypeEnum.IfGte]: IConditionalLogicTypeEnum.IfGte,
+            [ConditionalLogicTypeEnum.IfLt]: IConditionalLogicTypeEnum.IfLt,
+            [ConditionalLogicTypeEnum.IfLte]: IConditionalLogicTypeEnum.IfLte,
+            
+        }
+
+        return {
+			type: IConditionalTypeEnum.LogicExpr,
+			condition: {
+				type: typeMap[data.condition.type],
+				left: this.visitTypedInput(data.condition.left),
+				right: this.visitTypedInput(data.condition.right)
+			},
+			next: data.next ? this.visitConditionalTypeContinuable(currentAst, data.next) : undefined,
+        };
+    }
+
+	/**
+	 * Visits a ConditionalTypeParensBlock and returns its AST representation.
+	 * @param data The ConditionalTypeParensBlock to convert to AST.
+	 * @returns The AST representation of the ConditionalTypeParensBlock.
+	 */
+	private visitConditionalTypeParensBlock(
+		currentAst: CodeGenAST,
+		data: ConditionalTypeParensBlock,
+	): IConditionalTypeParensBlock {
+		return {
+			type: IConditionalTypeEnum.ParensBlock,
+			condition: this.visitConditionalType(currentAst, data.condition),
+			next: data.next ? this.visitConditionalTypeContinuable(currentAst, data.next) : undefined
 		};
 	}
 }
