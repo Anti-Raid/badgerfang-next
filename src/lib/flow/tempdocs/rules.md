@@ -23,3 +23,14 @@ An end condition must be connected to either a `If Statement`, a `For Loop` or a
 ### CodegenAST Prelude Removal
 
 It would help if there was a intermediate step in which the prelude etc is removed and replaced with a new CodeGenAST function delcaration/function call wrapper instead
+
+# Scope limits
+
+To ensure Flow remains high quality, the scope of Flow UI will be limited (currently) to:
+
+- sending/deferring/editting/deleting interaction responses
+- sending/editting/deleting normal messages
+- basic member moderation (ban/kick/timeout) 
+- stinging members
+
+In either case, the Custom Code node can be used as a escape hatch to run raw Luau code within a flow
