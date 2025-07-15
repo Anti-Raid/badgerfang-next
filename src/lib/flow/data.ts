@@ -187,6 +187,7 @@ export enum ConditionalTypeEnum {
 	LogicExpr = 'LogicExpr',
 	ParensBlock = 'ParensBlock',
 	Raw = 'Raw',
+	Literal = 'Literal',
 	Unselected = 'Unselected' // Used for UI to indicate no condition is selected
 }
 
@@ -213,6 +214,12 @@ export interface ConditionalTypeRaw {
 	next?: ConditionalTypeContinuable; // Optional next condition in the chain
 }
 
+export interface ConditionalTypeLiteral {
+	type: ConditionalTypeEnum.Literal;
+	value: TypedInput; // Literal value for the condition
+	next?: ConditionalTypeContinuable; // Optional next condition in the chain
+}
+
 export interface ConditionalTypeUnselected {
 	type: ConditionalTypeEnum.Unselected;
 }
@@ -221,6 +228,7 @@ export type ConditionalType =
 	| ConditionalTypeLogic
 	| ConditionalTypeParensBlock
 	| ConditionalTypeRaw
+	| ConditionalTypeLiteral
 	| ConditionalTypeUnselected;
 
 export interface FlowData {

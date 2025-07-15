@@ -7,6 +7,7 @@ import {
 	ConditionalType,
 	ConditionalTypeContinuable,
 	ConditionalTypeEnum,
+	ConditionalTypeLiteral,
 	ConditionalTypeLogic,
 	ConditionalTypeParensBlock,
 	CustomCodeNode,
@@ -32,6 +33,7 @@ import {
 	IConditionalTypeContinuable,
 	IConditionalTypeContinuableEnum,
 	IConditionalTypeEnum,
+	IConditionalTypeLiteral,
 	IConditionalTypeLogic,
 	IConditionalTypeParensBlock,
 	IElseIf,
@@ -721,6 +723,8 @@ export class CodeGenASTGenerator {
 					type: IConditionalTypeEnum.Raw,
 					condition: data.condition // Raw condition for the logic expression
 				};	
+			case ConditionalTypeEnum.Literal:
+				return this.visitConditionalTypeLiteral(currentAst, data);
 			default:
 				this.pushError(currentAst, `Unknown ConditionalType ${JSON.stringify(data)} encountered.`);
 				return {
@@ -810,6 +814,22 @@ export class CodeGenASTGenerator {
 		return {
 			type: IConditionalTypeEnum.ParensBlock,
 			condition: this.visitConditionalType(currentAst, data.condition),
+			next: data.next ? this.visitConditionalTypeContinuable(currentAst, data.next) : undefined
+		};
+	}
+
+	/**
+	 * Visits a ConditionalTypeLiteral and returns its AST representation.
+	 * @param data The ConditionalTypeLiteral to convert to AST.
+	 * @returns The AST representation of the ConditionalTypeLiteral.
+	 */
+	private visitConditionalTypeLiteral(
+		currentAst: CodeGenAST,
+		data: ConditionalTypeLiteral,
+	): IConditionalTypeLiteral {
+		return {
+			type: IConditionalTypeEnum.Literal,
+			value: this.visitTypedInput(data.value),
 			next: data.next ? this.visitConditionalTypeContinuable(currentAst, data.next) : undefined
 		};
 	}

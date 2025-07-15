@@ -4,6 +4,7 @@ import {
 	ConditionalType,
 	ConditionalTypeContinuable,
 	ConditionalTypeEnum,
+	ConditionalTypeLiteral,
 	ConditionalTypeLogic,
 	ConditionalTypeParensBlock,
 	stringToConditionalLogicTypeEnum,
@@ -58,6 +59,16 @@ export const ConditionalTypeField: React.FC<ConditionalTypeProps> = ({ value, on
 							});
 						}}
 					/>
+
+					<InlineGhost
+						Title="Add Literal"
+						onClick={() => {
+							onChange({
+								type: ConditionalTypeEnum.Literal,
+								value: { type: TypedInputEnum.String, value: '' }
+							});
+						}}
+					/>
 				</>
 			) : value.type === ConditionalTypeEnum.LogicExpr ? (
 				<ConditionalTypeLogicField
@@ -105,6 +116,17 @@ export const ConditionalTypeField: React.FC<ConditionalTypeProps> = ({ value, on
 						}}
 					/>
 				</>
+			) : value.type == ConditionalTypeEnum.Literal ? (
+				<ConditionalTypeLiteralField
+					value={value}
+					onChange={(literal) => {
+						onChange({
+							...value,
+							value: literal.value,
+							next: literal.next
+						});
+					}}
+				/>
 			) : (
 				<div className="text-red-500">Unknown condition type: {JSON.stringify(value)}</div>
 			)}
@@ -314,5 +336,39 @@ const ConditionalTypeParensBlockField: React.FC<ConditionalTypeParensBlockProps>
 				}}
 			/>
 		</div>
+	);
+};
+
+export interface ConditionalTypeLiteralProps {
+	value: ConditionalTypeLiteral;
+	onChange: (value: ConditionalTypeLiteral) => void;
+}
+
+const ConditionalTypeLiteralField: React.FC<ConditionalTypeLiteralProps> = ({ value, onChange }) => {
+	return (
+		<>
+			<div className="gap-2">
+				<TypedInputField
+					label="Left Operand"
+					value={value.value}
+					onChange={(val) => {
+						onChange({
+							...value,
+							value: val
+						});
+					}}
+				/>
+			</div>
+
+			<ConditionalTypeContinuationField
+				value={value.next}
+				onChange={(continuation) => {
+					onChange({
+						...value,
+						next: continuation
+					});
+				}}
+			/>
+		</>
 	);
 };

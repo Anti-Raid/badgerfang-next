@@ -93,6 +93,7 @@ export enum IConditionalTypeEnum {
     LogicExpr = 'ILogicExpr',
     ParensBlock = 'IParensBlock',
     Raw = 'IRaw',
+	Literal = 'ILiteral',
 }
 
 export enum IConditionalTypeContinuableEnum {
@@ -123,10 +124,17 @@ export interface IConditionalTypeRaw {
     next?: IConditionalTypeContinuable; // Optional next condition in the chain
 }
 
+export interface IConditionalTypeLiteral {
+	type: IConditionalTypeEnum.Literal;
+	value: ITypedInput; // Literal value for the condition
+	next?: IConditionalTypeContinuable; // Optional next condition in the chain
+}
+
 export type IConditionalType =
     | IConditionalTypeLogic
     | IConditionalTypeParensBlock
-    | IConditionalTypeRaw;
+    | IConditionalTypeRaw
+	| IConditionalTypeLiteral;
 
 /**
  * A abstract syntax tree node type for code generation.
