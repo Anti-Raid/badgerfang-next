@@ -1,5 +1,6 @@
-import { CommandArgumentNode, CommandArgumentType, CustomCodeNode, ForLoopNode, ForLoopTypeEnum, NodeTypeEnum, TypedInput, TypedInputEnum, VariableSetNode } from "../data";
+import { CommandArgumentNode, CommandArgumentType, CustomCodeNode, ForLoopNode, ForLoopTypeEnum, NodeExtData, NodeTypeEnum, TypedInput, TypedInputEnum, VariableSetNode } from "../data";
 import { BaseUpwardNodeProcessor, BaseUpwardNodeProcessorVisit } from "./basenodeproc";
+import { Node } from "@xyflow/react";
 
 export interface InferredVariable {
     name: string;
@@ -43,19 +44,16 @@ export class TypeInferrer extends BaseUpwardNodeProcessor<TypeInferrerState, Inf
     /**
      * Given a single node, adds all variables to the set.
      */
-    protected visitNode(state: TypeInferrerState, currentOutput: InferredVariable[], nodeId: string): [InferredVariable[], boolean] {
-        const data = this.context.getData(nodeId);
-        if (!data) return [currentOutput, true]; // Passthrough and continue
-
-        switch (data.type) {
+    protected visitNode(state: TypeInferrerState, currentOutput: InferredVariable[], node: Node<NodeExtData>): [InferredVariable[], boolean] {
+        switch (node.data.type) {
             case NodeTypeEnum.SetVariable:
-                return [this.addVariablesFromSetVariable({ state, currentOutput, nodeId, data }), true];
+                return [this.addVariablesFromSetVariable({ state, currentOutput, nodeId: node.id, data: node.data }), true];
             case NodeTypeEnum.ForLoop:
-                return [this.addVariablesFromForLoop({ state, currentOutput, nodeId, data }), true];
+                return [this.addVariablesFromForLoop({ state, currentOutput, nodeId: node.id, data: node.data }), true];
             case NodeTypeEnum.CustomCode:
-                return this.addVariablesFromCustomCode({ state, currentOutput, nodeId, data });
+                return this.addVariablesFromCustomCode({ state, currentOutput, nodeId: node.id, data: node.data });
             case NodeTypeEnum.CommandArgumentNode:
-                return this.addVariablesFromCommandArgumentNode({ state, currentOutput, nodeId, data });
+                return this.addVariablesFromCommandArgumentNode({ state, currentOutput, nodeId: node.id, data: node.data });
             default:
                 // For other node types, we don't extract variables.
                 return [currentOutput, true];

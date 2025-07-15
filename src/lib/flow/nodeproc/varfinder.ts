@@ -1,4 +1,5 @@
-import { CommandArgumentNode, CustomCodeNode, ForLoopNode, ForLoopTypeEnum, NodeTypeEnum, VariableSetNode } from "../data";
+import { Node } from "@xyflow/react";
+import { CommandArgumentNode, CustomCodeNode, ForLoopNode, ForLoopTypeEnum, NodeExtData, NodeTypeEnum, VariableSetNode } from "../data";
 import { BaseUpwardNodeProcessor, BaseUpwardNodeProcessorVisit } from "./basenodeproc";
 
 /** 
@@ -27,19 +28,16 @@ export class VarFinder extends BaseUpwardNodeProcessor<null, string[]> {
     /**
      * Given a single node, adds all variables to the set.
      */
-    protected visitNode(state: null, currentOutput: string[], nodeId: string): [string[], boolean] {
-        const data = this.context.getData(nodeId);
-        if (!data) return [currentOutput, true]; // Passthrough and continue
-
-        switch (data.type) {
+    protected visitNode(state: null, currentOutput: string[], node: Node<NodeExtData>): [string[], boolean] {
+        switch (node.data.type) {
             case NodeTypeEnum.SetVariable:
-                return [this.addVariablesFromSetVariable({ state, currentOutput, nodeId, data }), true];
+                return [this.addVariablesFromSetVariable({ state, currentOutput, nodeId: node.id, data: node.data }), true];
             case NodeTypeEnum.ForLoop:
-                return [this.addVariablesFromForLoop({ state, currentOutput, nodeId, data }), true];
+                return [this.addVariablesFromForLoop({ state, currentOutput, nodeId: node.id, data: node.data }), true];
             case NodeTypeEnum.CustomCode:
-                return this.addVariablesFromCustomCode({ state, currentOutput, nodeId, data });
+                return this.addVariablesFromCustomCode({ state, currentOutput, nodeId: node.id, data: node.data });
             case NodeTypeEnum.CommandArgumentNode:
-                return this.addVariablesFromCommandArgument({ state, currentOutput, nodeId, data });
+                return this.addVariablesFromCommandArgument({ state, currentOutput, nodeId: node.id, data: node.data });
             default:
                 // For other node types, we don't extract variables.
                 return [currentOutput, true];

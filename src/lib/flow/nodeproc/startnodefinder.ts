@@ -1,5 +1,6 @@
-import { CommandNode, LibraryNode, NodeTypeEnum } from "../data";
+import { CommandNode, LibraryNode, NodeExtData, NodeTypeEnum } from "../data";
 import { BaseUpwardNodeProcessor } from "./basenodeproc";
+import { Node } from "@xyflow/react";
 
 /** 
  * Utility to find the start in a flow given by node id by following the path 
@@ -14,16 +15,14 @@ export class LibraryNodeFinder extends BaseUpwardNodeProcessor<null, LibraryNode
         return null; // No start node found initially.
     }
 
-    protected visitNode(_state: null, currentOutput: LibraryNode | null, nodeId: string): [LibraryNode | null, boolean] {
+    protected visitNode(_state: null, currentOutput: LibraryNode | null, node: Node<NodeExtData>): [LibraryNode | null, boolean] {
         if (currentOutput) {
             return [currentOutput, false]; // If we already found the target node, return it and don't continue.
         }
-        const data = this.context.getData(nodeId);
-        if (!data) return [currentOutput, true]; // Passthrough and continue
 
-        switch (data.type) {
+        switch (node.data.type) {
             case NodeTypeEnum.LibraryNode:
-                return [data, false]; 
+                return [node.data, false]; 
             default:
                 // For other node types, just passthrough the current output.
                 return [currentOutput, true];
@@ -44,16 +43,14 @@ export class CommandNodeFinder extends BaseUpwardNodeProcessor<null, CommandNode
         return null; // No start node found initially.
     }
 
-    protected visitNode(_state: null, currentOutput: CommandNode | null, nodeId: string): [CommandNode | null, boolean] {
+    protected visitNode(_state: null, currentOutput: CommandNode | null, node: Node<NodeExtData>): [CommandNode | null, boolean] {
         if (currentOutput) {
             return [currentOutput, false]; // If we already found the target node, return it and don't continue.
         }
-        const data = this.context.getData(nodeId);
-        if (!data) return [currentOutput, true]; // Passthrough and continue
 
-        switch (data.type) {
+        switch (node.data.type) {
             case NodeTypeEnum.CommandNode:
-                return [data, false];
+                return [node.data, false];
             default:
                 // For other node types, just passthrough the current output.
                 return [currentOutput, true];
