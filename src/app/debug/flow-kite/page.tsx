@@ -7,7 +7,6 @@ import { CodeGenASTGenerator } from '@/lib/flow/codegen/block2ast';
 
 export default function Blockly() {
 	const [data, setData] = useState<FlowData>({nodes: [], edges: []})
-	const [auxData, setAuxData] = useState<Record<string, NodeExtData>>({});
 
 	const codegennedAst = useMemo(() => {
 		let r = new CodeGenASTGenerator(
@@ -24,27 +23,6 @@ export default function Blockly() {
 			<Flow 
 				flowData={data}
 				onChange={setData}
-				flowContext={{
-					getData: (id: string) => {
-						console.debug("Getting aux data for", { id, auxData }, auxData);
-						return auxData[id]
-					},
-					setData: (id: string, data: NodeExtData) => {
-						console.debug("Setting aux data for", id, "to", data);
-						setAuxData((prev) => ({ ...prev, [id]: data }));
-					},
-					removeData: (id: string) => {
-						setAuxData((prev) => {
-							const newAuxData = { ...prev };
-							delete newAuxData[id];
-							return newAuxData;
-						});
-					},
-					onChange: (nodes, edges) => {
-						console.debug("Flow changed", { nodes, edges });
-						setData({ nodes, edges });
-					}	
-				}}
 			/>
 			<motion.div
 				initial={{ opacity: 0, y: 10 }}
@@ -52,7 +30,7 @@ export default function Blockly() {
 				transition={{ duration: 0.5 }}
 				className="mt-8"
 			>
-				<code className="whitespace-pre-wrap break-words bg-gray-100 text-black">{JSON.stringify({data, auxData })}</code>
+				<code className="whitespace-pre-wrap break-words bg-gray-100 text-black">{JSON.stringify(data)}</code>
 			</motion.div>
 
 			<h2 className="text-lg">CodeGen AST</h2>

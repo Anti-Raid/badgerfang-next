@@ -1,6 +1,5 @@
 import { Edge, getIncomers, Node } from "@xyflow/react";
-import { FlowContext } from "../context";
-import { NodeData, NodeExtData, NodeTypeEnum } from "../data";
+import { NodeExtData, NodeTypeEnum } from "../data";
 import logger from "@/lib/logger";
 
 export interface BaseUpwardNodeProcessorVisit<State, Output, T> {
@@ -29,7 +28,7 @@ export abstract class BaseUpwardNodeProcessor<State, Output> {
     protected nodes: Node<NodeExtData>[];
     protected edges: Edge[];
 
-    constructor(context: FlowContext, nodes: Node<NodeExtData>[], edges: Edge[]) {
+    constructor(nodes: Node<NodeExtData>[], edges: Edge[]) {
         this.nodes = nodes;
         this.edges = edges;
     }

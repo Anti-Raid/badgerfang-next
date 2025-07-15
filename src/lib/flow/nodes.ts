@@ -151,18 +151,25 @@ export function useNodeValues(nodeType: string): NodeValues {
 export function createNode(
   type: string,
   position: XYPosition,
-  data?: NodeExtData
+  data?: NodeExtData,
+  parent?: string,
 ): Node<NodeExtData> {
   const id = getNodeId();
 
-  const nodes: Node<NodeExtData> = {
+  let node: Node<NodeExtData> = {
     id,
     type,
     position,
     data: data ? data : defaultNodeDataForType[type] || defaultNodeDataForType["unknown"],
   };
 
-  return nodes;
+  if (parent) {
+    node.parentId = parent; // Set parent ID if provided
+    node.expandParent = true;
+    node.extent = "parent"
+  }
+
+  return node;
 }
 
 export function getUniqueId(): number {

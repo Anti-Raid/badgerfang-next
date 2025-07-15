@@ -1,7 +1,6 @@
 import { FlowData } from "@/lib/flow/data";
 import FlowEditor from "./FlowEditor";
 import FlowNodeExplorer from "./NodeToolbar";
-import { FlowContext } from "@/lib/flow/context";
 
 interface Props {
     /**
@@ -9,16 +8,12 @@ interface Props {
      */
     flowData: FlowData;
     /**
-     * Flow context data
-     */
-    flowContext: FlowContext;
-    /**
      * On change handler that is called whenever the flow data changes.
      */
     onChange: () => void;
 }
 
-export default function Flow({ flowData, flowContext, onChange }: Props) {
+export default function Flow({ flowData, onChange }: Props) {
   return (
     <div className="flex flex-auto overflow-y-hidden relative">
       <div className="flex-none">
@@ -27,7 +22,6 @@ export default function Flow({ flowData, flowContext, onChange }: Props) {
       <div className="flex-auto">
         <FlowEditor
           initialData={flowData}
-          flowContext={flowContext}
           onChange={onChange}
         />
       </div>

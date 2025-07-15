@@ -1,7 +1,6 @@
 // Inspired from Kite
 // SPDX: GPL-3.0
-import { Connection, Edge, Node, ReactFlowInstance, NodeProps as XYNodeProps } from "@xyflow/react";
-import { FlowContext } from "./context";
+import { Connection, Edge, Node, NodeProps as XYNodeProps } from "@xyflow/react";
 
 export const numericRegex = /^[0-9]+$/;
 export const placeholderRegex = /^\{\{[a-z0-9_.]+\}\}$/;

@@ -20,17 +20,14 @@ import "@xyflow/react/dist/base.css";
 import { FlowData, getValidationSource, getValidationTarget, NodeExtData } from "@/lib/flow/data";
 import { createNode } from "@/lib/flow/nodes";
 import { edgeTypes, nodeTypes } from "@/lib/flow/components";
-import { FlowContext } from "@/lib/flow/context";
 
 interface Props {
   initialData?: FlowData;
-  flowContext: FlowContext;
   onChange: () => void;
 }
 
 export default function FlowEditor({
   initialData,
-  flowContext,
   onChange,
 }: Props) {
   const [nodes, setNodes, onNodesChange] = useNodesState(
