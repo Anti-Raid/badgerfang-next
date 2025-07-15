@@ -250,6 +250,7 @@ export enum NodeTypeEnum {
 	EndCondition = 'EndCondition',
 	CustomCode = 'CustomCode',
 	ForLoop = 'ForLoop',
+	WhileLoop = 'WhileLoop',
 
 	// Special
 	UnknownNode = 'UnknownNode',
@@ -385,6 +386,13 @@ export interface ForLoopNode {
 	};
 }
 
+export interface WhileLoopNode {
+	type: NodeTypeEnum.WhileLoop;
+	data: SharedNodeData & {
+		condition: ConditionalType; // Condition for the while loop
+	};
+}
+
 export interface UnknownNode {
 	type: NodeTypeEnum.UnknownNode;
 	data: SharedNodeData & Record<string, unknown>;
@@ -405,6 +413,7 @@ export type FlowNodeData =
 	| EndConditionNode
 	| CustomCodeNode
 	| ForLoopNode
+	| WhileLoopNode
 	| UnknownNode
 	| GroupNode;
 

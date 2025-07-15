@@ -143,6 +143,7 @@ export enum INodeTypeEnum {
 	SetVariable = 'ISetVariable',
 	IfCondition = 'IIfCondition',
 	ForLoop = 'IForLoop',
+	WhileLoop = 'IWhileLoop',
 	CustomCode = 'ICustomCode',
 	Block = 'IBlock'
 }
@@ -178,6 +179,14 @@ export interface IForLoopNode {
 	};
 }
 
+export interface WhileLoopNode {
+	type: INodeTypeEnum.WhileLoop;
+	data: {
+		condition: IConditionalType; 
+		body: INode[];
+	};
+}
+
 export interface ICustomCodeNode {
 	type: INodeTypeEnum.CustomCode;
 	data: {
@@ -196,6 +205,7 @@ export type INode =
 	| IVariableSetNode
 	| IIfConditionNode
 	| IForLoopNode
+	| WhileLoopNode
 	| ICustomCodeNode
 	| IBlockNode;
 

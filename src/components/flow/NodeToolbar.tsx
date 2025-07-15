@@ -34,7 +34,7 @@ const nodeCategories = {
 		},
 		{
 			title: 'Loops',
-			nodeTypes: ['for_loop']
+			nodeTypes: ['for_loop', "while_loop"]
 		},
 		{
 			title: 'Others',

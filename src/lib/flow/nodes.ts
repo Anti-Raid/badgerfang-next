@@ -4,6 +4,7 @@ import { Node, XYPosition } from '@xyflow/react';
 import { useMemo } from 'react';
 import {
 	CommandArgumentType,
+	ConditionalTypeEnum,
 	ForLoopTypeEnum,
 	NodeExtData,
 	NodeTypeEnum,
@@ -58,6 +59,10 @@ export const nodeTypes: Record<string, NodeValues> = {
 		defaultTitle: 'For Loop',
 		defaultDescription: 'Executes code in a loop based on condition.'
 	},
+	while_loop: {
+		defaultTitle: 'While Loop',
+		defaultDescription: 'Executes code in a loop while condition is true.'
+	},
 	custom_code: {
 		defaultTitle: 'Custom Code',
 		defaultDescription: 'Executes custom code.'
@@ -105,13 +110,17 @@ export const defaultNodeDataForType: Record<string, NodeExtData> = {
 	if_condition: {
 		type: NodeTypeEnum.IfCondition,
 		data: {
-			condition: ''
+			condition: {
+				type: ConditionalTypeEnum.Unselected
+			}
 		}
 	},
 	elseif_condition: {
 		type: NodeTypeEnum.ElseIfCondition,
 		data: {
-			condition: '',
+			condition: {
+				type: ConditionalTypeEnum.Unselected
+			},
 			index: 1 // Default index for the first elseif
 		}
 	},
@@ -129,6 +138,14 @@ export const defaultNodeDataForType: Record<string, NodeExtData> = {
 					type: TypedInputEnum.String,
 					value: ''
 				}
+			}
+		}
+	},
+	while_loop: {
+		type: NodeTypeEnum.WhileLoop,
+		data: {
+			condition: {
+				type: ConditionalTypeEnum.Unselected
 			}
 		}
 	},

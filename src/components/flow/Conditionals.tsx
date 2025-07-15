@@ -145,7 +145,7 @@ registerValidationTarget(
 			return false;
 		}
 
-		if (![NodeTypeEnum.IfCondition, NodeTypeEnum.ForLoop].includes(srcData.data.type)) {
+		if (![NodeTypeEnum.IfCondition, NodeTypeEnum.ForLoop, NodeTypeEnum.WhileLoop].includes(srcData.data.type)) {
 			logger.error(
 				'Flow.EndCondition',
 				'EndCondition can only be connected to an IfCondition/ForLoop node.'
@@ -641,5 +641,100 @@ export const ForLoopTypeInputField: React.FC<ForLoopTypeProps> = ({
 				</>
 			)}
 		</>
+	);
+};
+
+// Static validation for WhileLoop: WhileLoop nodes can only have one source connection and one target connection.
+registerValidationSource(
+	'while_loop',
+	(
+		srcCons: string[],
+		_tgtCons: string[],
+		_edge: Edge | Connection,
+		_source: Node<NodeData>,
+		target: Node<NodeData>,
+		getNode
+	) => {
+		let numContinuationConnections = 0;
+		let numEnds = 0; // Number of end connections
+		let numBlocks = 0; // Non-continuing connections
+
+		const addNode = (nodeId: string): boolean => {
+			const node = getNode(nodeId);
+			if (!node) {
+				// If the node type is not defined, we cannot validate it
+				return false;
+			}
+
+			console.log('Adding in node:', {
+				nodeId: nodeId,
+				nodeType: node.data.type,
+				node,
+				numContinuationConnections,
+				numEnds,
+				numBlocks
+			});
+
+			if (
+				node.data.type === NodeTypeEnum.ElseIfCondition ||
+				node.data.type === NodeTypeEnum.ElseCondition
+			) {
+				return false; // WhileLoop cannot have ElseIf or Else conditions
+			}
+
+			if (node.data.type === NodeTypeEnum.EndCondition) {
+				numEnds++;
+			} else {
+				numBlocks++;
+			}
+
+			return numBlocks <= 1 && numEnds <= 1;
+		};
+
+		if (!addNode(target.id)) {
+			return false;
+		}
+
+		for (const conn of srcCons) {
+			if (!addNode(conn)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+);
+
+export const WhileLoop = (props: NodeProps) => {
+	if (props?.data?.type != NodeTypeEnum.WhileLoop) {
+		return <div className="text-red-500">Invalid node type: {props?.data?.type}</div>;
+	}
+
+	const flow = useReactFlow();
+
+	const [condition, setCondition] = useState<ConditionalType>(props.data.data.condition || {
+		type: ConditionalTypeEnum.Unselected,
+	});
+
+	useEffect(() => {
+		flow.updateNodeData(props.id, {
+			data: {
+				condition: condition
+			}
+		});
+	}, [condition, props.id]);
+
+	return (
+		<FlowNodeBase {...props}>
+			<Handle type="target" position={Position.Top} />
+			<Handle type="source" position={Position.Bottom} />
+
+			<FlowExpanded nodeProps={props}>
+				<ConditionalTypeField
+					value={condition}
+					onChange={setCondition}
+				/>
+			</FlowExpanded>
+		</FlowNodeBase>
 	);
 };

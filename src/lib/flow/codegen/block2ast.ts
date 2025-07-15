@@ -21,7 +21,8 @@ import {
 	NodeTypeEnum,
 	TypedInput,
 	TypedInputEnum,
-	VariableSetNode
+	VariableSetNode,
+	WhileLoopNode
 } from '../data';
 import { Node, Edge, getOutgoers, getIncomers } from '@xyflow/react';
 import {
@@ -191,6 +192,8 @@ export class CodeGenASTGenerator {
 				);
 			case NodeTypeEnum.ForLoop:
 				return this.visitForLoop({ nodeId: node.id, data, currentAst });
+			case NodeTypeEnum.WhileLoop:
+				return this.visitWhileLoop({ nodeId: node.id, data, currentAst });
 			case NodeTypeEnum.CustomCode:
 				return this.visitCustomCode({ nodeId: node.id, data, currentAst });
 			case NodeTypeEnum.UnknownNode:
@@ -569,6 +572,72 @@ export class CodeGenASTGenerator {
 				type: INodeTypeEnum.ForLoop,
 				data: {
 					condition: this.visitForLoopType(node.data.data.condition),
+					body: bodyNodes
+				}
+			},
+			nextNode // The next node is the EndCondition's first child, if any
+		};
+	}
+
+	/**
+	 * Visits a WhileLoop and returns its AST representation.
+	 */
+	private visitWhileLoop(node: Visit<WhileLoopNode>): VisitResult {
+		// Find the block, continuation statement and end condition nodes from children
+		let children = this.getChildrenOfNode(node.nodeId);
+		let bodyStart: Node<NodeExtData> | null = null;
+		let endNode: Node<NodeExtData> | null = null;
+
+		for (const child of children) {
+			const childData = this.getAuxDataForNode(child.id);
+			switch (childData.type) {
+				case NodeTypeEnum.EndCondition:
+					if (endNode) {
+						this.pushWarning(
+							node.currentAst,
+							`WhileLoop ${node.nodeId} has multiple End nodes, only the first will be considered.`
+						);
+					} else {
+						endNode = child;
+					}
+					break;
+				default:
+					if (bodyStart) {
+						this.pushWarning(
+							node.currentAst,
+							`WhileLoop ${node.nodeId} has multiple Block nodes, only the first will be considered.`
+						);
+					} else {
+						bodyStart = child;
+					}
+					break;
+			}
+		}
+
+		let bodyNodes: INode[] = [];
+		if (bodyStart) {
+			bodyNodes = this.visitNodeAndChildren(node.currentAst, bodyStart);
+		}
+
+		if (!endNode) {
+			throw new Error(`WhileLoop ${node.nodeId} is missing a/an matching EndCondition node.`);
+		}
+
+		let endChildren = this.getChildrenOfNode(endNode.id);
+		if (endChildren.length > 1) {
+			this.pushWarning(
+				node.currentAst,
+				`EndCondition ${endNode.id} has multiple outgoing connections, only the first will be considered.`
+			);
+		}
+
+		let nextNode: Node<NodeExtData> | null = endChildren.length > 0 ? endChildren[0] : null;
+
+		return {
+			ast: {
+				type: INodeTypeEnum.WhileLoop,
+				data: {
+					condition: this.visitConditionalType(node.currentAst, node.data.data.condition),
 					body: bodyNodes
 				}
 			},
