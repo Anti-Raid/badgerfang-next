@@ -132,7 +132,7 @@ export enum ConditionalLogicTypeEnum {
 	IfGt = 'IfGt',
 	IfGte = 'IfGte',
 	IfLt = 'IfLt',
-	IfLte = 'IfLte',
+	IfLte = 'IfLte'
 }
 
 export const stringToConditionalLogicTypeEnum = (value: string): ConditionalLogicTypeEnum => {
@@ -173,7 +173,7 @@ export const conditionalLogicTypeEnumToString = (type: ConditionalLogicTypeEnum)
 		case ConditionalLogicTypeEnum.Unselected:
 			return 'Unselected'; // For UI purposes
 		default:
-			return "Unselected"; // Fallback for unknown types
+			return 'Unselected'; // Fallback for unknown types
 	}
 };
 

@@ -1,4 +1,4 @@
-import { ASTPreludeApply } from "./ast_transforms";
+import { ASTPreludeApply } from './ast_transforms';
 
 /**
  * The different types that a value in Luau can be user-initialized to.
@@ -77,53 +77,53 @@ export interface IForLoopRaw {
 export type IForLoopType = IForLoopGeneralizedIteration | IForLoopRange | IForLoopRaw;
 
 export enum IConditionalLogicTypeEnum {
-    IfEq = 'IIfEq',
-    IfNeq = 'IIfNeq',
-    IfGt = 'IIfGt',
-    IfGte = 'IIfGte',
-    IfLt = 'IIfLt',
-    IfLte = 'IIfLte',
+	IfEq = 'IIfEq',
+	IfNeq = 'IIfNeq',
+	IfGt = 'IIfGt',
+	IfGte = 'IIfGte',
+	IfLt = 'IIfLt',
+	IfLte = 'IIfLte'
 }
 
 export interface IConditionalLogicType {
-    type: IConditionalLogicTypeEnum;
-    left: ITypedInput;
-    right: ITypedInput;
+	type: IConditionalLogicTypeEnum;
+	left: ITypedInput;
+	right: ITypedInput;
 }
 
 export enum IConditionalTypeEnum {
-    LogicExpr = 'ILogicExpr',
-    ParensBlock = 'IParensBlock',
-    Raw = 'IRaw',
-	Literal = 'ILiteral',
+	LogicExpr = 'ILogicExpr',
+	ParensBlock = 'IParensBlock',
+	Raw = 'IRaw',
+	Literal = 'ILiteral'
 }
 
 export enum IConditionalTypeContinuableEnum {
-    And = 'IAnd',
-    Or = 'IOr'
+	And = 'IAnd',
+	Or = 'IOr'
 }
 
 export interface IConditionalTypeContinuable {
-    op: IConditionalTypeContinuableEnum;
-    condition: IConditionalType; // The next condition in the chain
+	op: IConditionalTypeContinuableEnum;
+	condition: IConditionalType; // The next condition in the chain
 }
 
 export interface IConditionalTypeLogic {
-    type: IConditionalTypeEnum.LogicExpr;
-    condition: IConditionalLogicType; // The logic condition (e.g., IfEq, IfGt)
-    next?: IConditionalTypeContinuable; // Optional next condition in the chain
+	type: IConditionalTypeEnum.LogicExpr;
+	condition: IConditionalLogicType; // The logic condition (e.g., IfEq, IfGt)
+	next?: IConditionalTypeContinuable; // Optional next condition in the chain
 }
 
 export interface IConditionalTypeParensBlock {
-    type: IConditionalTypeEnum.ParensBlock;
-    condition: IConditionalType; // The condition inside the parentheses
-    next?: IConditionalTypeContinuable; // Optional next condition in the chain
+	type: IConditionalTypeEnum.ParensBlock;
+	condition: IConditionalType; // The condition inside the parentheses
+	next?: IConditionalTypeContinuable; // Optional next condition in the chain
 }
 
 export interface IConditionalTypeRaw {
-    type: IConditionalTypeEnum.Raw;
-    condition: string; // Raw condition for the if statement
-    next?: IConditionalTypeContinuable; // Optional next condition in the chain
+	type: IConditionalTypeEnum.Raw;
+	condition: string; // Raw condition for the if statement
+	next?: IConditionalTypeContinuable; // Optional next condition in the chain
 }
 
 export interface IConditionalTypeLiteral {
@@ -133,9 +133,9 @@ export interface IConditionalTypeLiteral {
 }
 
 export type IConditionalType =
-    | IConditionalTypeLogic
-    | IConditionalTypeParensBlock
-    | IConditionalTypeRaw
+	| IConditionalTypeLogic
+	| IConditionalTypeParensBlock
+	| IConditionalTypeRaw
 	| IConditionalTypeLiteral;
 
 /**
@@ -149,9 +149,8 @@ export enum INodeTypeEnum {
 	CustomCode = 'ICustomCode',
 	Block = 'IBlock',
 
-	LocalFunctionDeclaration = "LocalFunctionDeclaration",
-	FunctionDeclaration = "FunctionDeclaration"
-
+	LocalFunctionDeclaration = 'LocalFunctionDeclaration',
+	FunctionDeclaration = 'FunctionDeclaration'
 }
 
 export interface IVariableSetNode {
@@ -188,7 +187,7 @@ export interface IForLoopNode {
 export interface WhileLoopNode {
 	type: INodeTypeEnum.WhileLoop;
 	data: {
-		condition: IConditionalType; 
+		condition: IConditionalType;
 		body: INode[];
 	};
 }
@@ -255,11 +254,11 @@ export enum IPreludeTypeEnum {
 	// Command node that starts the flow for a command
 	Command = 'ICommand',
 	// Prelude has already been applied
-	Applied = "IApplied"
+	Applied = 'IApplied'
 }
 
 export interface IPreludeApplied {
-	type: IPreludeTypeEnum.Applied
+	type: IPreludeTypeEnum.Applied;
 }
 
 export interface IPreludeLibrary {
@@ -354,7 +353,7 @@ export class CodeGenAST {
 
 	applyTransform(transform: (ast: CodeGenAST) => void): void {
 		if (this.isError()) {
-			throw new Error("Cannot apply transforms to an AST with errors or a fatal error");
+			throw new Error('Cannot apply transforms to an AST with errors or a fatal error');
 		}
 
 		try {

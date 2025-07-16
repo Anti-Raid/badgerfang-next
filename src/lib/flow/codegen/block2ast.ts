@@ -764,41 +764,38 @@ export class CodeGenASTGenerator {
 	}
 
 	/** Visits a ConditionalType and returns its AST representation.
-	 * 
+	 *
 	 * @param data The ConditionalType to convert to AST.
 	 * @return The AST representation of the ConditionalType.
 	 */
-	private visitConditionalType(
-		currentAst: CodeGenAST,
-		data: ConditionalType
-	): IConditionalType {
+	private visitConditionalType(currentAst: CodeGenAST, data: ConditionalType): IConditionalType {
 		switch (data.type) {
 			case ConditionalTypeEnum.Unselected:
 				this.pushError(currentAst, `Unselected ConditionalLogicType encountered.`);
 				return {
 					type: IConditionalTypeEnum.Raw,
-					condition: ""
-				}
+					condition: ''
+				};
 			case ConditionalTypeEnum.LogicExpr:
-				return this.visitConditionalLogicType(currentAst, data)
+				return this.visitConditionalLogicType(currentAst, data);
 			case ConditionalTypeEnum.ParensBlock:
 				return {
 					type: IConditionalTypeEnum.ParensBlock,
 					condition: this.visitConditionalTypeParensBlock(currentAst, data)
-				}	
+				};
 			case ConditionalTypeEnum.Raw:
 				return {
 					type: IConditionalTypeEnum.Raw,
 					condition: data.condition // Raw condition for the logic expression
-				};	
+				};
 			case ConditionalTypeEnum.Literal:
 				return this.visitConditionalTypeLiteral(currentAst, data);
 			default:
 				this.pushError(currentAst, `Unknown ConditionalType ${JSON.stringify(data)} encountered.`);
 				return {
 					type: IConditionalTypeEnum.Raw,
-					condition: "" // Default to an empty string for raw condition
-				};		
+					condition: '' // Default to an empty string for raw condition
+				};
 		}
 	}
 
@@ -809,9 +806,9 @@ export class CodeGenASTGenerator {
 	 */
 	private visitConditionalTypeContinuable(
 		currentAst: CodeGenAST,
-		data: ConditionalTypeContinuable,
+		data: ConditionalTypeContinuable
 	): IConditionalTypeContinuable {
-		let op = IConditionalTypeContinuableEnum.And
+		let op = IConditionalTypeContinuableEnum.And;
 		if (data.op === 'or') {
 			op = IConditionalTypeContinuableEnum.Or;
 		}
@@ -822,53 +819,52 @@ export class CodeGenASTGenerator {
 		};
 	}
 
-    /**
-     * Visits a ConditionalLogicType and returns its AST representation.
-     * @param data The ConditionalLogicType to convert to AST.
-     * @returns The AST representation of the ConditionalLogicType.
-     */
-    private visitConditionalLogicType(
-        currentAst: CodeGenAST,
-        data: ConditionalTypeLogic,
-    ): IConditionalTypeLogic {
-        if(data.condition.type === ConditionalLogicTypeEnum.Unselected) {
-            this.pushError(currentAst, `Unselected ConditionalLogicType encountered.`);
-            return {
+	/**
+	 * Visits a ConditionalLogicType and returns its AST representation.
+	 * @param data The ConditionalLogicType to convert to AST.
+	 * @returns The AST representation of the ConditionalLogicType.
+	 */
+	private visitConditionalLogicType(
+		currentAst: CodeGenAST,
+		data: ConditionalTypeLogic
+	): IConditionalTypeLogic {
+		if (data.condition.type === ConditionalLogicTypeEnum.Unselected) {
+			this.pushError(currentAst, `Unselected ConditionalLogicType encountered.`);
+			return {
 				type: IConditionalTypeEnum.LogicExpr,
 				condition: {
 					type: IConditionalLogicTypeEnum.IfEq,
 					left: {
 						type: ITypedInputEnum.String,
-						value: ""
+						value: ''
 					},
 					right: {
 						type: ITypedInputEnum.String,
-						value: ""
+						value: ''
 					}
 				}
-			}
-        }
+			};
+		}
 
-        const typeMap = {
-            [ConditionalLogicTypeEnum.IfEq]: IConditionalLogicTypeEnum.IfEq,
-            [ConditionalLogicTypeEnum.IfNeq]: IConditionalLogicTypeEnum.IfNeq,
-            [ConditionalLogicTypeEnum.IfGt]: IConditionalLogicTypeEnum.IfGt,
-            [ConditionalLogicTypeEnum.IfGte]: IConditionalLogicTypeEnum.IfGte,
-            [ConditionalLogicTypeEnum.IfLt]: IConditionalLogicTypeEnum.IfLt,
-            [ConditionalLogicTypeEnum.IfLte]: IConditionalLogicTypeEnum.IfLte,
-            
-        }
+		const typeMap = {
+			[ConditionalLogicTypeEnum.IfEq]: IConditionalLogicTypeEnum.IfEq,
+			[ConditionalLogicTypeEnum.IfNeq]: IConditionalLogicTypeEnum.IfNeq,
+			[ConditionalLogicTypeEnum.IfGt]: IConditionalLogicTypeEnum.IfGt,
+			[ConditionalLogicTypeEnum.IfGte]: IConditionalLogicTypeEnum.IfGte,
+			[ConditionalLogicTypeEnum.IfLt]: IConditionalLogicTypeEnum.IfLt,
+			[ConditionalLogicTypeEnum.IfLte]: IConditionalLogicTypeEnum.IfLte
+		};
 
-        return {
+		return {
 			type: IConditionalTypeEnum.LogicExpr,
 			condition: {
 				type: typeMap[data.condition.type],
 				left: this.visitTypedInput(data.condition.left),
 				right: this.visitTypedInput(data.condition.right)
 			},
-			next: data.next ? this.visitConditionalTypeContinuable(currentAst, data.next) : undefined,
-        };
-    }
+			next: data.next ? this.visitConditionalTypeContinuable(currentAst, data.next) : undefined
+		};
+	}
 
 	/**
 	 * Visits a ConditionalTypeParensBlock and returns its AST representation.
@@ -877,7 +873,7 @@ export class CodeGenASTGenerator {
 	 */
 	private visitConditionalTypeParensBlock(
 		currentAst: CodeGenAST,
-		data: ConditionalTypeParensBlock,
+		data: ConditionalTypeParensBlock
 	): IConditionalTypeParensBlock {
 		return {
 			type: IConditionalTypeEnum.ParensBlock,
@@ -893,7 +889,7 @@ export class CodeGenASTGenerator {
 	 */
 	private visitConditionalTypeLiteral(
 		currentAst: CodeGenAST,
-		data: ConditionalTypeLiteral,
+		data: ConditionalTypeLiteral
 	): IConditionalTypeLiteral {
 		return {
 			type: IConditionalTypeEnum.Literal,

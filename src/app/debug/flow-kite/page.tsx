@@ -17,14 +17,14 @@ export default function Blockly() {
 
 		let stage1 = r.toJSON();
 
-		let stage2: any = "Cannot proceed further due to AST errors"
+		let stage2: any = 'Cannot proceed further due to AST errors';
 
 		if (!r.isError()) {
 			r.applyDefaultTransforms();
 			stage2 = r.toJSON();
 		}
 
-		return { stage1, stage2 }
+		return { stage1, stage2 };
 	}, [data]);
 
 	return (

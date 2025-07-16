@@ -269,7 +269,7 @@ const ConditionalTypeLogicField: React.FC<ConditionalTypeLogicProps> = ({ value,
 							...value,
 							condition: {
 								...value.condition,
-								type: stringToConditionalLogicTypeEnum(e.target.value || "unselected")
+								type: stringToConditionalLogicTypeEnum(e.target.value || 'unselected')
 							}
 						});
 					}}
@@ -344,7 +344,10 @@ export interface ConditionalTypeLiteralProps {
 	onChange: (value: ConditionalTypeLiteral) => void;
 }
 
-const ConditionalTypeLiteralField: React.FC<ConditionalTypeLiteralProps> = ({ value, onChange }) => {
+const ConditionalTypeLiteralField: React.FC<ConditionalTypeLiteralProps> = ({
+	value,
+	onChange
+}) => {
 	return (
 		<>
 			<div className="gap-2">

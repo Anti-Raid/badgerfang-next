@@ -145,7 +145,11 @@ registerValidationTarget(
 			return false;
 		}
 
-		if (![NodeTypeEnum.IfCondition, NodeTypeEnum.ForLoop, NodeTypeEnum.WhileLoop].includes(srcData.data.type)) {
+		if (
+			![NodeTypeEnum.IfCondition, NodeTypeEnum.ForLoop, NodeTypeEnum.WhileLoop].includes(
+				srcData.data.type
+			)
+		) {
 			logger.error(
 				'Flow.EndCondition',
 				'EndCondition can only be connected to an IfCondition/ForLoop node.'
@@ -164,9 +168,11 @@ export const IfCondition = (props: NodeProps) => {
 
 	const flow = useReactFlow();
 
-	const [condition, setCondition] = useState<ConditionalType>(props.data.data.condition || {
-		type: ConditionalTypeEnum.Unselected,
-	});
+	const [condition, setCondition] = useState<ConditionalType>(
+		props.data.data.condition || {
+			type: ConditionalTypeEnum.Unselected
+		}
+	);
 
 	useEffect(() => {
 		flow.updateNodeData(props.id, {
@@ -184,10 +190,7 @@ export const IfCondition = (props: NodeProps) => {
 			<Handle type="source" position={Position.Bottom} />
 
 			<FlowExpanded nodeProps={props}>
-				<ConditionalTypeField
-					value={condition}
-					onChange={setCondition}
-				/>
+				<ConditionalTypeField value={condition} onChange={setCondition} />
 			</FlowExpanded>
 		</FlowNodeBase>
 	);
@@ -200,9 +203,11 @@ export const ElseIfCondition = (props: NodeProps) => {
 
 	const flow = useReactFlow();
 
-	const [condition, setCondition] = useState<ConditionalType>(props.data.data.condition || {
-		type: ConditionalTypeEnum.Unselected,
-	});
+	const [condition, setCondition] = useState<ConditionalType>(
+		props.data.data.condition || {
+			type: ConditionalTypeEnum.Unselected
+		}
+	);
 	const [index, setIndex] = useState<number>(props.data.data.index || 0);
 
 	useEffect(() => {
@@ -238,10 +243,7 @@ export const ElseIfCondition = (props: NodeProps) => {
 					error={!index ? 'Index is required.' : ''}
 				/>
 
-				<ConditionalTypeField
-					value={condition}
-					onChange={setCondition}
-				/>
+				<ConditionalTypeField value={condition} onChange={setCondition} />
 			</FlowExpanded>
 		</FlowNodeBase>
 	);
@@ -712,9 +714,11 @@ export const WhileLoop = (props: NodeProps) => {
 
 	const flow = useReactFlow();
 
-	const [condition, setCondition] = useState<ConditionalType>(props.data.data.condition || {
-		type: ConditionalTypeEnum.Unselected,
-	});
+	const [condition, setCondition] = useState<ConditionalType>(
+		props.data.data.condition || {
+			type: ConditionalTypeEnum.Unselected
+		}
+	);
 
 	useEffect(() => {
 		flow.updateNodeData(props.id, {
@@ -730,10 +734,7 @@ export const WhileLoop = (props: NodeProps) => {
 			<Handle type="source" position={Position.Bottom} />
 
 			<FlowExpanded nodeProps={props}>
-				<ConditionalTypeField
-					value={condition}
-					onChange={setCondition}
-				/>
+				<ConditionalTypeField value={condition} onChange={setCondition} />
 			</FlowExpanded>
 		</FlowNodeBase>
 	);

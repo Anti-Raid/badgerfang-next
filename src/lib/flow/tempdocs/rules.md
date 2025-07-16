@@ -12,11 +12,11 @@ For loops can only have one source connection but may have two targets of which 
 
 ## While Loops
 
-While loops can only have one source connection but may have two targets of which one must be the loop body and the other must be a end condition. While loops must also have a full condition (no ``Unselected`` options)
+While loops can only have one source connection but may have two targets of which one must be the loop body and the other must be a end condition. While loops must also have a full condition (no `Unselected` options)
 
 ## End Condition
 
-An end condition must be connected to either a `If Statement`, a `For Loop` or a ``While Loop``
+An end condition must be connected to either a `If Statement`, a `For Loop` or a `While Loop`
 
 ## TODO
 
@@ -30,7 +30,7 @@ To ensure Flow remains high quality, the scope of Flow UI will be limited (curre
 
 - sending/deferring/editting/deleting interaction responses
 - sending/editting/deleting normal messages
-- basic member moderation (ban/kick/timeout) 
+- basic member moderation (ban/kick/timeout)
 - stinging members
 
 In either case, the Custom Code node can be used as a escape hatch to run raw Luau code within a flow
