@@ -22,3 +22,7 @@ If you encounter ANY issues, please report it to us on our [Discord Server](http
 
 <a href="https://github.com/Anti-Raid/badgerfang-next/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=Anti-Raid/badgerfang-next" />
+
+## Credits
+
+React Flow is used for the Anti-Raid flow UI.

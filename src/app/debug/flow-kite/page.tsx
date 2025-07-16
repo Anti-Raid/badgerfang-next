@@ -1,0 +1,71 @@
+'use client';
+import { useMemo, useState } from 'react';
+import Flow from '@/components/flow/FlowPage';
+import { ConditionalType, ConditionalTypeEnum, FlowData, NodeExtData } from '@/lib/flow/data';
+import { motion } from 'framer-motion';
+import { CodeGenASTGenerator } from '@/lib/flow/codegen/block2ast';
+import { ConditionalTypeField } from '@/components/flow/ConditionalType';
+
+export default function Blockly() {
+	const [data, setData] = useState<FlowData>({ nodes: [], edges: [] });
+	const [dbgConditional, setDbgConditional] = useState<ConditionalType>({
+		type: ConditionalTypeEnum.Unselected
+	});
+
+	const codegennedAst = useMemo(() => {
+		let r = new CodeGenASTGenerator(data.nodes, data.edges).generate();
+
+		let stage1 = r.toJSON();
+
+		let stage2: any = 'Cannot proceed further due to AST errors';
+
+		if (!r.isError()) {
+			r.applyDefaultTransforms();
+			stage2 = r.toJSON();
+		}
+
+		return { stage1, stage2 };
+	}, [data]);
+
+	return (
+		<>
+			<Flow flowData={data} onChange={setData} />
+			<motion.div
+				initial={{ opacity: 0, y: 10 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ duration: 0.5 }}
+				className="mt-8"
+			>
+				<code className="whitespace-pre-wrap break-words bg-gray-100 text-black">
+					{JSON.stringify(data)}
+				</code>
+			</motion.div>
+
+			<h2 className="text-lg">CodeGen AST</h2>
+
+			<motion.div
+				initial={{ opacity: 0, y: 10 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ duration: 0.5 }}
+				className="mt-8 bg-gray-100 p-1"
+			>
+				<code className="whitespace-pre-wrap break-words text-black">
+					{JSON.stringify(codegennedAst, null, 2)}
+				</code>
+			</motion.div>
+
+			<ConditionalTypeField value={dbgConditional} onChange={setDbgConditional} />
+
+			<motion.div
+				initial={{ opacity: 0, y: 10 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ duration: 0.5 }}
+				className="mt-8 bg-gray-100 p-1"
+			>
+				<code className="whitespace-pre-wrap break-words text-black">
+					{JSON.stringify(dbgConditional, null, 2)}
+				</code>
+			</motion.div>
+		</>
+	);
+}
