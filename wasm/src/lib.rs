@@ -1,9 +1,10 @@
 mod proxyglobals;
+mod plugins;
 
 use serde_json::Value;
 use std::ffi::{CStr, CString};
 use std::ffi::c_char;
-use mlua::prelude::*;
+use mluau::prelude::*;
 use std::sync::OnceLock;
 
 pub struct VmData {
@@ -90,6 +91,13 @@ pub fn call_luau(code: String, value: Value) -> Result<Value, Error> {
     let vm_result = VM.get_or_init(|| {
         let lua = Lua::new_with(LuaStdLib::ALL_SAFE, LuaOptions::new().disable_error_userdata(true)).expect("Failed to create Lua VM");
         let global_tab = proxyglobals::proxy_global(&lua).expect("Failed to create proxy global table");
+        
+        // Register WASM-available plugins
+        lua.register_module("@antiraid/typesext", plugins::typesext::init_plugin(&lua).expect("Failed to init typesext plugin")).expect("Failed to register typesext plugin");
+        lua.register_module("@antiraid/interop", plugins::interop::init_plugin(&lua).expect("Failed to init interop plugin")).expect("Failed to register interop plugin");
+        lua.register_module("@antiraid/luau", plugins::luau::init_plugin(&lua).expect("Failed to init luau plugin")).expect("Failed to register luau plugin");
+        lua.register_module("@antiraid/datetime", plugins::datetime::init_plugin(&lua).expect("Failed to init datetime plugin")).expect("Failed to register datetime plugin");
+
         lua.sandbox(true).expect("Failed to sandbox Lua VM");
 
         VmData {
