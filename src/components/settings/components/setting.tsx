@@ -41,6 +41,7 @@ export const defaultNew = (setting: Setting) => {
 };
 
 export const fillInSetting = async (
+	guildId: string,
 	setting: Setting,
 	guildData: UserGuildBaseData,
 	fields: { [key: string]: unknown },
@@ -98,7 +99,7 @@ export const fillInSetting = async (
 			return await luauTemplate(setting.view_template, {
 				fields,
 				guildData
-			});
+			}, `${guildId}.dash`);
 		} catch (error) {
 			onError(error?.toString() || 'Unknown error');
 		}
@@ -237,7 +238,7 @@ export const SettingComponent: React.FC<SettingsManagerProps> = ({
 
 				if (Array.isArray(templateResult.data)) {
 					for (let f of templateResult.data) {
-						const filledIn = await fillInSetting(setting, guildData, f, (e) => {
+						const filledIn = await fillInSetting(guildId, setting, guildData, f, (e) => {
 							errors[templateName] = e;
 							logger.error('SettingsManager', 'Failed to fill in setting:', e);
 						});
@@ -247,7 +248,7 @@ export const SettingComponent: React.FC<SettingsManagerProps> = ({
 						}
 					}
 				} else if (typeof templateResult.data === 'object') {
-					const filledIn = await fillInSetting(setting, guildData, templateResult.data, (e) => {
+					const filledIn = await fillInSetting(guildId, setting, guildData, templateResult.data, (e) => {
 						errors[templateName] = e;
 						logger.error('SettingsManager', 'Failed to fill in setting:', e);
 					});
@@ -294,7 +295,7 @@ export const SettingComponent: React.FC<SettingsManagerProps> = ({
 			};
 
 			try {
-				const result = await luauTemplate(setting.validation_template, params);
+				const result = await luauTemplate(setting.validation_template, params, `${guildId}.dash`);
 				if (result !== null) {
 					return result as { [key: string]: unknown };
 				}
@@ -317,7 +318,7 @@ export const SettingComponent: React.FC<SettingsManagerProps> = ({
 			};
 
 			try {
-				const result = await luauTemplate(setting.postsend_template, params);
+				const result = await luauTemplate(setting.postsend_template, params, `${guildId}.dash`);
 				if (result !== null) {
 					return result as { [key: string]: unknown };
 				}

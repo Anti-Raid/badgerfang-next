@@ -5,7 +5,7 @@ release:
 	cargo build --release --target=wasm32-unknown-emscripten
 	emcc \
      -s EXPORT_ALL=1 \
-	 -s EXPORTED_FUNCTIONS=_test_wasm,_luau_template \
+	 -s EXPORTED_FUNCTIONS=_test_wasm,_luau_template,_wasm_free_string \
      -s EXPORTED_RUNTIME_METHODS=ccall,cwrap,stackSave,stackRestore,UTF8ToString \
      -s MODULARIZE=1 \
      -s EXPORT_ES6=1 \
