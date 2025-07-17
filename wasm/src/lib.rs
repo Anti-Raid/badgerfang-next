@@ -106,6 +106,7 @@ pub extern "C" fn luau_template(
 /// Currently unused function to free a output string allocated by Rust.
 /// # Safety
 /// This function is explicitly only for internal use by the WASM module.
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn wasm_free_string(ptr: *mut c_char) {
     if ptr.is_null() {
         return;

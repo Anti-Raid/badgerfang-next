@@ -16,3 +16,4 @@ chrono-tz = "0.10"
 [profile.release]
 opt-level = "s"
 lto = true
+strip = "symbols"

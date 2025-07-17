@@ -14,7 +14,7 @@ release:
      -s NO_DISABLE_EXCEPTION_CATCHING \
      -s DISABLE_EXCEPTION_CATCHING=0 \
      -s ALLOW_MEMORY_GROWTH=1 \
-     -s STACK_SIZE=16MB \
+     -s STACK_SIZE=20MB \
      -fexceptions \
      -flto \
      -Oz --no-entry \
