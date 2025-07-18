@@ -192,7 +192,7 @@ pub struct I64(pub i64);
 impl FromLua for I64 {
     fn from_lua(value: LuaValue, _lua: &Lua) -> LuaResult<Self> {
         match value {
-            LuaValue::Integer(i) => Ok(I64(i.into())),
+            LuaValue::Integer(i) => Ok(I64(i)),
             LuaValue::String(s) => {
                 let str_value = s.to_str()?;
                 str_value
