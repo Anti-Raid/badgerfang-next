@@ -1,5 +1,3 @@
-import { PlatformUser } from './eureka-dovewing';
-
 export interface AuthorizeRequest {
 	code: string;
 	redirect_uri: string;
@@ -24,6 +22,7 @@ export interface CreateUserSessionResponse {
 	token: string;
 	session_id: string;
 	expiry: string /* RFC3339 */;
+	user?: PartialUser /* Will only be sent on Create Oauth2 Session */;
 }
 export interface UserSessionList {
 	sessions: (UserSession | undefined)[];
@@ -63,16 +62,18 @@ export interface DashboardGuildData {
 	has_bot: string[];
 	unknown_guilds: string[];
 }
+
 /**
- * Represents a user on Antiraid
+ * The required parts from Discord's User object
+ * that are used in Badgerfang.
  */
-export interface User {
-	user?: PlatformUser /* from eureka-dovewing.ts */;
-	state: string;
-	vote_banned: boolean;
-	created_at: string /* RFC3339 */;
-	updated_at: string /* RFC3339 */;
+export interface PartialUser {
+	id: string;
+	username: string;
+	global_name: string;
+	avatar: string;
 }
+
 export interface UserGuildBaseData {
 	owner_id: string;
 	name: string;
@@ -251,10 +252,6 @@ export interface Channel {
 	 * The bitrate of the channel, if it is a voice channel.
 	 */
 	bitrate: number /* int */;
-	/**
-	 * The recipients of the channel. This is only populated in DM channels.
-	 */
-	recipients: (User | undefined)[];
 	/**
 	 * A list of permission overwrites present for the channel.
 	 */

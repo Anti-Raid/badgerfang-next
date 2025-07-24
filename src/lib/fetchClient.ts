@@ -1,5 +1,5 @@
 import logger from '@/lib/logger';
-import { ApiError } from '@/types/splashtail/types';
+import { ApiError } from '@/types/gosdk/types';
 import DOMPurify from 'dompurify';
 import * as marked from 'marked';
 

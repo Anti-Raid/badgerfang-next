@@ -1,7 +1,7 @@
 import useSWR from 'swr';
 import axios from 'axios';
 import logger from '@/lib/logger';
-import { CreateUserSessionResponse } from '@/types/splashtail/types';
+import { CreateUserSessionResponse } from '@/types/gosdk/types';
 import { SWRResponse } from 'swr';
 import { API_BASE_URL } from '../api';
 

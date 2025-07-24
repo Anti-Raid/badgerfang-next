@@ -96,10 +96,14 @@ export const fillInSetting = async (
 
 	if (setting.view_template) {
 		try {
-			return await luauTemplate(setting.view_template, {
-				fields,
-				guildData
-			}, `${guildId}.dash`);
+			return await luauTemplate(
+				setting.view_template,
+				{
+					fields,
+					guildData
+				},
+				`${guildId}.dash`
+			);
 		} catch (error) {
 			onError(error?.toString() || 'Unknown error');
 		}
@@ -248,10 +252,16 @@ export const SettingComponent: React.FC<SettingsManagerProps> = ({
 						}
 					}
 				} else if (typeof templateResult.data === 'object') {
-					const filledIn = await fillInSetting(guildId, setting, guildData, templateResult.data, (e) => {
-						errors[templateName] = e;
-						logger.error('SettingsManager', 'Failed to fill in setting:', e);
-					});
+					const filledIn = await fillInSetting(
+						guildId,
+						setting,
+						guildData,
+						templateResult.data,
+						(e) => {
+							errors[templateName] = e;
+							logger.error('SettingsManager', 'Failed to fill in setting:', e);
+						}
+					);
 
 					if (filledIn) {
 						mergedFields.push(filledIn);

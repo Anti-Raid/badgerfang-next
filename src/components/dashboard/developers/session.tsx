@@ -18,7 +18,7 @@ import {
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getUserSessions, revokeSession, createSession } from '@/lib/api';
-import type { UserSession, CreateUserSession } from '@/types/splashtail/types';
+import type { UserSession, CreateUserSession } from '@/types/gosdk/types';
 
 const SessionCard: React.FC<{
 	title: string;

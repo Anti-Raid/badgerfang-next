@@ -9,7 +9,9 @@ import { FaDiscord } from 'react-icons/fa';
 import { getUserServers } from '@/lib/api';
 import { supportConfig } from '@/lib/data/support';
 import type { Server as ServerType, ApiResponse } from '@/types/dashboard/servers';
-import type { AuthUser } from '@/types/user';
+import { PartialUser } from '@/types/gosdk/types';
+import logger from '@/lib/logger';
+import { getAvatarUrl } from '@/lib/auth/getAvatarUrl';
 
 // Discord permission flags
 const DISCORD_PERMISSIONS = {
@@ -47,7 +49,7 @@ const getPermissionNames = (permissions: number): string[] => {
 };
 
 const AllServers: React.FC = () => {
-	const [userData, setUserData] = useState<AuthUser | null>(null);
+	const [userData, setUserData] = useState<PartialUser | null>(null);
 	const [servers, setServers] = useState<ServerType[]>([]);
 	const [managedServers, setManagedServers] = useState<ServerType[]>([]);
 	const [yourServers, setYourServers] = useState<ServerType[]>([]);
@@ -60,7 +62,12 @@ const AllServers: React.FC = () => {
 	useEffect(() => {
 		const authUser = localStorage.getItem('authUser');
 		if (authUser) {
-			setUserData(JSON.parse(authUser));
+			try {
+				setUserData(JSON.parse(authUser));
+			} catch (error) {
+				logger.error('AllServers: Failed to parse user data', error);
+				setUserData(null);
+			}
 		}
 	}, []);
 
@@ -115,7 +122,7 @@ const AllServers: React.FC = () => {
 					<div className="relative group">
 						<div className="absolute inset-0 bg-gradient-to-r from-primary to-extra rounded-full blur-md opacity-50 group-hover:opacity-70 transition-opacity duration-300"></div>
 						<img
-							src={userData?.user.avatar || '/logo.webp'}
+							src={userData ? getAvatarUrl(userData) : '/logo.webp'}
 							alt="User Avatar"
 							className="relative w-20 h-20 rounded-full border-2 border-primary object-cover"
 						/>
@@ -123,9 +130,9 @@ const AllServers: React.FC = () => {
 					</div>
 					<div className="text-center sm:text-left">
 						<h2 className="text-foreground text-2xl font-bold">
-							{userData?.user.display_name || userData?.user.username}
+							{userData?.global_name || userData?.username || 'Unknown User'}
 						</h2>
-						<p className="text-muted-foreground">@{userData?.user.username}</p>
+						<p className="text-muted-foreground">@{userData?.username || 'unknown1234'}</p>
 					</div>
 					<button
 						className="flex items-center gap-2 bg-accent hover:bg-accent/80 text-accent-foreground px-5 py-2.5 rounded-lg transition-all duration-300 ml-auto transform hover:scale-105 hover:shadow-lg"

@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getUser } from '@/lib/auth/getUser';
 import { fetchClient } from '@/lib/fetchClient';
-import { AuthorizeRequest, CreateUserSessionResponse } from '@/types/splashtail/types';
+import { AuthorizeRequest, CreateUserSessionResponse } from '@/types/gosdk/types';
 import { API_BASE_URL } from '@/lib/api';
 
 export default function AuthorizePage() {
@@ -38,14 +37,13 @@ export default function AuthorizePage() {
 			}
 
 			const data: CreateUserSessionResponse = await res.json();
-			const user = await getUser(data.user_id);
 
-			if (!user) {
-				throw new Error('Failed to fetch user');
+			if (!data.user) {
+				throw new Error('User data not found in session response');
 			}
 
 			localStorage.setItem('wistala', JSON.stringify(data));
-			localStorage.setItem('authUser', JSON.stringify(user));
+			localStorage.setItem('authUser', JSON.stringify(data.user));
 
 			setStatus('success');
 
