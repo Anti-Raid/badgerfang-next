@@ -2,11 +2,10 @@ import axios from 'axios';
 import {
 	ApiConfig,
 	BotState,
-	GuildStaffTeam,
 	UserSessionList,
 	CreateUserSession,
 	CreateUserSessionResponse
-} from '@/types/splashtail/types';
+} from '@/types/gosdk/types';
 import { ApiResponse } from '@/types/dashboard/servers';
 import { BotStats } from '@/types/bot-stats';
 import * as forumTypes from '@/types/forums/types';
@@ -142,11 +141,6 @@ export const getTemplateShop = async (id: string): Promise<TemplateShopTemplate 
 	if (response.status === 404) {
 		return null; // Template not found
 	}
-	return response.data;
-};
-
-export const anonuserDetails = async (userId: string): Promise<any> => {
-	const response = await axiosInstance.get(`/users/${userId}`);
 	return response.data;
 };
 

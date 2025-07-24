@@ -1,4 +1,4 @@
-import { CreateUserSessionResponse } from '@/types/splashtail/types';
+import { CreateUserSessionResponse } from '@/types/gosdk/types';
 import logger from '../logger';
 
 export const getAuthCreds = () => {

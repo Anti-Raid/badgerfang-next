@@ -22,9 +22,10 @@ import {
 import { loginUser } from '@/lib/auth/login';
 import { logoutUser } from '@/lib/auth/logoutUser';
 import { getAuthCreds } from '@/lib/auth/getAuthCreds';
-import { getUser } from '@/lib/auth/getUser';
 import { useAuthCheck } from '@/lib/auth/checkAuthCreds';
 import ThemeSelector from '@/components/static/ThemeSwitcher';
+import { PartialUser } from '@/types/gosdk/types';
+import { getAvatarUrl } from '@/lib/auth/getAvatarUrl';
 
 interface NavItem {
 	name: string;
@@ -46,7 +47,7 @@ const NavBar: React.FC = () => {
 	const [isThemeOpen, setIsThemeOpen] = useState<boolean>(false);
 	const [isProfileOpen, setIsProfileOpen] = useState<boolean>(false);
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
-	const [userData, setUserData] = useState<any>(null);
+	const [userData, setUserData] = useState<PartialUser | null>(null);
 	const { theme, setTheme } = useTheme();
 	const pathname = usePathname();
 	const router = useRouter();
@@ -86,10 +87,10 @@ const NavBar: React.FC = () => {
 
 			try {
 				const cachedUser = localStorage.getItem('authUser');
-				const user = cachedUser ? JSON.parse(cachedUser) : await getUser(authCreds.user_id);
-
-				localStorage.setItem('authUser', JSON.stringify(user));
-				setUserData(user);
+				const user = cachedUser ? cachedUser : null;
+				if (user) {
+					setUserData(JSON.parse(user));
+				}
 			} catch (error) {
 				console.error('Failed to fetch user data', error);
 				setUserData(null);
@@ -240,7 +241,7 @@ const NavBar: React.FC = () => {
 									className="flex items-center space-x-2"
 								>
 									<img
-										src={userData.user?.avatar || getLogoPath()}
+										src={userData ? getAvatarUrl(userData) : getLogoPath()}
 										alt="User Avatar"
 										className="h-8 w-8 rounded-full ring-2 ring-primary"
 									/>
@@ -329,7 +330,7 @@ const NavBar: React.FC = () => {
 									className="flex items-center space-x-2"
 								>
 									<img
-										src={userData.user?.avatar || getLogoPath()}
+										src={userData ? getAvatarUrl(userData) : getLogoPath()}
 										alt="User Avatar"
 										className="h-8 w-8 rounded-full ring-2 ring-primary"
 									/>
