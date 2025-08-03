@@ -1,19 +1,21 @@
 'use client';
 import { useMemo, useState } from 'react';
-import Flow from '@/components/flow/FlowPage';
 import { ConditionalType, ConditionalTypeEnum, FlowData, NodeExtData } from '@/lib/flow/data';
 import { motion } from 'framer-motion';
 import { CodeGenASTGenerator } from '@/lib/flow/codegen/block2ast';
 import { ConditionalTypeField } from '@/components/flow/ConditionalType';
+import FlowList from '@/components/flow/FlowList';
 
 export default function Blockly() {
-	const [data, setData] = useState<FlowData>({ nodes: [], edges: [] });
+	const [data, setData] = useState<FlowData[]>([]);
+	const [selectedFlowIndex, setSelectedFlowIndex] = useState(0);
 	const [dbgConditional, setDbgConditional] = useState<ConditionalType>({
 		type: ConditionalTypeEnum.Unselected
 	});
 
 	const codegennedAst = useMemo(() => {
-		let r = new CodeGenASTGenerator(data.nodes, data.edges).generate();
+		if (!data[selectedFlowIndex]) return { stage1: 'No flow data selected', stage2: 'No flow data selected' };
+		let r = new CodeGenASTGenerator(data[selectedFlowIndex].nodes, data[selectedFlowIndex].edges).generate();
 
 		let stage1 = r.toJSON();
 
@@ -25,11 +27,14 @@ export default function Blockly() {
 		}
 
 		return { stage1, stage2 };
-	}, [data]);
+	}, [data, selectedFlowIndex]);
 
 	return (
 		<>
-			<Flow flowData={data} onChange={setData} />
+			<FlowList flowDatas={data} onChange={setData} selectedFlowIndex={selectedFlowIndex} setSelectedFlowIndex={setSelectedFlowIndex} addFlowData={() => {
+				setData([...data, { nodes: [], edges: [] }]);
+				setSelectedFlowIndex(data.length);
+			}} />
 			<motion.div
 				initial={{ opacity: 0, y: 10 }}
 				animate={{ opacity: 1, y: 0 }}

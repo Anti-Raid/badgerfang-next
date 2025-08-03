@@ -62,9 +62,33 @@ export const Library = (props: NodeProps) => {
 		return <div className="text-red-500">Invalid node type: {props?.data?.type}</div>;
 	}
 
+	const flow = useReactFlow();
+	const [name, setName] = useState(props.data.data.name || '');
+
+	useEffect(() => {
+		flow.updateNodeData(props.id, {
+			data: {
+				name: name,
+			}
+		});
+	}, [name, props.id]);
+
 	return (
 		<FlowNodeBase {...props}>
+			<Handle type="target" position={Position.Top} />
 			<Handle type="source" position={Position.Bottom} />
+
+			<FlowExpanded nodeProps={props}>
+				<InputField
+					id={`${props.id}-name`}
+					label="Name"
+					value={name}
+					onChange={(e) => setName(e.target.value)}
+					placeholder="Enter name"
+					className="w-full"
+					error={!name ? 'Name is required.' : ''}
+				/>
+			</FlowExpanded>
 		</FlowNodeBase>
 	);
 };
