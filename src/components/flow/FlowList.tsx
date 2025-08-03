@@ -35,11 +35,6 @@ export default function FlowList({ flowDatas, onChange, selectedFlowIndex, setSe
                 <p>Selected flow index: {selectedFlowIndex} </p>
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-lg font-semibold">Flows</h2>
-                    <Ghost 
-                        Title="New Flow"
-                        onClick={addFlowData}
-                    />
-
                     {flowDatas.map((flowData, index) => {
                         const startNode = findStartNode(flowData.nodes)
                         return (
@@ -54,6 +49,12 @@ export default function FlowList({ flowDatas, onChange, selectedFlowIndex, setSe
                             </Fragment>
                         )
                     })}
+
+                    <Ghost 
+                        Title="New Flow"
+                        onClick={addFlowData}
+                        className="text-[#6e6a95]"
+                    />
                 </div>
             </div>
             {/* Create flow button */}
