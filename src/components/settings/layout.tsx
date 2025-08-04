@@ -3,13 +3,14 @@
 import { Shield, User, Code, Database, FileCode, Lock, Bell } from 'lucide-react';
 import { Section } from './components/section';
 import { Fragment, useEffect, useState } from 'react';
-import { getUserGuildBaseInfo, executeSettings, getSettings } from '@/lib/api';
+import { baseGuildUserInfo, executeSettings, getSettings } from '@/lib/api';
 import { motion } from 'framer-motion';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Setting } from '@/types/settings';
 import { noOpFetcher, SettingComponent, SettingDataFetcher } from './components/setting';
-import { DispatchResult } from '@/types/gosdk/types';
+import { SettingsErrorDisplay } from './components/ErrorDisplay';
+import { ApiDispatchResult } from '@/types/api/bindings/ApiDispatchResult';
+import { Setting } from '@/types/api/bindings/Setting';
 
 /**
  * Renders a dashboard for managing guild settings.
@@ -24,7 +25,7 @@ import { DispatchResult } from '@/types/gosdk/types';
  */
 export default function Settings({ guildId }: { guildId: string }) {
 	const [guildData, setGuildData] = useState<any>(null);
-	const [guildSettings, setGuildSettings] = useState<{ [key: string]: DispatchResult } | null>(
+	const [guildSettings, setGuildSettings] = useState<{ [key: string]: ApiDispatchResult<any> } | null>(
 		null
 	);
 	const [loading, setLoading] = useState<boolean>(true);
@@ -39,7 +40,7 @@ export default function Settings({ guildId }: { guildId: string }) {
 				fields: {}
 			};
 			const result = await executeSettings(guildId, payload);
-			return result as { [templateName: string]: DispatchResult };
+			return result as { [templateName: string]: ApiDispatchResult<any> };
 		},
 		createEntry: async (setting: Setting, entry: any) => {
 			const payload = {
@@ -48,7 +49,7 @@ export default function Settings({ guildId }: { guildId: string }) {
 				fields: entry
 			};
 			const result = await executeSettings(guildId, payload);
-			return result as { [templateName: string]: DispatchResult };
+			return result as { [templateName: string]: ApiDispatchResult<any> };
 		},
 		updateEntry: async (setting: Setting, entry: any) => {
 			const payload = {
@@ -57,7 +58,7 @@ export default function Settings({ guildId }: { guildId: string }) {
 				fields: entry
 			};
 			const result = await executeSettings(guildId, payload);
-			return result as { [templateName: string]: DispatchResult };
+			return result as { [templateName: string]: ApiDispatchResult<any> };
 		},
 		deleteEntry: async (setting: Setting, entry: any) => {
 			const payload = {
@@ -66,7 +67,7 @@ export default function Settings({ guildId }: { guildId: string }) {
 				fields: entry
 			};
 			const result = await executeSettings(guildId, payload);
-			return result as { [templateName: string]: DispatchResult };
+			return result as { [templateName: string]: ApiDispatchResult<any> };
 		},
 		reorderEntries: async (setting: Setting, entries: any[]) => {
 			const payload = {
@@ -75,14 +76,14 @@ export default function Settings({ guildId }: { guildId: string }) {
 				fields: entries
 			};
 			const result = await executeSettings(guildId, payload);
-			return result as { [templateName: string]: DispatchResult };
+			return result as { [templateName: string]: ApiDispatchResult<any> };
 		}
 	};
 
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
-				const data = await getUserGuildBaseInfo(guildId);
+				const data = await baseGuildUserInfo(guildId);
 				let settings = await getSettings(guildId);
 
 				// Ensure builtin settings are the first thing in the object
@@ -234,40 +235,8 @@ export default function Settings({ guildId }: { guildId: string }) {
 								.filter((s) => guildSettings[s].type !== 'Ok')
 								.map((setting, idx) => {
 									return (
-										<div key={idx} className="bg-background flex items-center justify-center">
-											<div className="bg-card p-6 rounded-xl border border-destructive max-w-md w-full">
-												<div className="text-destructive mb-3">
-													<svg
-														xmlns="http://www.w3.org/2000/svg"
-														width="24"
-														height="24"
-														viewBox="0 0 24 24"
-														fill="none"
-														stroke="currentColor"
-														strokeWidth="2"
-														strokeLinecap="round"
-														strokeLinejoin="round"
-													>
-														<circle cx="12" cy="12" r="10"></circle>
-														<line x1="12" y1="8" x2="12" y2="12"></line>
-														<line x1="12" y1="16" x2="12.01" y2="16"></line>
-													</svg>
-												</div>
-												<h3 className="text-lg font-bold mb-2">
-													Error getting settings from template {setting}
-												</h3>
-												<p className="text-muted-foreground">
-													{JSON.stringify(guildSettings[setting].data)}
-												</p>
-												<button
-													onClick={() => window.location.reload()}
-													className="mt-4 bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors"
-												>
-													Try Again
-												</button>
-											</div>
-										</div>
-									);
+										<SettingsErrorDisplay key={idx} loadErrors={{[setting]: guildSettings[setting].data}} />
+									)
 								})}
 
 							{Object.keys(guildSettings)

@@ -2,10 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getUser } from '@/lib/auth/getUser';
-import { fetchClient } from '@/lib/fetchClient';
-import { AuthorizeRequest, CreateUserSessionResponse } from '@/types/splashtail/types';
-import { API_BASE_URL } from '@/lib/api';
+import { API_BASE_URL, createOauth2Session } from '@/lib/api';
+import { AuthorizeRequest } from '@/types/api/bindings/AuthorizeRequest';
 
 export default function AuthorizePage() {
 	const [error, setError] = useState<string | null>(null);
@@ -21,31 +19,18 @@ export default function AuthorizePage() {
 			}
 
 			const json: AuthorizeRequest = {
-				protocol: 'a1',
-				scope: 'normal',
 				code: searchParams.get('code') || '',
 				redirect_uri: `${window.location.origin}/authorize`
 			};
 
-			const res = await fetchClient(`${API_BASE_URL}/oauth2`, {
-				method: 'POST',
-				body: JSON.stringify(json)
-			});
+			const data = await createOauth2Session(json);
 
-			if (!res.ok) {
-				const err = await res.error('Create session', 'markdown');
-				throw new Error(err);
-			}
-
-			const data: CreateUserSessionResponse = await res.json();
-			const user = await getUser(data.user_id);
-
-			if (!user) {
-				throw new Error('Failed to fetch user');
+			if (!data.user) {
+				throw new Error('User data not found in session response');
 			}
 
 			localStorage.setItem('wistala', JSON.stringify(data));
-			localStorage.setItem('authUser', JSON.stringify(user));
+			localStorage.setItem('authUser', JSON.stringify(data.user));
 
 			setStatus('success');
 

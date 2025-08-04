@@ -1,5 +1,5 @@
 // From https://github.com/Anti-Raid/khronos/blob/master/crates/runtime/src/utils/proxyglobal.rs
-use mlua::prelude::*;
+use mluau::prelude::*;
 use std::cell::Cell;
 use std::rc::Rc;
 
@@ -97,7 +97,7 @@ pub fn proxy_global(lua: &Lua) -> LuaResult<LuaTable> {
     // Block getmetatable
     global_mt.set("__metatable", false)?;
 
-    global_tab.set_metatable(Some(global_mt));
+    global_tab.set_metatable(Some(global_mt))?;
 
     Ok(global_tab)
 }

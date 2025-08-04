@@ -4,8 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { luauTemplate } from '@/lib/wasm/wasm';
 import logger from '@/lib/logger';
-import { Setting, ColumnType, InnerColumnType } from '@/types/settings';
-import { DispatchResult, UserGuildBaseData } from '@/types/gosdk/types';
 
 import { SettingsErrorDisplay } from '../components/ErrorDisplay';
 import { SettingsHeader } from '../components/Header';
@@ -13,26 +11,30 @@ import { SettingsForm } from '../components/SettingsForm';
 import { SettingsEntry } from '../components/SettingsEntry';
 import { SettingsReorderableList } from '../components/SettingsReorderableList';
 import { SettingsFooter } from '../components/SettingsFooter';
+import { Setting } from '@/types/api/bindings/Setting';
+import { BaseGuildUserInfo } from '@/types/api/bindings/BaseGuildUserInfo';
+import { ApiDispatchResult } from '@/types/api/bindings/ApiDispatchResult';
+import { DispatchResult } from '@/types/settings';
 
 export const defaultNew = (setting: Setting) => {
 	let data: any = {};
 	for (let column of setting.columns) {
-		if (column.column_type.type === ColumnType.Scalar) {
+		if (column.column_type.type === "Scalar") {
 			if (
-				column.column_type.inner.type === InnerColumnType.Integer ||
-				column.column_type.inner.type === InnerColumnType.Float
+				column.column_type.inner.type === "Integer" ||
+				column.column_type.inner.type === "Float"
 			) {
 				data[column.id] = 0;
-			} else if (column.column_type.inner.type === InnerColumnType.Boolean) {
+			} else if (column.column_type.inner.type === "Boolean") {
 				data[column.id] = false;
-			} else if (column.column_type.inner.type === InnerColumnType.Json) {
+			} else if (column.column_type.inner.type === "Json") {
 				data[column.id] = {};
 			} else {
 				data[column.id] = '';
 			}
-		} else if (column.column_type.type === ColumnType.Array) {
+		} else if (column.column_type.type === "Array") {
 			data[column.id] = [];
-		} else if (column.column_type.type === ColumnType.Widget) {
+		} else if (column.column_type.type === "Widget") {
 			continue;
 		}
 	}
@@ -41,35 +43,36 @@ export const defaultNew = (setting: Setting) => {
 };
 
 export const fillInSetting = async (
+	guildId: string,
 	setting: Setting,
-	guildData: UserGuildBaseData,
+	guildData: BaseGuildUserInfo,
 	fields: { [key: string]: unknown },
 	onError: (e: string) => void
 ) => {
 	for (let column of setting.columns) {
 		let data = fields[column.id];
 		if (data === undefined) {
-			if (column.column_type.type === ColumnType.Scalar) {
+			if (column.column_type.type === "Scalar") {
 				if (
-					column.column_type.inner.type === InnerColumnType.Integer ||
-					column.column_type.inner.type === InnerColumnType.Float
+					column.column_type.inner.type === "Integer" ||
+					column.column_type.inner.type === "Float"
 				) {
 					fields[column.id] = 0;
-				} else if (column.column_type.inner.type === InnerColumnType.Boolean) {
+				} else if (column.column_type.inner.type === "Boolean") {
 					fields[column.id] = false;
 				} else {
 					fields[column.id] = '';
 				}
-			} else if (column.column_type.type === ColumnType.Array) {
+			} else if (column.column_type.type === "Array") {
 				fields[column.id] = [];
-			} else if (column.column_type.type === ColumnType.Widget) {
+			} else if (column.column_type.type === "Widget") {
 				continue;
 			}
 		} else {
-			if (column.column_type.type === ColumnType.Scalar) {
+			if (column.column_type.type === "Scalar") {
 				if (
-					column.column_type.inner.type === InnerColumnType.Integer ||
-					column.column_type.inner.type === InnerColumnType.Float
+					column.column_type.inner.type === "Integer" ||
+					column.column_type.inner.type === "Float"
 				) {
 					if (typeof data !== 'number') {
 						let num = parseFloat(data?.toString() || '0');
@@ -78,7 +81,7 @@ export const fillInSetting = async (
 						}
 						fields[column.id] = num;
 					}
-				} else if (column.column_type.inner.type === InnerColumnType.Boolean) {
+				} else if (column.column_type.inner.type === "Boolean") {
 					if (typeof data === 'boolean') {
 						fields[column.id] = data;
 					} else if (typeof data === 'string') {
@@ -95,24 +98,14 @@ export const fillInSetting = async (
 
 	if (setting.view_template) {
 		try {
-			let titleFields: { [key: string]: unknown } = {};
-			for (let field of setting.columns) {
-				if (field.column_type.type === ColumnType.Widget) {
-					continue;
-				}
-				if (
-					field.column_type.inner.type === InnerColumnType.Json &&
-					field.column_type.inner.style == 'template-content'
-				) {
-					continue;
-				}
-				titleFields[field.id] = fields[field.id];
-			}
-
-			return await luauTemplate(setting.view_template, {
-				fields: titleFields,
-				guildData
-			});
+			return await luauTemplate(
+				setting.view_template,
+				{
+					fields,
+					guildData
+				},
+				`${guildId}.dash`
+			);
 		} catch (error) {
 			onError(error?.toString() || 'Unknown error');
 		}
@@ -129,7 +122,7 @@ export interface SettingDataFetcher {
 	/**
 	 * Returns a list of all entries (as returned by the template/script) for a given setting
 	 */
-	listEntries: (setting: Setting) => Promise<{ [templateName: string]: DispatchResult }>;
+	listEntries: (setting: Setting) => Promise<{ [templateName: string]: ApiDispatchResult<any> }>;
 	/**
 	 * Creates a new entry for a given setting
 	 * @param setting The setting to create an entry for
@@ -138,7 +131,7 @@ export interface SettingDataFetcher {
 	createEntry: (
 		setting: Setting,
 		fields: unknown
-	) => Promise<{ [templateName: string]: DispatchResult }>;
+	) => Promise<{ [templateName: string]: ApiDispatchResult<any> }>;
 	/**
 	 * Updates an existing entry for a given setting
 	 * @param setting The setting to update an entry for
@@ -147,7 +140,7 @@ export interface SettingDataFetcher {
 	updateEntry: (
 		setting: Setting,
 		fields: unknown
-	) => Promise<{ [templateName: string]: DispatchResult }>;
+	) => Promise<{ [templateName: string]: ApiDispatchResult<any> }>;
 	/**
 	 * Deletes an entry for a given setting
 	 * @param setting The setting to delete an entry for
@@ -156,14 +149,14 @@ export interface SettingDataFetcher {
 	deleteEntry: (
 		setting: Setting,
 		fields: unknown
-	) => Promise<{ [templateName: string]: DispatchResult }>;
+	) => Promise<{ [templateName: string]: ApiDispatchResult<any> }>;
 	/**
 	 * Reorders entries for a given setting
 	 */
 	reorderEntries: (
 		setting: Setting,
 		fields: unknown[]
-	) => Promise<{ [templateName: string]: DispatchResult }>;
+	) => Promise<{ [templateName: string]: ApiDispatchResult<any> }>;
 }
 
 export const noOpFetcher: SettingDataFetcher = {
@@ -198,7 +191,7 @@ interface SettingsManagerProps {
 	guildId: string;
 	setting: Setting;
 	fetcher: SettingDataFetcher;
-	guildData: UserGuildBaseData;
+	guildData: BaseGuildUserInfo;
 }
 
 export const SettingComponent: React.FC<SettingsManagerProps> = ({
@@ -251,7 +244,7 @@ export const SettingComponent: React.FC<SettingsManagerProps> = ({
 
 				if (Array.isArray(templateResult.data)) {
 					for (let f of templateResult.data) {
-						const filledIn = await fillInSetting(setting, guildData, f, (e) => {
+						const filledIn = await fillInSetting(guildId, setting, guildData, f, (e) => {
 							errors[templateName] = e;
 							logger.error('SettingsManager', 'Failed to fill in setting:', e);
 						});
@@ -261,10 +254,16 @@ export const SettingComponent: React.FC<SettingsManagerProps> = ({
 						}
 					}
 				} else if (typeof templateResult.data === 'object') {
-					const filledIn = await fillInSetting(setting, guildData, templateResult.data, (e) => {
-						errors[templateName] = e;
-						logger.error('SettingsManager', 'Failed to fill in setting:', e);
-					});
+					const filledIn = await fillInSetting(
+						guildId,
+						setting,
+						guildData,
+						templateResult.data,
+						(e) => {
+							errors[templateName] = e;
+							logger.error('SettingsManager', 'Failed to fill in setting:', e);
+						}
+					);
 
 					if (filledIn) {
 						mergedFields.push(filledIn);
@@ -308,7 +307,7 @@ export const SettingComponent: React.FC<SettingsManagerProps> = ({
 			};
 
 			try {
-				const result = await luauTemplate(setting.validation_template, params);
+				const result = await luauTemplate(setting.validation_template, params, `${guildId}.dash`);
 				if (result !== null) {
 					return result as { [key: string]: unknown };
 				}
@@ -331,7 +330,7 @@ export const SettingComponent: React.FC<SettingsManagerProps> = ({
 			};
 
 			try {
-				const result = await luauTemplate(setting.postsend_template, params);
+				const result = await luauTemplate(setting.postsend_template, params, `${guildId}.dash`);
 				if (result !== null) {
 					return result as { [key: string]: unknown };
 				}

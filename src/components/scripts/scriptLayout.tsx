@@ -4,10 +4,9 @@ import Link from 'next/link';
 import { FiArrowLeft } from 'react-icons/fi';
 import { ScriptIDE } from '../ide/ide';
 import { CommonCard } from './ScriptCard';
-import { TemplateShopPartialTemplate } from '@/types/gosdk/types';
 
 interface ScriptLayoutProps {
-	script: TemplateShopPartialTemplate;
+	script: any; // TODO: Fixme once shop is updated
 	files: { [key: string]: string };
 }
 

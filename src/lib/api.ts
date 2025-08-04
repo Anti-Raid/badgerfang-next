@@ -1,21 +1,19 @@
 import axios from 'axios';
-import {
-	ApiConfig,
-	BotState,
-	GuildStaffTeam,
-	UserSessionList,
-	CreateUserSession,
-	CreateUserSessionResponse
-} from '@/types/splashtail/types';
-import { ApiResponse } from '@/types/dashboard/servers';
-import { BotStats } from '@/types/bot-stats';
 import * as forumTypes from '@/types/forums/types';
 import { api_url } from '@/components/common';
-import {
-	DispatchResult,
-	TemplateShopPartialTemplate,
-	TemplateShopTemplate
-} from '@/types/gosdk/types';
+import { ApiConfig } from '@/types/api/bindings/ApiConfig';
+import { TwState } from '@/types/api/bindings/TwState';
+import { GetStatusResponse } from '@/types/api/bindings/GetStatusResponse';
+import { BaseGuildUserInfo } from '@/types/api/bindings/BaseGuildUserInfo';
+import { UserSessionList } from '@/types/api/bindings/UserSessionList';
+import { CreateUserSession } from '@/types/api/bindings/CreateUserSession';
+import { CreateUserSessionResponse } from '@/types/api/bindings/CreateUserSessionResponse';
+import { ApiDispatchResult } from '@/types/api/bindings/ApiDispatchResult';
+import { Setting } from '@/types/api/bindings/Setting';
+import { JsonValue } from '@/types/api/bindings/serde_json/JsonValue';
+import { AuthorizedSession } from '@/types/api/bindings/AuthorizedSession';
+import { DashboardGuildData } from '@/types/api/bindings/DashboardGuildData';
+import { AuthorizeRequest } from '@/types/api/bindings/AuthorizeRequest';
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || api_url;
 export const FORUM_API_URL = 'https://potsypaw.purrquinox.com';
@@ -42,7 +40,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use((config) => {
 	const token = getAuthToken();
 	if (token) {
-		config.headers.Authorization = `User ${token}`;
+		config.headers.Authorization = token;
 	}
 	return config;
 });
@@ -52,17 +50,17 @@ export const getApiConfig = async (): Promise<ApiConfig> => {
 	return response.data;
 };
 
-export const getBotState = async (): Promise<BotState> => {
+export const getBotState = async (): Promise<TwState> => {
 	const response = await axiosInstance.get('/bot-state');
 	return response.data;
 };
 
-export const getBotStats = async (): Promise<BotStats> => {
+export const getBotStats = async (): Promise<GetStatusResponse> => {
 	const { data } = await axiosInstance.get('/bot-stats');
 	return data;
 };
 
-export const getUserServers = async (refetch: boolean = false): Promise<ApiResponse> => {
+export const getUserServers = async (refetch: boolean = false): Promise<DashboardGuildData> => {
 	const url = refetch ? '/users/@me/guilds?refresh=true' : '/users/@me/guilds';
 	const response = await axiosInstance.get(url);
 	return response.data;
@@ -92,6 +90,36 @@ export const revokeSession = async (sessionId: string): Promise<void> => {
 	}
 };
 
+export const createOauth2Session = async (req: AuthorizeRequest): Promise<CreateUserSessionResponse> => {
+	try {
+		const { data } = await axiosInstance.post('/oauth2', req);
+		return data;
+	} catch (error) {
+		console.error('Failed to create OAuth2 session:', error);
+		throw error;
+	}
+}
+
+/**
+ * Gets the authorized session for the current user. Returns undefined if the user is not authorized or forbidden.
+ * @returns AuthorizedSession | undefined
+ */
+export const getAuthorizedSession = async (): Promise<AuthorizedSession | undefined> => {
+	const resp = await axiosInstance.get('/sessions/@me', {
+		validateStatus: (status) => status === 200 || status === 401 || status == 403
+	});
+
+	if (resp.status === 401 || resp.status === 403) {
+		return undefined; // Unauthorized or forbidden
+	}
+
+	if (resp.status !== 200) {
+		throw new Error(`Failed to fetch authorized session: ${resp.statusText}`);
+	}
+
+	return resp.data;
+}
+
 export const createSession = async (
 	session: CreateUserSession
 ): Promise<CreateUserSessionResponse> => {
@@ -104,14 +132,14 @@ export const createSession = async (
 	}
 };
 
-export const getUserGuildBaseInfo = async (guildId: string): Promise<any> => {
+export const baseGuildUserInfo = async (guildId: string): Promise<BaseGuildUserInfo> => {
 	const response = await axiosInstance.get(`/users/@me/guilds/${guildId}`);
 	return response.data;
 };
 
 export const getSettings = async (
 	guildId: string
-): Promise<{ [template: string]: DispatchResult }> => {
+): Promise<{ [template: string]: ApiDispatchResult<Setting[]> }> => {
 	const response = await axiosInstance.get(`/guilds/${guildId}/settings`);
 	if (response.status !== 200) {
 		let err = response.data;
@@ -125,28 +153,26 @@ export const getSettings = async (
 export const executeSettings = async (
 	guildId: string,
 	payload: any
-): Promise<{ [template: string]: DispatchResult }> => {
+): Promise<{ [template: string]: ApiDispatchResult<JsonValue> }> => {
 	const response = await axiosInstance.post(`/guilds/${guildId}/settings`, payload);
 	return response.data;
 };
 
-export const listTemplateShop = async (): Promise<TemplateShopPartialTemplate[]> => {
+export const listTemplateShop = async (): Promise<any> => {
+	throw new Error("Currently disabled as the template shop is being rethought")
 	const response = await axiosInstance.get(`/template-shop`);
 	return response.data;
 };
 
-export const getTemplateShop = async (id: string): Promise<TemplateShopTemplate | null> => {
+export const getTemplateShop = async (id: string): Promise<any | null> => {
+	throw new Error("Currently disabled as the template shop is being rethought")
+
 	const response = await axiosInstance.get(`/template-shop/${id}`, {
 		validateStatus: (status) => status === 200 || status === 404 // Allow 404 for not found
 	});
 	if (response.status === 404) {
 		return null; // Template not found
 	}
-	return response.data;
-};
-
-export const anonuserDetails = async (userId: string): Promise<any> => {
-	const response = await axiosInstance.get(`/users/${userId}`);
 	return response.data;
 };
 

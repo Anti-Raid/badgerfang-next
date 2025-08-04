@@ -20,8 +20,9 @@ let msgId = 0;
  *
  * @param code The code to run
  * @param args The args, which must be serializable to JSON to call with.
+ * @param env The environment to run the code in.
  */
-export const luauTemplate = async (code: string, args: any): Promise<unknown> => {
+export const luauTemplate = async (code: string, args: any, env: string): Promise<unknown> => {
 	if (typeof window === 'undefined') {
 		throw new Error('luauTemplate can only be called in client-side code.');
 	}
@@ -67,6 +68,6 @@ export const luauTemplate = async (code: string, args: any): Promise<unknown> =>
 	return new Promise((resolve, reject) => {
 		callbacks.set(id, { resolve, reject });
 		let workerInstance = worker as any as Worker;
-		workerInstance.postMessage({ id, code, args });
+		workerInstance.postMessage({ id, code, args, env });
 	});
 };

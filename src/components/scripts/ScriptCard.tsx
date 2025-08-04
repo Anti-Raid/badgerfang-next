@@ -5,10 +5,9 @@ import { motion } from 'framer-motion';
 import { FiPackage, FiClock, FiGitBranch, FiServer, FiEye, FiZap, FiUser } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
 import { format, isValid } from 'date-fns';
-import { TemplateShopPartialTemplate } from '@/types/gosdk/types';
 
 interface CommonCardProps {
-	template: TemplateShopPartialTemplate;
+	template: any; // TODO: Fixme once shop is updated
 }
 
 interface CreatorDetails {
@@ -114,7 +113,7 @@ export const CommonCard = ({ template }: CommonCardProps) => {
 							transition={{ delay: 0.4 }}
 							className="flex flex-wrap gap-2 mt-3 ml-[52px]"
 						>
-							{template.tags.map((tag, index) => (
+							{template.tags.map((tag: any, index: any) => (
 								<motion.span
 									key={index}
 									initial={{ scale: 0.8, opacity: 0 }}

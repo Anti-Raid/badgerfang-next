@@ -4,11 +4,10 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useInView, Variants } from 'framer-motion';
 import { FiSearch, FiFilter, FiX, FiPackage, FiZap, FiGrid, FiList } from 'react-icons/fi';
 import { CommonCard } from './ScriptCard';
-import { TemplateShopPartialTemplate } from '@/types/gosdk/types';
 
-export const TemplateShop = ({ data }: { data: TemplateShopPartialTemplate[] }) => {
+export const TemplateShop = ({ data }: { data: any[] }) => { // FIXME: Update type once shop is updated
 	const [searchTerm, setSearchTerm] = useState('');
-	const [filteredData, setFilteredData] = useState<TemplateShopPartialTemplate[]>([]);
+	const [filteredData, setFilteredData] = useState<any[]>([]); // FIXME: Update type once shop is updated
 	const [isSearchFocused, setIsSearchFocused] = useState(false);
 	const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 	const searchRef = useRef<HTMLInputElement>(null);

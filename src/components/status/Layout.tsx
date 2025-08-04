@@ -17,7 +17,6 @@ import {
 	Cell
 } from 'recharts';
 import { getBotStats } from '@/lib/api';
-import type { BotStats } from '@/types/bot-stats';
 import {
 	ArrowUpCircle,
 	Server,
@@ -29,6 +28,8 @@ import {
 	AlertCircle,
 	XCircle
 } from 'lucide-react';
+import { GetStatusResponse } from '@/types/api/bindings/GetStatusResponse';
+import { ShardConn } from '@/types/api/bindings/ShardConn';
 
 // Utility function to format uptime
 const formatUptime = (uptimeSeconds: number): string => {
@@ -160,7 +161,7 @@ const ShardCard: React.FC<ShardCardProps> = ({ shard, details, index }) => {
 
 // Main Status Component
 const Status: React.FC = () => {
-	const [data, setData] = useState<BotStats | null>(null);
+	const [data, setData] = useState<GetStatusResponse | null>(null);
 	const [error, setError] = useState<Error | null>(null);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [activeTab, setActiveTab] = useState<'overview' | 'shards' | 'charts'>('overview');
@@ -170,7 +171,7 @@ const Status: React.FC = () => {
 			try {
 				setLoading(true);
 				const response = await getBotStats();
-				setData(response as unknown as BotStats);
+				setData(response);
 			} catch (err) {
 				setError(err as Error);
 			} finally {
@@ -191,16 +192,17 @@ const Status: React.FC = () => {
 
 		const latencyData = Object.entries(data.shard_conns).map(([shard, details]) => ({
 			name: `Shard ${shard}`,
-			latency: details.real_latency
+			latency: details?.real_latency
 		}));
 
 		const guildData = Object.entries(data.shard_conns).map(([shard, details]) => ({
 			name: `Shard ${shard}`,
-			guilds: details.guilds
+			guilds: details?.guilds
 		}));
 
 		const statusCounts = Object.values(data.shard_conns).reduce(
 			(acc, shard) => {
+				if (!shard) return acc;
 				acc[shard.status] = (acc[shard.status] || 0) + 1;
 				return acc;
 			},
@@ -221,15 +223,14 @@ const Status: React.FC = () => {
 
 		const totalShards = Object.keys(data.shard_conns).length;
 		const totalGuilds = data.total_guilds;
-		const uptime = formatUptime(data.uptime);
 
 		const avgLatency = Math.round(
-			Object.values(data.shard_conns).reduce((sum, shard) => sum + shard.real_latency, 0) /
+			Object.values(data.shard_conns).reduce((sum, shard) => sum + (shard?.real_latency || 0), 0) /
 				totalShards
 		);
 
 		const readyShards = Object.values(data.shard_conns).filter(
-			(shard) => shard.status === 'Ready' || shard.status === 'Connected'
+			(shard) => shard?.status === 'Ready' || shard?.status === 'Connected'
 		).length;
 
 		const healthPercentage = Math.round((readyShards / totalShards) * 100);
@@ -237,7 +238,6 @@ const Status: React.FC = () => {
 		return {
 			totalShards,
 			totalGuilds,
-			uptime,
 			avgLatency,
 			readyShards,
 			healthPercentage
@@ -397,13 +397,13 @@ const Status: React.FC = () => {
 					color="hsl(var(--extra))"
 					delay={0.2}
 				/>
-				<StatCard
+				{/*<StatCard
 					title="Uptime"
 					value={summaryMetrics!.uptime}
 					icon={<ArrowUpCircle />}
 					color="hsl(142, 76%, 36%)"
 					delay={0.3}
-				/>
+				/>*/}
 				<StatCard
 					title="Avg. Latency"
 					value={`${summaryMetrics!.avgLatency} ms`}
@@ -570,13 +570,13 @@ const Status: React.FC = () => {
 									<div className="bg-secondary/50 rounded-lg p-4">
 										<h3 className="text-sm text-muted-foreground mb-1">Lowest Latency</h3>
 										<p className="text-xl font-bold">
-											{Math.min(...Object.values(data.shard_conns).map((s) => s.real_latency))} ms
+											{Math.min(...Object.values(data.shard_conns).map((s) => s?.real_latency || 0))} ms
 										</p>
 									</div>
 									<div className="bg-secondary/50 rounded-lg p-4">
 										<h3 className="text-sm text-muted-foreground mb-1">Highest Latency</h3>
 										<p className="text-xl font-bold">
-											{Math.max(...Object.values(data.shard_conns).map((s) => s.real_latency))} ms
+											{Math.max(...Object.values(data.shard_conns).map((s) => s?.real_latency || 0))} ms
 										</p>
 									</div>
 									<div className="bg-secondary/50 rounded-lg p-4">
@@ -584,7 +584,7 @@ const Status: React.FC = () => {
 										<p className="text-xl font-bold">
 											{
 												Object.values(data.shard_conns)
-													.map((s) => s.real_latency)
+													.map((s) => s?.real_latency || 0)
 													.sort((a, b) => a - b)[
 													Math.floor(Object.keys(data.shard_conns).length / 2)
 												]
@@ -630,8 +630,8 @@ const Status: React.FC = () => {
 							</div>
 
 							<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-								{Object.entries(data.shard_conns).map(([shard, details], index) => (
-									<ShardCard key={shard} shard={shard} details={details} index={index} />
+								{Object.entries(data.shard_conns).filter(([_, details]) => details !== undefined).map(([shard, details], index) => (
+									<ShardCard key={shard} shard={shard} details={details as ShardConn} index={index} />
 								))}
 							</div>
 						</div>
@@ -779,7 +779,7 @@ const Status: React.FC = () => {
 										<BarChart
 											data={Object.entries(data.shard_conns).map(([shard, details]) => ({
 												name: `Shard ${shard}`,
-												uptime: Math.round(details.uptime / 60) // Convert to minutes for better visualization
+												uptime: Math.round((details?.uptime || 0) / 60) // Convert to minutes for better visualization
 											}))}
 											margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
 											layout="vertical"
