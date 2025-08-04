@@ -1,4 +1,4 @@
-import { PartialUser } from '@/types/gosdk/types';
+import { PartialUser } from "@/types/api/bindings/PartialUser";
 
 export const getAvatarUrl = (user: PartialUser) => {
     // @ts-ignore

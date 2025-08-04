@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { TemplateShop } from '@/components/scripts/scriptShop';
 import { listTemplateShop } from '@/lib/api';
-import { TemplateShopPartialTemplate } from '@/types/gosdk/types';
 
 /**
  * Displays the template shop page, fetching template data from the public settings API and handling loading and error states.
@@ -12,7 +11,7 @@ import { TemplateShopPartialTemplate } from '@/types/gosdk/types';
  */
 
 export default function TemplateShopPage() {
-	const [templates, setTemplates] = useState<TemplateShopPartialTemplate[]>([]);
+	const [templates, setTemplates] = useState<any[]>([]); // TODO: Fixme once shop is updated
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
 

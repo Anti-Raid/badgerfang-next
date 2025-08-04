@@ -24,8 +24,8 @@ import { logoutUser } from '@/lib/auth/logoutUser';
 import { getAuthCreds } from '@/lib/auth/getAuthCreds';
 import { useAuthCheck } from '@/lib/auth/checkAuthCreds';
 import ThemeSelector from '@/components/static/ThemeSwitcher';
-import { PartialUser } from '@/types/gosdk/types';
 import { getAvatarUrl } from '@/lib/auth/getAvatarUrl';
+import { PartialUser } from '@/types/api/bindings/PartialUser';
 
 interface NavItem {
 	name: string;
@@ -55,7 +55,7 @@ const NavBar: React.FC = () => {
 	const themeRef = useRef<HTMLDivElement>(null);
 	const profileRef = useRef<HTMLDivElement>(null);
 
-	const { authData, mutateAuth } = useAuthCheck(getAuthCreds());
+	const { authData } = useAuthCheck();
 
 	useEffect(() => {
 		setCurrentPath(pathname || '/');

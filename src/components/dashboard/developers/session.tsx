@@ -18,7 +18,8 @@ import {
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getUserSessions, revokeSession, createSession } from '@/lib/api';
-import type { UserSession, CreateUserSession } from '@/types/gosdk/types';
+import { UserSession } from '@/types/api/bindings/UserSession';
+import { CreateUserSession } from '@/types/api/bindings/CreateUserSession';
 
 const SessionCard: React.FC<{
 	title: string;
@@ -89,6 +90,9 @@ const SessionCard: React.FC<{
 											</div>
 											<div>
 												<div className="flex items-center gap-2 mb-1">
+													<p className="text-sm font-semibold text-foreground">
+														{session.name?.slice(0, 12) || 'Unnamed Session'}
+													</p>
 													<code className="text-xs font-mono bg-muted px-2 py-1 rounded-md">
 														{session.id.slice(0, 10)}...
 													</code>

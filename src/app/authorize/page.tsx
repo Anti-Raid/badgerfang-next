@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { fetchClient } from '@/lib/fetchClient';
-import { AuthorizeRequest, CreateUserSessionResponse } from '@/types/gosdk/types';
-import { API_BASE_URL } from '@/lib/api';
+import { API_BASE_URL, createOauth2Session } from '@/lib/api';
+import { AuthorizeRequest } from '@/types/api/bindings/AuthorizeRequest';
 
 export default function AuthorizePage() {
 	const [error, setError] = useState<string | null>(null);
@@ -20,23 +19,11 @@ export default function AuthorizePage() {
 			}
 
 			const json: AuthorizeRequest = {
-				protocol: 'a1',
-				scope: 'normal',
 				code: searchParams.get('code') || '',
 				redirect_uri: `${window.location.origin}/authorize`
 			};
 
-			const res = await fetchClient(`${API_BASE_URL}/oauth2`, {
-				method: 'POST',
-				body: JSON.stringify(json)
-			});
-
-			if (!res.ok) {
-				const err = await res.error('Create session', 'markdown');
-				throw new Error(err);
-			}
-
-			const data: CreateUserSessionResponse = await res.json();
+			const data = await createOauth2Session(json);
 
 			if (!data.user) {
 				throw new Error('User data not found in session response');

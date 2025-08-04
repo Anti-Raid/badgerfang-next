@@ -5,10 +5,9 @@ import { motion } from 'framer-motion';
 import { FiPackage, FiClock, FiGitBranch, FiServer, FiEye, FiZap, FiUser } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
 import { format, isValid } from 'date-fns';
-import { TemplateShopPartialTemplate } from '@/types/gosdk/types';
 
 interface CommonCardProps {
-	template: TemplateShopPartialTemplate;
+	template: any; // TODO: Fixme once shop is updated
 }
 
 interface CreatorDetails {

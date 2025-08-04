@@ -8,31 +8,24 @@ import { toast } from 'react-toastify';
 import { FaDiscord } from 'react-icons/fa';
 import { getUserServers } from '@/lib/api';
 import { supportConfig } from '@/lib/data/support';
-import type { Server as ServerType, ApiResponse } from '@/types/dashboard/servers';
-import { PartialUser } from '@/types/gosdk/types';
 import logger from '@/lib/logger';
 import { getAvatarUrl } from '@/lib/auth/getAvatarUrl';
+import { PartialUser } from '@/types/api/bindings/PartialUser';
+import { DashboardGuild } from '@/types/api/bindings/DashboardGuild';
+import { getIconUrl } from '@/lib/auth/getIconUrl';
 
 // Discord permission flags
 const DISCORD_PERMISSIONS = {
-	ADMINISTRATOR: 0x8,
-	MANAGE_GUILD: 0x20,
-	MANAGE_CHANNELS: 0x10,
-	MANAGE_ROLES: 0x10000000,
-	MANAGE_MESSAGES: 0x2000,
-	MANAGE_WEBHOOKS: 0x80000000
-};
-
-// Function to check if user has sufficient permissions to manage bot
-const canManageBot = (permissions: number): boolean => {
-	return !!(
-		permissions & DISCORD_PERMISSIONS.ADMINISTRATOR ||
-		permissions & DISCORD_PERMISSIONS.MANAGE_GUILD
-	);
+	ADMINISTRATOR: BigInt(0x8),
+	MANAGE_GUILD: BigInt(0x20),
+	MANAGE_CHANNELS: BigInt(0x10),
+	MANAGE_ROLES: BigInt(0x10000000),
+	MANAGE_MESSAGES: BigInt(0x2000),
+	MANAGE_WEBHOOKS: BigInt(0x80000000)
 };
 
 // Function to get readable permission names
-const getPermissionNames = (permissions: number): string[] => {
+const getPermissionNames = (permissions: bigint): string[] => {
 	const permNames: string[] = [];
 
 	if (permissions & DISCORD_PERMISSIONS.ADMINISTRATOR) {
@@ -50,9 +43,9 @@ const getPermissionNames = (permissions: number): string[] => {
 
 const AllServers: React.FC = () => {
 	const [userData, setUserData] = useState<PartialUser | null>(null);
-	const [servers, setServers] = useState<ServerType[]>([]);
-	const [managedServers, setManagedServers] = useState<ServerType[]>([]);
-	const [yourServers, setYourServers] = useState<ServerType[]>([]);
+	const [servers, setServers] = useState<DashboardGuild[]>([]);
+	const [managedServers, setManagedServers] = useState<DashboardGuild[]>([]);
+	const [yourServers, setYourServers] = useState<DashboardGuild[]>([]);
 	const [managedSearchTerm, setManagedSearchTerm] = useState('');
 	const [yourSearchTerm, setYourSearchTerm] = useState('');
 	const [isLoading, setIsLoading] = useState(true);
@@ -76,13 +69,13 @@ const AllServers: React.FC = () => {
 		if (refetch) setRefreshing(true);
 
 		try {
-			const response: ApiResponse = await getUserServers(refetch);
-			const { guilds, has_bot } = response;
+			const response = await getUserServers(refetch);
+			const { guilds, bot_in_guilds } = response;
 			setServers(guilds);
 
-			const managed = guilds.filter((server) => has_bot.includes(server.id));
+			const managed = guilds.filter((server) => bot_in_guilds.includes(server.id));
 			const yours = guilds.filter(
-				(server) => !has_bot.includes(server.id) && canManageBot(server.permissions)
+				(server) => !bot_in_guilds.includes(server.id)
 			);
 
 			setManagedServers(managed);
@@ -201,7 +194,7 @@ const AllServers: React.FC = () => {
 };
 
 const ServerList: React.FC<{
-	servers: ServerType[];
+	servers: DashboardGuild[];
 	searchTerm: string;
 	setSearchTerm: (value: string) => void;
 	showViewButton: boolean;
@@ -278,13 +271,19 @@ const ServerList: React.FC<{
 	);
 };
 
-const ServerCard: React.FC<{ server: ServerType; showViewButton: boolean }> = ({
+const ServerCard: React.FC<{ server: DashboardGuild; showViewButton: boolean }> = ({
 	server,
 	showViewButton
 }) => {
+	let permBit = BigInt(0);
+	try {
+		permBit = BigInt(server.permissions);
+	} catch (error) {
+		logger.error("ServerCrd", 'Failed to parse permissions for server:', server.id, error);
+	}
+
 	const router = useRouter();
-	const permissionValue = server.permissions;
-	const permissionNames = getPermissionNames(permissionValue);
+	const permissionNames = getPermissionNames(permBit);
 	const isAdministrator = permissionNames.includes('Administrator');
 
 	const handleViewClick = () => {
@@ -309,7 +308,7 @@ const ServerCard: React.FC<{ server: ServerType; showViewButton: boolean }> = ({
 						<div className="relative">
 							<div className="absolute inset-0 bg-gradient-to-r from-primary to-extra rounded-xl blur-sm opacity-70"></div>
 							<img
-								src={server.avatar || '/logo.webp'}
+								src={getIconUrl(server.id, server.icon) || '/logo.webp'}
 								alt={`${server.name} icon`}
 								className="relative w-16 h-16 rounded-xl border-2 border-card bg-accent object-cover"
 							/>

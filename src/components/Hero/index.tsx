@@ -1,13 +1,13 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import type { BotStats } from '@/types/bot-stats';
 import { TemplateCarousel } from './scriptCarosel';
 import { Primary, Secondary } from '../ui/Buttons';
 import { GoArrowUpRight } from 'react-icons/go';
 import { ReviewsCarousel } from './reviewCarosel';
 import { getBotStats } from '@/lib/api';
 import { motion, Variants } from 'framer-motion';
+import { GetStatusResponse } from '@/types/api/bindings/GetStatusResponse';
 
 const ServerIcons = () => {
 	const servers = [
@@ -51,7 +51,7 @@ const ServerIcons = () => {
 
 const Hero = () => {
 	const [serverCount, setServerCount] = useState(0);
-	const [stats, setStats] = useState<BotStats | null>(null);
+	const [stats, setStats] = useState<GetStatusResponse | null>(null);
 	const [isVisible, setIsVisible] = useState(false);
 	const heroRef = useRef<HTMLDivElement>(null);
 
@@ -60,7 +60,7 @@ const Hero = () => {
 		const fetchStats = async () => {
 			try {
 				const botState = await getBotStats();
-				const data: BotStats = botState as BotStats;
+				const data = botState;
 				setStats(data);
 			} catch (error) {
 				console.error('Error fetching stats:', error);
