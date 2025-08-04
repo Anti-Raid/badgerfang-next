@@ -113,7 +113,7 @@ export const CommonCard = ({ template }: CommonCardProps) => {
 							transition={{ delay: 0.4 }}
 							className="flex flex-wrap gap-2 mt-3 ml-[52px]"
 						>
-							{template.tags.map((tag, index) => (
+							{template.tags.map((tag: any, index: any) => (
 								<motion.span
 									key={index}
 									initial={{ scale: 0.8, opacity: 0 }}
