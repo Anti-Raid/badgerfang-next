@@ -79,7 +79,9 @@ export const defaultNodeDataForType: Record<string, NodeExtData> = {
 	},
 	library: {
 		type: NodeTypeEnum.LibraryNode,
-		data: {} // No specific data for start node
+		data: {
+			name: '' // Default name for the library
+		} // No specific data for start node
 	},
 	command: {
 		type: NodeTypeEnum.CommandNode,
@@ -152,7 +154,7 @@ export const defaultNodeDataForType: Record<string, NodeExtData> = {
 	custom_code: {
 		type: NodeTypeEnum.CustomCode,
 		data: {
-			code: ''
+			code: ""
 		}
 	},
 	group_x: {
@@ -185,7 +187,7 @@ export function createNode(
 		id,
 		type,
 		position,
-		data: data ? data : defaultNodeDataForType[type] || defaultNodeDataForType['unknown']
+		data: data ? data : (defaultNodeDataForType[type] || defaultNodeDataForType['unknown'])
 	};
 
 	if (parent) {

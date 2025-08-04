@@ -30,13 +30,11 @@ export default function CustomCode(props: NodeProps) {
 	const [code, setCode] = useState<string>(props.data.data.code || '');
 
 	useEffect(() => {
-		flow.updateNodeData(
-			props.id,
-			{
-				code: code
-			},
-			{ replace: true }
-		);
+		flow.updateNodeData(props.id, {
+			data: {
+				code
+			}
+		});
 	}, [code, props.id]);
 
 	return (

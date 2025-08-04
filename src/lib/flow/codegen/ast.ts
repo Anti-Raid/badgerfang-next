@@ -263,6 +263,9 @@ export interface IPreludeApplied {
 
 export interface IPreludeLibrary {
 	type: IPreludeTypeEnum.Library;
+	data: {
+		name: string;
+	}
 }
 
 export interface IPreludeCommand {
@@ -321,7 +324,7 @@ export class CodeGenAST {
 	public dependencies: Record<string, string>;
 
 	constructor(
-		prelude: IPreludeData = { type: IPreludeTypeEnum.Library },
+		prelude: IPreludeData = { type: IPreludeTypeEnum.Library, data: { name: 'Unnamed Library' } },
 		nodes: INode[] = [],
 		errors: string[] = [],
 		warnings: string[] = [],

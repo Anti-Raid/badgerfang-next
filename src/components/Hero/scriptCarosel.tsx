@@ -4,11 +4,10 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { FiChevronLeft, FiBox, FiChevronRight, FiPackage, FiZap, FiShield } from 'react-icons/fi';
 import { CommonCard } from '../scripts/ScriptCard';
-import { TemplateShopPartialTemplate } from '@/types/gosdk/types';
 import { listTemplateShop } from '@/lib/api';
 
 export const TemplateCarousel = () => {
-	const [templates, setTemplates] = useState<TemplateShopPartialTemplate[]>([]);
+	const [templates, setTemplates] = useState<any[]>([]); // todo: Fixme once shop is updated
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [currentPage, setCurrentPage] = useState(0);

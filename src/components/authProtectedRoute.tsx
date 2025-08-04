@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthCheck } from '@/lib/auth/checkAuthCreds';
-import { getAuthCreds } from '@/lib/auth/getAuthCreds';
 
 /**
  * Conditionally renders its children based on the user's authorization status.
@@ -18,8 +17,7 @@ import { getAuthCreds } from '@/lib/auth/getAuthCreds';
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
 	const router = useRouter();
-	const sessionData = getAuthCreds();
-	const { isAuthorized, isError, isLoading } = useAuthCheck(sessionData);
+	const { isAuthorized, isError, isLoading } = useAuthCheck();
 
 	useEffect(() => {
 		if (!isAuthorized && !isError && !isLoading) {

@@ -3,15 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { ScriptLayout } from '@/components/scripts/scriptLayout';
-import type { TemplateShopProps } from '@/types/script';
-import { TemplateShopTemplate } from '@/types/gosdk/types';
 import { getTemplateShop } from '@/lib/api';
 
 export default function ScriptPage() {
 	const params = useParams();
 	const scriptName = params.name as string;
 
-	const [script, setScript] = useState<TemplateShopTemplate | null>(null);
+	const [script, setScript] = useState<any | null>(null); // TODO: Fixme once shop is updated
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 

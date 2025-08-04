@@ -318,7 +318,9 @@ export interface SharedNodeData {
 
 export interface LibraryNode {
 	type: NodeTypeEnum.LibraryNode;
-	data: SharedNodeData;
+	data: SharedNodeData & {
+		name: string; // Name of the library
+	};
 }
 
 export interface CommandNode {

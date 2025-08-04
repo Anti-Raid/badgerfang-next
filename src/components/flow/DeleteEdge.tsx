@@ -1,5 +1,3 @@
-// Originated from Kite
-// SPDX: GPL-3.0
 import { BaseEdge, EdgeLabelRenderer, EdgeProps, getBezierPath, useReactFlow } from '@xyflow/react';
 import { XIcon } from 'lucide-react';
 

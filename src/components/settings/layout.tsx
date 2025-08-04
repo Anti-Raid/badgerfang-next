@@ -3,14 +3,14 @@
 import { Shield, User, Code, Database, FileCode, Lock, Bell } from 'lucide-react';
 import { Section } from './components/section';
 import { Fragment, useEffect, useState } from 'react';
-import { getUserGuildBaseInfo, executeSettings, getSettings } from '@/lib/api';
+import { baseGuildUserInfo, executeSettings, getSettings } from '@/lib/api';
 import { motion } from 'framer-motion';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Setting } from '@/types/settings';
 import { noOpFetcher, SettingComponent, SettingDataFetcher } from './components/setting';
-import { DispatchResult } from '@/types/gosdk/types';
 import { SettingsErrorDisplay } from './components/ErrorDisplay';
+import { ApiDispatchResult } from '@/types/api/bindings/ApiDispatchResult';
+import { Setting } from '@/types/api/bindings/Setting';
 
 /**
  * Renders a dashboard for managing guild settings.
@@ -25,7 +25,7 @@ import { SettingsErrorDisplay } from './components/ErrorDisplay';
  */
 export default function Settings({ guildId }: { guildId: string }) {
 	const [guildData, setGuildData] = useState<any>(null);
-	const [guildSettings, setGuildSettings] = useState<{ [key: string]: DispatchResult } | null>(
+	const [guildSettings, setGuildSettings] = useState<{ [key: string]: ApiDispatchResult<any> } | null>(
 		null
 	);
 	const [loading, setLoading] = useState<boolean>(true);
@@ -40,7 +40,7 @@ export default function Settings({ guildId }: { guildId: string }) {
 				fields: {}
 			};
 			const result = await executeSettings(guildId, payload);
-			return result as { [templateName: string]: DispatchResult };
+			return result as { [templateName: string]: ApiDispatchResult<any> };
 		},
 		createEntry: async (setting: Setting, entry: any) => {
 			const payload = {
@@ -49,7 +49,7 @@ export default function Settings({ guildId }: { guildId: string }) {
 				fields: entry
 			};
 			const result = await executeSettings(guildId, payload);
-			return result as { [templateName: string]: DispatchResult };
+			return result as { [templateName: string]: ApiDispatchResult<any> };
 		},
 		updateEntry: async (setting: Setting, entry: any) => {
 			const payload = {
@@ -58,7 +58,7 @@ export default function Settings({ guildId }: { guildId: string }) {
 				fields: entry
 			};
 			const result = await executeSettings(guildId, payload);
-			return result as { [templateName: string]: DispatchResult };
+			return result as { [templateName: string]: ApiDispatchResult<any> };
 		},
 		deleteEntry: async (setting: Setting, entry: any) => {
 			const payload = {
@@ -67,7 +67,7 @@ export default function Settings({ guildId }: { guildId: string }) {
 				fields: entry
 			};
 			const result = await executeSettings(guildId, payload);
-			return result as { [templateName: string]: DispatchResult };
+			return result as { [templateName: string]: ApiDispatchResult<any> };
 		},
 		reorderEntries: async (setting: Setting, entries: any[]) => {
 			const payload = {
@@ -76,14 +76,14 @@ export default function Settings({ guildId }: { guildId: string }) {
 				fields: entries
 			};
 			const result = await executeSettings(guildId, payload);
-			return result as { [templateName: string]: DispatchResult };
+			return result as { [templateName: string]: ApiDispatchResult<any> };
 		}
 	};
 
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
-				const data = await getUserGuildBaseInfo(guildId);
+				const data = await baseGuildUserInfo(guildId);
 				let settings = await getSettings(guildId);
 
 				// Ensure builtin settings are the first thing in the object

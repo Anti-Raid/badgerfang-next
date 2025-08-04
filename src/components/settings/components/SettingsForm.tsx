@@ -2,11 +2,10 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Column } from '@/types/settings';
-import { UserGuildBaseData } from '@/types/gosdk/types';
-
 import { SettingsColumnList } from './settings-column';
 import { Primary } from '../../ui/Buttons';
+import { Column } from '@/types/api/bindings/Column';
+import { BaseGuildUserInfo } from '@/types/api/bindings/BaseGuildUserInfo';
 
 interface SettingsFormProps {
 	columns: Column[];
@@ -15,7 +14,7 @@ interface SettingsFormProps {
 	onSave: () => void;
 	onCancel: () => void;
 	operation: 'Create' | 'Update';
-	guildData: UserGuildBaseData;
+	guildData: BaseGuildUserInfo;
 	settingName: string;
 }
 

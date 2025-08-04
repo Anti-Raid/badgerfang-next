@@ -1,4 +1,4 @@
-import { CreateUserSessionResponse } from '@/types/gosdk/types';
+import { CreateUserSessionResponse } from '@/types/api/bindings/CreateUserSessionResponse';
 import logger from '../logger';
 
 export const getAuthCreds = () => {

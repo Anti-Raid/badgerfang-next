@@ -14,10 +14,12 @@ import {
 	LayoutGrid,
 	List
 } from 'lucide-react';
-import type { BotState } from '../../types/gosdk/types';
-import * as discordgo from '../../types/gosdk/types';
 import { getBotState } from '@/lib/api';
 import { InputField } from '@/components/settings/components/form-elements';
+import { ApiCreateCommandOption } from '@/types/api/bindings/ApiCreateCommandOption';
+import { TwState } from '@/types/api/bindings/TwState';
+import { ApiCreateCommand } from '@/types/api/bindings/ApiCreateCommand';
+import { ApiCreateCommandOptionChoice } from '@/types/api/bindings/ApiCreateCommandOptionChoice';
 
 const Button = ({
 	children,
@@ -155,10 +157,10 @@ const randomizeArray = <T,>(arr: T[]): T[] => {
 
 // Utility to extract subcommands and arguments from ApplicationCommandOption
 function extractSubcommandsAndArgs(
-	options: (discordgo.ApplicationCommandOption | undefined)[] = []
+	options: (ApiCreateCommandOption | undefined)[] = []
 ) {
-	const subcommands: discordgo.ApplicationCommandOption[] = [];
-	const args: discordgo.ApplicationCommandOption[] = [];
+	const subcommands: ApiCreateCommandOption[] = [];
+	const args: ApiCreateCommandOption[] = [];
 	options.forEach((opt) => {
 		if (!opt) return;
 		if (
@@ -179,7 +181,7 @@ function extractSubcommandsAndArgs(
  * Fetches bot command data and allows users to filter by module, perform full-text search, paginate results, and toggle between grid and list views. Users can expand commands to view detailed information, including subcommands, arguments, and required permissions. The UI adapts for desktop and mobile devices, and includes loading and error handling states.
  */
 export default function CommandInterface() {
-	const [botState, setBotState] = useState<BotState | null>(null);
+	const [botState, setBotState] = useState<TwState | null>(null);
 	const [selectedModule, setSelectedModule] = useState<string>('all');
 	const [searchQuery, setSearchQuery] = useState('');
 	const [showCount, setShowCount] = useState('20');
@@ -191,7 +193,7 @@ export default function CommandInterface() {
 	useEffect(() => {
 		const fetchBotState = async () => {
 			try {
-				const data: BotState = await getBotState();
+				const data = await getBotState();
 				setBotState(data);
 				setLoading(false);
 			} catch (err) {
@@ -209,7 +211,7 @@ export default function CommandInterface() {
 		if (!botState) return [];
 		let idCounter = 0;
 		const commands: any[] = [];
-		botState.commands.forEach((cmd: discordgo.ApplicationCommand) => {
+		botState.commands.forEach((cmd: ApiCreateCommand) => {
 			const moduleName = cmd.name;
 			const moduleId = cmd.name;
 			const { subcommands, args } = extractSubcommandsAndArgs(cmd.options);
@@ -219,19 +221,19 @@ export default function CommandInterface() {
 				moduleId,
 				id: `cmd-${idCounter++}`,
 				subcommands,
-				arguments: args.map((arg: discordgo.ApplicationCommandOption) => ({
+				arguments: args.map((arg: ApiCreateCommandOption) => ({
 					...arg,
 					required: arg.required ?? false,
 					choices: Array.isArray(arg.choices)
 						? arg.choices
-								.filter((c): c is discordgo.ApplicationCommandOptionChoice => !!c)
+								.filter((c): c is ApiCreateCommandOptionChoice => !!c)
 								.map((c) => c.name)
 						: []
 				}))
 			};
 			commands.push(mainCommand);
 			// Flatten subcommands (if any)
-			subcommands.forEach((subCmd: discordgo.ApplicationCommandOption) => {
+			subcommands.forEach((subCmd: ApiCreateCommandOption) => {
 				const { subcommands: subSub, args: subArgs } = extractSubcommandsAndArgs(subCmd.options);
 				commands.push({
 					...subCmd,
@@ -239,12 +241,12 @@ export default function CommandInterface() {
 					moduleId,
 					id: `cmd-${idCounter++}`,
 					subcommands: subSub,
-					arguments: subArgs.map((arg: discordgo.ApplicationCommandOption) => ({
+					arguments: subArgs.map((arg: ApiCreateCommandOption) => ({
 						...arg,
 						required: arg.required ?? false,
 						choices: Array.isArray(arg.choices)
 							? arg.choices
-									.filter((c): c is discordgo.ApplicationCommandOptionChoice => !!c)
+									.filter((c): c is ApiCreateCommandOptionChoice => !!c)
 									.map((c) => c.name)
 							: []
 					}))
@@ -278,10 +280,10 @@ export default function CommandInterface() {
 	const modules = useMemo(() => {
 		if (!botState) return [];
 		const uniqueModules = new Map<string, { id: string; name: string }>();
-		botState.commands.forEach((cmd: discordgo.ApplicationCommand) => {
-			uniqueModules.set(cmd.name, {
-				id: cmd.name,
-				name: cmd.name
+		botState.commands.forEach((cmd: ApiCreateCommand) => {
+			uniqueModules.set(cmd.name || `unknown_command_name`, {
+				id: cmd.name || `unknown_command_name_${Math.random().toString(36).substring(2, 9)}`,
+				name: cmd.name || 'Unknown Command'
 			});
 		});
 		return Array.from(uniqueModules.values());
@@ -445,7 +447,7 @@ export default function CommandInterface() {
 								<div className="flex flex-wrap gap-1.5">
 									{command.subcommands
 										.slice(0, expanded ? command.subcommands.length : 3)
-										.map((subCmd: discordgo.ApplicationCommandOption) => (
+										.map((subCmd: ApiCreateCommandOption) => (
 											<Badge key={subCmd.name} variant="secondary">
 												{subCmd.name}
 											</Badge>
@@ -502,7 +504,7 @@ export default function CommandInterface() {
 								<div>
 									<h4 className="text-sm font-medium mb-1.5">Subcommands</h4>
 									<ul className="space-y-3">
-										{command.subcommands.map((subCmd: discordgo.ApplicationCommandOption) => (
+										{command.subcommands.map((subCmd: ApiCreateCommandOption) => (
 											<li key={subCmd.name} className="text-sm bg-secondary/30 p-3 rounded-lg">
 												<span className="font-medium text-primary">{subCmd.name}</span>
 												{subCmd.description && (
@@ -517,7 +519,7 @@ export default function CommandInterface() {
 								<div>
 									<h4 className="text-sm font-medium mb-1.5">Arguments</h4>
 									<ul className="space-y-3">
-										{command.arguments.map((arg: discordgo.ApplicationCommandOption) => (
+										{command.arguments.map((arg: ApiCreateCommandOption) => (
 											<li key={arg.name} className="text-sm bg-secondary/30 p-3 rounded-lg">
 												<div className="flex items-center gap-2">
 													<span className="font-medium text-primary">{arg.name}</span>
@@ -602,7 +604,7 @@ export default function CommandInterface() {
 										<h4 className="text-sm font-medium mb-1.5">Subcommands</h4>
 										<div className="bg-secondary/30 p-3 rounded-lg">
 											<div className="flex flex-wrap gap-1.5">
-												{command.subcommands.map((subCmd: discordgo.ApplicationCommandOption) => (
+												{command.subcommands.map((subCmd: ApiCreateCommandOption) => (
 													<Badge key={subCmd.name} variant="secondary">
 														{subCmd.name}
 													</Badge>
@@ -616,7 +618,7 @@ export default function CommandInterface() {
 										<h4 className="text-sm font-medium mb-1.5">Arguments</h4>
 										<div className="bg-secondary/30 p-3 rounded-lg">
 											<div className="flex flex-wrap gap-1.5">
-												{command.arguments.map((arg: discordgo.ApplicationCommandOption) => (
+												{command.arguments.map((arg: ApiCreateCommandOption) => (
 													<Badge key={arg.name} variant={arg.required ? 'required' : 'optional'}>
 														{arg.name}
 													</Badge>

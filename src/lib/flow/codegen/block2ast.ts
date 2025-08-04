@@ -2,7 +2,6 @@ import {
 	CommandArgumentNode,
 	CommandArgumentType,
 	CommandNode,
-	ConditionalLogicType,
 	ConditionalLogicTypeEnum,
 	ConditionalType,
 	ConditionalTypeContinuable,
@@ -14,7 +13,6 @@ import {
 	ForLoopNode,
 	ForLoopType,
 	ForLoopTypeEnum,
-	GroupNode,
 	IfConditionNode,
 	LibraryNode,
 	NodeExtData,
@@ -48,6 +46,7 @@ import {
 } from './ast';
 import { baseCommandNodeSchema } from '../validation';
 import z from 'zod';
+import { startNodeTypes } from '../startnode';
 
 interface Visit<T> {
 	/**
@@ -74,8 +73,6 @@ interface VisitResult {
 	 */
 	nextNode: Node<NodeExtData> | null;
 }
-
-const startNodeTypes = [NodeTypeEnum.LibraryNode, NodeTypeEnum.CommandNode];
 
 /**
  * Given nodes, edges and auxData, creates the CodeGen AST for the flow.
@@ -224,7 +221,7 @@ export class CodeGenASTGenerator {
 			}
 			currentNode = visitResult.nextNode;
 			//throw new Error(`Visited: ${Array.from(visited).join(', ')}, next=${JSON.stringify(visitResult.nextNode)}`);
-			console.log(`Next node: ${JSON.stringify(currentNode)}`);
+			console.debug(`Next node: ${JSON.stringify(currentNode)}`);
 		}
 
 		return astNodes;
@@ -235,7 +232,7 @@ export class CodeGenASTGenerator {
 	 */
 	private visitLibraryNode(node: Visit<LibraryNode>): VisitResult {
 		// Visit start node data and set the start node type in the AST
-		node.currentAst.prelude = { type: IPreludeTypeEnum.Library };
+		node.currentAst.prelude = { type: IPreludeTypeEnum.Library, data: { name: node.data.data.name } };
 
 		let children = this.getChildrenOfNode(node.nodeId);
 		let nextNode: Node<NodeExtData> | null = null;
