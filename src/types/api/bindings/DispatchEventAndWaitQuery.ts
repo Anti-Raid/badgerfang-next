@@ -7,4 +7,4 @@ export type DispatchEventAndWaitQuery = {
 /**
  * Wait duration in milliseconds
  */
-wait_timeout: number?, };
+wait_timeout: number | undefined, };
