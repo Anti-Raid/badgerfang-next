@@ -75,7 +75,6 @@ export const Library = (props: NodeProps) => {
 
 	return (
 		<FlowNodeBase {...props}>
-			<Handle type="target" position={Position.Top} />
 			<Handle type="source" position={Position.Bottom} />
 
 			<FlowExpanded nodeProps={props}>
@@ -113,7 +112,6 @@ export const Command = (props: NodeProps) => {
 
 	return (
 		<FlowNodeBase {...props}>
-			<Handle type="target" position={Position.Top} />
 			<Handle type="source" position={Position.Bottom} />
 
 			<FlowExpanded nodeProps={props}>
