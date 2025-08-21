@@ -2,14 +2,11 @@
 import { useState, useEffect } from 'react';
 import { Archive, Zap, Shield, User, Globe, MessageSquare, Github } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { toast } from 'react-toastify';
+import Link from 'next/link';
 import type { Partner } from '@/types/other/Partner';
 import useSWR from 'swr';
 import { HistoryTimeline } from '@/components/about/history-timeline';
-
-const ButtonFunc = (button: string): void => {
-	toast(`You have pushed the "${button}" button!`);
-};
+import { FaDiscord } from 'react-icons/fa';
 
 const AboutLayout = () => {
 	const [isLoaded, setIsLoaded] = useState(false);
@@ -41,25 +38,27 @@ const AboutLayout = () => {
 						</p>
 
 						<div className="mt-10 flex flex-wrap gap-4">
+							<Link href="#about">
 							<button
-								onClick={() => ButtonFunc('Get Started')}
 								className="px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-md font-semibold transition-all shadow-[0_0_15px_rgba(var(--primary)/30%)] hover:shadow-[0_0_25px_rgba(var(--primary)/40%)]"
 							>
 								Get Started
 							</button>
+							</Link>
+							<Link href="#timeline">
 							<button
-								onClick={() => ButtonFunc('Learn More')}
 								className="px-6 py-3 bg-background/30 backdrop-blur-sm border border-primary/30 hover:border-primary/50 text-foreground rounded-md font-semibold transition-all"
 							>
 								Learn More
 							</button>
+							</Link>
 						</div>
 					</motion.div>
 				</div>
 			</section>
 
 			{/* About Section */}
-			<section className="py-16 container mx-auto px-4 sm:px-6 lg:px-8">
+			<section id="about" className="py-16 container mx-auto px-4 sm:px-6 lg:px-8">
 				<motion.div
 					initial={{ opacity: 0 }}
 					animate={{ opacity: isLoaded ? 1 : 0 }}
@@ -232,7 +231,7 @@ const Partners = ({ isLoaded }: { isLoaded: boolean }) => {
 				},
 				{
 					name: 'Discord',
-					icon: <MessageSquare className="w-5 h-5" />,
+					icon: <FaDiscord className="w-5 h-5" />,
 					link: 'https://discord.com/invite/KBCRuBKrHe'
 				}
 			]

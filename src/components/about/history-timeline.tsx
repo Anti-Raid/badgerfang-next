@@ -93,7 +93,7 @@ export const HistoryTimeline = () => {
 	];
 
 	return (
-		<section id="history" className="py-24 relative overflow-hidden">
+		<section id="timeline" className="py-24 relative overflow-hidden">
 			{/* Cyberpunk background elements */}
 			<div className="absolute inset-0 bg-grid-white/5 [mask-image:linear-gradient(to_bottom,transparent,black)]"></div>
 			<div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-background/80"></div>
