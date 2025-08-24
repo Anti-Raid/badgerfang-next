@@ -11,8 +11,8 @@ For loops can only have one source connection but may have two targets of which 
  */
 
 import { Connection, Edge, Node, Position, useReactFlow } from '@xyflow/react';
-import FlowNodeBase from './BaseNode';
-import Handle from './Handle';
+import FlowNodeBase from '../nodes/BaseNode';
+import Handle from '../ui/Handle';
 import {
 	ConditionalType,
 	ConditionalTypeEnum,
@@ -27,11 +27,11 @@ import {
 	TypedInputEnum
 } from '@/lib/flow/data';
 import { useEffect, useState } from 'react';
-import { BaseLabelAndDescription, InputField, TypedInputField } from './Inputs';
-import { FlowExpanded } from './FlowExpanded';
+import { BaseLabelAndDescription, InputField, TypedInputField } from '../utils/Inputs';
+import { FlowExpanded } from '../management/FlowExpanded';
 import logger from '@/lib/logger';
 import React from 'react';
-import { SmallGhost, SmallInlineGhost } from '../ui/Buttons';
+import { SmallGhost, SmallInlineGhost } from '../../ui/Buttons';
 import { ConditionalTypeField } from './ConditionalType';
 
 // Static validation for if_condition: If conditions have rule 1 for source connections, meaning they can only have one source connection

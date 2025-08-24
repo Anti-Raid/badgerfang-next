@@ -3,8 +3,9 @@
 /**
  * Query parameters for dispatch_event_and_wait
  */
-export type DispatchEventAndWaitQuery = { 
-/**
- * Wait duration in milliseconds
- */
-wait_timeout: number | undefined, };
+export type DispatchEventAndWaitQuery = {
+	/**
+	 * Wait duration in milliseconds
+	 */
+	wait_timeout: number | undefined;
+};

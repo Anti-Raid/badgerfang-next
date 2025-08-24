@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { ConditionalType, ConditionalTypeEnum, FlowData, NodeExtData } from '@/lib/flow/data';
 import { motion } from 'framer-motion';
 import { CodeGenASTGenerator } from '@/lib/flow/codegen/block2ast';
-import { ConditionalTypeField } from '@/components/flow/ConditionalType';
-import FlowList from '@/components/flow/FlowList';
+import { ConditionalTypeField } from '@/components/flow/config/ConditionalType';
+import FlowList from '@/components/flow/ui/FlowList';
 import { Primary } from '@/components/ui/Buttons';
 
 const codegenAst = (data: FlowData) => {
@@ -20,7 +20,7 @@ const codegenAst = (data: FlowData) => {
 	}
 
 	return { stage1, stage2 };
-}
+};
 
 export default function Blockly() {
 	const [data, setData] = useState<FlowData[]>([]);
@@ -28,14 +28,23 @@ export default function Blockly() {
 	const [dbgConditional, setDbgConditional] = useState<ConditionalType>({
 		type: ConditionalTypeEnum.Unselected
 	});
-	const [compiledAst, setCompiledAst] = useState<{stage1: Record<string, unknown>, stage2: Record<string, unknown>} | null>(null);
+	const [compiledAst, setCompiledAst] = useState<{
+		stage1: Record<string, unknown>;
+		stage2: Record<string, unknown>;
+	} | null>(null);
 
 	return (
 		<>
-			<FlowList flowDatas={data} onChange={setData} selectedFlowIndex={selectedFlowIndex} setSelectedFlowIndex={setSelectedFlowIndex} addFlowData={() => {
-				setData([...data, { nodes: [], edges: [] }]);
-				setSelectedFlowIndex(data.length);
-			}} />
+			<FlowList
+				flowDatas={data}
+				onChange={setData}
+				selectedFlowIndex={selectedFlowIndex}
+				setSelectedFlowIndex={setSelectedFlowIndex}
+				addFlowData={() => {
+					setData([...data, { nodes: [], edges: [] }]);
+					setSelectedFlowIndex(data.length);
+				}}
+			/>
 			<motion.div
 				initial={{ opacity: 0, y: 10 }}
 				animate={{ opacity: 1, y: 0 }}
@@ -47,7 +56,7 @@ export default function Blockly() {
 				</code>
 			</motion.div>
 
-			{(selectedFlowIndex >= 0 && data[selectedFlowIndex]) && (
+			{selectedFlowIndex >= 0 && data[selectedFlowIndex] && (
 				<>
 					<div className="mt-2">
 						<Primary
@@ -75,7 +84,7 @@ export default function Blockly() {
 						<code className="whitespace-pre-wrap break-words text-black">
 							{JSON.stringify(compiledAst, null, 2)}
 						</code>
-					</motion.div>				
+					</motion.div>
 				</>
 			)}
 

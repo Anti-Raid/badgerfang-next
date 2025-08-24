@@ -570,13 +570,19 @@ const Status: React.FC = () => {
 									<div className="bg-secondary/50 rounded-lg p-4">
 										<h3 className="text-sm text-muted-foreground mb-1">Lowest Latency</h3>
 										<p className="text-xl font-bold">
-											{Math.min(...Object.values(data.shard_conns).map((s) => s?.real_latency || 0))} ms
+											{Math.min(
+												...Object.values(data.shard_conns).map((s) => s?.real_latency || 0)
+											)}{' '}
+											ms
 										</p>
 									</div>
 									<div className="bg-secondary/50 rounded-lg p-4">
 										<h3 className="text-sm text-muted-foreground mb-1">Highest Latency</h3>
 										<p className="text-xl font-bold">
-											{Math.max(...Object.values(data.shard_conns).map((s) => s?.real_latency || 0))} ms
+											{Math.max(
+												...Object.values(data.shard_conns).map((s) => s?.real_latency || 0)
+											)}{' '}
+											ms
 										</p>
 									</div>
 									<div className="bg-secondary/50 rounded-lg p-4">
@@ -630,9 +636,16 @@ const Status: React.FC = () => {
 							</div>
 
 							<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-								{Object.entries(data.shard_conns).filter(([_, details]) => details !== undefined).map(([shard, details], index) => (
-									<ShardCard key={shard} shard={shard} details={details as ShardConn} index={index} />
-								))}
+								{Object.entries(data.shard_conns)
+									.filter(([_, details]) => details !== undefined)
+									.map(([shard, details], index) => (
+										<ShardCard
+											key={shard}
+											shard={shard}
+											details={details as ShardConn}
+											index={index}
+										/>
+									))}
 							</div>
 						</div>
 					</motion.div>

@@ -3,24 +3,25 @@
 /**
  * A shard connection (for bot statistics)
  */
-export type ShardConn = { 
-/**
- * The status of the shard connection
- */
-status: string, 
-/**
- * The real latency of the shard connection
- */
-real_latency: number, 
-/**
- * The number of guilds the shard is connected to
- */
-guilds: number, 
-/**
- * The uptime of the shard connection in seconds
- */
-uptime: number, 
-/**
- * The total uptime of the shard connection in seconds
- */
-total_uptime: number, };
+export type ShardConn = {
+	/**
+	 * The status of the shard connection
+	 */
+	status: string;
+	/**
+	 * The real latency of the shard connection
+	 */
+	real_latency: number;
+	/**
+	 * The number of guilds the shard is connected to
+	 */
+	guilds: number;
+	/**
+	 * The uptime of the shard connection in seconds
+	 */
+	uptime: number;
+	/**
+	 * The total uptime of the shard connection in seconds
+	 */
+	total_uptime: number;
+};

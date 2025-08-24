@@ -25,9 +25,9 @@ import { Setting } from '@/types/api/bindings/Setting';
  */
 export default function Settings({ guildId }: { guildId: string }) {
 	const [guildData, setGuildData] = useState<any>(null);
-	const [guildSettings, setGuildSettings] = useState<{ [key: string]: ApiDispatchResult<any> } | null>(
-		null
-	);
+	const [guildSettings, setGuildSettings] = useState<{
+		[key: string]: ApiDispatchResult<any>;
+	} | null>(null);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
 
@@ -235,8 +235,11 @@ export default function Settings({ guildId }: { guildId: string }) {
 								.filter((s) => guildSettings[s].type !== 'Ok')
 								.map((setting, idx) => {
 									return (
-										<SettingsErrorDisplay key={idx} loadErrors={{[setting]: guildSettings[setting].data}} />
-									)
+										<SettingsErrorDisplay
+											key={idx}
+											loadErrors={{ [setting]: guildSettings[setting].data }}
+										/>
+									);
 								})}
 
 							{Object.keys(guildSettings)

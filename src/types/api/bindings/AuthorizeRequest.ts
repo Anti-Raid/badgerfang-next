@@ -3,12 +3,13 @@
 /**
  * Defines the structure of an authorization request
  */
-export type AuthorizeRequest = { 
-/**
- * Discord Oauth2 code
- */
-code: string, 
-/**
- * The redirect URI to return to after authorization
- */
-redirect_uri: string, };
+export type AuthorizeRequest = {
+	/**
+	 * Discord Oauth2 code
+	 */
+	code: string;
+	/**
+	 * The redirect URI to return to after authorization
+	 */
+	redirect_uri: string;
+};

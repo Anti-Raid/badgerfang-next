@@ -74,7 +74,7 @@ export const SettingsColumn: React.FC<SettingsColumnProps> = ({
 }) => {
 	return (
 		<>
-			{column.column_type.type === "Scalar" ? (
+			{column.column_type.type === 'Scalar' ? (
 				<>
 					<div className="items-center mt-2">
 						<SettingsInnerColumn
@@ -92,7 +92,7 @@ export const SettingsColumn: React.FC<SettingsColumnProps> = ({
 						/>
 					</div>
 				</>
-			) : column.column_type.type === "Array" ? (
+			) : column.column_type.type === 'Array' ? (
 				<>
 					<div className="items-center mt-2">
 						{/* Edge case: no inputs in array, so we just show a label and then have the 3 buttons below it */}
@@ -113,12 +113,9 @@ export const SettingsColumn: React.FC<SettingsColumnProps> = ({
 												let ict = assertInnerColumnTypeUnion(column.column_type.inner);
 
 												let newElement: any = '';
-												if (
-													ict.type === "Integer" ||
-													ict.type === "Float"
-												) {
+												if (ict.type === 'Integer' || ict.type === 'Float') {
 													newElement = 0;
-												} else if (ict.type === "Boolean") {
+												} else if (ict.type === 'Boolean') {
 													newElement = false;
 												}
 
@@ -160,12 +157,9 @@ export const SettingsColumn: React.FC<SettingsColumnProps> = ({
 														let ict = assertInnerColumnTypeUnion(column.column_type.inner);
 
 														let newElement: any = '';
-														if (
-															ict.type === "Integer" ||
-															ict.type === "Float"
-														) {
+														if (ict.type === 'Integer' || ict.type === 'Float') {
 															newElement = 0;
-														} else if (ict.type === "Boolean") {
+														} else if (ict.type === 'Boolean') {
 															newElement = false;
 														}
 
@@ -181,12 +175,9 @@ export const SettingsColumn: React.FC<SettingsColumnProps> = ({
 														let ict = assertInnerColumnTypeUnion(column.column_type.inner);
 
 														let newElement: any = '';
-														if (
-															ict.type === "Integer" ||
-															ict.type === "Float"
-														) {
+														if (ict.type === 'Integer' || ict.type === 'Float') {
 															newElement = 0;
-														} else if (ict.type === "Boolean") {
+														} else if (ict.type === 'Boolean') {
 															newElement = false;
 														}
 
@@ -202,12 +193,9 @@ export const SettingsColumn: React.FC<SettingsColumnProps> = ({
 														let ict = assertInnerColumnTypeUnion(column.column_type.inner);
 
 														let newElement: any = '';
-														if (
-															ict.type === "Integer" ||
-															ict.type === "Float"
-														) {
+														if (ict.type === 'Integer' || ict.type === 'Float') {
 															newElement = 0;
-														} else if (ict.type === "Boolean") {
+														} else if (ict.type === 'Boolean') {
 															newElement = false;
 														}
 
@@ -240,9 +228,9 @@ export const SettingsColumn: React.FC<SettingsColumnProps> = ({
 						)}
 					</div>
 				</>
-			) : column.column_type.type === "Widget" ? (
+			) : column.column_type.type === 'Widget' ? (
 				<>
-					{column.column_type.inner.type === "Info" ? (
+					{column.column_type.inner.type === 'Info' ? (
 						<motion.div
 							className="bg-blue-100 border border-yellow-300 rounded-lg p-4 flex items-center gap-3 mb-2"
 							initial={{ opacity: 0, y: 10 }}
@@ -256,7 +244,7 @@ export const SettingsColumn: React.FC<SettingsColumnProps> = ({
 								<span className="font-bold">{column.column_type.inner.message}</span>
 							</p>
 						</motion.div>
-					) : column.column_type.inner.type === "Warning" ? (
+					) : column.column_type.inner.type === 'Warning' ? (
 						<motion.div
 							className="bg-yellow-100 border border-yellow-300 rounded-lg p-4 flex items-center gap-3 mb-2"
 							initial={{ opacity: 0, y: 10 }}
@@ -270,7 +258,7 @@ export const SettingsColumn: React.FC<SettingsColumnProps> = ({
 								<span className="font-bold">{column.column_type.inner.message}</span>
 							</p>
 						</motion.div>
-					) : column.column_type.inner.type === "Button" ? (
+					) : column.column_type.inner.type === 'Button' ? (
 						<motion.div
 							className="bg-yellow-100 border border-yellow-300 rounded-lg p-4 flex items-center gap-3 mb-2"
 							initial={{ opacity: 0, y: 10 }}
@@ -378,7 +366,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 	let [jsonOk, setJsonOk] = useState(true);
 
 	let roles = useMemo(() => {
-		if (!guildData || column.type !== "String" || column.kind !== 'role') return [];
+		if (!guildData || column.type !== 'String' || column.kind !== 'role') return [];
 		return guildData.roles
 			.toSorted((a, b) => {
 				if (a.position === b.position) {
@@ -393,8 +381,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 	}, [guildData]);
 
 	let channels = useMemo(() => {
-		if (!guildData || column.type !== "String" || column.kind !== 'channel')
-			return [];
+		if (!guildData || column.type !== 'String' || column.kind !== 'channel') return [];
 		return guildData.channels
 			.filter((s) => s.channel)
 			.toSorted((a, b) => {
@@ -413,7 +400,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 
 	return (
 		<>
-			{column.type === "String" ? (
+			{column.type === 'String' ? (
 				<>
 					{column.allowed_values.length > 0 ? (
 						<GroupedRadioOption
@@ -431,7 +418,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 						<InputField
 							label={columnLabel || parentColumn.name}
 							description={parentColumn.description}
-							placeholder={parentColumn.placeholder || "Select a role"}
+							placeholder={parentColumn.placeholder || 'Select a role'}
 							value={value}
 							disabled={disabled}
 							onChange={(e) => onChange(e.target.value)}
@@ -445,7 +432,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 						<InputField
 							label={columnLabel || parentColumn.name}
 							description={parentColumn.description}
-							placeholder={parentColumn.placeholder || "Select a channel"}
+							placeholder={parentColumn.placeholder || 'Select a channel'}
 							value={value}
 							disabled={disabled}
 							onChange={(e) => onChange(e.target.value)}
@@ -459,7 +446,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 						<InputField
 							label={columnLabel || parentColumn.name}
 							description={parentColumn.description}
-							placeholder={parentColumn.placeholder || "Enter a value"}
+							placeholder={parentColumn.placeholder || 'Enter a value'}
 							value={value}
 							disabled={disabled}
 							onChange={(e) => onChange(e.target.value)}
@@ -484,7 +471,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 								<InputField
 									label={'Suggestions'}
 									description={'Here are some potential suggestions for this field.'}
-									placeholder={parentColumn.placeholder || "Select a suggestion"}
+									placeholder={parentColumn.placeholder || 'Select a suggestion'}
 									value={value}
 									disabled={disabled}
 									onChange={(e) => onChange(e.target.value)}
@@ -499,11 +486,11 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 							</>
 						)}
 				</>
-			) : column.type === "Integer" ? (
+			) : column.type === 'Integer' ? (
 				<InputField
 					label={columnLabel || parentColumn.name}
 					description={parentColumn.description}
-					placeholder={parentColumn.placeholder || "Enter a number"}
+					placeholder={parentColumn.placeholder || 'Enter a number'}
 					value={value}
 					disabled={disabled}
 					onChange={(e) => {
@@ -519,11 +506,11 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 					aria-required="true"
 					marginClass={marginClass}
 				/>
-			) : column.type === "Float" ? (
+			) : column.type === 'Float' ? (
 				<InputField
 					label={columnLabel || parentColumn.name}
 					description={parentColumn.description}
-					placeholder={parentColumn.placeholder || "Enter a number"}
+					placeholder={parentColumn.placeholder || 'Enter a number'}
 					value={value}
 					disabled={disabled}
 					onChange={(e) => {
@@ -538,7 +525,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 					aria-required="true"
 					marginClass={marginClass}
 				/>
-			) : column.type == "BitFlag" ? (
+			) : column.type == 'BitFlag' ? (
 				<motion.div
 					className="bg-yellow-100 border border-yellow-300 rounded-lg p-4 flex items-center gap-3 mb-2"
 					initial={{ opacity: 0, y: 10 }}
@@ -552,7 +539,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 						<span className="font-bold">Bitflag input is currently not supported</span>
 					</p>
 				</motion.div>
-			) : column.type == "Boolean" ? (
+			) : column.type == 'Boolean' ? (
 				<Toggle
 					label={columnLabel || parentColumn.name}
 					description={parentColumn.description}
@@ -563,7 +550,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 					}}
 					marginClass={marginClass}
 				/>
-			) : column.type == "Json" ? (
+			) : column.type == 'Json' ? (
 				<>
 					{column.style == 'template-content' && isValidTemplateContent(templateContent) ? (
 						<>
@@ -624,7 +611,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 							<InputField
 								label={columnLabel || parentColumn.name}
 								description={parentColumn.description}
-								placeholder={parentColumn.placeholder || "Enter JSON value"}
+								placeholder={parentColumn.placeholder || 'Enter JSON value'}
 								value={jsonValue}
 								disabled={disabled}
 								onChange={(e) => {
@@ -717,7 +704,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 					<InputField
 						label={parentColumn.name}
 						description={parentColumn.description}
-						placeholder={parentColumn.placeholder || "Enter a value"}
+						placeholder={parentColumn.placeholder || 'Enter a value'}
 						value={value}
 						disabled={disabled}
 						onChange={(e) => onChange(e.target.value)}

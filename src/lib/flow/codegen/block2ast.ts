@@ -232,7 +232,10 @@ export class CodeGenASTGenerator {
 	 */
 	private visitLibraryNode(node: Visit<LibraryNode>): VisitResult {
 		// Visit start node data and set the start node type in the AST
-		node.currentAst.prelude = { type: IPreludeTypeEnum.Library, data: { name: node.data.data.name } };
+		node.currentAst.prelude = {
+			type: IPreludeTypeEnum.Library,
+			data: { name: node.data.data.name }
+		};
 
 		let children = this.getChildrenOfNode(node.nodeId);
 		let nextNode: Node<NodeExtData> | null = null;

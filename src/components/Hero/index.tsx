@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { TemplateCarousel } from './scriptCarosel';
 import { Primary, Secondary } from '../ui/Buttons';
 import { GoArrowUpRight } from 'react-icons/go';
@@ -69,25 +69,28 @@ const Hero = () => {
 		fetchStats();
 	}, []);
 
+	const updateCount = useCallback((targetCount: number, increment: number) => {
+		setServerCount((prevCount) => {
+			if (prevCount < targetCount) {
+				const newCount = Math.ceil(prevCount + increment);
+				return newCount >= targetCount ? targetCount : newCount;
+			}
+			return prevCount;
+		});
+	}, []);
+
 	useEffect(() => {
 		if (!stats?.total_guilds) return;
 
 		const targetCount = stats.total_guilds;
 		const increment = targetCount / 150;
 
-		const updateCount = () => {
-			setServerCount((prevCount) => {
-				if (prevCount < targetCount) {
-					const newCount = Math.ceil(prevCount + increment);
-					return newCount >= targetCount ? targetCount : newCount;
-				}
-				return prevCount;
-			});
-		};
+		// Reset server count when target changes
+		setServerCount(0);
 
-		const intervalId = setInterval(updateCount, 10);
+		const intervalId = setInterval(() => updateCount(targetCount, increment), 10);
 		return () => clearInterval(intervalId);
-	}, [stats]);
+	}, [stats?.total_guilds, updateCount]);
 
 	const containerVariants = {
 		hidden: { opacity: 0 },

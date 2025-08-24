@@ -11,9 +11,9 @@ import {
 import logger from '@/lib/logger';
 import { Connection, Edge, Node, Position, useReactFlow } from '@xyflow/react';
 import { useEffect, useState } from 'react';
-import FlowNodeBase from './BaseNode';
-import Handle from './Handle';
-import { FlowExpanded } from './FlowExpanded';
+import FlowNodeBase from '../nodes/BaseNode';
+import Handle from '../ui/Handle';
+import { FlowExpanded } from '../management/FlowExpanded';
 import { InputField, Toggle } from './Inputs';
 
 // Static validation for Library: Only have one target connection.
@@ -68,7 +68,7 @@ export const Library = (props: NodeProps) => {
 	useEffect(() => {
 		flow.updateNodeData(props.id, {
 			data: {
-				name: name,
+				name: name
 			}
 		});
 	}, [name, props.id]);

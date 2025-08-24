@@ -74,9 +74,7 @@ const AllServers: React.FC = () => {
 			setServers(guilds);
 
 			const managed = guilds.filter((server) => bot_in_guilds.includes(server.id));
-			const yours = guilds.filter(
-				(server) => !bot_in_guilds.includes(server.id)
-			);
+			const yours = guilds.filter((server) => !bot_in_guilds.includes(server.id));
 
 			setManagedServers(managed);
 			setYourServers(yours);
@@ -279,7 +277,7 @@ const ServerCard: React.FC<{ server: DashboardGuild; showViewButton: boolean }> 
 	try {
 		permBit = BigInt(server.permissions);
 	} catch (error) {
-		logger.error("ServerCrd", 'Failed to parse permissions for server:', server.id, error);
+		logger.error('ServerCrd', 'Failed to parse permissions for server:', server.id, error);
 	}
 
 	const router = useRouter();

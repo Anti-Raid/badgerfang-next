@@ -1,10 +1,11 @@
-import { PartialUser } from "@/types/api/bindings/PartialUser";
+import { PartialUser } from '@/types/api/bindings/PartialUser';
 
 export const getAvatarUrl = (user: PartialUser) => {
-    // @ts-ignore
-    if (user.user) { // Workaround older auth
-        return `https://cdn.discordapp.com/avatars/0.png`;
-    }
+	// @ts-ignore
+	if (user.user) {
+		// Workaround older auth
+		return `https://cdn.discordapp.com/avatars/0.png`;
+	}
 	if (user.avatar) {
 		return `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
 	}

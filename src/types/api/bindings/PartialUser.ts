@@ -3,20 +3,21 @@
 /**
  * The PartialUser of a user, which contains only the necessary fields for the API
  */
-export type PartialUser = { 
-/**
- * The ID of the user
- */
-id: string, 
-/**
- * The username of the user
- */
-username: string, 
-/**
- * The global name of the user
- */
-global_name: string | null, 
-/**
- * The avatar hash of the user
- */
-avatar: string | null, };
+export type PartialUser = {
+	/**
+	 * The ID of the user
+	 */
+	id: string;
+	/**
+	 * The username of the user
+	 */
+	username: string;
+	/**
+	 * The global name of the user
+	 */
+	global_name: string | null;
+	/**
+	 * The avatar hash of the user
+	 */
+	avatar: string | null;
+};

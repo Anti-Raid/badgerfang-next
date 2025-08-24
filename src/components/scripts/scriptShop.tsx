@@ -5,7 +5,8 @@ import { motion, AnimatePresence, useInView, Variants } from 'framer-motion';
 import { FiSearch, FiFilter, FiX, FiPackage, FiZap, FiGrid, FiList } from 'react-icons/fi';
 import { CommonCard } from './ScriptCard';
 
-export const TemplateShop = ({ data }: { data: any[] }) => { // FIXME: Update type once shop is updated
+export const TemplateShop = ({ data }: { data: any[] }) => {
+	// FIXME: Update type once shop is updated
 	const [searchTerm, setSearchTerm] = useState('');
 	const [filteredData, setFilteredData] = useState<any[]>([]); // FIXME: Update type once shop is updated
 	const [isSearchFocused, setIsSearchFocused] = useState(false);

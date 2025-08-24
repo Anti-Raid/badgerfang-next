@@ -1,6 +1,6 @@
 import { FlowData } from '@/lib/flow/data';
-import FlowEditor from './FlowEditor';
-import FlowNodeExplorer from './NodeToolbar';
+import FlowEditor from './management/FlowEditor';
+import FlowNodeExplorer from './ui/NodeToolbar';
 
 interface Props {
 	/**

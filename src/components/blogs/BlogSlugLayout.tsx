@@ -83,6 +83,8 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 	};
 
 	const getSocialIcon = (platform: string) => {
+		if (!platform) return <FaLink size={18} />;
+		
 		switch (platform.toLowerCase()) {
 			case 'twitter':
 				return <FaTwitter size={18} />;
@@ -246,22 +248,26 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 						transition={{ duration: 0.5, delay: 0.5 }}
 						className="mt-8 p-6 rounded-xl bg-card border border-border relative"
 					>
-						{blog.author.socials && blog.author.socials.length > 0 && (
+						{blog.author.socials && 
+						 blog.author.socials.length > 0 && 
+						 blog.author.socials.some((social: any) => social.url && social.platform) && (
 							<div className="absolute top-4 right-4 flex gap-2">
-								{blog.author.socials.map((social, index) => (
-									<motion.a
-										key={index}
-										href={social.url}
-										target="_blank"
-										rel="noopener noreferrer"
-										whileHover={{ scale: 1.1 }}
-										whileTap={{ scale: 0.9 }}
-										className="text-muted-foreground hover:text-primary transition-colors"
-										aria-label={`${blog.author.name}'s ${social.platform}`}
-									>
-										{getSocialIcon(social.platform)}
-									</motion.a>
-								))}
+								{blog.author.socials
+									.filter((social: any) => social.url && social.platform)
+									.map((social, index) => (
+										<motion.a
+											key={index}
+											href={social.url}
+											target="_blank"
+											rel="noopener noreferrer"
+											whileHover={{ scale: 1.1 }}
+											whileTap={{ scale: 0.9 }}
+											className="text-muted-foreground hover:text-primary transition-colors"
+											aria-label={`${blog.author.name}'s ${social.platform}`}
+										>
+											{getSocialIcon(social.platform)}
+										</motion.a>
+									))}
 							</div>
 						)}
 						<div className="flex items-center mb-4">

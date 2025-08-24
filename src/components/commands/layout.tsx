@@ -156,9 +156,7 @@ const randomizeArray = <T,>(arr: T[]): T[] => {
 };
 
 // Utility to extract subcommands and arguments from ApplicationCommandOption
-function extractSubcommandsAndArgs(
-	options: (ApiCreateCommandOption | undefined)[] = []
-) {
+function extractSubcommandsAndArgs(options: (ApiCreateCommandOption | undefined)[] = []) {
 	const subcommands: ApiCreateCommandOption[] = [];
 	const args: ApiCreateCommandOption[] = [];
 	options.forEach((opt) => {
@@ -225,9 +223,7 @@ export default function CommandInterface() {
 					...arg,
 					required: arg.required ?? false,
 					choices: Array.isArray(arg.choices)
-						? arg.choices
-								.filter((c): c is ApiCreateCommandOptionChoice => !!c)
-								.map((c) => c.name)
+						? arg.choices.filter((c): c is ApiCreateCommandOptionChoice => !!c).map((c) => c.name)
 						: []
 				}))
 			};
@@ -245,9 +241,7 @@ export default function CommandInterface() {
 						...arg,
 						required: arg.required ?? false,
 						choices: Array.isArray(arg.choices)
-							? arg.choices
-									.filter((c): c is ApiCreateCommandOptionChoice => !!c)
-									.map((c) => c.name)
+							? arg.choices.filter((c): c is ApiCreateCommandOptionChoice => !!c).map((c) => c.name)
 							: []
 					}))
 				});

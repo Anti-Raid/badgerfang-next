@@ -1,5 +1,5 @@
 import { Position, useReactFlow } from '@xyflow/react';
-import FlowNodeBase from './BaseNode';
+import FlowNodeBase from '../nodes/BaseNode';
 import {
 	NodeProps,
 	NodeTypeEnum,
@@ -8,10 +8,10 @@ import {
 	TypedInputEnum
 } from '@/lib/flow/data';
 import { useEffect, useState } from 'react';
-import { InputField, TypedInputField } from './Inputs';
+import { InputField, TypedInputField } from '../utils/Inputs';
 import { FlowExpanded } from './FlowExpanded';
 import logger from '@/lib/logger';
-import Handle from './Handle';
+import Handle from '../ui/Handle';
 
 // Static validation for SetVariable: SetVariable nodes can only have one source connection and one target connection.
 registerValidationSource('set_variable', (srcCons: string[], tgtCons: string[]) => {
