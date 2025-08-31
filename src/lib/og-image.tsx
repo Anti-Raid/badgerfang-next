@@ -171,6 +171,9 @@ export function generateBlog({
     ? props.description.substring(0, 100) + '...' 
     : props.description || 'Read the latest news and updates from AntiRaid.';
 
+  // Limit tags to prevent performance issues
+  const tags = props.tags ? props.tags.slice(0, 3) : [];
+
   return (
     <div
       style={{
@@ -275,10 +278,10 @@ export function generateBlog({
             gap: "12px",
             flexWrap: "wrap",
             marginBottom: "auto",
-            visibility: (props.tags && props.tags.length > 0) ? "visible" : "hidden",
+            visibility: (tags.length > 0) ? "visible" : "hidden",
           }}
         >
-          {props.tags && props.tags.slice(0, 3).map((tag: string, index: number) => (
+          {tags.map((tag: string, index: number) => (
             <div
               key={index}
               style={{
