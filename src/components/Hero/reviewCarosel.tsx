@@ -16,7 +16,7 @@ export interface ReviewData {
 export const ReviewsCarousel = () => {
 	const reviews: ReviewData[] = [
 		{
-			content: 'gg',
+			content: 'Better then the rest.',
 			discordUrl: '',
 			authorId: '787241442770419722',
 			rating: 5,
@@ -134,28 +134,27 @@ export const ReviewsCarousel = () => {
 			</div>
 
 			<div className="text-center mb-16 relative container mx-auto px-4 z-10">
-				<div className="inline-flex items-center gap-4 mb-4">
-					<motion.span
-						initial={{ width: 0 }}
-						animate={{ width: '2rem' }}
-						transition={{ duration: 0.7 }}
-						className="h-px bg-gradient-to-r to-primary from-transparent"
-					></motion.span>
-					<motion.span
-						initial={{ opacity: 0, y: 10 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.5 }}
-						className="text-sm text-primary/80 font-monster uppercase tracking-wider"
+			<motion.div
+					initial={{ opacity: 0, y: 30 }}
+					whileInView={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.6 }}
+					viewport={{ once: true, margin: '-100px' }}
+					className="text-center mb-16 relative"
+				>
+					<motion.div
+						initial={{ width: 0, opacity: 0 }}
+						whileInView={{ width: 'auto', opacity: 1 }}
+						transition={{ duration: 0.8 }}
+						viewport={{ once: true }}
+						className="inline-flex items-center gap-4 px-6 py-2 rounded-full bg-primary/10 backdrop-blur-sm border border-primary/20 mb-2 shadow-lg shadow-primary/5"
 					>
-						Testimonials
-					</motion.span>
-					<motion.span
-						initial={{ width: 0 }}
-						animate={{ width: '2rem' }}
-						transition={{ duration: 0.7 }}
-						className="h-px bg-gradient-to-l to-primary from-transparent"
-					></motion.span>
-				</div>
+						<span className="h-px w-5 bg-gradient-to-r from-transparent to-primary"></span>
+						<span className="text-primary/90 font-monster text-sm font-medium tracking-wider uppercase">
+							Reviews
+						</span>
+						<span className="h-px w-5 bg-gradient-to-r from-primary to-transparent"></span>
+					</motion.div>
+				</motion.div>
 
 				<motion.h2
 					initial={{ opacity: 0, y: 20 }}

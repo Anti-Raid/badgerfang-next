@@ -30,7 +30,7 @@ export async function generateMetadata({
 			return generateBlogMetadata({
 				title: 'Not Found',
 				description: 'The blog post you are looking for does not exist.',
-				imageUrl: undefined,
+				imageUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://antiraid.xyz'}/api/get/og-image?slug=${slug}`,
 				keywords: [],
 				canonicalUrl: `https://antiraid.xyz/blogs/${slug}`
 			});
@@ -39,7 +39,7 @@ export async function generateMetadata({
 		return generateBlogMetadata({
 			title: post.title,
 			description: post.description,
-			imageUrl: post.image ? `https://strapi.purrquinox.com${post.image.url}` : undefined,
+			imageUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://antiraid.xyz'}/api/get/og-image?slug=${post.slug}`,
 			keywords: post.tags || [],
 			canonicalUrl: `https://antiraid.xyz/blogs/${post.slug}`
 		});
@@ -49,7 +49,7 @@ export async function generateMetadata({
 		return generateBlogMetadata({
 			title: 'Blog Post',
 			description: 'Loading blog post...',
-			imageUrl: undefined,
+			imageUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://antiraid.xyz'}/api/get/og-image?slug=${slug}`,
 			keywords: [],
 			canonicalUrl: `https://antiraid.xyz/blogs/${slug}`
 		});
