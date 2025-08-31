@@ -3,4 +3,7 @@
 /**
  * A single thread's clear inactive guilds response
  */
-export type ApiThreadClearInactiveGuilds = { tid: number, cleared: { [key in string]?: string | null }, };
+export type ApiThreadClearInactiveGuilds = {
+	tid: number;
+	cleared: { [key in string]?: string | null };
+};

@@ -15,7 +15,7 @@ export interface UseAuthCheckResponse {
 
 export const useAuthCheck = () => {
 	const { data, error, mutate }: SWRResponse<AuthorizedSession | false, any> = useSWR(
-		["@authCheck", API_BASE_URL],
+		['@authCheck', API_BASE_URL],
 		async (_) => {
 			let res = await getAuthorizedSession();
 			if (!res) {

@@ -1,5 +1,5 @@
 import { NodeProps } from '@/lib/flow/data';
-import { Ghost, SmallGhost } from '../ui/Buttons';
+import { Ghost, SmallGhost } from '../../ui/Buttons';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 

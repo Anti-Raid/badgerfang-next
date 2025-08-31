@@ -3,4 +3,9 @@
 /**
  * An action that can be performed on the Lua VM
  */
-export type ApiLuaVmAction = { "Stop": Record<string, never> } | { "GetMemoryUsage": Record<string, never> } | { "SetMemoryLimit": { limit: number, } } | { "ClearCache": Record<string, never> } | { "Panic": Record<string, never> };
+export type ApiLuaVmAction =
+	| { Stop: Record<string, never> }
+	| { GetMemoryUsage: Record<string, never> }
+	| { SetMemoryLimit: { limit: number } }
+	| { ClearCache: Record<string, never> }
+	| { Panic: Record<string, never> };

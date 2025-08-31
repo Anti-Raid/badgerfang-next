@@ -10,8 +10,8 @@ import {
 	stringToConditionalLogicTypeEnum,
 	TypedInputEnum
 } from '@/lib/flow/data';
-import { InlineGhost, SmallGhost } from '../ui/Buttons';
-import { InputField, TypedInputField } from './Inputs';
+import { InlineGhost, SmallGhost } from '../../ui/Buttons';
+import { InputField, TypedInputField } from '../utils/Inputs';
 
 export interface ConditionalTypeProps {
 	value: ConditionalType;

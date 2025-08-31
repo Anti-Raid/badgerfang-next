@@ -19,22 +19,22 @@ import { DispatchResult } from '@/types/settings';
 export const defaultNew = (setting: Setting) => {
 	let data: any = {};
 	for (let column of setting.columns) {
-		if (column.column_type.type === "Scalar") {
+		if (column.column_type.type === 'Scalar') {
 			if (
-				column.column_type.inner.type === "Integer" ||
-				column.column_type.inner.type === "Float"
+				column.column_type.inner.type === 'Integer' ||
+				column.column_type.inner.type === 'Float'
 			) {
 				data[column.id] = 0;
-			} else if (column.column_type.inner.type === "Boolean") {
+			} else if (column.column_type.inner.type === 'Boolean') {
 				data[column.id] = false;
-			} else if (column.column_type.inner.type === "Json") {
+			} else if (column.column_type.inner.type === 'Json') {
 				data[column.id] = {};
 			} else {
 				data[column.id] = '';
 			}
-		} else if (column.column_type.type === "Array") {
+		} else if (column.column_type.type === 'Array') {
 			data[column.id] = [];
-		} else if (column.column_type.type === "Widget") {
+		} else if (column.column_type.type === 'Widget') {
 			continue;
 		}
 	}
@@ -52,27 +52,27 @@ export const fillInSetting = async (
 	for (let column of setting.columns) {
 		let data = fields[column.id];
 		if (data === undefined) {
-			if (column.column_type.type === "Scalar") {
+			if (column.column_type.type === 'Scalar') {
 				if (
-					column.column_type.inner.type === "Integer" ||
-					column.column_type.inner.type === "Float"
+					column.column_type.inner.type === 'Integer' ||
+					column.column_type.inner.type === 'Float'
 				) {
 					fields[column.id] = 0;
-				} else if (column.column_type.inner.type === "Boolean") {
+				} else if (column.column_type.inner.type === 'Boolean') {
 					fields[column.id] = false;
 				} else {
 					fields[column.id] = '';
 				}
-			} else if (column.column_type.type === "Array") {
+			} else if (column.column_type.type === 'Array') {
 				fields[column.id] = [];
-			} else if (column.column_type.type === "Widget") {
+			} else if (column.column_type.type === 'Widget') {
 				continue;
 			}
 		} else {
-			if (column.column_type.type === "Scalar") {
+			if (column.column_type.type === 'Scalar') {
 				if (
-					column.column_type.inner.type === "Integer" ||
-					column.column_type.inner.type === "Float"
+					column.column_type.inner.type === 'Integer' ||
+					column.column_type.inner.type === 'Float'
 				) {
 					if (typeof data !== 'number') {
 						let num = parseFloat(data?.toString() || '0');
@@ -81,7 +81,7 @@ export const fillInSetting = async (
 						}
 						fields[column.id] = num;
 					}
-				} else if (column.column_type.inner.type === "Boolean") {
+				} else if (column.column_type.inner.type === 'Boolean') {
 					if (typeof data === 'boolean') {
 						fields[column.id] = data;
 					} else if (typeof data === 'string') {

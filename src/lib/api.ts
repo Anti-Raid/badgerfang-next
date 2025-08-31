@@ -90,7 +90,9 @@ export const revokeSession = async (sessionId: string): Promise<void> => {
 	}
 };
 
-export const createOauth2Session = async (req: AuthorizeRequest): Promise<CreateUserSessionResponse> => {
+export const createOauth2Session = async (
+	req: AuthorizeRequest
+): Promise<CreateUserSessionResponse> => {
 	try {
 		const { data } = await axiosInstance.post('/oauth2', req);
 		return data;
@@ -98,7 +100,7 @@ export const createOauth2Session = async (req: AuthorizeRequest): Promise<Create
 		console.error('Failed to create OAuth2 session:', error);
 		throw error;
 	}
-}
+};
 
 /**
  * Gets the authorized session for the current user. Returns undefined if the user is not authorized or forbidden.
@@ -118,7 +120,7 @@ export const getAuthorizedSession = async (): Promise<AuthorizedSession | undefi
 	}
 
 	return resp.data;
-}
+};
 
 export const createSession = async (
 	session: CreateUserSession
@@ -159,13 +161,13 @@ export const executeSettings = async (
 };
 
 export const listTemplateShop = async (): Promise<any> => {
-	throw new Error("Currently disabled as the template shop is being rethought")
+	throw new Error('Currently disabled as the template shop is being rethought');
 	const response = await axiosInstance.get(`/template-shop`);
 	return response.data;
 };
 
 export const getTemplateShop = async (id: string): Promise<any | null> => {
-	throw new Error("Currently disabled as the template shop is being rethought")
+	throw new Error('Currently disabled as the template shop is being rethought');
 
 	const response = await axiosInstance.get(`/template-shop/${id}`, {
 		validateStatus: (status) => status === 200 || status === 404 // Allow 404 for not found

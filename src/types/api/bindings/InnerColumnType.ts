@@ -3,8 +3,23 @@
 /**
  * Note: this is merely a hint used for styling the website
  */
-export type InnerColumnType = { "type": "String", min_length: number | null, max_length: number | null, allowed_values: Array<string>, suggestions: Array<string> | null, kind: string, } | { "type": "Integer", } | { "type": "Float", } | { "type": "BitFlag", 
-/**
- * The bit flag values
- */
-values: { [key in string]?: bigint }, } | { "type": "Boolean", } | { "type": "Json", style: string, };
+export type InnerColumnType =
+	| {
+			type: 'String';
+			min_length: number | null;
+			max_length: number | null;
+			allowed_values: Array<string>;
+			suggestions: Array<string> | null;
+			kind: string;
+	  }
+	| { type: 'Integer' }
+	| { type: 'Float' }
+	| {
+			type: 'BitFlag';
+			/**
+			 * The bit flag values
+			 */
+			values: { [key in string]?: bigint };
+	  }
+	| { type: 'Boolean' }
+	| { type: 'Json'; style: string };

@@ -1,6 +1,6 @@
 // --- Setting Values and Validation ---
 
-import { BaseGuildUserInfo } from "./api/bindings/BaseGuildUserInfo";
+import { BaseGuildUserInfo } from './api/bindings/BaseGuildUserInfo';
 
 export interface SettingEntry {
 	[key: string]: unknown;

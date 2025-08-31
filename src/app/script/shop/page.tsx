@@ -21,7 +21,6 @@ export default function TemplateShopPage() {
 				let data = await listTemplateShop();
 				setTemplates(data);
 			} catch (err) {
-				setError('Failed to fetch repository data. Using fallback data.');
 			} finally {
 				setIsLoading(false);
 			}

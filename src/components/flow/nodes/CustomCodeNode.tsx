@@ -2,10 +2,10 @@ import { Position, useReactFlow } from '@xyflow/react';
 import FlowNodeBase from './BaseNode';
 import { NodeProps, NodeTypeEnum, registerValidationSource } from '@/lib/flow/data';
 import { useEffect, useState } from 'react';
-import { InputField } from './Inputs';
-import { FlowExpanded } from './FlowExpanded';
+import { InputField } from '../utils/Inputs';
+import { FlowExpanded } from '../management/FlowExpanded';
 import logger from '@/lib/logger';
-import Handle from './Handle';
+import Handle from '../ui/Handle';
 
 // Static validation for CustomCode: CustomCode nodes can only have one source connection and one target connection.
 registerValidationSource('custom_code', (srcCons: string[], tgtCons: string[]) => {

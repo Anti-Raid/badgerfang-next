@@ -2,23 +2,24 @@
 
 /**
  * Represents an authorized session and its associated user
- * 
+ *
  * Note: this is *very* different from a UserSession and provides different/limited data
  */
-export type AuthorizedSession = { 
-/**
- * User ID
- */
-user_id: string, 
-/**
- * Session ID
- */
-id: string, 
-/**
- * The state of the user
- */
-state: string, 
-/**
- * The type of session
- */
-type: string, };
+export type AuthorizedSession = {
+	/**
+	 * User ID
+	 */
+	user_id: string;
+	/**
+	 * Session ID
+	 */
+	id: string;
+	/**
+	 * The state of the user
+	 */
+	state: string;
+	/**
+	 * The type of session
+	 */
+	type: string;
+};

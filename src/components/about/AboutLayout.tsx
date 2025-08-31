@@ -39,18 +39,14 @@ const AboutLayout = () => {
 
 						<div className="mt-10 flex flex-wrap gap-4">
 							<Link href="#about">
-							<button
-								className="px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-md font-semibold transition-all shadow-[0_0_15px_rgba(var(--primary)/30%)] hover:shadow-[0_0_25px_rgba(var(--primary)/40%)]"
-							>
-								Get Started
-							</button>
+								<button className="px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-md font-semibold transition-all shadow-[0_0_15px_rgba(var(--primary)/30%)] hover:shadow-[0_0_25px_rgba(var(--primary)/40%)]">
+									Get Started
+								</button>
 							</Link>
 							<Link href="#timeline">
-							<button
-								className="px-6 py-3 bg-background/30 backdrop-blur-sm border border-primary/30 hover:border-primary/50 text-foreground rounded-md font-semibold transition-all"
-							>
-								Learn More
-							</button>
+								<button className="px-6 py-3 bg-background/30 backdrop-blur-sm border border-primary/30 hover:border-primary/50 text-foreground rounded-md font-semibold transition-all">
+									Learn More
+								</button>
 							</Link>
 						</div>
 					</motion.div>

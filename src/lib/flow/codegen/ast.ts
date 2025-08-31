@@ -265,7 +265,7 @@ export interface IPreludeLibrary {
 	type: IPreludeTypeEnum.Library;
 	data: {
 		name: string;
-	}
+	};
 }
 
 export interface IPreludeCommand {

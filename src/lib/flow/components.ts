@@ -4,12 +4,12 @@ import {
 	ForLoop,
 	IfCondition,
 	WhileLoop
-} from '@/components/flow/Conditionals';
-import CustomCode from '@/components/flow/CustomCodeNode';
-import DeleteEdge from '@/components/flow/DeleteEdge';
-import Group from '@/components/flow/Group';
-import SetVariable from '@/components/flow/SetVariable';
-import { Command, CommandArgument, Library } from '@/components/flow/StartNode';
+} from '@/components/flow/config/Conditionals';
+import CustomCode from '@/components/flow/nodes/CustomCodeNode';
+import DeleteEdge from '@/components/flow/management/DeleteEdge';
+import Group from '@/components/flow/ui/Group';
+import SetVariable from '@/components/flow/management/SetVariable';
+import { Command, CommandArgument, Library } from '@/components/flow/utils/StartNode';
 
 export const nodeTypes = {
 	library: Library,

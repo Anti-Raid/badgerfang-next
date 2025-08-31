@@ -3,4 +3,4 @@
 /**
  * Create a API user session
  */
-export type CreateUserSession = { name: string, type: string, expiry: number, };
+export type CreateUserSession = { name: string; type: string; expiry: number };
