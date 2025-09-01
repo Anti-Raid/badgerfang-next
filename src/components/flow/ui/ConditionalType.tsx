@@ -11,7 +11,7 @@ import {
 	TypedInputEnum
 } from '@/lib/flow/data';
 import { InlineGhost, SmallGhost } from '../../ui/Buttons';
-import { InputField, TypedInputField } from '../utils/Inputs';
+import { InputField, TypedInputField } from './Inputs';
 
 export interface ConditionalTypeProps {
 	value: ConditionalType;

@@ -11,10 +11,10 @@ import {
 import logger from '@/lib/logger';
 import { Connection, Edge, Node, Position, useReactFlow } from '@xyflow/react';
 import { useEffect, useState } from 'react';
-import FlowNodeBase from '../nodes/BaseNode';
+import FlowNodeBase from '../ui/BaseNode';
 import Handle from '../ui/Handle';
 import { FlowExpanded } from '../management/FlowExpanded';
-import { InputField, Toggle } from './Inputs';
+import { InputField, Toggle } from '../ui/Inputs';
 
 // Static validation for Library: Only have one target connection.
 registerValidationSource('library', (srcCons: string[]) => {
@@ -75,7 +75,6 @@ export const Library = (props: NodeProps) => {
 
 	return (
 		<FlowNodeBase {...props}>
-			<Handle type="target" position={Position.Top} />
 			<Handle type="source" position={Position.Bottom} />
 
 			<FlowExpanded nodeProps={props}>
@@ -113,7 +112,6 @@ export const Command = (props: NodeProps) => {
 
 	return (
 		<FlowNodeBase {...props}>
-			<Handle type="target" position={Position.Top} />
 			<Handle type="source" position={Position.Bottom} />
 
 			<FlowExpanded nodeProps={props}>

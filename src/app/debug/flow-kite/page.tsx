@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { ConditionalType, ConditionalTypeEnum, FlowData, NodeExtData } from '@/lib/flow/data';
 import { motion } from 'framer-motion';
 import { CodeGenASTGenerator } from '@/lib/flow/codegen/block2ast';
-import { ConditionalTypeField } from '@/components/flow/config/ConditionalType';
+import { ConditionalTypeField } from '@/components/flow/ui/ConditionalType';
 import FlowList from '@/components/flow/ui/FlowList';
 import { Primary } from '@/components/ui/Buttons';
 
