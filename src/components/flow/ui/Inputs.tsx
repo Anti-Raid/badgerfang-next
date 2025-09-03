@@ -54,6 +54,7 @@ interface InputFieldProps {
 	error?: string;
 	marginClass?: string;
 	disabled?: boolean;
+	hideSelectOptionsPlaceholder?: boolean;
 }
 
 export const InputField: React.FC<InputFieldProps> = ({
@@ -69,7 +70,8 @@ export const InputField: React.FC<InputFieldProps> = ({
 	id,
 	icon: IconComponent,
 	error,
-	marginClass = 'mb-1'
+	marginClass = 'mb-1',
+	hideSelectOptionsPlaceholder
 }) => {
 	const [showPassword, setShowPassword] = useState(false);
 	const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
@@ -103,7 +105,7 @@ export const InputField: React.FC<InputFieldProps> = ({
 						aria-labelledby={`${inputId}-label`}
 						aria-describedby={description ? `${inputId}-desc` : undefined}
 					>
-						<option value="">Select an option</option>
+						{!hideSelectOptionsPlaceholder && <option value="">Select an option</option>}
 						{options?.map((option) => (
 							<option key={option.value} value={option.value}>
 								{option.label}

@@ -34,25 +34,36 @@ export const getValidationTarget = (target: string): GlobalStaticValidation | un
 
 /**
  * The different types that a value in Luau can be user-initialized to.
+ * 
+ * Function/Thread/UserData/Buffer are currently not supported here (use Raw for this)
  */
 export enum TypedInputEnum {
+	Nil = 'Nil',
 	String = 'String',
 	Number = 'Number',
 	Table = 'Table',
+	TableArray = 'TableArray',
 	Boolean = 'Boolean',
+	Vector = 'Vector',
 	Raw = 'Raw'
 }
 
 export const stringToTypedInputEnum = (value: string): TypedInputEnum => {
 	switch (value?.toLowerCase()) {
+		case 'nil':
+			return TypedInputEnum.Nil;
 		case 'string':
 			return TypedInputEnum.String;
 		case 'number':
 			return TypedInputEnum.Number;
 		case 'table':
 			return TypedInputEnum.Table;
+		case 'tablearray':
+			return TypedInputEnum.TableArray;
 		case 'boolean':
 			return TypedInputEnum.Boolean;
+		case 'vector':
+			return TypedInputEnum.Vector;
 		case 'raw':
 			return TypedInputEnum.Raw;
 		default:
@@ -60,37 +71,65 @@ export const stringToTypedInputEnum = (value: string): TypedInputEnum => {
 	}
 };
 
+export interface TypedInputNil {
+	type: TypedInputEnum.Nil;
+	id: string;
+}
+
 export interface TypedInputString {
 	type: TypedInputEnum.String;
 	value: string;
+	id: string;
 }
 
 export interface TypedInputNumber {
 	type: TypedInputEnum.Number;
 	value: number;
+	id: string;
 }
 
 export interface TypedInputTable {
 	type: TypedInputEnum.Table;
-	value: Record<string, unknown>;
+	value: Record<string, TypedInput>;
 	inline: boolean;
+	id: string;
+}
+
+export interface TypedInputTableArray {
+	type: TypedInputEnum.TableArray;
+	value: TypedInput[];
+	inline: boolean;
+	id: string;
 }
 
 export interface TypedInputBoolean {
 	type: TypedInputEnum.Boolean;
 	value: boolean;
+	id: string;
+}
+
+export interface TypedInputVector {
+	type: TypedInputEnum.Vector;
+	x: number;
+	y: number;
+	z: number;
+	id: string;
 }
 
 export interface TypedInputRaw {
 	type: TypedInputEnum.Raw;
 	value: string; // Raw code or expression
+	id: string;
 }
 
 export type TypedInput =
+	| TypedInputNil
 	| TypedInputString
 	| TypedInputNumber
 	| TypedInputTable
+	| TypedInputTableArray
 	| TypedInputBoolean
+	| TypedInputVector
 	| TypedInputRaw;
 
 export enum ForLoopTypeEnum {

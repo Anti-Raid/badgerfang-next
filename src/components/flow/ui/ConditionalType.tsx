@@ -12,7 +12,7 @@ import {
 } from '@/lib/flow/data';
 import { InlineGhost, SmallGhost } from '../../ui/Buttons';
 import { InputField } from './Inputs';
-import { TypedInputField } from './TypedInput';
+import { generateTypedInputId, TypedInputField } from './TypedInput';
 
 export interface ConditionalTypeProps {
 	value: ConditionalType;
@@ -32,8 +32,8 @@ export const ConditionalTypeField: React.FC<ConditionalTypeProps> = ({ value, on
 								type: ConditionalTypeEnum.LogicExpr,
 								condition: {
 									type: ConditionalLogicTypeEnum.Unselected,
-									left: { type: TypedInputEnum.String, value: '' },
-									right: { type: TypedInputEnum.String, value: '' }
+									left: { type: TypedInputEnum.Nil, id: generateTypedInputId() },
+									right: { type: TypedInputEnum.Nil, id: generateTypedInputId() }
 								}
 							});
 						}}
@@ -66,7 +66,7 @@ export const ConditionalTypeField: React.FC<ConditionalTypeProps> = ({ value, on
 						onClick={() => {
 							onChange({
 								type: ConditionalTypeEnum.Literal,
-								value: { type: TypedInputEnum.String, value: '' }
+								value: { type: TypedInputEnum.Nil, id: generateTypedInputId() },
 							});
 						}}
 					/>

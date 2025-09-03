@@ -2,11 +2,18 @@
  * The different types that a value in Luau can be user-initialized to.
  */
 export enum LiteralEnum {
+	Nil = 'Nil',
 	String = 'String',
 	Number = 'Number',
 	Table = 'Table',
+	TableArray = 'TableArray',
 	Boolean = 'Boolean',
+	Vector = 'Vector',
 	Raw = 'Raw'
+}
+
+export interface LiteralNil {
+	type: LiteralEnum.Nil;
 }
 
 export interface LiteralString {
@@ -25,9 +32,22 @@ export interface LiteralTable {
 	inline: boolean; // Whether to inline the table or not
 }
 
+export interface LiteralTableArray {
+	type: LiteralEnum.TableArray;
+	value: LiteralValue[]; // Array of literal values
+	inline: boolean; // Whether to inline the table or not
+}
+
 export interface LiteralBoolean {
 	type: LiteralEnum.Boolean;
 	value: boolean;
+}
+
+export interface LiteralVector {
+	type: LiteralEnum.Vector;
+	x: number;
+	y: number;
+	z: number;
 }
 
 export interface LiteralRaw {
@@ -36,10 +56,13 @@ export interface LiteralRaw {
 }
 
 export type LiteralValue =
+	| LiteralNil
 	| LiteralString
 	| LiteralNumber
 	| LiteralTable
+	| LiteralTableArray
 	| LiteralBoolean
+	| LiteralVector
 	| LiteralRaw;
 
 /**
@@ -508,6 +531,8 @@ export class FinalRepr {
 	 */
 	private visitLiteralValue(writer: Writer, value: LiteralValue, inlineStatus?: InlineStatus) {
 		switch (value.type) {
+			case LiteralEnum.Nil:
+				return writer.write('nil');
 			case LiteralEnum.String:
 				if (value.value.includes('\n')) {
 					// If the string contains a newline, use a multiline string
@@ -525,20 +550,31 @@ export class FinalRepr {
 				return this._visitLiteralValueTableMap(writer, value.value, 
 					enterInlineStatus(inlineStatus, value.inline)
 				);
+			case LiteralEnum.TableArray:
+				return this._visitLiteralValueTable(writer, value.value,
+					enterInlineStatus(inlineStatus, value.inline));
 			case LiteralEnum.Boolean:
 				return writer.write(value.value ? 'true' : 'false'); // Convert boolean to string
+			case LiteralEnum.Vector:
+				return writer.write(`vector.create(${value.x}, ${value.y}, ${value.z})`);
 			case LiteralEnum.Raw:
 				return writer.write(value.value); // Raw code or expression, return as is
-			default:
-				this.pushError(`Unknown LiteralValue type: ${JSON.stringify(value)}`);
-				return;
 		}
+
+		// Should be unreachable
+		this.pushError(`Unknown LiteralValue type: ${JSON.stringify(value)}`);
+		return;
 	}
 
 	/**
 	 * Write an table of literal values to the writer.
 	 */
 	private _visitLiteralValueTable(writer: Writer, values: LiteralValue[], inlineStatus: InlineStatus) {
+		if (values.length === 0) {
+			// This expands down to setmetatable({}, require'@antiraid/interop'.array_metatable)
+			return writer.write("setmetatable({}, require'@antiraid/interop'.array_metatable)");
+		}
+
 		let lvw = new Writer();
 		for (const val of values) {
 			this.visitLiteralValue(lvw, val, inlineStatus);

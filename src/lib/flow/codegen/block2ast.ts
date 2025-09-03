@@ -651,6 +651,10 @@ export class CodeGenASTGenerator {
 	 */
 	private visitTypedInput(value: TypedInput): ITypedInput {
 		switch (value.type) {
+			case TypedInputEnum.Nil:
+				return {
+					type: ITypedInputEnum.Nil
+				};
 			case TypedInputEnum.String:
 				return {
 					type: ITypedInputEnum.String,
@@ -662,15 +666,33 @@ export class CodeGenASTGenerator {
 					value: value.value
 				};
 			case TypedInputEnum.Table:
+				let tableValue: Record<string, ITypedInput> = {};
+				for (const [key, val] of Object.entries(value.value)) {
+					tableValue[key] = this.visitTypedInput(val);
+				}
 				return {
 					type: ITypedInputEnum.Table,
-					value: value.value,
+					value: tableValue,
+					inline: value.inline
+				};
+			case TypedInputEnum.TableArray:
+				let arrayValue: ITypedInput[] = value.value.map((item) => this.visitTypedInput(item));
+				return {
+					type: ITypedInputEnum.TableArray,
+					value: arrayValue,
 					inline: value.inline
 				};
 			case TypedInputEnum.Boolean:
 				return {
 					type: ITypedInputEnum.Boolean,
 					value: value.value
+				};
+			case TypedInputEnum.Vector:
+				return {
+					type: ITypedInputEnum.Vector,
+					x: value.x,
+					y: value.y,
+					z: value.z
 				};
 			case TypedInputEnum.Raw:
 				return {

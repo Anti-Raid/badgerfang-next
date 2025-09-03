@@ -4,11 +4,18 @@ import { ASTPreludeApply } from './ast_transforms';
  * The different types that a value in Luau can be user-initialized to.
  */
 export enum ITypedInputEnum {
+	Nil = 'INil',
 	String = 'IString',
 	Number = 'INumber',
 	Table = 'ITable',
+	TableArray = 'ITableArray',
 	Boolean = 'IBoolean',
+	Vector = 'IVector',
 	Raw = 'IRaw'
+}
+
+export interface ITypedInputNil {
+	type: ITypedInputEnum.Nil;
 }
 
 export interface ITypedInputString {
@@ -23,7 +30,13 @@ export interface ITypedInputNumber {
 
 export interface ITypedInputTable {
 	type: ITypedInputEnum.Table;
-	value: Record<string, unknown>;
+	value: Record<string, ITypedInput>;
+	inline: boolean;
+}
+
+export interface ITypedInputTableArray {
+	type: ITypedInputEnum.TableArray;
+	value: ITypedInput[];
 	inline: boolean;
 }
 
@@ -32,16 +45,26 @@ export interface ITypedInputBoolean {
 	value: boolean;
 }
 
+export interface ITypedInputVector {
+	type: ITypedInputEnum.Vector;
+	x: number;
+	y: number;
+	z: number;
+}
+
 export interface ITypedInputRaw {
 	type: ITypedInputEnum.Raw;
 	value: string; // Raw code or expression
 }
 
 export type ITypedInput =
+	| ITypedInputNil
 	| ITypedInputString
 	| ITypedInputNumber
 	| ITypedInputTable
+	| ITypedInputTableArray
 	| ITypedInputBoolean
+	| ITypedInputVector
 	| ITypedInputRaw;
 
 export enum IForLoopTypeEnum {

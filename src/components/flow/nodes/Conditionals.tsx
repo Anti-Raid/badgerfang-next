@@ -28,7 +28,7 @@ import {
 } from '@/lib/flow/data';
 import { useEffect, useState } from 'react';
 import { BaseLabelAndDescription, InputField } from '../ui/Inputs';
-import { TypedInputField } from '../ui/TypedInput';
+import { generateTypedInputId, TypedInputField } from '../ui/TypedInput';
 import { FlowExpanded } from '../management/FlowExpanded';
 import logger from '@/lib/logger';
 import React from 'react';
@@ -402,8 +402,10 @@ export const ForLoopTypeInputField: React.FC<ForLoopTypeProps> = ({
 								type: ForLoopTypeEnum.GeneralizedIteration,
 								varbinds: [],
 								iterable: {
-									type: TypedInputEnum.String,
-									value: ''
+									type: TypedInputEnum.TableArray,
+									value: [],
+									id: generateTypedInputId(),
+									inline: true,
 								}
 							};
 							break;
