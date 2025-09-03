@@ -24,6 +24,7 @@ export interface ITypedInputNumber {
 export interface ITypedInputTable {
 	type: ITypedInputEnum.Table;
 	value: Record<string, unknown>;
+	inline: boolean;
 }
 
 export interface ITypedInputBoolean {

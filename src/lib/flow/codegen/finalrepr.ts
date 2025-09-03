@@ -1,5 +1,3 @@
-const MAX_ELEMENTS_TILL_INDENT = 5; // Max elements in a table before we indent it
-
 /**
  * The different types that a value in Luau can be user-initialized to.
  */
@@ -24,6 +22,7 @@ export interface LiteralNumber {
 export interface LiteralTable {
 	type: LiteralEnum.Table;
 	value: Record<string | number, LiteralValue> | LiteralValue[]; // Can be an object or an array
+	inline: boolean; // Whether to inline the table or not
 }
 
 export interface LiteralBoolean {
@@ -57,7 +56,8 @@ export enum ReprEnum {
 	FunctionDeclaration = 'FunctionDeclaration',
 	FunctionCall = 'FunctionCall',
 	ForLoop = 'ForLoop',
-	WhileLoop = 'WhileLoop'
+	WhileLoop = 'WhileLoop',
+	Return = 'Return'
 }
 
 /**
@@ -208,6 +208,11 @@ export interface WhileLoop {
 	body: IRepr[]; // The body of the while loop
 }
 
+export interface Return {
+	type: ReprEnum.Return;
+	value: LiteralValue;
+}
+
 export type IRepr =
 	| LocalVariableDeclaration
 	| GlobalDeclaration
@@ -219,7 +224,8 @@ export type IRepr =
 	| FunctionDeclaration
 	| ForLoop
 	| FunctionCall
-	| WhileLoop;
+	| WhileLoop
+	| Return;
 
 /**
  * Writer class to help handle code generation.
@@ -260,6 +266,69 @@ class Writer {
 	write(code: string): void {
 		this.code.push(code);
 	}
+}
+
+/**
+ * The current inline status
+ */
+type InlineStatus = {
+	type: "NotInline";
+	depth: number; // How deep we are
+} | {
+	type: "Inline";
+	depth: number; // How deep we are, needed in case a inline context goes to not inline and back
+}
+
+/**
+ * Helper to create a new InlineStatus
+ * @param inline Whether we are inline or not
+ * @returns A new InlineStatus
+ */
+const newInlineStatus = (inline: boolean): InlineStatus => {
+	if (inline) {
+		return {
+			type: "Inline",
+			depth: 1
+		}
+	} else {
+		return {
+			type: "NotInline",
+			depth: 1
+		}
+	}
+}
+
+/**
+ * Helper method to either create a new inline status if the passed
+ * inline status is null/undefined, otherwise return a new inline status with the depth of the inline status being one more than current depth
+ */
+const enterInlineStatus = (status: InlineStatus | undefined, inline: boolean): InlineStatus => {
+	if (status) {
+		return {
+			type: inline ? "Inline" : "NotInline",
+			depth: status.depth + 1,
+		}
+	}
+
+	return newInlineStatus(inline)
+}
+
+/**
+ * Helper method to go one level deeper in the inline status
+ * @param status The current inline status
+ */
+const incrInline = (status: InlineStatus): InlineStatus => {
+	return {
+		type: status.type,
+		depth: status.depth + 1
+	}
+}
+
+/**
+ * Helper method to create the \n\t*N table key-value seperator for a given depth
+ */
+const tableSeperatorFor = (depth: number) => {
+	return "\n" + "\t".repeat(depth)
 }
 
 /**
@@ -339,6 +408,8 @@ export class FinalRepr {
 				return this.visitFunctionCall(writer, inode);
 			case ReprEnum.WhileLoop:
 				return this.visitWhileLoop(writer, inode);
+			case ReprEnum.Return:
+				return this.visitReturn(writer, inode);
 		}
 	}
 
@@ -426,7 +497,7 @@ export class FinalRepr {
 	}
 
 	/**
-	 * Visits a Literal and returns the string representation.
+	 * Visits a Literal node and returns the string representation.
 	 */
 	private visitLiteral(writer: Writer, inode: Literal) {
 		return this.visitLiteralValue(writer, inode.value);
@@ -435,7 +506,7 @@ export class FinalRepr {
 	/**
 	 * Visit a LiteralValue and return the string representation.
 	 */
-	private visitLiteralValue(writer: Writer, value: LiteralValue, onlyNewline: boolean = false) {
+	private visitLiteralValue(writer: Writer, value: LiteralValue, inlineStatus?: InlineStatus) {
 		switch (value.type) {
 			case LiteralEnum.String:
 				if (value.value.includes('\n')) {
@@ -448,10 +519,12 @@ export class FinalRepr {
 				return writer.write(value.value.toString());
 			case LiteralEnum.Table:
 				if (Array.isArray(value.value)) {
-					return this.visitLiteralValueTable(writer, value.value, onlyNewline);
+					return this._visitLiteralValueTable(writer, value.value, enterInlineStatus(inlineStatus, value.inline));
 				}
 
-				return this.visitLiteralValueTableMap(writer, value.value, onlyNewline);
+				return this._visitLiteralValueTableMap(writer, value.value, 
+					enterInlineStatus(inlineStatus, value.inline)
+				);
 			case LiteralEnum.Boolean:
 				return writer.write(value.value ? 'true' : 'false'); // Convert boolean to string
 			case LiteralEnum.Raw:
@@ -465,24 +538,35 @@ export class FinalRepr {
 	/**
 	 * Write an table of literal values to the writer.
 	 */
-	private visitLiteralValueTable(writer: Writer, values: LiteralValue[], onlyNewline: boolean) {
+	private _visitLiteralValueTable(writer: Writer, values: LiteralValue[], inlineStatus: InlineStatus) {
 		let lvw = new Writer();
 		for (const val of values) {
-			this.visitLiteralValue(lvw, val);
+			this.visitLiteralValue(lvw, val, inlineStatus);
 		}
 
-		let tabStart = '{';
-		if (onlyNewline || lvw.getCode().length > MAX_ELEMENTS_TILL_INDENT) {
+		let tabStart = '';
+		if (inlineStatus.type == "NotInline") {
+			tabStart += '{';
+
+			// Initially, depth should be 1, then 2 etc.
+			//
+			// Adding one to depth gives us the desired double indent
+			// initially
+			let sep = tableSeperatorFor(inlineStatus.depth + 1)
 			for (let i = 0; i < writer.getCode().length; i++) {
 				if (i === 0) {
-					tabStart += `\n\t${lvw.getCode()[i]}`;
+					tabStart += `${sep}${lvw.getCode()[i]}`;
 				} else {
-					tabStart += `,\n\t${lvw.getCode()[i]}`;
+					tabStart += `,${sep}${lvw.getCode()[i]}`;
 				}
 			}
 
-			tabStart += '\n}';
+			// To add the final bracket, we want to use the normal depth
+			// (1 initially as we went deeper by one anyways in this function call)
+			sep = tableSeperatorFor(inlineStatus.depth)
+			tabStart += `${sep}}`;
 		} else {
+			tabStart += '{';
 			tabStart += ` ${lvw.getCode().join(', ')} }`;
 		}
 
@@ -494,55 +578,44 @@ export class FinalRepr {
 	 * @param writer The writer to write to.
 	 * @param value The value to write.
 	 */
-	private visitLiteralValueTableMap(
+	private _visitLiteralValueTableMap(
 		writer: Writer,
 		value: Record<string | number, LiteralValue>,
-		onlyNewline: boolean
+		inlineStatus: InlineStatus
 	) {
 		let tabStart = '{';
-		if (onlyNewline || Object.keys(value).length > MAX_ELEMENTS_TILL_INDENT) {
-			let entries = Object.entries(value);
-			for (let i = 0; i < entries.length; i++) {
-				const [key, val] = entries[i];
-				let lvw = new Writer();
-				this.visitLiteralValue(lvw, val);
-				if (typeof key === 'number') {
-					if (i == 0) {
-						tabStart += `\n\t[${key}] = ${lvw.getCodeString()}`;
-					} else {
-						tabStart += `,\n\t[${key}] = ${lvw.getCodeString()}`;
-					}
-				} else {
-					if (i == 0) {
-						tabStart += `\n\t${key} = ${lvw.getCodeString()}`;
-					} else {
-						tabStart += `,\n\t${key} = ${lvw.getCodeString()}`;
-					}
-				}
-			}
-			tabStart += '\n}';
-		} else {
-			let entries = Object.entries(value);
-			for (let i = 0; i < entries.length; i++) {
-				const [key, val] = entries[i];
-				let lvw = new Writer();
-				this.visitLiteralValue(lvw, val);
-				if (typeof key === 'number') {
-					if (i == 0) {
-						tabStart += ` [${key}] = ${lvw.getCodeString()}`;
-					} else {
-						tabStart += `, [${key}] = ${lvw.getCodeString()}`;
-					}
-				} else {
-					if (i == 0) {
-						tabStart += ` ${key} = ${lvw.getCodeString()}`;
-					} else {
-						tabStart += `, ${key} = ${lvw.getCodeString()}`;
-					}
-				}
-			}
-			tabStart += '}';
+
+		let sep = ""
+		if (inlineStatus.type == "NotInline") {
+			// See _visitLiteralValueTable
+			sep = tableSeperatorFor(inlineStatus.depth + 1);
 		}
+
+		let entries = Object.entries(value);
+		for (let i = 0; i < entries.length; i++) {
+			const [key, val] = entries[i];
+			let lvw = new Writer();
+			this.visitLiteralValue(lvw, val);
+			if (typeof key !== 'string') {
+				if (i == 0) {
+					tabStart += `${sep}[${key}] = ${lvw.getCodeString()}`;
+				} else {
+					tabStart += `,${sep}[${key}] = ${lvw.getCodeString()}`;
+				}
+			} else {
+				if (i == 0) {
+					tabStart += `${sep}${key} = ${lvw.getCodeString()}`;
+				} else {
+					tabStart += `,${sep}${key} = ${lvw.getCodeString()}`;
+				}
+			}
+		}
+
+		// See _visitLiteralValueTable 
+		if (inlineStatus.type == "NotInline") {
+			sep = tableSeperatorFor(inlineStatus.depth);
+		}
+		tabStart += `${sep}}`;
 
 		return writer.write(tabStart);
 	}
@@ -691,7 +764,7 @@ export class FinalRepr {
 		let args = inode.args
 			.map((arg) => {
 				let argWriter = new Writer();
-				this.visitLiteralValue(argWriter, arg, true);
+				this.visitLiteralValue(argWriter, arg);
 				return argWriter.getCodeString();
 			})
 			.join(',\n\t');
@@ -726,6 +799,15 @@ export class FinalRepr {
 		writer.write('end\n');
 
 		return;
+	}
+
+	/**
+	 * Visits a Return and returns the string representation.
+	 */
+	private visitReturn(writer: Writer, inode: Return) {
+		let rvw = new Writer();
+		this.visitLiteralValue(rvw, inode.value);
+		writer.write(`return ${rvw.getCodeString()}\n`);
 	}
 
 	/**

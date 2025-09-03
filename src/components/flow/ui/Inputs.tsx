@@ -1,6 +1,5 @@
-import { stringToTypedInputEnum, TypedInput, TypedInputEnum } from '@/lib/flow/data';
 import { motion } from 'framer-motion';
-import { AlertCircle, Eye, EyeOff, Icon } from 'lucide-react';
+import { Eye, EyeOff, Icon } from 'lucide-react';
 import { useState } from 'react';
 
 interface BaseLabelAndDescriptionProps {
@@ -9,6 +8,7 @@ interface BaseLabelAndDescriptionProps {
 	className?: string;
 	id?: string;
 	marginClass?: string;
+	children?: React.ReactNode;
 }
 
 export const BaseLabelAndDescription: React.FC<BaseLabelAndDescriptionProps> = ({
@@ -16,12 +16,13 @@ export const BaseLabelAndDescription: React.FC<BaseLabelAndDescriptionProps> = (
 	description,
 	className = '',
 	id,
-	marginClass = 'mb-1'
+	marginClass = 'mb-1',
+	children,
 }) => {
 	return (
 		<div className={`${marginClass} group ${className}`}>
 			{label && (
-				<label className="block text-foreground font-medium mb-1.5 text-sm" id={`${id}-label`}>
+				<label className="block text-foreground font-medium mb-1.5 text-sm" id={`${id}-label`} htmlFor={id}>
 					{label}
 				</label>
 			)}
@@ -31,6 +32,8 @@ export const BaseLabelAndDescription: React.FC<BaseLabelAndDescriptionProps> = (
 					{description}
 				</p>
 			)}
+
+			{children && children}
 		</div>
 	);
 };
@@ -72,23 +75,7 @@ export const InputField: React.FC<InputFieldProps> = ({
 	const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
 
 	return (
-		<div className={`${marginClass} group ${className}`}>
-			{label && (
-				<label
-					htmlFor={inputId}
-					className="block text-foreground font-medium mb-1.5 text-sm"
-					id={`${inputId}-label`}
-				>
-					{label}
-				</label>
-			)}
-
-			{description && (
-				<p className="text-sm text-muted-foreground mb-2.5" id={`${inputId}-desc`}>
-					{description}
-				</p>
-			)}
-
+		<BaseLabelAndDescription id={inputId} label={label} description={description} className={className} marginClass={marginClass}>
 			<div className="relative">
 				{IconComponent && (
 					<div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
@@ -197,156 +184,7 @@ export const InputField: React.FC<InputFieldProps> = ({
 					{error}
 				</p>
 			)}
-		</div>
-	);
-};
-
-interface TypedInputProps {
-	label?: string;
-	description?: string;
-	placeholder?: string;
-	value: TypedInput;
-	onChange: (data: TypedInput) => void;
-	className?: string;
-	id?: string;
-	icon?: typeof Icon;
-	error?: string;
-	marginClass?: string;
-	disabled?: boolean;
-}
-
-const defaultLValue = (type: TypedInputEnum): unknown => {
-	switch (type) {
-		case TypedInputEnum.String:
-			return '';
-		case TypedInputEnum.Table:
-			return '{}';
-		case TypedInputEnum.Number:
-			return 0;
-		case TypedInputEnum.Boolean:
-			return false;
-		default:
-			return '';
-	}
-};
-
-export const TypedInputField: React.FC<TypedInputProps> = ({
-	label,
-	description,
-	placeholder,
-	value,
-	disabled = false,
-	onChange,
-	className = '',
-	id,
-	marginClass = 'mb-1'
-}) => {
-	let lvalueInit = value.value
-		? value.type == TypedInputEnum.Table
-			? JSON.stringify(value.value)
-			: value.value.toString()
-		: '';
-
-	const [type, setType] = useState<TypedInputEnum>(value.type || TypedInputEnum.String);
-	const [lvalue, setLValue] = useState<unknown>(lvalueInit);
-	const [jsonOk, setJsonOk] = useState<boolean>(true);
-	return (
-		<>
-			<InputField
-				label={label}
-				description={description}
-				placeholder={placeholder}
-				value={lvalue as string}
-				disabled={disabled}
-				className={className}
-				onChange={(e) => {
-					if (disabled) return;
-					setLValue(e.target.value);
-
-					// Dispatch onChange if the value is parseable for specified type
-					if (type === TypedInputEnum.Table) {
-						try {
-							const jsonValue = JSON.parse(e.target.value);
-							setJsonOk(true);
-							onChange({ type, value: jsonValue });
-						} catch (error) {
-							setJsonOk(false);
-							return;
-						}
-					} else if (type === TypedInputEnum.Number) {
-						const numberValue = parseFloat(e.target.value);
-						if (isNaN(numberValue)) {
-							setJsonOk(false);
-							return;
-						}
-						setJsonOk(true);
-						onChange({ type, value: numberValue });
-					} else if (type === TypedInputEnum.Boolean) {
-						if (e.target.value !== 'true' && e.target.value !== 'false') {
-							setJsonOk(false);
-							return;
-						}
-						const boolValue = e.target.value.toLowerCase() === 'true';
-						setJsonOk(true);
-						onChange({ type, value: boolValue });
-					} else {
-						// For string type, just pass the value as is
-						setJsonOk(true);
-						onChange({ type, value: e.target.value });
-					}
-				}}
-				id={id}
-				aria-required="true"
-			/>
-
-			<InputField
-				type="select"
-				label={`${label ? label + ' Type' : 'Type'}`}
-				value={type}
-				disabled={disabled}
-				className={className}
-				marginClass={marginClass}
-				onChange={(e) => {
-					if (disabled) return;
-					const newType = stringToTypedInputEnum(e.target.value);
-					setType(newType);
-					setLValue(defaultLValue(newType));
-					// Dispatch onChange with default value for new type
-					onChange({ type: newType, value: defaultLValue(newType) as any });
-				}}
-				options={[
-					{ value: TypedInputEnum.String, label: 'String' },
-					{ value: TypedInputEnum.Number, label: 'Number' },
-					{ value: TypedInputEnum.Table, label: 'Table' },
-					{ value: TypedInputEnum.Boolean, label: 'Boolean' }
-				]}
-				id={`${id}-type`}
-				aria-label={`${label ? label + ' Type' : 'Type'}`}
-				aria-describedby={description ? `${id}-desc` : undefined}
-				aria-labelledby={`${id}-label`}
-			/>
-
-			{!jsonOk && (
-				<>
-					<motion.div
-						className="w-96 bg-yellow-100 border border-yellow-300 rounded-lg p-4 flex items-center gap-3 mb-2"
-						initial={{ opacity: 0, y: 10 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.3 }}
-						role="alert"
-						aria-live="polite"
-					>
-						<AlertCircle className="w-5 h-5 text-yellow-600" aria-hidden="true" />
-						<p className="text-yellow-800 font-medium">
-							<span className="font-bold">
-								Invalid JSON input. The previously stored value of{' '}
-								<code>{JSON.stringify(value)}</code> has been kept
-							</span>
-						</p>
-					</motion.div>
-				</>
-			)}
-		</>
+		</BaseLabelAndDescription>
 	);
 };
 

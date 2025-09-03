@@ -73,6 +73,7 @@ export interface TypedInputNumber {
 export interface TypedInputTable {
 	type: TypedInputEnum.Table;
 	value: Record<string, unknown>;
+	inline: boolean;
 }
 
 export interface TypedInputBoolean {

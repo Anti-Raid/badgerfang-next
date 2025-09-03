@@ -27,7 +27,8 @@ import {
 	TypedInputEnum
 } from '@/lib/flow/data';
 import { useEffect, useState } from 'react';
-import { BaseLabelAndDescription, InputField, TypedInputField } from '../ui/Inputs';
+import { BaseLabelAndDescription, InputField } from '../ui/Inputs';
+import { TypedInputField } from '../ui/TypedInput';
 import { FlowExpanded } from '../management/FlowExpanded';
 import logger from '@/lib/logger';
 import React from 'react';

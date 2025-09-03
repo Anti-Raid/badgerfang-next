@@ -664,7 +664,8 @@ export class CodeGenASTGenerator {
 			case TypedInputEnum.Table:
 				return {
 					type: ITypedInputEnum.Table,
-					value: value.value
+					value: value.value,
+					inline: value.inline
 				};
 			case TypedInputEnum.Boolean:
 				return {
