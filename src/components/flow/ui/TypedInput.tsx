@@ -1,7 +1,7 @@
 import { stringToTypedInputEnum, TypedInput, TypedInputEnum } from '@/lib/flow/data';
 import { GripVertical, Icon, Trash2 } from 'lucide-react';
 import { BaseLabelAndDescription, InputField, Toggle } from './Inputs';
-import { Reorder } from 'framer-motion';
+import { motion, Reorder } from 'framer-motion';
 import { Primary } from '@/components/ui/Buttons';
 import logger from '@/lib/logger';
 
@@ -289,7 +289,7 @@ const ArrayTableInput: React.FC<ArrayTableInputProps> = ({
 }) => {
     return (
         <>
-            {disabled && (
+            {disabled ? (
                 <div className="text-gray-500">
                     {value.map((v, i) => {
                         return (
@@ -303,46 +303,58 @@ const ArrayTableInput: React.FC<ArrayTableInputProps> = ({
                         );
                     })}
                 </div>
+            ) : (
+                <>
+                    <Reorder.Group
+                        axis="y"
+                        values={value}
+                        onReorder={(newValues) => {
+                            logger.debug('TypedInput', 'Reordering array table input:', newValues);
+                            onChange(newValues);
+                        }}
+                    >
+                        {value.map((v, i) => (
+                            <Reorder.Item key={v.id} value={v}>
+                                <div
+                                    className="bg-card border border-border hover:border-primary/20 rounded-lg p-4 transition-all shadow-sm"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <GripVertical className="w-5 h-5 text-muted-foreground cursor-grab active:cursor-grabbing" />
+                                        <span className="font-medium text-foreground">Element {i + 1}</span>
+                                        <div className="ml-auto flex items-center gap-2">
+                                            <button
+                                                className="p-1 rounded-md hover:bg-accent/50 transition-colors"
+                                                onClick={() => {
+                                                    let newArray = [...value];
+                                                    newArray.splice(i, 1);
+                                                    onChange(newArray);
+                                                }}
+                                                aria-label="Delete entry"
+                                            >
+                                                <Trash2 className="w-4 h-4 text-muted-foreground" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className = "p-4">
+                                    <TypedInputField
+                                        label={`Item ${i + 1} (${v.id})`}
+                                        value={v}
+                                        onChange={(newVal) => {
+                                            let newArray = [...value];
+                                            newArray[i] = newVal;
+                                            onChange(newArray);
+                                        }}
+                                        disabled={disabled}
+                                    />
+                                    </div>
+                                </div>
+                            </Reorder.Item>
+                        ))}
+                    </Reorder.Group>
+                </>
             )}
 
-            <Reorder.Group
-                axis="y"
-                values={value}
-                onReorder={(newValues) => {
-                    logger.debug('TypedInput', 'Reordering array table input:', newValues);
-                    onChange(newValues);
-                }}
-            >
-                {value.map((v, i) => (
-                    <Reorder.Item key={v.id} value={v} className="p-3">
-                        <div className="flex items-center">
-                            <TypedInputField
-                                label={`Item ${i + 1} (${v.id})`}
-                                value={v}
-                                onChange={(newVal) => {
-                                    let newArray = [...value];
-                                    newArray[i] = newVal;
-                                    onChange(newArray);
-                                }}
-                                disabled={disabled}
-                            />
-                            <GripVertical className="ml-3 w-5 h-5 text-muted-foreground cursor-grab active:cursor-grabbing" />
-                            <button
-                                className="p-1 rounded-md hover:bg-accent/50 transition-colors"
-                                onClick={() => {
-                                    let newArray = [...value];
-                                    newArray.splice(i, 1);
-                                    onChange(newArray);
-                                }}
-                                aria-label="Delete entry"
-                            >
-                                <Trash2 className="w-4 h-4 text-muted-foreground" />
-                            </button>
-
-                        </div>
-                    </Reorder.Item>
-                ))}
-            </Reorder.Group>
 
             {!disabled && (
                 <>
