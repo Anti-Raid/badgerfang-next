@@ -316,7 +316,7 @@ const ArrayTableInput: React.FC<ArrayTableInputProps> = ({
                         {value.map((v, i) => (
                             <Reorder.Item key={v.id} value={v}>
                                 <div
-                                    className="bg-card border border-border hover:border-primary/20 rounded-lg p-4 transition-all shadow-sm"
+                                    className="border border-border hover:border-primary/20 rounded-lg p-4 transition-all shadow-sm"
                                 >
                                     <div className="flex items-center gap-3">
                                         <GripVertical className="w-5 h-5 text-muted-foreground cursor-grab active:cursor-grabbing" />
