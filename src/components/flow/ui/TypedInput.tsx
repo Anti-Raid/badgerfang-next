@@ -1,5 +1,5 @@
 import { stringToTypedInputEnum, TypedInput, TypedInputEnum } from '@/lib/flow/data';
-import { Icon } from 'lucide-react';
+import { GripVertical, Icon, Trash2 } from 'lucide-react';
 import { BaseLabelAndDescription, InputField, Toggle } from './Inputs';
 import { Reorder } from 'framer-motion';
 import { Primary } from '@/components/ui/Buttons';
@@ -21,6 +21,7 @@ interface TypedInputProps {
 	error?: string;
 	marginClass?: string;
 	disabled?: boolean;
+    isArray?: boolean;
 }
 
 const createValueWithType = (type: TypedInputEnum): TypedInput => {
@@ -56,124 +57,81 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 	className = '',
 	id,
 	marginClass = 'mb-1',
-    error
+    error,
+    isArray
 }) => {
 	const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
 
 	return (
 		<>
-            <BaseLabelAndDescription id={inputId} label={label} description={description} className={className} marginClass={marginClass}>
-                <div className="relative"></div>
+            <BaseLabelAndDescription id={inputId} label={label} description={description} className={isArray ? "border-4 border-primary" : className} marginClass={marginClass}>
+                <div className="relative">
+                    <InputField
+                        type="select"
+                        label="Type"
+                        value={value.type}
+                        disabled={disabled}
+                        hideSelectOptionsPlaceholder={true}
+                        onChange={(e) => {
+                            if (disabled) return;
+                            const newType = stringToTypedInputEnum(e.target.value);
+                            // Dispatch onChange with default value for new type
+                            onChange(createValueWithType(newType));
+                        }}
+                        
+                        options={[
+                            { value: TypedInputEnum.Nil, label: 'Nil / Null / None' },
+                            { value: TypedInputEnum.String, label: 'String' },
+                            { value: TypedInputEnum.Number, label: 'Number' },
+                            { value: TypedInputEnum.Table, label: 'Table' },
+                            { value: TypedInputEnum.TableArray, label: 'Array' },
+                            { value: TypedInputEnum.Boolean, label: 'Boolean' },
+                            { value: TypedInputEnum.Vector, label: 'Vector' },
+                            { value: TypedInputEnum.Raw, label: 'Raw (Lua code snippet)' }
+                        ]}
+                        id={`${id}-type`}
+                        aria-label={`${label ? label + ' Type' : 'Type'}`}
+                        aria-describedby={description ? `${id}-desc` : undefined}
+                        aria-labelledby={`${id}-label`}
+                    />
 
-                <InputField
-                    type="select"
-                    label="Type"
-                    value={value.type}
-                    disabled={disabled}
-                    hideSelectOptionsPlaceholder={true}
-                    onChange={(e) => {
-                        if (disabled) return;
-                        const newType = stringToTypedInputEnum(e.target.value);
-                        // Dispatch onChange with default value for new type
-                        onChange(createValueWithType(newType));
-                    }}
-                    
-                    options={[
-                        { value: TypedInputEnum.Nil, label: 'Nil / Null / None' },
-                        { value: TypedInputEnum.String, label: 'String' },
-                        { value: TypedInputEnum.Number, label: 'Number' },
-                        { value: TypedInputEnum.Table, label: 'Table' },
-                        { value: TypedInputEnum.TableArray, label: 'Array' },
-                        { value: TypedInputEnum.Boolean, label: 'Boolean' },
-                        { value: TypedInputEnum.Vector, label: 'Vector' },
-                        { value: TypedInputEnum.Raw, label: 'Raw (Lua code snippet)' }
-                    ]}
-                    id={`${id}-type`}
-                    aria-label={`${label ? label + ' Type' : 'Type'}`}
-                    aria-describedby={description ? `${id}-desc` : undefined}
-                    aria-labelledby={`${id}-label`}
-                />
+                    {
+                        (value.type === TypedInputEnum.Table) && (
+                            <>
+                                <TableInput 
+                                    value={value}
+                                    onChange={onChange}
+                                    disabled={disabled}
+                                />
+                            </>
+                        )
+                    }
 
-                {
-                    (value.type === TypedInputEnum.Table) && (
-                        <>
-                            <TableInput 
-                                value={value}
-                                onChange={onChange}
-                                disabled={disabled}
-                            />
-                        </>
-                    )
-                }
-
-                {
-                    (value.type === TypedInputEnum.String || value.type === TypedInputEnum.Raw) && (
-                        <>
-                            <InputField
-                                label="Value"
-                                value={value.value}
-                                disabled={disabled}
-                                type="text"
-                                onChange={(e) => {
-                                    if (disabled) return;
-                                    onChange({ type: value.type, value: e.target.value, id: value.id});
-                                }}
-                                id={id}
-                                aria-required="true"
-                            />
-                        </>
-                    )
-                }
-
-                {
-                    (value.type === TypedInputEnum.Number) && (
-                        <>
-                            <InputField
-                                label="Value"
-                                value={value.value.toString()}
-                                disabled={disabled}
-                                type="number"
-                                onChange={(e) => {
-                                    if (disabled) return;
-                                    
-                                    const numberValue = parseFloat(e.target.value);
-                                    if (isNaN(numberValue)) {
-                                        return;
-                                    }
-
-                                    onChange({ type: value.type, value: numberValue, id: value.id});
-                                }}
-                                id={id}
-                                aria-required="true"
-                            />
-                        </>
-                    )
-                }
-
-                {
-                    (value.type === TypedInputEnum.Boolean) && (
-                        <>
-                            <Toggle
-                                label="Value"
-                                checked={value.value}
-                                disabled={disabled}
-                                onChange={() => {
-                                    if (disabled) return;
-                                    onChange({ type: value.type, value: !value.value, id: value.id});
-                                }}
-                                aria-required="true"
-                            />
-                        </>
-                    )
-                }
-
-                {
-                    (value.type === TypedInputEnum.Vector) && (
-                        <>
-                            <div className="md:grid md:grid-cols-3 md:gap-2">
+                    {
+                        (value.type === TypedInputEnum.String || value.type === TypedInputEnum.Raw) && (
+                            <>
                                 <InputField
-                                    label="X"
-                                    value={value.x.toString()}
+                                    label="Value"
+                                    value={value.value}
+                                    disabled={disabled}
+                                    type="text"
+                                    onChange={(e) => {
+                                        if (disabled) return;
+                                        onChange({ type: value.type, value: e.target.value, id: value.id});
+                                    }}
+                                    id={id}
+                                    aria-required="true"
+                                />
+                            </>
+                        )
+                    }
+
+                    {
+                        (value.type === TypedInputEnum.Number) && (
+                            <>
+                                <InputField
+                                    label="Value"
+                                    value={value.value.toString()}
                                     disabled={disabled}
                                     type="number"
                                     onChange={(e) => {
@@ -184,85 +142,129 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
                                             return;
                                         }
 
-                                        onChange({ type: value.type, x: numberValue, y: value.y, z: value.z, id: value.id});
+                                        onChange({ type: value.type, value: numberValue, id: value.id});
                                     }}
                                     id={id}
                                     aria-required="true"
                                 />
+                            </>
+                        )
+                    }
 
-                                <InputField
-                                    label="Y"
-                                    value={value.y.toString()}
+                    {
+                        (value.type === TypedInputEnum.Boolean) && (
+                            <>
+                                <Toggle
+                                    label="Value"
+                                    checked={value.value}
                                     disabled={disabled}
-                                    type="number"
-                                    onChange={(e) => {
+                                    onChange={() => {
                                         if (disabled) return;
-                                        
-                                        const numberValue = parseFloat(e.target.value);
-                                        if (isNaN(numberValue)) {
-                                            return;
-                                        }
-
-                                        onChange({ type: value.type, x: value.x, y: numberValue, z: value.z, id: value.id});
+                                        onChange({ type: value.type, value: !value.value, id: value.id});
                                     }}
-                                    id={id}
                                     aria-required="true"
                                 />
+                            </>
+                        )
+                    }
 
-                                <InputField
-                                    label="Z"
-                                    value={value.z.toString()}
+                    {
+                        (value.type === TypedInputEnum.Vector) && (
+                            <>
+                                <div className="md:grid md:grid-cols-3 md:gap-2">
+                                    <InputField
+                                        label="X"
+                                        value={value.x.toString()}
+                                        disabled={disabled}
+                                        type="number"
+                                        onChange={(e) => {
+                                            if (disabled) return;
+                                            
+                                            const numberValue = parseFloat(e.target.value);
+                                            if (isNaN(numberValue)) {
+                                                return;
+                                            }
+
+                                            onChange({ type: value.type, x: numberValue, y: value.y, z: value.z, id: value.id});
+                                        }}
+                                        id={id}
+                                        aria-required="true"
+                                    />
+
+                                    <InputField
+                                        label="Y"
+                                        value={value.y.toString()}
+                                        disabled={disabled}
+                                        type="number"
+                                        onChange={(e) => {
+                                            if (disabled) return;
+                                            
+                                            const numberValue = parseFloat(e.target.value);
+                                            if (isNaN(numberValue)) {
+                                                return;
+                                            }
+
+                                            onChange({ type: value.type, x: value.x, y: numberValue, z: value.z, id: value.id});
+                                        }}
+                                        id={id}
+                                        aria-required="true"
+                                    />
+
+                                    <InputField
+                                        label="Z"
+                                        value={value.z.toString()}
+                                        disabled={disabled}
+                                        type="number"
+                                        onChange={(e) => {
+                                            if (disabled) return;
+                                            
+                                            const numberValue = parseFloat(e.target.value);
+                                            if (isNaN(numberValue)) {
+                                                return;
+                                            }
+
+                                            onChange({ type: value.type, x: value.x, y: value.y, z: numberValue, id: value.id});
+                                        }}
+                                        id={id}
+                                        aria-required="true"
+                                    />
+                                </div>
+                            </>
+                        )
+                    }
+
+                    {
+                        (value.type === TypedInputEnum.TableArray) && (
+                            <>
+                                <ArrayTableInput 
+                                    value={value.value}
+                                    onChange={(newArray) => {
+                                        onChange({ type: value.type, value: newArray, inline: value.inline, id: value.id});
+                                    }}
                                     disabled={disabled}
-                                    type="number"
-                                    onChange={(e) => {
-                                        if (disabled) return;
-                                        
-                                        const numberValue = parseFloat(e.target.value);
-                                        if (isNaN(numberValue)) {
-                                            return;
-                                        }
+                                />
 
-                                        onChange({ type: value.type, x: value.x, y: value.y, z: numberValue, id: value.id});
+                                <Toggle
+                                    label="Inline Table"
+                                    description="Whether or not the table should be formatted inline (e.g. { key = value }) or expanded over multiple lines."
+                                    checked={value.inline}
+                                    disabled={disabled}
+                                    onChange={() => {
+                                        if (disabled) return;
+                                        onChange({ type: value.type, value: value.value, inline: !value.inline, id: value.id});
                                     }}
-                                    id={id}
                                     aria-required="true"
                                 />
-                            </div>
-                        </>
-                    )
-                }
+                            </>
+                        )
+                    }
 
-                {
-                    (value.type === TypedInputEnum.TableArray) && (
-                        <>
-                            <ArrayTableInput 
-                                value={value.value}
-                                onChange={(newArray) => {
-                                    onChange({ type: value.type, value: newArray, inline: value.inline, id: value.id});
-                                }}
-                                disabled={disabled}
-                            />
-
-                            <Toggle
-                                label="Inline Table"
-                                description="Whether or not the table should be formatted inline (e.g. { key = value }) or expanded over multiple lines."
-                                checked={value.inline}
-                                disabled={disabled}
-                                onChange={() => {
-                                    if (disabled) return;
-                                    onChange({ type: value.type, value: value.value, inline: !value.inline, id: value.id});
-                                }}
-                                aria-required="true"
-                            />
-                        </>
-                    )
-                }
-
-                {error && (
-                    <p className="mt-1.5 text-sm text-destructive" role="alert">
-                        {error}
-                    </p>
-                )}
+                    {error && (
+                        <p className="mt-1.5 text-sm text-destructive" role="alert">
+                            {error}
+                        </p>
+                    )}
+                </div>
             </BaseLabelAndDescription>
 		</>
 	);
@@ -313,16 +315,31 @@ const ArrayTableInput: React.FC<ArrayTableInputProps> = ({
             >
                 {value.map((v, i) => (
                     <Reorder.Item key={v.id} value={v} className="p-3">
-                        <TypedInputField
-                            label={`Item ${i + 1}`}
-                            value={v}
-                            onChange={(newVal) => {
-                                let newArray = [...value];
-                                newArray[i] = newVal;
-                                onChange(newArray);
-                            }}
-                            disabled={disabled}
-                        />
+                        <div className="flex items-center">
+                            <TypedInputField
+                                label={`Item ${i + 1} (${v.id})`}
+                                value={v}
+                                onChange={(newVal) => {
+                                    let newArray = [...value];
+                                    newArray[i] = newVal;
+                                    onChange(newArray);
+                                }}
+                                disabled={disabled}
+                            />
+                            <GripVertical className="ml-3 w-5 h-5 text-muted-foreground cursor-grab active:cursor-grabbing" />
+                            <button
+                                className="p-1 rounded-md hover:bg-accent/50 transition-colors"
+                                onClick={() => {
+                                    let newArray = [...value];
+                                    newArray.splice(i, 1);
+                                    onChange(newArray);
+                                }}
+                                aria-label="Delete entry"
+                            >
+                                <Trash2 className="w-4 h-4 text-muted-foreground" />
+                            </button>
+
+                        </div>
                     </Reorder.Item>
                 ))}
             </Reorder.Group>
