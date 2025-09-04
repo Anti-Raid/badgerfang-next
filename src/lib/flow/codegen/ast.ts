@@ -21,6 +21,7 @@ export interface ITypedInputNil {
 export interface ITypedInputString {
 	type: ITypedInputEnum.String;
 	value: string;
+	interpolated: boolean;
 }
 
 export interface ITypedInputNumber {

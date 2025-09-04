@@ -29,7 +29,7 @@ const createValueWithType = (type: TypedInputEnum): TypedInput => {
         case TypedInputEnum.Nil:
             return { type: TypedInputEnum.Nil, id: generateTypedInputId() };
 		case TypedInputEnum.String:
-            return { type: TypedInputEnum.String, value: '', id: generateTypedInputId() };
+            return { type: TypedInputEnum.String, value: '', interpolated: false, id: generateTypedInputId() };
         case TypedInputEnum.Raw:
             return { type: TypedInputEnum.Raw, value: '', id: generateTypedInputId() };
 		case TypedInputEnum.Table:
@@ -46,6 +46,29 @@ const createValueWithType = (type: TypedInputEnum): TypedInput => {
             return { type: TypedInputEnum.Nil, id: generateTypedInputId()};
 	}
 };
+
+const valueToString = (value: TypedInput): string => {
+    switch (value.type) {
+        case TypedInputEnum.Nil:
+            return 'nil';
+        case TypedInputEnum.String:
+            return `"${value.value.replaceAll('\n', '\\n')}"`;
+        case TypedInputEnum.Number:
+            return value.value.toString();
+        case TypedInputEnum.Boolean:
+            return value.value ? 'true' : 'false';
+        case TypedInputEnum.Vector:
+            return `Vector(${value.x}, ${value.y}, ${value.z})`;
+        case TypedInputEnum.Raw:
+            return value.value;
+        case TypedInputEnum.Table:
+            return '{ ... }';
+        case TypedInputEnum.TableArray:
+            return '[ ... ]';
+        default:
+            return 'unknown';
+    }
+}
 
 export const TypedInputField: React.FC<TypedInputProps> = ({
 	label,
@@ -108,10 +131,29 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
                     }
 
                     {
-                        (value.type === TypedInputEnum.String || value.type === TypedInputEnum.Raw) && (
+                        (value.type === TypedInputEnum.String) && (
                             <>
                                 <InputField
                                     label="Value"
+                                    value={value.value}
+                                    disabled={disabled}
+                                    type="text"
+                                    onChange={(e) => {
+                                        if (disabled) return;
+                                        onChange({ type: value.type, value: e.target.value, interpolated: value.interpolated, id: value.id});
+                                    }}
+                                    id={id}
+                                    aria-required="true"
+                                />
+                            </>
+                        )
+                    }
+
+                    {
+                        (value.type === TypedInputEnum.Raw) && (
+                            <>
+                                <InputField
+                                    label="Code"
                                     value={value.value}
                                     disabled={disabled}
                                     type="text"
@@ -295,7 +337,7 @@ const ArrayTableInput: React.FC<ArrayTableInputProps> = ({
                         return (
                             <TypedInputField
                                 key={i}
-                                label={`Item ${i + 1}`}
+                                label={`Item ${i + 1} (${valueToString(v)})`}
                                 value={v}
                                 onChange={(_newVal) => {}}
                                 disabled={true}
@@ -320,7 +362,7 @@ const ArrayTableInput: React.FC<ArrayTableInputProps> = ({
                                 >
                                     <div className="flex items-center gap-3">
                                         <GripVertical className="w-5 h-5 text-muted-foreground cursor-grab active:cursor-grabbing" />
-                                        <span className="font-medium text-foreground">Element {i + 1}</span>
+                                        <span className="font-medium text-foreground">Element {i + 1} ({valueToString(v)})</span>
                                         <div className="ml-auto flex items-center gap-2">
                                             <button
                                                 className="p-1 rounded-md hover:bg-accent/50 transition-colors"
@@ -338,7 +380,7 @@ const ArrayTableInput: React.FC<ArrayTableInputProps> = ({
                                     
                                     <div className = "p-4">
                                     <TypedInputField
-                                        label={`Item ${i + 1} (${v.id})`}
+                                        label={`Item ${i + 1}`}
                                         value={v}
                                         onChange={(newVal) => {
                                             let newArray = [...value];
@@ -354,7 +396,6 @@ const ArrayTableInput: React.FC<ArrayTableInputProps> = ({
                     </Reorder.Group>
                 </>
             )}
-
 
             {!disabled && (
                 <>

@@ -658,7 +658,8 @@ export class CodeGenASTGenerator {
 			case TypedInputEnum.String:
 				return {
 					type: ITypedInputEnum.String,
-					value: value.value
+					value: value.value,
+					interpolated: value.interpolated
 				};
 			case TypedInputEnum.Number:
 				return {
@@ -858,12 +859,10 @@ export class CodeGenASTGenerator {
 				condition: {
 					type: IConditionalLogicTypeEnum.IfEq,
 					left: {
-						type: ITypedInputEnum.String,
-						value: ''
+						type: ITypedInputEnum.Nil
 					},
 					right: {
-						type: ITypedInputEnum.String,
-						value: ''
+						type: ITypedInputEnum.Nil
 					}
 				}
 			};

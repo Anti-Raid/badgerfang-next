@@ -79,6 +79,7 @@ export interface TypedInputNil {
 export interface TypedInputString {
 	type: TypedInputEnum.String;
 	value: string;
+	interpolated: boolean;
 	id: string;
 }
 

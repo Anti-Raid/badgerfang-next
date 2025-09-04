@@ -19,6 +19,7 @@ export interface LiteralNil {
 export interface LiteralString {
 	type: LiteralEnum.String;
 	value: string;
+	interpolated: boolean;
 }
 
 export interface LiteralNumber {
@@ -534,9 +535,13 @@ export class FinalRepr {
 			case LiteralEnum.Nil:
 				return writer.write('nil');
 			case LiteralEnum.String:
-				if (value.value.includes('\n')) {
+				if (value.interpolated) {
+					return writer.write(`\`${value.value.replaceAll('`', '\\`')}\``);
+				}
+
+				if (value.value.includes('\n') && !value.value.includes('[[') && !value.value.includes(']]')) {
 					// If the string contains a newline, use a multiline string
-					writer.write(`[[${value.value.replaceAll(']]', ']]]]')}]`);
+					writer.write(`[[${value.value}]`);
 					return;
 				}
 				return writer.write(`"${value.value.replaceAll('"', '\\"')}"`);
