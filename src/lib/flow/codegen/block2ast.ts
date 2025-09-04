@@ -42,7 +42,8 @@ import {
 	INodeTypeEnum,
 	IPreludeTypeEnum,
 	ITypedInput,
-	ITypedInputEnum
+	ITypedInputEnum,
+	ITypedInputTableEntry
 } from './ast';
 import { baseCommandNodeSchema } from '../validation';
 import z from 'zod';
@@ -667,10 +668,10 @@ export class CodeGenASTGenerator {
 					value: value.value
 				};
 			case TypedInputEnum.Table:
-				let tableValue: Record<string, ITypedInput> = {};
-				for (const [key, val] of Object.entries(value.value)) {
-					tableValue[key] = this.visitTypedInput(val);
-				}
+				let tableValue: ITypedInputTableEntry[] = value.value.map((entry) => ({
+					key: this.visitTypedInput(entry.key),
+					value: this.visitTypedInput(entry.value)
+				}));
 				return {
 					type: ITypedInputEnum.Table,
 					value: tableValue,

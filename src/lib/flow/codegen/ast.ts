@@ -29,9 +29,14 @@ export interface ITypedInputNumber {
 	value: number;
 }
 
+export interface ITypedInputTableEntry {
+	key: ITypedInput;
+	value: ITypedInput;
+}
+
 export interface ITypedInputTable {
 	type: ITypedInputEnum.Table;
-	value: Record<string, ITypedInput>;
+	value: ITypedInputTableEntry[];
 	inline: boolean;
 }
 

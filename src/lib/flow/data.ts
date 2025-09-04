@@ -89,9 +89,14 @@ export interface TypedInputNumber {
 	id: string;
 }
 
+export interface TypedInputTableEntry {
+	key: TypedInput;
+	value: TypedInput;
+}
+
 export interface TypedInputTable {
 	type: TypedInputEnum.Table;
-	value: Record<string, TypedInput>;
+	value: TypedInputTableEntry[];
 	inline: boolean;
 	id: string;
 }

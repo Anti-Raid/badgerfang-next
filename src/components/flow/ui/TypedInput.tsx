@@ -33,7 +33,7 @@ const createValueWithType = (type: TypedInputEnum): TypedInput => {
         case TypedInputEnum.Raw:
             return { type: TypedInputEnum.Raw, value: '', id: generateTypedInputId() };
 		case TypedInputEnum.Table:
-            return { type: TypedInputEnum.Table, value: {}, inline: true, id: generateTypedInputId() };
+            return { type: TypedInputEnum.Table, value: [], inline: true, id: generateTypedInputId() };
         case TypedInputEnum.TableArray:
             return { type: TypedInputEnum.TableArray, value: [], inline: true, id: generateTypedInputId() };
 		case TypedInputEnum.Number:
@@ -118,7 +118,7 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
                         aria-labelledby={`${id}-label`}
                     />
 
-                    {
+                    {/**{
                         (value.type === TypedInputEnum.Table) && (
                             <>
                                 <TableInput 
@@ -128,7 +128,7 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
                                 />
                             </>
                         )
-                    }
+                    }**/}
 
                     {
                         (value.type === TypedInputEnum.String) && (
@@ -414,13 +414,93 @@ const ArrayTableInput: React.FC<ArrayTableInputProps> = ({
     )
 }
 
-const TableInput: React.FC<TableInputProps> = ({
+/*const TableInput: React.FC<TableInputProps> = ({
     value,
     onChange,
     disabled
 }) => {
-    // TODO
     return (
-        <></>
+        <>
+            {disabled ? (
+                <div className="text-gray-500">
+                    {value.map((v, i) => {
+                        return (
+                            <TypedInputField
+                                key={i}
+                                label={`Item ${i + 1} (${valueToString(v)})`}
+                                value={v}
+                                onChange={(_newVal) => {}}
+                                disabled={true}
+                            />
+                        );
+                    })}
+                </div>
+            ) : (
+                <>
+                    <Reorder.Group
+                        axis="y"
+                        values={value}
+                        onReorder={(newValues) => {
+                            logger.debug('TypedInput', 'Reordering array table input:', newValues);
+                            onChange(newValues);
+                        }}
+                    >
+                        {value.map((v, i) => (
+                            <Reorder.Item key={v.id} value={v}>
+                                <div
+                                    className="border border-border hover:border-primary/20 rounded-lg p-4 transition-all shadow-sm"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <GripVertical className="w-5 h-5 text-muted-foreground cursor-grab active:cursor-grabbing" />
+                                        <span className="font-medium text-foreground">Element {i + 1} ({valueToString(v)})</span>
+                                        <div className="ml-auto flex items-center gap-2">
+                                            <button
+                                                className="p-1 rounded-md hover:bg-accent/50 transition-colors"
+                                                onClick={() => {
+                                                    let newArray = [...value];
+                                                    newArray.splice(i, 1);
+                                                    onChange(newArray);
+                                                }}
+                                                aria-label="Delete entry"
+                                            >
+                                                <Trash2 className="w-4 h-4 text-muted-foreground" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className = "p-4">
+                                    <TypedInputField
+                                        label={`Item ${i + 1}`}
+                                        value={v}
+                                        onChange={(newVal) => {
+                                            let newArray = [...value];
+                                            newArray[i] = newVal;
+                                            onChange(newArray);
+                                        }}
+                                        disabled={disabled}
+                                    />
+                                    </div>
+                                </div>
+                            </Reorder.Item>
+                        ))}
+                    </Reorder.Group>
+                </>
+            )}
+
+            {!disabled && (
+                <>
+                    <Primary 
+                        Title="Add Element"
+                        onClick={() => {
+                            let newArray = [...value];
+                            newArray.push({ type: TypedInputEnum.Nil, id: generateTypedInputId() });
+                            onChange(newArray);
+                        }}
+                    />
+                    <div className="mt-2 mb-2" />
+                </>
+            )}
+        </>
     )
 }
+*/

@@ -27,9 +27,14 @@ export interface LiteralNumber {
 	value: number;
 }
 
+export interface LiteralTableEntry {
+	key: LiteralValue;
+	value: LiteralValue;
+}
+
 export interface LiteralTable {
 	type: LiteralEnum.Table;
-	value: Record<string | number, LiteralValue> | LiteralValue[]; // Can be an object or an array
+	value: LiteralTableEntry[]; // Can be an object or an array
 	inline: boolean; // Whether to inline the table or not
 }
 
@@ -548,10 +553,6 @@ export class FinalRepr {
 			case LiteralEnum.Number:
 				return writer.write(value.value.toString());
 			case LiteralEnum.Table:
-				if (Array.isArray(value.value)) {
-					return this._visitLiteralValueTable(writer, value.value, enterInlineStatus(inlineStatus, value.inline));
-				}
-
 				return this._visitLiteralValueTableMap(writer, value.value, 
 					enterInlineStatus(inlineStatus, value.inline)
 				);
@@ -621,7 +622,7 @@ export class FinalRepr {
 	 */
 	private _visitLiteralValueTableMap(
 		writer: Writer,
-		value: Record<string | number, LiteralValue>,
+		value: LiteralTableEntry[],
 		inlineStatus: InlineStatus
 	) {
 		let tabStart = '{';
@@ -635,19 +636,21 @@ export class FinalRepr {
 		let entries = Object.entries(value);
 		for (let i = 0; i < entries.length; i++) {
 			const [key, val] = entries[i];
-			let lvw = new Writer();
-			this.visitLiteralValue(lvw, val);
+			let keyWriter = new Writer();
+			this.visitLiteralValue(keyWriter, val.key, newInlineStatus(true));
+			let valueWriter = new Writer();
+			this.visitLiteralValue(valueWriter, val.value, newInlineStatus(true));
 			if (typeof key !== 'string') {
 				if (i == 0) {
-					tabStart += `${sep}[${key}] = ${lvw.getCodeString()}`;
+					tabStart += `${sep}[${keyWriter.getCodeString()}] = ${valueWriter.getCodeString()}`;
 				} else {
-					tabStart += `,${sep}[${key}] = ${lvw.getCodeString()}`;
+					tabStart += `,${sep}[${keyWriter.getCodeString()}] = ${valueWriter.getCodeString()}`;
 				}
 			} else {
 				if (i == 0) {
-					tabStart += `${sep}${key} = ${lvw.getCodeString()}`;
+					tabStart += `${sep}${keyWriter.getCodeString()} = ${valueWriter.getCodeString()}`;
 				} else {
-					tabStart += `,${sep}${key} = ${lvw.getCodeString()}`;
+					tabStart += `,${sep}${keyWriter.getCodeString()} = ${valueWriter.getCodeString()}`;
 				}
 			}
 		}
