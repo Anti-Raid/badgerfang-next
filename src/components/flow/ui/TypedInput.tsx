@@ -1,9 +1,10 @@
-import { stringToTypedInputEnum, TypedInput, TypedInputEnum } from '@/lib/flow/data';
+import { stringToTypedInputEnum, TypedInput, TypedInputEnum, TypedInputTableEntry } from '@/lib/flow/data';
 import { GripVertical, Icon, Trash2 } from 'lucide-react';
 import { BaseLabelAndDescription, InputField, Toggle } from './Inputs';
 import { motion, Reorder } from 'framer-motion';
 import { Primary } from '@/components/ui/Buttons';
 import logger from '@/lib/logger';
+import { Fragment } from 'react';
 
 export const generateTypedInputId = () => {
     return Math.random().toString(36).substring(2, 15);
@@ -312,12 +313,6 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 	);
 };
 
-interface TableInputProps {
-	value: TypedInput;
-	onChange: (data: TypedInput) => void;
-	disabled?: boolean;
-}
-
 interface ArrayTableInputProps {
 	value: TypedInput[];
 	onChange: (data: TypedInput[]) => void;
@@ -414,7 +409,13 @@ const ArrayTableInput: React.FC<ArrayTableInputProps> = ({
     )
 }
 
-/*const TableInput: React.FC<TableInputProps> = ({
+interface TableInputProps {
+	value: TypedInputTableEntry[];
+	onChange: (data: TypedInputTableEntry[]) => void;
+	disabled?: boolean;
+}
+
+const TableInput: React.FC<TableInputProps> = ({
     value,
     onChange,
     disabled
@@ -425,13 +426,22 @@ const ArrayTableInput: React.FC<ArrayTableInputProps> = ({
                 <div className="text-gray-500">
                     {value.map((v, i) => {
                         return (
-                            <TypedInputField
-                                key={i}
-                                label={`Item ${i + 1} (${valueToString(v)})`}
-                                value={v}
-                                onChange={(_newVal) => {}}
-                                disabled={true}
-                            />
+                            <Fragment key={i}>
+                                <TypedInputField
+                                    label={`Item ${i + 1} (${valueToString(v.key)}) Key`}
+                                    value={v.key}
+                                    onChange={(_newVal) => {}}
+                                    disabled={true}
+                                />
+
+                                <TypedInputField
+                                    key={i}
+                                    label={`Item ${i + 1} (${valueToString(v.value)}) Value`}
+                                    value={v.value}
+                                    onChange={(_newVal) => {}}
+                                    disabled={true}
+                                />  
+                            </Fragment>
                         );
                     })}
                 </div>
@@ -446,13 +456,13 @@ const ArrayTableInput: React.FC<ArrayTableInputProps> = ({
                         }}
                     >
                         {value.map((v, i) => (
-                            <Reorder.Item key={v.id} value={v}>
+                            <Reorder.Item key={v.key.id} value={v}>
                                 <div
                                     className="border border-border hover:border-primary/20 rounded-lg p-4 transition-all shadow-sm"
                                 >
                                     <div className="flex items-center gap-3">
                                         <GripVertical className="w-5 h-5 text-muted-foreground cursor-grab active:cursor-grabbing" />
-                                        <span className="font-medium text-foreground">Element {i + 1} ({valueToString(v)})</span>
+                                        <span className="font-medium text-foreground">Element {i + 1} ({valueToString(v.key)} = {valueToString(v.value)})</span>
                                         <div className="ml-auto flex items-center gap-2">
                                             <button
                                                 className="p-1 rounded-md hover:bg-accent/50 transition-colors"
@@ -469,16 +479,26 @@ const ArrayTableInput: React.FC<ArrayTableInputProps> = ({
                                     </div>
                                     
                                     <div className = "p-4">
-                                    <TypedInputField
-                                        label={`Item ${i + 1}`}
-                                        value={v}
-                                        onChange={(newVal) => {
-                                            let newArray = [...value];
-                                            newArray[i] = newVal;
-                                            onChange(newArray);
-                                        }}
-                                        disabled={disabled}
-                                    />
+                                        <TypedInputField
+                                            label={`Item ${i + 1} Key`}
+                                            value={v.key}
+                                            onChange={(newVal) => {
+                                                let newArray = [...value];
+                                                newArray[i].key = newVal;
+                                                onChange(newArray);
+                                            }}
+                                            disabled={disabled}
+                                        />
+                                        <TypedInputField
+                                            label={`Item ${i + 1} Value`}
+                                            value={v.value}
+                                            onChange={(newVal) => {
+                                                let newArray = [...value];
+                                                newArray[i].value = newVal;
+                                                onChange(newArray);
+                                            }}
+                                            disabled={disabled}
+                                        />
                                     </div>
                                 </div>
                             </Reorder.Item>
@@ -493,7 +513,9 @@ const ArrayTableInput: React.FC<ArrayTableInputProps> = ({
                         Title="Add Element"
                         onClick={() => {
                             let newArray = [...value];
-                            newArray.push({ type: TypedInputEnum.Nil, id: generateTypedInputId() });
+                            let key = { type: TypedInputEnum.Nil, id: generateTypedInputId() };
+                            let valueL = { type: TypedInputEnum.Nil, id: generateTypedInputId() };
+                            newArray.push({ key: key as TypedInput, value: valueL as TypedInput });
                             onChange(newArray);
                         }}
                     />
@@ -503,4 +525,3 @@ const ArrayTableInput: React.FC<ArrayTableInputProps> = ({
         </>
     )
 }
-*/
