@@ -119,17 +119,20 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
                         aria-labelledby={`${id}-label`}
                     />
 
-                    {/**{
+                    {
                         (value.type === TypedInputEnum.Table) && (
                             <>
                                 <TableInput 
-                                    value={value}
-                                    onChange={onChange}
+                                    value={value.value}
+                                    onChange={(newArray) => {
+                                        if(disabled) return;
+                                        onChange({ type: value.type, value: newArray, inline: value.inline, id: value.id});
+                                    }}
                                     disabled={disabled}
                                 />
                             </>
                         )
-                    }**/}
+                    }
 
                     {
                         (value.type === TypedInputEnum.String) && (
