@@ -79,16 +79,16 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 	disabled = false,
 	onChange,
 	className = '',
-	id,
+	id: idT,
 	marginClass = 'mb-1',
     error,
     isArray
 }) => {
-	const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
+	const inputId = idT || value.id || label?.toLowerCase().replace(/\s+/g, '-');
 
 	return (
 		<>
-            <BaseLabelAndDescription id={inputId} label={label} description={description} className={isArray ? "border-4 border-primary" : className} marginClass={marginClass}>
+            <BaseLabelAndDescription id={`${inputId}-type`} label={label} description={description} className={isArray ? "border-4 border-primary" : className} marginClass={marginClass}>
                 <div className="relative">
                     <InputField
                         type="select"
@@ -113,10 +113,10 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
                             { value: TypedInputEnum.Vector, label: 'Vector' },
                             { value: TypedInputEnum.Raw, label: 'Raw (Lua code snippet)' }
                         ]}
-                        id={`${id}-type`}
+                        id={`${inputId}-type`}
                         aria-label={`${label ? label + ' Type' : 'Type'}`}
-                        aria-describedby={description ? `${id}-desc` : undefined}
-                        aria-labelledby={`${id}-label`}
+                        aria-describedby={description ? `${inputId}-desc` : undefined}
+                        aria-labelledby={`${inputId}-label`}
                     />
 
                     {
@@ -146,7 +146,7 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
                                         if (disabled) return;
                                         onChange({ type: value.type, value: e.target.value, interpolated: value.interpolated, id: value.id});
                                     }}
-                                    id={id}
+                                    id={`${inputId}-value`}
                                     aria-required="true"
                                 />
                             </>
@@ -165,7 +165,7 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
                                         if (disabled) return;
                                         onChange({ type: value.type, value: e.target.value, id: value.id});
                                     }}
-                                    id={id}
+                                    id={`${inputId}-value`}
                                     aria-required="true"
                                 />
                             </>
@@ -190,7 +190,7 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 
                                         onChange({ type: value.type, value: numberValue, id: value.id});
                                     }}
-                                    id={id}
+                                    id={`${inputId}-value`}
                                     aria-required="true"
                                 />
                             </>
@@ -233,8 +233,9 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 
                                             onChange({ type: value.type, x: numberValue, y: value.y, z: value.z, id: value.id});
                                         }}
-                                        id={id}
+                                        id={`${inputId}-x`}
                                         aria-required="true"
+                                        small={true}
                                     />
 
                                     <InputField
@@ -252,8 +253,9 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 
                                             onChange({ type: value.type, x: value.x, y: numberValue, z: value.z, id: value.id});
                                         }}
-                                        id={id}
+                                        id={`${inputId}-y`}
                                         aria-required="true"
+                                        small={true}
                                     />
 
                                     <InputField
@@ -271,8 +273,9 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 
                                             onChange({ type: value.type, x: value.x, y: value.y, z: numberValue, id: value.id});
                                         }}
-                                        id={id}
+                                        id={`${inputId}-z`}
                                         aria-required="true"
+                                        small={true}
                                     />
                                 </div>
                             </>
@@ -482,16 +485,19 @@ const TableInput: React.FC<TableInputProps> = ({
                                     </div>
                                     
                                     <div className = "p-4">
-                                        <TypedInputField
-                                            label={`Item ${i + 1} Key`}
-                                            value={v.key}
-                                            onChange={(newVal) => {
-                                                let newArray = [...value];
-                                                newArray[i].key = newVal;
-                                                onChange(newArray);
-                                            }}
-                                            disabled={disabled}
-                                        />
+                                        <div>
+                                            <TypedInputField
+                                                label={`Item ${i + 1} Key`}
+                                                value={v.key}
+                                                onChange={(newVal) => {
+                                                    let newArray = [...value];
+                                                    newArray[i].key = newVal;
+                                                    onChange(newArray);
+                                                }}
+                                                disabled={disabled}
+                                            />
+                                        </div>
+                                        <div>
                                         <TypedInputField
                                             label={`Item ${i + 1} Value`}
                                             value={v.value}
@@ -502,6 +508,7 @@ const TableInput: React.FC<TableInputProps> = ({
                                             }}
                                             disabled={disabled}
                                         />
+                                        </div>
                                     </div>
                                 </div>
                             </Reorder.Item>

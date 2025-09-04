@@ -55,6 +55,7 @@ interface InputFieldProps {
 	marginClass?: string;
 	disabled?: boolean;
 	hideSelectOptionsPlaceholder?: boolean;
+	small?: boolean;
 }
 
 export const InputField: React.FC<InputFieldProps> = ({
@@ -71,7 +72,8 @@ export const InputField: React.FC<InputFieldProps> = ({
 	icon: IconComponent,
 	error,
 	marginClass = 'mb-1',
-	hideSelectOptionsPlaceholder
+	hideSelectOptionsPlaceholder,
+	small = false
 }) => {
 	const [showPassword, setShowPassword] = useState(false);
 	const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
@@ -99,7 +101,7 @@ export const InputField: React.FC<InputFieldProps> = ({
 							if (onChange) onChange(e);
 						}}
 						disabled={disabled}
-						className={`w-96 bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-1 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 appearance-none ${
+						className={`${small ? 'w-12' : 'w-96'} bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-1 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 appearance-none ${
 							IconComponent ? 'pl-10' : ''
 						} ${error ? 'border-destructive' : ''} ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
 						aria-labelledby={`${inputId}-label`}
@@ -124,7 +126,7 @@ export const InputField: React.FC<InputFieldProps> = ({
 								if (disabled) return;
 								if (onChange) onChange(e);
 							}}
-							className={`w-96 bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-3 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${
+							className={`${small ? 'w-12' : 'w-96'} bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-3 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${
 								IconComponent ? 'pl-10' : ''
 							} ${error ? 'border-destructive' : ''} ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
 							aria-labelledby={`${inputId}-label`}
@@ -154,7 +156,7 @@ export const InputField: React.FC<InputFieldProps> = ({
 							if (disabled) return;
 							if (onChange) onChange(e);
 						}}
-						className={`w-96 bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-1 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${
+						className={`${small ? 'w-12' : 'w-96'} bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-1 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${
 							IconComponent ? 'pl-10' : ''
 						} ${error ? 'border-destructive' : ''} ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
 						aria-labelledby={`${inputId}-label`}
@@ -171,7 +173,7 @@ export const InputField: React.FC<InputFieldProps> = ({
 							if (disabled) return;
 							if (onChange) onChange(e);
 						}}
-						className={`w-96 bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-1 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${
+						className={`${small ? 'w-12' : 'w-96'} bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-1 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${
 							IconComponent ? 'pl-10' : ''
 						} ${error ? 'border-destructive' : ''} ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
 						aria-labelledby={`${inputId}-label`}
