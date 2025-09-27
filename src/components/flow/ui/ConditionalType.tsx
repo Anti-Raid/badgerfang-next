@@ -66,7 +66,7 @@ export const ConditionalTypeField: React.FC<ConditionalTypeProps> = ({ value, on
 						onClick={() => {
 							onChange({
 								type: ConditionalTypeEnum.Literal,
-								value: { type: TypedInputEnum.Nil, id: generateTypedInputId() },
+								value: { type: TypedInputEnum.Nil, id: generateTypedInputId() }
 							});
 						}}
 					/>

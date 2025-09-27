@@ -300,13 +300,15 @@ class Writer {
 /**
  * The current inline status
  */
-type InlineStatus = {
-	type: "NotInline";
-	depth: number; // How deep we are
-} | {
-	type: "Inline";
-	depth: number; // How deep we are, needed in case a inline context goes to not inline and back
-}
+type InlineStatus =
+	| {
+			type: 'NotInline';
+			depth: number; // How deep we are
+	  }
+	| {
+			type: 'Inline';
+			depth: number; // How deep we are, needed in case a inline context goes to not inline and back
+	  };
 
 /**
  * Helper to create a new InlineStatus
@@ -316,16 +318,16 @@ type InlineStatus = {
 const newInlineStatus = (inline: boolean): InlineStatus => {
 	if (inline) {
 		return {
-			type: "Inline",
+			type: 'Inline',
 			depth: 1
-		}
+		};
 	} else {
 		return {
-			type: "NotInline",
+			type: 'NotInline',
 			depth: 1
-		}
+		};
 	}
-}
+};
 
 /**
  * Helper method to either create a new inline status if the passed
@@ -334,13 +336,13 @@ const newInlineStatus = (inline: boolean): InlineStatus => {
 const enterInlineStatus = (status: InlineStatus | undefined, inline: boolean): InlineStatus => {
 	if (status) {
 		return {
-			type: inline ? "Inline" : "NotInline",
-			depth: status.depth + 1,
-		}
+			type: inline ? 'Inline' : 'NotInline',
+			depth: status.depth + 1
+		};
 	}
 
-	return newInlineStatus(inline)
-}
+	return newInlineStatus(inline);
+};
 
 /**
  * Helper method to go one level deeper in the inline status
@@ -350,15 +352,15 @@ const incrInline = (status: InlineStatus): InlineStatus => {
 	return {
 		type: status.type,
 		depth: status.depth + 1
-	}
-}
+	};
+};
 
 /**
  * Helper method to create the \n\t*N table key-value seperator for a given depth
  */
 const tableSeperatorFor = (depth: number) => {
-	return "\n" + "\t".repeat(depth)
-}
+	return '\n' + '\t'.repeat(depth);
+};
 
 /**
  * Final repr class
@@ -544,7 +546,11 @@ export class FinalRepr {
 					return writer.write(`\`${value.value.replaceAll('`', '\\`')}\``);
 				}
 
-				if (value.value.includes('\n') && !value.value.includes('[[') && !value.value.includes(']]')) {
+				if (
+					value.value.includes('\n') &&
+					!value.value.includes('[[') &&
+					!value.value.includes(']]')
+				) {
 					// If the string contains a newline, use a multiline string
 					writer.write(`[[${value.value}]`);
 					return;
@@ -553,12 +559,17 @@ export class FinalRepr {
 			case LiteralEnum.Number:
 				return writer.write(value.value.toString());
 			case LiteralEnum.Table:
-				return this._visitLiteralValueTableMap(writer, value.value, 
+				return this._visitLiteralValueTableMap(
+					writer,
+					value.value,
 					enterInlineStatus(inlineStatus, value.inline)
 				);
 			case LiteralEnum.TableArray:
-				return this._visitLiteralValueTable(writer, value.value,
-					enterInlineStatus(inlineStatus, value.inline));
+				return this._visitLiteralValueTable(
+					writer,
+					value.value,
+					enterInlineStatus(inlineStatus, value.inline)
+				);
 			case LiteralEnum.Boolean:
 				return writer.write(value.value ? 'true' : 'false'); // Convert boolean to string
 			case LiteralEnum.Vector:
@@ -575,7 +586,11 @@ export class FinalRepr {
 	/**
 	 * Write an table of literal values to the writer.
 	 */
-	private _visitLiteralValueTable(writer: Writer, values: LiteralValue[], inlineStatus: InlineStatus) {
+	private _visitLiteralValueTable(
+		writer: Writer,
+		values: LiteralValue[],
+		inlineStatus: InlineStatus
+	) {
 		if (values.length === 0) {
 			// This expands down to setmetatable({}, require'@antiraid/interop'.array_metatable)
 			return writer.write("setmetatable({}, require'@antiraid/interop'.array_metatable)");
@@ -587,14 +602,14 @@ export class FinalRepr {
 		}
 
 		let tabStart = '';
-		if (inlineStatus.type == "NotInline") {
+		if (inlineStatus.type == 'NotInline') {
 			tabStart += '{';
 
 			// Initially, depth should be 1, then 2 etc.
 			//
 			// Adding one to depth gives us the desired double indent
 			// initially
-			let sep = tableSeperatorFor(inlineStatus.depth + 1)
+			let sep = tableSeperatorFor(inlineStatus.depth + 1);
 			for (let i = 0; i < writer.getCode().length; i++) {
 				if (i === 0) {
 					tabStart += `${sep}${lvw.getCode()[i]}`;
@@ -605,7 +620,7 @@ export class FinalRepr {
 
 			// To add the final bracket, we want to use the normal depth
 			// (1 initially as we went deeper by one anyways in this function call)
-			sep = tableSeperatorFor(inlineStatus.depth)
+			sep = tableSeperatorFor(inlineStatus.depth);
 			tabStart += `${sep}}`;
 		} else {
 			tabStart += '{';
@@ -627,8 +642,8 @@ export class FinalRepr {
 	) {
 		let tabStart = '{';
 
-		let sep = ""
-		if (inlineStatus.type == "NotInline") {
+		let sep = '';
+		if (inlineStatus.type == 'NotInline') {
 			// See _visitLiteralValueTable
 			sep = tableSeperatorFor(inlineStatus.depth + 1);
 		}
@@ -655,8 +670,8 @@ export class FinalRepr {
 			}
 		}
 
-		// See _visitLiteralValueTable 
-		if (inlineStatus.type == "NotInline") {
+		// See _visitLiteralValueTable
+		if (inlineStatus.type == 'NotInline') {
 			sep = tableSeperatorFor(inlineStatus.depth);
 		}
 		tabStart += `${sep}}`;

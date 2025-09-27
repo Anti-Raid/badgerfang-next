@@ -405,7 +405,7 @@ export const ForLoopTypeInputField: React.FC<ForLoopTypeProps> = ({
 									type: TypedInputEnum.TableArray,
 									value: [],
 									id: generateTypedInputId(),
-									inline: true,
+									inline: true
 								}
 							};
 							break;

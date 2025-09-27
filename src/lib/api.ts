@@ -207,13 +207,13 @@ export const fetchStrapiBlogs = async (): Promise<any> => {
 					Authorization: `Bearer 46c2ac374e977304d2ab121cba95e7337d19304bc0e880f5b06376a0c687618644123a3fa20cbc675ae70494e991e92903ad0d02dbf916d0cd40eb72fad1aca4132c9a80556cb5068475673907029497c4eec323b387a33c068e17d834867cb30c3166d5b266987421338a44c4fe05f9753559ae622975ada35a4e9f11f77558`
 				},
 				timeout: 5000, // Reduced to 5 second timeout
-				validateStatus: (status) => status === 200 || status === 304, // Allow 304 Not Modified
+				validateStatus: (status) => status === 200 || status === 304 // Allow 304 Not Modified
 			}
 		);
 		return response.data;
 	} catch (error) {
 		console.error('Error fetching Strapi blogs:', error);
-		
+
 		// If it's a timeout or network error, throw a more specific error
 		if (axios.isAxiosError(error)) {
 			if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
@@ -223,7 +223,7 @@ export const fetchStrapiBlogs = async (): Promise<any> => {
 				throw new Error('Strapi API rate limited - please try again later');
 			}
 		}
-		
+
 		throw error;
 	}
 };
@@ -237,15 +237,15 @@ export const fetchStrapiBlogBySlug = async (slug: string): Promise<any> => {
 					Authorization: `Bearer 46c2ac374e977304d2ab121cba95e7337d19304bc0e880f5b06376a0c687618644123a3fa20cbc675ae70494e991e92903ad0d02dbf916d0cd40eb72fad1aca4132c9a80556cb5068475673907029497c4eec323b387a33c068e17d834867cb30c3166d5b266987421338a44c4fe05f9753559ae622975ada35a4e9f11f77558`
 				},
 				timeout: 3000, // Reduced to 3 second timeout for single blog fetch
-				validateStatus: (status) => status === 200 || status === 304,
+				validateStatus: (status) => status === 200 || status === 304
 			}
 		);
-		
+
 		// Return the first (and should be only) blog post
 		return response.data.data?.[0] || null;
 	} catch (error) {
 		console.error('Error fetching Strapi blog by slug:', error);
-		
+
 		// If it's a timeout or network error, throw a more specific error
 		if (axios.isAxiosError(error)) {
 			if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
@@ -255,7 +255,7 @@ export const fetchStrapiBlogBySlug = async (slug: string): Promise<any> => {
 				throw new Error('Strapi API rate limited - please try again later');
 			}
 		}
-		
+
 		throw error;
 	}
 };

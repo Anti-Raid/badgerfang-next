@@ -34,7 +34,7 @@ export const getValidationTarget = (target: string): GlobalStaticValidation | un
 
 /**
  * The different types that a value in Luau can be user-initialized to.
- * 
+ *
  * Function/Thread/UserData/Buffer are currently not supported here (use Raw for this)
  */
 export enum TypedInputEnum {

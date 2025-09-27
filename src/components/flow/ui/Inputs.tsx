@@ -17,12 +17,16 @@ export const BaseLabelAndDescription: React.FC<BaseLabelAndDescriptionProps> = (
 	className = '',
 	id,
 	marginClass = 'mb-1',
-	children,
+	children
 }) => {
 	return (
 		<div className={`${marginClass} group ${className}`}>
 			{label && (
-				<label className="block text-foreground font-medium mb-1.5 text-sm" id={`${id}-label`} htmlFor={id}>
+				<label
+					className="block text-foreground font-medium mb-1.5 text-sm"
+					id={`${id}-label`}
+					htmlFor={id}
+				>
 					{label}
 				</label>
 			)}
@@ -79,7 +83,13 @@ export const InputField: React.FC<InputFieldProps> = ({
 	const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
 
 	return (
-		<BaseLabelAndDescription id={inputId} label={label} description={description} className={className} marginClass={marginClass}>
+		<BaseLabelAndDescription
+			id={inputId}
+			label={label}
+			description={description}
+			className={className}
+			marginClass={marginClass}
+		>
 			<div className="relative">
 				{IconComponent && (
 					<div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">

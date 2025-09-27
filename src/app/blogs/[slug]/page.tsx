@@ -19,7 +19,7 @@ export async function generateMetadata({
 	params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
 	const { slug } = await params;
-	
+
 	try {
 		const response = await fetchStrapiBlogs();
 		const data = response.data;
