@@ -32,7 +32,7 @@ import { generateTypedInputId, TypedInputField } from '../ui/TypedInput';
 import { FlowExpanded } from '../management/FlowExpanded';
 import logger from '@/lib/logger';
 import React from 'react';
-import { SmallGhost, SmallInlineGhost } from '../../ui/Buttons';
+import { Ghost } from '@/components/ui/Buttons';
 import { ConditionalTypeField } from '../ui/ConditionalType';
 
 // Static validation for if_condition: If conditions have rule 1 for source connections, meaning they can only have one source connection
@@ -459,7 +459,8 @@ export const ForLoopTypeInputField: React.FC<ForLoopTypeProps> = ({
 									marginClass="mb-1"
 								/>
 
-								<SmallInlineGhost
+								<Ghost
+									size="smallInline"
 									Title="Add Element"
 									disabled={disabled}
 									onClick={() => {
@@ -496,7 +497,8 @@ export const ForLoopTypeInputField: React.FC<ForLoopTypeProps> = ({
 							{!disabled && (
 								<>
 									<span className="mr-2">
-										<SmallInlineGhost
+										<Ghost
+											size="smallInline"
 											Title="Add Above"
 											onClick={() => {
 												let newElement: any = '';
@@ -509,7 +511,8 @@ export const ForLoopTypeInputField: React.FC<ForLoopTypeProps> = ({
 										/>
 									</span>
 									<span className="mr-2">
-										<SmallInlineGhost
+										<Ghost
+											size="smallInline"
 											Title="Add Below"
 											onClick={() => {
 												let newElement: any = '';
@@ -522,7 +525,8 @@ export const ForLoopTypeInputField: React.FC<ForLoopTypeProps> = ({
 										/>
 									</span>
 									<span className="mr-2">
-										<SmallInlineGhost
+										<Ghost
+											size="smallInline"
 											Title="Delete"
 											onClick={() => {
 												const newArray = value.varbinds.filter((_, idx) => idx !== index);
@@ -598,9 +602,10 @@ export const ForLoopTypeInputField: React.FC<ForLoopTypeProps> = ({
 						disabled={disabled}
 					/>
 
-					<SmallGhost
+					<Ghost
 						Title="Clear Step"
 						disabled={disabled}
+						size="small"
 						onClick={() => {
 							if (disabled) return;
 							onChange({

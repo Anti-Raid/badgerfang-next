@@ -129,7 +129,7 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 					</div>
 					<h1 className="text-3xl font-bold mb-4">Blog post not found</h1>
 					<p className="text-muted-foreground mb-8">
-						The article you're looking for doesn't exist or has been removed.
+						The article you&apos;re looking for doesn&apos;t exist or has been removed.
 					</p>
 					<motion.button
 						whileHover={{ scale: 1.05 }}
@@ -411,9 +411,21 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 										{...props}
 									/>
 								),
-								img: ({ node, ...props }) => (
-									<img className="rounded-lg shadow-md my-8 mx-auto" {...props} />
-								),
+								img: ({ node, ...props }) => {
+									const src = props.src || '';
+									const alt = props.alt || '';
+									return (
+										<div className="my-8 mx-auto rounded-lg overflow-hidden relative w-full" style={{ minHeight: '200px' }}>
+											<Image
+												src={src}
+												alt={alt}
+												fill
+												style={{ objectFit: 'contain' }}
+												className="rounded-lg shadow-md"
+											/>
+										</div>
+									);
+								},
 								hr: ({ node, ...props }) => <hr className="my-8 border-border/60" {...props} />,
 								table: ({ node, ...props }) => (
 									<div className="overflow-x-auto my-8">
