@@ -44,7 +44,7 @@ export default function AuthorizePage() {
 
 	useEffect(() => {
 		createSession();
-	}, [ createSession ]);
+	}, [createSession]);
 
 	const renderMessage = () => {
 		switch (status) {

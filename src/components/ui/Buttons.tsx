@@ -77,14 +77,14 @@ const sizeClasses: Record<string, string> = {
 	default: 'px-4 py-2 text-[16px]',
 	inline: 'px-4 py-2 text-[12px] gap-1',
 	small: 'px-0 py-1 text-[12px] gap-1',
-	smallInline: 'px-0 py-1 text-[12px] gap-1',
+	smallInline: 'px-0 py-1 text-[12px] gap-1'
 };
 
 const iconSizes: Record<string, string> = {
 	default: 'text-[18px]',
 	inline: 'text-[18px]',
 	small: 'text-[14px]',
-	smallInline: 'text-[14px]',
+	smallInline: 'text-[14px]'
 };
 
 export const Ghost: React.FC<ButtonProps> = ({

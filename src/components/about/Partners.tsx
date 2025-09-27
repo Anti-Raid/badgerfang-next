@@ -1,9 +1,9 @@
-import React from "react";
-import { Partner } from "@/types/other/Partner";
-import { Globe } from "lucide-react";
-import { FaDiscord } from "react-icons/fa";
-import { motion } from "framer-motion";
-import Image from "next/image";
+import React from 'react';
+import { Partner } from '@/types/other/Partner';
+import { Globe } from 'lucide-react';
+import { FaDiscord } from 'react-icons/fa';
+import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 // Partners Component
 export const Partners = ({ isLoaded }: { isLoaded: boolean }) => {

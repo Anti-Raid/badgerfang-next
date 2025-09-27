@@ -10,7 +10,7 @@ import { TeamMembers } from '@/components/about/TeamCard';
 import { ColorPalette, Typography, Buttons } from '@/components/about/DesignGuide';
 import React from 'react';
 
-const AboutLayout = () => {	
+const AboutLayout = () => {
 	const [isLoaded, setIsLoaded] = useState(false);
 
 	useEffect(() => {

@@ -415,7 +415,10 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 									const src = props.src || '';
 									const alt = props.alt || '';
 									return (
-										<div className="my-8 mx-auto rounded-lg overflow-hidden relative w-full" style={{ minHeight: '200px' }}>
+										<div
+											className="my-8 mx-auto rounded-lg overflow-hidden relative w-full"
+											style={{ minHeight: '200px' }}
+										>
 											<Image
 												src={src}
 												alt={alt}

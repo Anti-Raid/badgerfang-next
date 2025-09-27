@@ -73,8 +73,8 @@ export const ServerCard: React.FC<{ server: DashboardGuild; showViewButton: bool
 							<Image
 								src={getIconUrl(server.id, server.icon) || '/logo.webp'}
 								alt={`${server.name} icon`}
-                  height={64}
-                  width={64}
+								height={64}
+								width={64}
 								className="relative w-16 h-16 rounded-xl border-2 border-card bg-accent object-cover"
 							/>
 						</div>

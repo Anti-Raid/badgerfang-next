@@ -56,10 +56,10 @@ export const ServerList: React.FC<{
 					<h3 className="text-2xl font-semibold text-foreground mb-3">No servers found</h3>
 					<p className="text-muted-foreground max-w-md">
 						{searchTerm
-							? "We couldn&apos;t find any servers matching your search"
+							? 'We couldn&apos;t find any servers matching your search'
 							: showViewButton
-								? "You don&apos;t have any managed servers yet"
-								: "You don&apos;t have any servers with sufficient permissions to add the bot"}
+								? 'You don&apos;t have any managed servers yet'
+								: 'You don&apos;t have any servers with sufficient permissions to add the bot'}
 					</p>
 					{!showViewButton && !searchTerm && servers.length === 0 && (
 						<div className="mt-6 p-5 bg-accent/50 backdrop-blur-sm rounded-xl max-w-md text-sm border border-border/30 shadow-lg">
@@ -70,8 +70,8 @@ export const ServerList: React.FC<{
 								bots to a server.
 							</p>
 							<p className="text-muted-foreground">
-								If you don&apos;t see your servers, make sure you&apos;re logged in with the correct Discord
-								account.
+								If you don&apos;t see your servers, make sure you&apos;re logged in with the correct
+								Discord account.
 							</p>
 						</div>
 					)}
