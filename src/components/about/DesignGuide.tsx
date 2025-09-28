@@ -24,7 +24,7 @@ export const ColorPalette = () => {
 	);
 };
 
-const Typography = () => {
+export const Typography = () => {
 	return (
 		<div className="bg-background/30 backdrop-blur-sm border border-primary/10 rounded-xl p-6">
 			<h3 className="text-xl font-monster font-bold mb-4">Typography</h3>
@@ -46,7 +46,7 @@ const Typography = () => {
 	);
 };
 
-const Buttons = () => {
+export const Buttons = () => {
 	return (
 		<div className="bg-background/30 backdrop-blur-sm border border-primary/10 rounded-xl p-6">
 			<h3 className="text-xl font-monster font-bold mb-4">Buttons</h3>
