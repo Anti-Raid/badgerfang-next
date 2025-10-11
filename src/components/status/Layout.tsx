@@ -68,7 +68,13 @@ const StatusDot = ({ color }: { color: string }) => (
 	<span className="inline-block w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
 );
 
-// Cards
+/**
+ * Renders a compact statistic card with an icon, title, and value, styled with an optional accent color and entrance delay.
+ *
+ * @param accent - CSS color used for the card accent (icon background and decorative overlay). Defaults to the primary color.
+ * @param delayMs - Milliseconds to delay the card's entrance animation.
+ * @returns A JSX element representing the stylized stat card.
+ */
 function StatCard({
 	title,
 	value,
@@ -103,6 +109,17 @@ function StatCard({
 	);
 }
 
+/**
+ * Render a card summarizing a single shard's status, latency, guild count, and uptime.
+ *
+ * @param shard - Shard identifier displayed in the card header
+ * @param details - Shard metrics:
+ *   - `status`: current shard status label
+ *   - `real_latency`: latency in milliseconds
+ *   - `guilds`: number of guilds on the shard
+ *   - `uptime`: uptime in seconds
+ * @returns The JSX element for the shard summary card
+ */
 function ShardCard({
 	shard,
 	details
@@ -150,6 +167,16 @@ function ShardCard({
 	);
 }
 
+/**
+ * Render the AntiRaid status dashboard with shard metrics, charts, and tabbed views.
+ *
+ * Fetches bot status and shard connection data (polled every 30 seconds) and displays
+ * appropriate UI states for loading, errors, no-data, and the populated dashboard.
+ * The populated view includes summary stats, a health radial, per-shard cards, and
+ * multiple charts under the "overview", "shards", and "charts" tabs.
+ *
+ * @returns A React element representing the status dashboard UI
+ */
 export default function StatusPage() {
 	const [data, setData] = useState<GetStatusResponse | null>(null);
 	const [err, setErr] = useState<string | null>(null);

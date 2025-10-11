@@ -1,6 +1,14 @@
 import { NodeProps } from '@/lib/flow/data';
 import { NodeResizer } from '@xyflow/react';
 
+/**
+ * Render a group node container for the flow editor.
+ *
+ * Renders a rounded, dashed-bordered container labeled "Group"; when selected the border is highlighted and a resizer is shown with minimum dimensions of 160×160.
+ *
+ * @param props - Node properties; `props.selected` controls the highlighted border color and the resizer visibility.
+ * @returns The JSX element for the group node container.
+ */
 export default function Group(props: NodeProps) {
 	return (
 		<div

@@ -26,6 +26,12 @@ interface BlogGenerateProps {
 	showAuthor?: boolean;
 }
 
+/**
+ * Create an ImageResponse for a generic Open Graph image using the provided generation options.
+ *
+ * @param options - Content and rendering options for the Open Graph image (see GenerateProps) plus ImageResponseOptions
+ * @returns An ImageResponse containing the generated Open Graph image sized 1200×630
+ */
 export function generateOGImage(options: GenerateProps & ImageResponseOptions): ImageResponse {
 	const { title, tag, description, primaryTextColor, ...rest } = options;
 
@@ -44,6 +50,12 @@ export function generateOGImage(options: GenerateProps & ImageResponseOptions): 
 	);
 }
 
+/**
+ * Create an Open Graph image for a blog post.
+ *
+ * @param options - Configuration for the blog OG image (see `BlogGenerateProps`) and additional image response options; `showLogo` and `showAuthor` default to `true` when omitted.
+ * @returns An ImageResponse representing a 1200×630 Open Graph image for the provided blog content
+ */
 export function generateBlogOGImage(
 	options: BlogGenerateProps & ImageResponseOptions
 ): ImageResponse {
@@ -80,6 +92,15 @@ export function generateBlogOGImage(
 	);
 }
 
+/**
+ * Produce a React element representing a generic Open Graph image for the "AntiRaid" brand.
+ *
+ * Renders a full-bleed radial-gradient background with a logo row, uppercased tag, title, and description,
+ * using the provided color for prominent text elements.
+ *
+ * @param primaryTextColor - CSS color used for the logo/title accent
+ * @returns A ReactElement containing the composed Open Graph image (logo, tag, title, description)
+ */
 export function generate({
 	primaryTextColor = 'rgb(255,150,255)',
 	...props
@@ -164,6 +185,19 @@ export function generate({
 	);
 }
 
+/**
+ * Generate a React element for a blog Open Graph image.
+ *
+ * The rendered image uses a radial gradient background and displays the brand,
+ * a "Blog Post" category line, the title, a short description, up to three tag
+ * badges, and an optional author block. Titles longer than 50 characters and
+ * descriptions longer than 100 characters are truncated with an ellipsis.
+ *
+ * @param primaryTextColor - CSS color used for prominent text and accents; defaults to 'rgb(255,150,255)'
+ * @param showLogo - When true, the brand/logo row is visible; when false it is hidden
+ * @param showAuthor - When true and `authorName` is provided, the author block is visible; when false it is hidden
+ * @returns A React element representing the blog post Open Graph image
+ */
 export function generateBlog({
 	primaryTextColor = 'rgb(255,150,255)',
 	showLogo = true,

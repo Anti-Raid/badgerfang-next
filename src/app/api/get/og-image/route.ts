@@ -9,6 +9,14 @@ const blogCache = new Map<string, any>();
 const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes - increased cache duration
 let lastFetchTime = 0;
 
+/**
+ * Retrieve blog entries using the in-memory cache, falling back to a fresh fetch when necessary.
+ *
+ * Returns cached entries immediately when available; if the cache is stale it returns the cached entries
+ * while triggering an asynchronous background refresh; if no cache exists it fetches fresh data before returning.
+ *
+ * @returns An array of blog entries from the cache or from a fresh fetch if no cached data exists
+ */
 async function getCachedBlogs() {
 	const now = Date.now();
 
@@ -31,6 +39,13 @@ async function getCachedBlogs() {
 	return await fetchFreshBlogs();
 }
 
+/**
+ * Fetches the latest blogs from the Strapi source and refreshes the in-memory cache.
+ *
+ * This function requests all blogs, updates `blogCache` keyed by each blog's `slug`, and sets `lastFetchTime` to the current time. The request is aborted if it does not complete within 6 seconds. Errors encountered while fetching are logged and rethrown.
+ *
+ * @returns The array of blog entries returned by the Strapi API (`response.data`).
+ */
 async function fetchFreshBlogs() {
 	try {
 		const controller = new AbortController();
@@ -55,6 +70,11 @@ async function fetchFreshBlogs() {
 	}
 }
 
+/**
+ * Refreshes the in-memory blog cache in the background.
+ *
+ * Fetches the latest blog list from the Strapi source, replaces the in-memory cache entries keyed by slug, and updates the cache timestamp. Errors are caught and logged; failures do not throw.
+ */
 async function refreshCacheInBackground() {
 	try {
 		const response = await fetchStrapiBlogs();
@@ -74,6 +94,16 @@ async function refreshCacheInBackground() {
 	}
 }
 
+/**
+ * Retrieve a blog post by its slug, preferring the in-memory cache and falling back to API fetches.
+ *
+ * If the blog is found in cache it is returned immediately; otherwise the function attempts a single-item
+ * fetch and then a full fetch as a last resort. A blog successfully fetched from the API is added to the
+ * in-memory cache.
+ *
+ * @param slug - The blog post's slug identifier
+ * @returns The blog object if found, `null` otherwise
+ */
 async function getBlogBySlug(slug: string) {
 	try {
 		// First try to get from cache
@@ -110,6 +140,17 @@ async function getBlogBySlug(slug: string) {
 	}
 }
 
+/**
+ * Serve an Open Graph PNG image for the blog index or for a specific post identified by the `slug` query parameter.
+ *
+ * Generates:
+ * - a generic "Blog Post" image when no `slug` is provided;
+ * - a post-specific image when a matching blog post is found;
+ * - a "Blog Not Found" image when a `slug` is provided but no post exists;
+ * - a fallback generic image on error.
+ *
+ * Responses include caching headers (10 minute max-age for successful responses; reduced caching on error) and an `X-Response-Time` header indicating request handling time.
+ */
 export async function GET(request: NextRequest) {
 	const startTime = Date.now();
 
