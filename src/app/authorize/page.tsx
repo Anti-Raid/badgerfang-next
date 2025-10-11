@@ -5,6 +5,13 @@ import { useRouter } from 'next/navigation';
 import { createOauth2Session } from '@/lib/api';
 import { AuthorizeRequest } from '@/types/api/bindings/AuthorizeRequest';
 
+/**
+ * Initiates an OAuth2 authorization exchange from the current URL's `code` query parameter, persists the resulting session and user in localStorage, and redirects to the dashboard while rendering a full-screen status UI.
+ *
+ * Renders a loading view while performing the exchange, a success view when authorization completes, and an error view when the exchange fails.
+ *
+ * @returns The component UI reflecting the current authorization status.
+ */
 export default function AuthorizePage() {
 	const [error, setError] = useState<string | null>(null);
 	const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');

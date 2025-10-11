@@ -28,6 +28,14 @@ registerValidationSource('set_variable', (srcCons: string[], tgtCons: string[]) 
 	return true;
 });
 
+/**
+ * Render a "Set Variable" flow node with editable name and typed value, and persist changes to the flow store.
+ *
+ * Renders a node containing inputs for the variable's name and a typed value, wires top and bottom handles for connections, and updates the flow node's data whenever the name or value changes.
+ *
+ * @param props - The React Flow node props for a SetVariable node. If `props.data.type` is not `NodeTypeEnum.SetVariable`, a validation error message is rendered.
+ * @returns The JSX element for the Set Variable node UI.
+ */
 export default function SetVariable(props: NodeProps) {
 	if (props?.data?.type != NodeTypeEnum.SetVariable) {
 		return <div className="text-red-500">Invalid node type: {props?.data?.type}</div>;

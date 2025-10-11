@@ -23,6 +23,13 @@ const nodeCategories = {
 
 type NodeCategory = keyof typeof nodeCategories;
 
+/**
+ * Renders a collapsible, animated node explorer panel that lists node sections and draggable node items.
+ *
+ * The panel supports expanding/collapsing, switching between "Actions" and "Control Flow" categories, and dragging node cards (which place the node type into the drag data) onto a canvas.
+ *
+ * @returns The FlowNodeExplorer React element
+ */
 export default function FlowNodeExplorer() {
 	const [isCollapsed, setIsCollapsed] = useState(false);
 	const [category, setCategory] = useState<NodeCategory>('action');
@@ -117,6 +124,13 @@ export default function FlowNodeExplorer() {
 	);
 }
 
+/**
+ * Renders a draggable node card used in the node explorer list.
+ *
+ * @param type - The node type identifier placed into the drag data as 'application/reactflow'
+ * @param values - Display metadata for the node (may include `icon`, `defaultTitle`, and `defaultDescription`)
+ * @returns The JSX element for a draggable, styled node card that starts a drag operation with the node `type`
+ */
 function AvailableNode({ type, values }: { type: string; values: any }) {
 	const Icon = values.icon || FiZap;
 

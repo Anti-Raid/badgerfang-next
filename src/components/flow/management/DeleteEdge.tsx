@@ -2,6 +2,14 @@ import { BaseEdge, EdgeLabelRenderer, EdgeProps, getBezierPath, useReactFlow } f
 import { FiX } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 
+/**
+ * Renders a bezier edge with an animated delete button placed at the edge label; clicking the button removes the edge from the current React Flow instance.
+ *
+ * @param id - The edge identifier used to locate and remove the edge.
+ * @param style - Optional style overrides applied to the edge stroke.
+ * @param selected - When true, applies selected styling (color and stroke width) to the edge.
+ * @returns A JSX element that draws the bezier edge and an animated, positioned delete button that filters out the edge by `id` when clicked.
+ */
 export default function FlowEdgeDeleteButton({
 	id,
 	sourceX,
