@@ -11,11 +11,6 @@ let lastFetchTime = 0;
 
 /**
  * Retrieve blog entries using the in-memory cache, falling back to a fresh fetch when necessary.
- *
- * Returns cached entries immediately when available; if the cache is stale it returns the cached entries
- * while triggering an asynchronous background refresh; if no cache exists it fetches fresh data before returning.
- *
- * @returns An array of blog entries from the cache or from a fresh fetch if no cached data exists
  */
 async function getCachedBlogs() {
 	const now = Date.now();
@@ -40,45 +35,45 @@ async function getCachedBlogs() {
 }
 
 /**
- * Fetches the latest blogs from the Strapi source and refreshes the in-memory cache.
- *
- * This function requests all blogs, updates `blogCache` keyed by each blog's `slug`, and sets `lastFetchTime` to the current time. The request is aborted if it does not complete within 6 seconds. Errors encountered while fetching are logged and rethrown.
- *
- * @returns The array of blog entries returned by the Strapi API (`response.data`).
+ * Fetches the latest blogs from Strapi and refreshes the in-memory cache.
  */
 async function fetchFreshBlogs() {
-	try {
-		const controller = new AbortController();
-		const timeoutId = setTimeout(() => controller.abort(), 6000); // 6 second timeout
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 6000); // 6 second timeout
 
-		const response = await fetchStrapiBlogs();
-		clearTimeout(timeoutId);
+    const response = await fetchStrapiBlogs();
+    clearTimeout(timeoutId);
 
-		const data = response.data;
+    // Access the 'data' property from the response
+    const data = response.data;
 
-		// Update cache
-		blogCache.clear();
-		data.forEach((blog: any) => {
-			blogCache.set(blog.slug, blog);
-		});
-		lastFetchTime = Date.now();
+    // Ensure 'data' is an array before proceeding
+    if (!Array.isArray(data)) {
+      throw new Error('Expected an array of blogs');
+    }
 
-		return data;
-	} catch (error) {
-		console.error('Error fetching blogs:', error);
-		throw error;
-	}
+    // Update cache
+    blogCache.clear();
+    data.forEach((blog: any) => {
+      blogCache.set(blog.slug, blog);
+    });
+    lastFetchTime = Date.now();
+
+    return data;
+  } catch (error) {
+    console.error('Error fetching blogs:', error);
+    throw error;
+  }
 }
 
 /**
  * Refreshes the in-memory blog cache in the background.
- *
- * Fetches the latest blog list from the Strapi source, replaces the in-memory cache entries keyed by slug, and updates the cache timestamp. Errors are caught and logged; failures do not throw.
  */
 async function refreshCacheInBackground() {
 	try {
-		const response = await fetchStrapiBlogs();
-		const data = response.data;
+		// Corrected: fetchStrapiBlogs returns the array directly
+		const data = await fetchStrapiBlogs();
 
 		// Update cache
 		blogCache.clear();
@@ -95,30 +90,20 @@ async function refreshCacheInBackground() {
 }
 
 /**
- * Retrieve a blog post by its slug, preferring the in-memory cache and falling back to API fetches.
- *
- * If the blog is found in cache it is returned immediately; otherwise the function attempts a single-item
- * fetch and then a full fetch as a last resort. A blog successfully fetched from the API is added to the
- * in-memory cache.
- *
- * @param slug - The blog post's slug identifier
- * @returns The blog object if found, `null` otherwise
+ * Retrieve a blog post by its slug.
  */
 async function getBlogBySlug(slug: string) {
 	try {
-		// First try to get from cache
+		// Try cache first
 		const cachedBlogs = Array.from(blogCache.values());
 		const cachedBlog = cachedBlogs.find((b: any) => b.slug === slug);
 
-		if (cachedBlog) {
-			return cachedBlog;
-		}
+		if (cachedBlog) return cachedBlog;
 
-		// If not in cache, try to fetch single blog (more efficient)
+		// Try single fetch
 		try {
 			const singleBlog = await fetchStrapiBlogBySlug(slug);
 			if (singleBlog) {
-				// Add to cache
 				blogCache.set(singleBlog.slug, singleBlog);
 				return singleBlog;
 			}
@@ -126,7 +111,7 @@ async function getBlogBySlug(slug: string) {
 			console.log('Single blog fetch failed, falling back to full fetch:', singleFetchError);
 		}
 
-		// Fallback to fetching all blogs and caching them
+		// Fallback to fetching all blogs
 		try {
 			const blogs = await getCachedBlogs();
 			return blogs.find((b: any) => b.slug === slug);
@@ -141,15 +126,7 @@ async function getBlogBySlug(slug: string) {
 }
 
 /**
- * Serve an Open Graph PNG image for the blog index or for a specific post identified by the `slug` query parameter.
- *
- * Generates:
- * - a generic "Blog Post" image when no `slug` is provided;
- * - a post-specific image when a matching blog post is found;
- * - a "Blog Not Found" image when a `slug` is provided but no post exists;
- * - a fallback generic image on error.
- *
- * Responses include caching headers (10 minute max-age for successful responses; reduced caching on error) and an `X-Response-Time` header indicating request handling time.
+ * Serve an Open Graph PNG image for the blog index or a specific post.
  */
 export async function GET(request: NextRequest) {
 	const startTime = Date.now();
@@ -158,10 +135,9 @@ export async function GET(request: NextRequest) {
 		const { searchParams } = new URL(request.url);
 		const slug = searchParams.get('slug');
 
-		// Set response headers for better caching
 		const headers = {
 			'Content-Type': 'image/png',
-			'Cache-Control': 'public, max-age=600, s-maxage=600, stale-while-revalidate=3600', // 10 minutes cache, 1 hour stale-while-revalidate
+			'Cache-Control': 'public, max-age=600, s-maxage=600, stale-while-revalidate=3600',
 			'CDN-Cache-Control': 'public, max-age=600'
 		};
 
@@ -173,15 +149,10 @@ export async function GET(request: NextRequest) {
 				authorName: 'AntiRaid Team'
 			});
 
-			// Add headers to the response
-			Object.entries(headers).forEach(([key, value]) => {
-				response.headers.set(key, value);
-			});
-
+			Object.entries(headers).forEach(([key, value]) => response.headers.set(key, value));
 			return response;
 		}
 
-		// Try to get the specific blog post
 		const post = await getBlogBySlug(slug);
 
 		if (!post) {
@@ -192,11 +163,7 @@ export async function GET(request: NextRequest) {
 				authorName: 'AntiRaid Team'
 			});
 
-			// Add headers to the response
-			Object.entries(headers).forEach(([key, value]) => {
-				response.headers.set(key, value);
-			});
-
+			Object.entries(headers).forEach(([key, value]) => response.headers.set(key, value));
 			return response;
 		}
 
@@ -211,12 +178,7 @@ export async function GET(request: NextRequest) {
 				: undefined
 		});
 
-		// Add headers to the response
-		Object.entries(headers).forEach(([key, value]) => {
-			response.headers.set(key, value);
-		});
-
-		// Add performance header
+		Object.entries(headers).forEach(([key, value]) => response.headers.set(key, value));
 		response.headers.set('X-Response-Time', `${Date.now() - startTime}ms`);
 
 		return response;
@@ -230,12 +192,11 @@ export async function GET(request: NextRequest) {
 			authorName: 'AntiRaid Team'
 		});
 
-		// Add headers to the response
 		response.headers.set('Content-Type', 'image/png');
 		response.headers.set(
 			'Cache-Control',
 			'public, max-age=60, s-maxage=60, stale-while-revalidate=300'
-		); // 1 minute cache for errors, 5 minutes stale-while-revalidate
+		);
 		response.headers.set('X-Response-Time', `${Date.now() - startTime}ms`);
 
 		return response;
