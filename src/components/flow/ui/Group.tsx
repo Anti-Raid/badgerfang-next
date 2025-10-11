@@ -3,13 +3,16 @@ import { NodeResizer } from '@xyflow/react';
 
 export default function Group(props: NodeProps) {
 	return (
-		<div
-			className="pl-1 pr-1 py-1 shadow-md rounded bg-muted/60 border-2 relative min-w-40 min-h-40 h-full cursor-grab"
-			style={{
-				borderColor: props.selected ? '#3B82F6' : undefined
-			}}
-		>
-			<NodeResizer isVisible={props.selected} minWidth={0} minHeight={0} />
-		</div>
+    <div
+      className="relative rounded-xl bg-muted/30 border-2 border-dashed border-border min-w-40 min-h-40 h-full"
+      style={{
+        borderColor: props.selected ? 'hsl(var(--primary))' : undefined
+      }}
+    >
+      <NodeResizer isVisible={props.selected} minWidth={160} minHeight={160} />
+      <div className="absolute top-2 left-2 text-xs font-medium text-muted-foreground">
+        Group
+      </div>
+    </div>
 	);
 }
