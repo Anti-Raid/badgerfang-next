@@ -10,6 +10,7 @@ import {
 	NodeTypeEnum,
 	TypedInputEnum
 } from './data';
+import { generateTypedInputId } from '@/components/flow/ui/TypedInput';
 
 export interface NodeValues {
 	defaultTitle: string;
@@ -104,8 +105,8 @@ export const defaultNodeDataForType: Record<string, NodeExtData> = {
 		data: {
 			name: '',
 			value: {
-				type: TypedInputEnum.String,
-				value: ''
+				type: TypedInputEnum.Nil,
+				id: generateTypedInputId()
 			}
 		}
 	},
@@ -137,8 +138,8 @@ export const defaultNodeDataForType: Record<string, NodeExtData> = {
 				type: ForLoopTypeEnum.GeneralizedIteration,
 				varbinds: [],
 				iterable: {
-					type: TypedInputEnum.String,
-					value: ''
+					type: TypedInputEnum.Nil,
+					id: generateTypedInputId()
 				}
 			}
 		}
