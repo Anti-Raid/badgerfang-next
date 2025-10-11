@@ -24,11 +24,9 @@ const nodeCategories = {
 type NodeCategory = keyof typeof nodeCategories;
 
 /**
- * Renders a collapsible, animated node explorer panel that lists node sections and draggable node items.
+ * FlowNodeExplorer
  *
- * The panel supports expanding/collapsing, switching between "Actions" and "Control Flow" categories, and dragging node cards (which place the node type into the drag data) onto a canvas.
- *
- * @returns The FlowNodeExplorer React element
+ * Collapsible panel displaying node sections and draggable node items.
  */
 export default function FlowNodeExplorer() {
 	const [isCollapsed, setIsCollapsed] = useState(false);
@@ -125,14 +123,10 @@ export default function FlowNodeExplorer() {
 }
 
 /**
- * Renders a draggable node card used in the node explorer list.
- *
- * @param type - The node type identifier placed into the drag data as 'application/reactflow'
- * @param values - Display metadata for the node (may include `icon`, `defaultTitle`, and `defaultDescription`)
- * @returns The JSX element for a draggable, styled node card that starts a drag operation with the node `type`
+ * Draggable node card
  */
-function AvailableNode({ type, values }: { type: string; values: any }) {
-	const Icon = values.icon || FiZap;
+function AvailableNode({ type, values }: { type: string; values: NodeValues }) {
+  const Icon = FiZap;
 
 	function onStartDrag(e: React.DragEvent<HTMLDivElement>) {
 		e.dataTransfer.setData('application/reactflow', type);
@@ -140,12 +134,10 @@ function AvailableNode({ type, values }: { type: string; values: any }) {
 	}
 
 	return (
-		<motion.div
-			whileHover={{ scale: 1.02, x: 4 }}
-			whileTap={{ scale: 0.98 }}
-			className="p-3 rounded-lg bg-card/50 hover:bg-card border border-border hover:border-primary/50 cursor-grab transition-all duration-200 backdrop-blur-sm"
-			onDragStart={onStartDrag}
+		<div
 			draggable
+			onDragStart={onStartDrag}
+			className="p-3 rounded-lg bg-card/50 hover:bg-card border border-border hover:border-primary/50 cursor-grab transition-all duration-200 backdrop-blur-sm"
 		>
 			<div className="flex items-center gap-3">
 				<div className="p-2 rounded-lg bg-primary/10">
@@ -156,6 +148,6 @@ function AvailableNode({ type, values }: { type: string; values: any }) {
 					<div className="text-xs text-muted-foreground truncate">{values.defaultDescription}</div>
 				</div>
 			</div>
-		</motion.div>
+		</div>
 	);
 }
