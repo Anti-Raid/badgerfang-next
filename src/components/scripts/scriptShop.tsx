@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useInView, Variants } from 'framer-motion';
 import { FiSearch, FiFilter, FiX, FiPackage, FiZap, FiGrid, FiList } from 'react-icons/fi';
 import { CommonCard } from './ScriptCard';
+import React from 'react';
 
 export const TemplateShop = ({ data }: { data: any[] }) => {
 	// FIXME: Update type once shop is updated
@@ -216,7 +217,7 @@ export const TemplateShop = ({ data }: { data: any[] }) => {
 								transition={{ delay: 0.4 }}
 								className="text-muted-foreground text-lg mb-8"
 							>
-								We couldn't find any scripts matching your search criteria.
+								We couldn&apos;t find any scripts matching your search criteria.
 							</motion.p>
 
 							<motion.button

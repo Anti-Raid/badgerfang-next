@@ -84,7 +84,7 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 
 	const getSocialIcon = (platform: string) => {
 		if (!platform) return <FaLink size={18} />;
-		
+
 		switch (platform.toLowerCase()) {
 			case 'twitter':
 				return <FaTwitter size={18} />;
@@ -129,7 +129,7 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 					</div>
 					<h1 className="text-3xl font-bold mb-4">Blog post not found</h1>
 					<p className="text-muted-foreground mb-8">
-						The article you're looking for doesn't exist or has been removed.
+						The article you&apos;re looking for doesn&apos;t exist or has been removed.
 					</p>
 					<motion.button
 						whileHover={{ scale: 1.05 }}
@@ -248,28 +248,28 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 						transition={{ duration: 0.5, delay: 0.5 }}
 						className="mt-8 p-6 rounded-xl bg-card border border-border relative"
 					>
-						{blog.author.socials && 
-						 blog.author.socials.length > 0 && 
-						 blog.author.socials.some((social: any) => social.url && social.platform) && (
-							<div className="absolute top-4 right-4 flex gap-2">
-								{blog.author.socials
-									.filter((social: any) => social.url && social.platform)
-									.map((social, index) => (
-										<motion.a
-											key={index}
-											href={social.url}
-											target="_blank"
-											rel="noopener noreferrer"
-											whileHover={{ scale: 1.1 }}
-											whileTap={{ scale: 0.9 }}
-											className="text-muted-foreground hover:text-primary transition-colors"
-											aria-label={`${blog.author.name}'s ${social.platform}`}
-										>
-											{getSocialIcon(social.platform)}
-										</motion.a>
-									))}
-							</div>
-						)}
+						{blog.author.socials &&
+							blog.author.socials.length > 0 &&
+							blog.author.socials.some((social: any) => social.url && social.platform) && (
+								<div className="absolute top-4 right-4 flex gap-2">
+									{blog.author.socials
+										.filter((social: any) => social.url && social.platform)
+										.map((social, index) => (
+											<motion.a
+												key={index}
+												href={social.url}
+												target="_blank"
+												rel="noopener noreferrer"
+												whileHover={{ scale: 1.1 }}
+												whileTap={{ scale: 0.9 }}
+												className="text-muted-foreground hover:text-primary transition-colors"
+												aria-label={`${blog.author.name}'s ${social.platform}`}
+											>
+												{getSocialIcon(social.platform)}
+											</motion.a>
+										))}
+								</div>
+							)}
 						<div className="flex items-center mb-4">
 							{blog.author.avatar && blog.author.avatar.url ? (
 								<div className="w-12 h-12 rounded-full overflow-hidden mr-4">
@@ -411,9 +411,24 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 										{...props}
 									/>
 								),
-								img: ({ node, ...props }) => (
-									<img className="rounded-lg shadow-md my-8 mx-auto" {...props} />
-								),
+								img: ({ node, ...props }) => {
+									const src = props.src || '';
+									const alt = props.alt || '';
+									return (
+										<div
+											className="my-8 mx-auto rounded-lg overflow-hidden relative w-full"
+											style={{ minHeight: '200px' }}
+										>
+											<Image
+												src={src}
+												alt={alt}
+												fill
+												style={{ objectFit: 'contain' }}
+												className="rounded-lg shadow-md"
+											/>
+										</div>
+									);
+								},
 								hr: ({ node, ...props }) => <hr className="my-8 border-border/60" {...props} />,
 								table: ({ node, ...props }) => (
 									<div className="overflow-x-auto my-8">

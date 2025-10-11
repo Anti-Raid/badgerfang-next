@@ -11,7 +11,7 @@ For loops can only have one source connection but may have two targets of which 
  */
 
 import { Connection, Edge, Node, Position, useReactFlow } from '@xyflow/react';
-import FlowNodeBase from '../nodes/BaseNode';
+import FlowNodeBase from '../ui/BaseNode';
 import Handle from '../ui/Handle';
 import {
 	ConditionalType,
@@ -27,12 +27,13 @@ import {
 	TypedInputEnum
 } from '@/lib/flow/data';
 import { useEffect, useState } from 'react';
-import { BaseLabelAndDescription, InputField, TypedInputField } from '../utils/Inputs';
+import { BaseLabelAndDescription, InputField } from '../ui/Inputs';
+import { generateTypedInputId, TypedInputField } from '../ui/TypedInput';
 import { FlowExpanded } from '../management/FlowExpanded';
 import logger from '@/lib/logger';
 import React from 'react';
-import { SmallGhost, SmallInlineGhost } from '../../ui/Buttons';
-import { ConditionalTypeField } from './ConditionalType';
+import { Ghost } from '@/components/ui/Buttons';
+import { ConditionalTypeField } from '../ui/ConditionalType';
 
 // Static validation for if_condition: If conditions have rule 1 for source connections, meaning they can only have one source connection
 registerValidationSource(
@@ -401,8 +402,10 @@ export const ForLoopTypeInputField: React.FC<ForLoopTypeProps> = ({
 								type: ForLoopTypeEnum.GeneralizedIteration,
 								varbinds: [],
 								iterable: {
-									type: TypedInputEnum.String,
-									value: ''
+									type: TypedInputEnum.TableArray,
+									value: [],
+									id: generateTypedInputId(),
+									inline: true
 								}
 							};
 							break;
@@ -456,7 +459,8 @@ export const ForLoopTypeInputField: React.FC<ForLoopTypeProps> = ({
 									marginClass="mb-1"
 								/>
 
-								<SmallInlineGhost
+								<Ghost
+									size="smallInline"
 									Title="Add Element"
 									disabled={disabled}
 									onClick={() => {
@@ -493,7 +497,8 @@ export const ForLoopTypeInputField: React.FC<ForLoopTypeProps> = ({
 							{!disabled && (
 								<>
 									<span className="mr-2">
-										<SmallInlineGhost
+										<Ghost
+											size="smallInline"
 											Title="Add Above"
 											onClick={() => {
 												let newElement: any = '';
@@ -506,7 +511,8 @@ export const ForLoopTypeInputField: React.FC<ForLoopTypeProps> = ({
 										/>
 									</span>
 									<span className="mr-2">
-										<SmallInlineGhost
+										<Ghost
+											size="smallInline"
 											Title="Add Below"
 											onClick={() => {
 												let newElement: any = '';
@@ -519,7 +525,8 @@ export const ForLoopTypeInputField: React.FC<ForLoopTypeProps> = ({
 										/>
 									</span>
 									<span className="mr-2">
-										<SmallInlineGhost
+										<Ghost
+											size="smallInline"
 											Title="Delete"
 											onClick={() => {
 												const newArray = value.varbinds.filter((_, idx) => idx !== index);
@@ -595,9 +602,10 @@ export const ForLoopTypeInputField: React.FC<ForLoopTypeProps> = ({
 						disabled={disabled}
 					/>
 
-					<SmallGhost
+					<Ghost
 						Title="Clear Step"
 						disabled={disabled}
+						size="small"
 						onClick={() => {
 							if (disabled) return;
 							onChange({

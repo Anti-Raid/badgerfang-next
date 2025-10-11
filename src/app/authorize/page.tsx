@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { API_BASE_URL, createOauth2Session } from '@/lib/api';
+import { createOauth2Session } from '@/lib/api';
 import { AuthorizeRequest } from '@/types/api/bindings/AuthorizeRequest';
 
 export default function AuthorizePage() {
@@ -44,7 +44,7 @@ export default function AuthorizePage() {
 
 	useEffect(() => {
 		createSession();
-	}, []);
+	}, [createSession]);
 
 	const renderMessage = () => {
 		switch (status) {

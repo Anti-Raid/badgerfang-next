@@ -1,5 +1,6 @@
 import { BaseEdge, EdgeLabelRenderer, EdgeProps, getBezierPath, useReactFlow } from '@xyflow/react';
-import { XIcon } from 'lucide-react';
+import { FiX } from 'react-icons/fi';
+import { motion } from 'framer-motion';
 
 export default function FlowEdgeDeleteButton({
 	id,
@@ -34,30 +35,31 @@ export default function FlowEdgeDeleteButton({
 				path={edgePath}
 				markerEnd={markerEnd}
 				style={{
-					stroke: selected ? '#6e6a95' : '#908dae',
+					stroke: selected ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
+					strokeWidth: selected ? 3 : 2,
+					transition: 'all 0.3s ease',
 					...style
 				}}
 			/>
+
 			<EdgeLabelRenderer>
-				<div
+				<motion.button
+					initial={{ scale: 0 }}
+					animate={{ scale: 1 }}
+					whileHover={{ scale: 1.1 }}
+					whileTap={{ scale: 0.9 }}
 					style={{
 						position: 'absolute',
-						transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
-						// everything inside EdgeLabelRenderer has no pointer events by default
-						// if you have an interactive element, set pointer-events: all
-						pointerEvents: 'all',
-						zIndex: 100
+						transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
+						pointerEvents: 'all'
 					}}
-					className="nodrag nopan cursor-pointer h-4 w-4 rounded-full flex items-center justify-center bg-muted cursor-pointer hover:cursor-pointer hover:bg-muted/50"
+					className="nodrag nopan h-6 w-6 rounded-full bg-destructive hover:bg-destructive/80 
+                     flex items-center justify-center shadow-lg transition-colors"
 					onClick={onEdgeClick}
 				>
-					<XIcon className="h-3 w-3 text-foreground" />
-				</div>
+					<FiX className="text-destructive-foreground w-3 h-3" />
+				</motion.button>
 			</EdgeLabelRenderer>
-
-			<circle r="4" fill="#ff0073">
-				<animateMotion dur="1s" repeatCount="indefinite" path={edgePath} />
-			</circle>
 		</>
 	);
 }

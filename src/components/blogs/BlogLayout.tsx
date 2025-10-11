@@ -260,7 +260,7 @@ export default function BlogLayout() {
 						</div>
 						<h3 className="text-2xl font-bold mb-2">No results found</h3>
 						<p className="text-muted-foreground mb-6">
-							We couldn't find any blogs matching your search criteria.
+							We couldn&apos;t find any blogs matching your search criteria.
 						</p>
 						<button
 							onClick={() => {
