@@ -1,8 +1,7 @@
 import { NodeProps } from '@/lib/flow/data';
-import { Ghost } from '../../ui/Buttons';
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 
 interface FlowExpandedProps {
 	nodeProps: NodeProps;
@@ -19,87 +18,57 @@ export const FlowExpanded: React.FC<FlowExpandedProps> = ({ nodeProps, children,
 	}, []);
 
 	useEffect(() => {
-		if (isExpanded) {
-			document.body.style.overflow = 'hidden';
-		} else {
-			document.body.style.overflow = '';
-		}
-
-		return () => {
-			document.body.style.overflow = '';
-		};
+		document.body.style.overflow = isExpanded ? 'hidden' : '';
+		return () => { document.body.style.overflow = ''; };
 	}, [isExpanded]);
 
 	useEffect(() => {
 		const handleEscape = (e: KeyboardEvent) => {
-			if (e.key === 'Escape' && isExpanded) {
-				setExpanded(false);
-			}
+			if (e.key === 'Escape' && isExpanded) setExpanded(false);
 		};
-
 		document.addEventListener('keydown', handleEscape);
 		return () => document.removeEventListener('keydown', handleEscape);
 	}, [isExpanded]);
 
-	const backdropVariants = {
+	// Motion variants typed correctly
+	const backdropVariants: Variants = {
 		hidden: { opacity: 0 },
 		visible: {
 			opacity: 1,
-			transition: { duration: 0.3, ease: 'easeOut' }
+			transition: { duration: 0.3, ease: 'easeOut' as const }
 		},
 		exit: {
 			opacity: 0,
-			transition: { duration: 0.2, ease: 'easeIn' }
+			transition: { duration: 0.2, ease: 'easeIn' as const }
 		}
 	};
 
-	const modalVariants = {
-		hidden: {
-			y: -60,
-			opacity: 0,
-			scale: 0.9,
-			rotateX: -15
-		},
+	const modalVariants: Variants = {
+		hidden: { y: -60, opacity: 0, scale: 0.9, rotateX: -15 },
 		visible: {
 			y: 0,
 			opacity: 1,
 			scale: 1,
 			rotateX: 0,
-			transition: {
-				type: 'spring',
-				stiffness: 400,
-				damping: 30,
-				mass: 0.8
-			}
+			transition: { type: 'spring', stiffness: 400, damping: 30, mass: 0.8 }
 		},
 		exit: {
 			y: 60,
 			opacity: 0,
 			scale: 0.9,
 			rotateX: 15,
-			transition: {
-				duration: 0.25,
-				ease: 'easeIn'
-			}
+			transition: { duration: 0.25, ease: 'easeIn' as const }
 		}
 	};
 
-	const headerVariants = {
+	const headerVariants: Variants = {
 		hidden: { opacity: 0, x: -20 },
-		visible: {
-			opacity: 1,
-			x: 0,
-			transition: { delay: 0.1, duration: 0.3 }
-		}
+		visible: { opacity: 1, x: 0, transition: { delay: 0.1, duration: 0.3 } }
 	};
 
-	const contentVariants = {
+	const contentVariants: Variants = {
 		hidden: { opacity: 0, y: 10 },
-		visible: {
-			opacity: 1,
-			y: 0,
-			transition: { delay: 0.15, duration: 0.3 }
-		}
+		visible: { opacity: 1, y: 0, transition: { delay: 0.15, duration: 0.3 } }
 	};
 
 	const modal = (
@@ -173,8 +142,6 @@ export const FlowExpanded: React.FC<FlowExpandedProps> = ({ nodeProps, children,
 										</svg>
 									</button>
 								</div>
-
-								{/* Subtitle */}
 								<p className="mt-1 text-sm text-muted-foreground font-inter">
 									Configure your node settings and properties
 								</p>
@@ -222,8 +189,7 @@ export const FlowExpanded: React.FC<FlowExpandedProps> = ({ nodeProps, children,
 			<div className="flex justify-center mt-3">
 				<button
 					onClick={() => setExpanded(!isExpanded)}
-					className={`
-            group relative px-6 py-2.5 rounded-lg font-medium font-inter text-sm
+					className={`group relative px-6 py-2.5 rounded-lg font-medium font-inter text-sm
             transition-all duration-300 overflow-hidden
             ${
 							isExpanded
@@ -231,16 +197,12 @@ export const FlowExpanded: React.FC<FlowExpandedProps> = ({ nodeProps, children,
 								: 'bg-card border border-border text-foreground hover:border-primary hover:shadow-md'
 						}
             hover:scale-105 active:scale-95
-            focus:outline-none focus:ring-2 focus:ring-primary/50
-          `}
+            focus:outline-none focus:ring-2 focus:ring-primary/50`}
 				>
-					{/* Animated background gradient */}
 					<span
 						className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/10 to-primary/0 
                           opacity-0 group-hover:opacity-100 transition-opacity duration-300"
 					/>
-
-					{/* Button content */}
 					<span className="relative flex items-center gap-2">
 						<svg
 							className={`w-4 h-4 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
@@ -248,12 +210,7 @@ export const FlowExpanded: React.FC<FlowExpandedProps> = ({ nodeProps, children,
 							viewBox="0 0 24 24"
 							stroke="currentColor"
 						>
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth={2}
-								d="M19 9l-7 7-7-7"
-							/>
+							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
 						</svg>
 						{isExpanded ? 'Collapse' : 'Expand Details'}
 					</span>
