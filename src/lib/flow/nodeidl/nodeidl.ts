@@ -1,11 +1,46 @@
-export interface Node {
-    type: string;
-    fields: NodeField[];
+// The compiled representation of a flow object file (.flow.json) with all imports
+// inlined / fully self-contained to the representation
+
+export type Field = {
+    type: "scalar",
+    data: FieldData,
+    optional: boolean
+} | {
+    type: "array",
+    elementType: Field,
+    optional: boolean
+} | {
+    type: "group",
+    fields: Field[],
+    optional: boolean
 }
 
-export type NodeField = {
-    type: "string" | "number" | "boolean" | "raw" | "typedinput" | "embed";
-    label: string;
+export interface FieldData {
+    shortname: string;
     id: string;
-    description?: string;
+    description: string;
+    type: string;
+}
+
+export interface Model {
+    shortname: string;
+    id: string;
+    description: string;
+    typename: string;
+    fields: Field;
+}
+
+export interface FlowUI {
+    handles: {
+        allow: ("top" | "bottom")[]
+    },
+    input: Model,
+    output: Model
+}
+
+export interface Node {
+    id: string;
+    shortname: string;
+    description: string;
+    flowui: FlowUI;
 }

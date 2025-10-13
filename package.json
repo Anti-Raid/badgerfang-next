@@ -28,6 +28,7 @@
 		"dompurify": "^3.2.6",
 		"framer-motion": "^12.23",
 		"immer": "^10.1.1",
+		"json5": "^2.2.3",
 		"lucide-react": "^0.456.0",
 		"marked": "^15.0.7",
 		"monaco-editor": "^0.52.2",

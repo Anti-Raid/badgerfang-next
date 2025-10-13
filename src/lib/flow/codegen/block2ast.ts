@@ -197,6 +197,8 @@ export class CodeGenASTGenerator {
 				throw new Error(`Unknown node type ${data.type} encountered.`);
 			case NodeTypeEnum.Group:
 				throw new Error('Unreachable node GroupNode: GroupNodes be transparent and unconnected');
+			case NodeTypeEnum.API:
+				throw new Error('Visiting API nodes is not yet implemented.'); // TODO: Implement visiting API nodes
 		}
 	}
 

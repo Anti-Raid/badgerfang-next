@@ -300,7 +300,10 @@ export enum NodeTypeEnum {
 
 	// Special
 	UnknownNode = 'UnknownNode',
-	Group = 'Group'
+	Group = 'Group',
+
+	// Discord API
+	API = 'API'
 }
 
 /**
@@ -450,6 +453,14 @@ export interface GroupNode {
 	type: NodeTypeEnum.Group;
 }
 
+export interface APINode {
+	type: NodeTypeEnum.API;
+	data: SharedNodeData & {
+		name: string; // Name of the API function
+		data: Record<string, unknown>; // API function data
+	}
+}
+
 export type FlowNodeData =
 	| LibraryNode
 	| CommandNode
@@ -463,7 +474,8 @@ export type FlowNodeData =
 	| ForLoopNode
 	| WhileLoopNode
 	| UnknownNode
-	| GroupNode;
+	| GroupNode
+	| APINode;
 
 export type NodeData = Record<string, unknown>;
 export type NodeExtData = FlowNodeData & Record<string, unknown>;
