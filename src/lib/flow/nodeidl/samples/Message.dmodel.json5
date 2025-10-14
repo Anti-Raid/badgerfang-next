@@ -25,5 +25,8 @@
             shortname: "Embeds",
             description: "The embeds of the message",
         },
+    },
+    codeSnippets: {
+        example: "return 12345679"
     }
 }

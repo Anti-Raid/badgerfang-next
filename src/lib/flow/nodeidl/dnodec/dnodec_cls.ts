@@ -124,16 +124,24 @@ export class DModel {
     private description: string;
     private imports: Map<string, DModel>;
     private fields: DField[];
+    private codeSnippets: Map<string, string>;
 
-    constructor(shortname: string, id: string, description: string, imports: Map<string, DModel>, fields: DField[]) {
+    private __codegenned: string;
+
+    constructor(shortname: string, id: string, description: string, imports: Map<string, DModel>, fields: DField[], codeSnippets: Map<string, string>) {
         this.shortname = shortname;
         this.id = id;
         this.description = description;
         this.imports = imports;
         this.fields = fields;
+        this.codeSnippets = codeSnippets;
         this.validate();
+        this.__codegenned = this.codegen();
     }
 
+    // Helper method to validate the DModel
+    //
+    // Part of: Import/Parse Pass
     private validate() {
         for (let key of this.imports.keys()) {
             const props = this.imports.get(key);
@@ -158,8 +166,25 @@ export class DModel {
         if (typeof this.description !== "string") {
             throw new Error("DModel.description must be a string.");
         }
+        for(let key of this.codeSnippets.keys()) {
+            if (!(typeof key === "string" && key.length > 0)) {
+                throw new Error("Internal Error: DModel.codeSnippets keys must be non-empty strings.");
+            }
+            if (typeof this.codeSnippets.get(key) !== "string") {
+                throw new Error(`Internal Error: DModel.codeSnippets[${key}] must be a string.`);
+            }
+
+            // Make sure key is alphanumeric or underscore
+            // and does not start with a number
+            if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(key)) {
+                throw new Error(`DModel.codeSnippets keys must be alphanumeric or underscore and cannot start with a number. Invalid key: ${key}`);
+            }
+        }
     }
 
+    // Create a DModel from a JSON object
+    //
+    // Part of: Import/Parse Pass
     static fromJSON(json: any, importStorage: ImportStorage, filename: string): DModel {
         if (typeof json !== "object" || json === null) {
             throw new Error("DModel JSON must be an object.");
@@ -169,6 +194,12 @@ export class DModel {
         }
         if (typeof json.id !== "string" || json.id.length === 0) {
             throw new Error("DModel.id must be a non-empty string.");
+        }
+
+        // Ensure ID is alphanumeric or underscore
+        // and does not start with a number
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(json.id)) {
+            throw new Error(`DModel.id must be alphanumeric or underscore and cannot start with a number. Invalid id: ${json.id}`);
         }
 
         const imports = new Map<string, DModel>();
@@ -193,7 +224,48 @@ export class DModel {
             fields.push(field);
         }
 
-        return new DModel(json.shortname, json.id, json.description, imports, fields);
+        const codeSnippets = new Map<string, string>();
+        if (json.codeSnippets !== undefined) {
+            if (typeof json.codeSnippets !== "object" || json.codeSnippets === null) {
+                throw new Error("DModel.codeSnippets must be an object if present.");
+            }
+
+            for (const key in json.codeSnippets) {
+                const snippet = json.codeSnippets[key];
+                if (typeof snippet !== "string") {
+                    throw new Error(`DModel.codeSnippets[${key}] must be a string.`);
+                }
+                if (codeSnippets.has(key)) {
+                    throw new Error(`DModel.codeSnippets has duplicate key: ${key}`);
+                }
+                codeSnippets.set(key, snippet);
+            }
+        }
+
+        return new DModel(json.shortname, json.id, json.description, imports, fields, codeSnippets);
+    }
+
+    // Generates Luau code for the model
+    //
+    // Part of: Code Gen Pass (but executed in Import/Parse Pass)
+    codegen(): string {
+        // Debugging
+        let code = `-- Model: ${this.shortname} (${this.id})\n`;
+        code += `-- Description: ${this.description}\n\n`;
+        code += `local ${this.id} = table.freeze({\n`
+
+        // Generate functions for each code snippet
+        for (let [name, snippet] of this.codeSnippets.entries()) {
+            code += `\t${name} = function()\n`;
+            code += "\t" + snippet.split('\n').map(line => `    ${line}`).join('\n') + '\n';
+            code += `\tend,\n`;
+        }
+
+        code += "})\n\n";
+        code += `-- End of model ${this.shortname}\n\n`;
+
+        console.log(`Generated code for model ${this.id}:\n${code}`);
+        return code;
     }
 }
 

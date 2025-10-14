@@ -43,4 +43,5 @@ export interface Node {
     shortname: string;
     description: string;
     flowui: FlowUI;
+    code: string; // the luau code to execute to generate code for this node
 }
