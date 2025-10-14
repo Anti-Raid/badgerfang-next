@@ -124,19 +124,16 @@ export class DModel {
     private description: string;
     private imports: Map<string, DModel>;
     private fields: DField[];
-    private codeSnippets: Map<string, string>;
+    private code: string; // The codegen code for this module
 
-    private __codegenned: string;
-
-    constructor(shortname: string, id: string, description: string, imports: Map<string, DModel>, fields: DField[], codeSnippets: Map<string, string>) {
+    constructor(shortname: string, id: string, description: string, imports: Map<string, DModel>, fields: DField[], code: string) {
         this.shortname = shortname;
         this.id = id;
         this.description = description;
         this.imports = imports;
         this.fields = fields;
-        this.codeSnippets = codeSnippets;
+        this.code = code;
         this.validate();
-        this.__codegenned = this.codegen();
     }
 
     // Helper method to validate the DModel
@@ -166,19 +163,8 @@ export class DModel {
         if (typeof this.description !== "string") {
             throw new Error("DModel.description must be a string.");
         }
-        for(let key of this.codeSnippets.keys()) {
-            if (!(typeof key === "string" && key.length > 0)) {
-                throw new Error("Internal Error: DModel.codeSnippets keys must be non-empty strings.");
-            }
-            if (typeof this.codeSnippets.get(key) !== "string") {
-                throw new Error(`Internal Error: DModel.codeSnippets[${key}] must be a string.`);
-            }
-
-            // Make sure key is alphanumeric or underscore
-            // and does not start with a number
-            if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(key)) {
-                throw new Error(`DModel.codeSnippets keys must be alphanumeric or underscore and cannot start with a number. Invalid key: ${key}`);
-            }
+        if (typeof this.code !== "string") {
+            throw new Error("DModel.code must be a string.");
         }
     }
 
@@ -224,48 +210,15 @@ export class DModel {
             fields.push(field);
         }
 
-        const codeSnippets = new Map<string, string>();
-        if (json.codeSnippets !== undefined) {
-            if (typeof json.codeSnippets !== "object" || json.codeSnippets === null) {
-                throw new Error("DModel.codeSnippets must be an object if present.");
-            }
-
-            for (const key in json.codeSnippets) {
-                const snippet = json.codeSnippets[key];
-                if (typeof snippet !== "string") {
-                    throw new Error(`DModel.codeSnippets[${key}] must be a string.`);
-                }
-                if (codeSnippets.has(key)) {
-                    throw new Error(`DModel.codeSnippets has duplicate key: ${key}`);
-                }
-                codeSnippets.set(key, snippet);
-            }
+        let code = "";
+        if (typeof json.code !== "string" && json.code !== undefined) {
+            throw new Error("DModel.code must be a string if present.");
+        }
+        if (typeof json.code === "string") {
+            code = json.code;
         }
 
-        return new DModel(json.shortname, json.id, json.description, imports, fields, codeSnippets);
-    }
-
-    // Generates Luau code for the model
-    //
-    // Part of: Code Gen Pass (but executed in Import/Parse Pass)
-    codegen(): string {
-        // Debugging
-        let code = `-- Model: ${this.shortname} (${this.id})\n`;
-        code += `-- Description: ${this.description}\n\n`;
-        code += `local ${this.id} = table.freeze({\n`
-
-        // Generate functions for each code snippet
-        for (let [name, snippet] of this.codeSnippets.entries()) {
-            code += `\t${name} = function()\n`;
-            code += "\t" + snippet.split('\n').map(line => `    ${line}`).join('\n') + '\n';
-            code += `\tend,\n`;
-        }
-
-        code += "})\n\n";
-        code += `-- End of model ${this.shortname}\n\n`;
-
-        console.log(`Generated code for model ${this.id}:\n${code}`);
-        return code;
+        return new DModel(json.shortname, json.id, json.description, imports, fields, code);
     }
 }
 
@@ -331,15 +284,3 @@ export class DNode {
     }
 }
 
-/**
- * Given a DNode file name, extract the DNode type.
- * @param fileName The file name
- * @returns The extracted DNode type from the file name
- */
-export const extractTypeFromFileName = (fileName: string): string => {
-    if (!fileName.endsWith(".json5")) {
-        throw new Error("Input file must be a .json5 file.");
-    }
-    const parts = fileName.split('.');
-    return parts[parts.length - 2];
-}

@@ -28,7 +28,6 @@
 		"dompurify": "^3.2.6",
 		"framer-motion": "^12.23",
 		"immer": "^10.1.1",
-		"json5": "^2.2.3",
 		"lucide-react": "^0.456.0",
 		"marked": "^15.0.7",
 		"monaco-editor": "^0.52.2",
@@ -58,6 +57,7 @@
 		"postcss": "^8",
 		"prettier": "^3.3.3",
 		"tailwindcss": "^3.4.1",
-		"typescript": "^5"
+		"typescript": "^5",
+		"yaml": "^2.8.1"
 	}
 }

@@ -1,0 +1,34 @@
+# Builds CreateMessageSimple.jsx/tsx (unsure which one to use yet) when compiled
+# with dnodec.
+shortname: "CreateMessageSimple"
+id: "createMessageSimple"
+description: "A simple message creation structure"
+imports:
+    - from: "Message.dmodel"
+      to: "Message"
+    - from: "CreateMessageSimple.dmodel"
+      to: "CreateMessageSimple"
+# UI bit
+flowui:
+    handles:
+        # Supports both bottom and top handles [the two dots at the bottom/top of a flow]
+        allow: ['top', 'bottom']
+    # Both the below 'inputs': Record<string, DField> (or 'outputs': : Record<string, DField>) property
+    # and a raw 'input': MODEL (or 'output': MODEL) property
+    # are supported.
+    inputs:
+        data:
+            type: "CreateMessageSimple"
+            shortname: "Message Data"
+            description: "The data for creating the message"
+        channel_id:
+            type: 'string' # Content is of type string (and is optional)
+            style: "channel"
+            shortname: "Channel ID"
+            description: "The ID of the channel to send the message to"
+    outputs:
+        msg:
+            type: "Message"
+            shortname: "Message"
+            id: "message"
+            description: "The output message"

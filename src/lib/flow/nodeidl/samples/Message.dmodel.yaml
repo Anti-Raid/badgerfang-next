@@ -1,0 +1,24 @@
+shortname: "Message"
+id: "message"
+description: "Data of a message"
+imports: []
+fields:
+    content:
+        type:
+            type: "scalar"
+            name: "string"
+            optional: true
+        shortname: "Content"
+        description: "The content of the message"
+    embeds:
+        type:
+            type: "array"
+            elementType:
+                type: "scalar"
+                name: "Embed"
+            optional: true
+        shortname: "Embeds"
+        description: "The embeds of the message"
+code: |
+    local function Message__example(data)
+    end
