@@ -73,4 +73,6 @@ try {
     throw new Error(`Failed to parse dnode ${nodeFileName}: ${(e as Error).message}`);
 }
 
-DNode.fromJSON(importedJson, importStorage, nodeFileName);
+let dnode = DNode.fromJSON(importedJson, importStorage, nodeFileName);
+
+console.log(JSON.stringify(dnode));

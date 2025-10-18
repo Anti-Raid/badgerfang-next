@@ -16,19 +16,31 @@ flowui:
     # Both the below 'inputs': Record<string, DField> (or 'outputs': : Record<string, DField>) property
     # and a raw 'input': MODEL (or 'output': MODEL) property
     # are supported.
-    inputs:
+    input:
         data:
-            type: "CreateMessageSimple"
+            type: 
+                type: "scalar"
+                name: "CreateMessageSimple"
             shortname: "Message Data"
             description: "The data for creating the message"
         channel_id:
-            type: 'string' # Content is of type string (and is optional)
+            type:
+                type: "scalar"
+                name: "string"
+                optional: true
             style: "channel"
             shortname: "Channel ID"
             description: "The ID of the channel to send the message to"
-    outputs:
+    output:
         msg:
-            type: "Message"
+            type: 
+                type: "scalar"
+                name: "Message"
+                optional: false
             shortname: "Message"
             id: "message"
             description: "The output message"
+code: |
+    -- Code for codegen here
+    --
+    -- Builtin module codegen may be used here if desired.

@@ -22,20 +22,12 @@ export interface FieldData {
     type: string;
 }
 
-export interface Model {
-    shortname: string;
-    id: string;
-    description: string;
-    typename: string;
-    fields: Field;
-}
-
 export interface FlowUI {
     handles: {
         allow: ("top" | "bottom")[]
     },
-    input: Model,
-    output: Model
+    input: Field,
+    output: Field
 }
 
 export interface Node {
