@@ -2,7 +2,7 @@ import { NodeProps } from '@/lib/flow/data';
 import { Ghost } from '../../ui/Buttons';
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 
 interface FlowExpandedProps {
 	nodeProps: NodeProps;
@@ -45,62 +45,62 @@ export const FlowExpanded: React.FC<FlowExpandedProps> = ({
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isExpanded]);
 
-  const backdropVariants = {
+  const backdropVariants: Variants = {
     hidden: { opacity: 0 },
-    visible: { 
+    visible: {
       opacity: 1,
-      transition: { duration: 0.3, ease: 'easeOut' }
+      transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] }
     },
-    exit: { 
+    exit: {
       opacity: 0,
-      transition: { duration: 0.2, ease: 'easeIn' }
+      transition: { duration: 0.2, ease: [0.4, 0, 0.2, 1] }
     }
   };
 
-  const modalVariants = {
-    hidden: { 
-      y: -60, 
-      opacity: 0, 
+  const modalVariants: Variants = {
+    hidden: {
+      y: -60,
+      opacity: 0,
       scale: 0.9,
       rotateX: -15
     },
-    visible: { 
-      y: 0, 
-      opacity: 1, 
+    visible: {
+      y: 0,
+      opacity: 1,
       scale: 1,
       rotateX: 0,
-      transition: { 
-        type: 'spring', 
-        stiffness: 400, 
+      transition: {
+        type: 'spring' as const,
+        stiffness: 400,
         damping: 30,
         mass: 0.8
       }
     },
-    exit: { 
-      y: 60, 
-      opacity: 0, 
+    exit: {
+      y: 60,
+      opacity: 0,
       scale: 0.9,
       rotateX: 15,
-      transition: { 
-        duration: 0.25, 
-        ease: 'easeIn' 
+      transition: {
+        duration: 0.25,
+        ease: [0.4, 0, 0.2, 1]
       }
     }
   };
 
-  const headerVariants = {
+  const headerVariants: Variants = {
     hidden: { opacity: 0, x: -20 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       x: 0,
       transition: { delay: 0.1, duration: 0.3 }
     }
   };
 
-  const contentVariants = {
+  const contentVariants: Variants = {
     hidden: { opacity: 0, y: 10 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
       transition: { delay: 0.15, duration: 0.3 }
     }

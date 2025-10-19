@@ -298,12 +298,12 @@ export enum NodeTypeEnum {
 	ForLoop = 'ForLoop',
 	WhileLoop = 'WhileLoop',
 
+	// API nodes
+	APINode = 'APINode',
+
 	// Special
 	UnknownNode = 'UnknownNode',
-	Group = 'Group',
-
-	// Discord API
-	API = 'API'
+	Group = 'Group'
 }
 
 /**
@@ -454,11 +454,11 @@ export interface GroupNode {
 }
 
 export interface APINode {
-	type: NodeTypeEnum.API;
+	type: NodeTypeEnum.APINode;
 	data: SharedNodeData & {
-		name: string; // Name of the API function
-		data: Record<string, unknown>; // API function data
-	}
+		nodeidl: any; // NodeIDLNode from nodeidl
+		inputValues: Record<string, TypedInput>;
+	};
 }
 
 export type FlowNodeData =
@@ -473,9 +473,9 @@ export type FlowNodeData =
 	| CustomCodeNode
 	| ForLoopNode
 	| WhileLoopNode
+	| APINode
 	| UnknownNode
-	| GroupNode
-	| APINode;
+	| GroupNode;
 
 export type NodeData = Record<string, unknown>;
 export type NodeExtData = FlowNodeData & Record<string, unknown>;

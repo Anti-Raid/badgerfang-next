@@ -50,14 +50,19 @@ export default function FlowEdgeDeleteButton({
 					whileTap={{ scale: 0.9 }}
 					style={{
 						position: 'absolute',
-						transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
-						pointerEvents: 'all'
+						left: `${labelX}px`,
+						top: `${labelY}px`,
+						transform: 'translate(-50%, -50%)',
+						pointerEvents: 'all',
+						zIndex: 10
 					}}
-					className="nodrag nopan h-6 w-6 rounded-full bg-destructive hover:bg-destructive/80 
-                     flex items-center justify-center shadow-lg transition-colors"
+					className="nodrag nopan h-7 w-7 rounded-full bg-muted hover:bg-warning/80 border-2 border-warning/60 
+							 flex items-center justify-center shadow-lg transition-colors focus:outline-warning"
 					onClick={onEdgeClick}
+					title="Delete connection"
+					aria-label="Delete connection"
 				>
-					<FiX className="text-destructive-foreground w-3 h-3" />
+					<FiX className="text-warning w-4 h-4 drop-shadow" />
 				</motion.button>
 			</EdgeLabelRenderer>
 		</>
