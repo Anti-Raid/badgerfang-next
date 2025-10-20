@@ -127,7 +127,7 @@ export default function FlowNodeExplorer() {
  * Draggable node card
  */
 function AvailableNode({ type, values }: { type: string; values: NodeValues }) {
-  const Icon = FiZap;
+	const Icon = FiZap;
 
 	function onStartDrag(e: React.DragEvent<HTMLDivElement>) {
 		e.dataTransfer.setData('application/reactflow', type);

@@ -10,7 +10,7 @@ interface Props extends NodeProps {
 	description?: string;
 	children?: ReactNode;
 	highlight?: boolean;
-	color?: string;	
+	color?: string;
 	className?: string;
 }
 
@@ -32,14 +32,16 @@ export default function FlowNodeBase(props: Props) {
 			`}
 		>
 			<div className="flex items-start gap-3">
-				<div className={`
+				<div
+					className={`
 					p-2 rounded-lg
 					${selected ? 'bg-primary/20' : 'bg-muted/50'}
 					transition-colors duration-300
-				`}>
+				`}
+				>
 					<Icon className={`w-5 h-5 ${selected ? 'text-primary' : 'text-muted-foreground'}`} />
 				</div>
-				
+
 				<div className="flex-1 min-w-0">
 					<div className="font-semibold text-foreground mb-1 truncate">
 						{title || (data?.custom_label as string) || defaultTitle || 'Node'}
@@ -49,7 +51,7 @@ export default function FlowNodeBase(props: Props) {
 					</div>
 				</div>
 			</div>
-			
+
 			{/* Glow effect when selected */}
 			{selected && (
 				<motion.div

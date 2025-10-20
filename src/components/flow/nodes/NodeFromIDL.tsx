@@ -1,69 +1,199 @@
-import React from 'react';
-import { Field, Node as NodeIDLNode } from '@/lib/flow/nodeidl/nodeidl';
+import React, { useState } from 'react';
+import { Field, FieldData, GroupData, Node as NodeIDLNode } from '@/lib/flow/nodeidl/nodeidl';
 import { TypedInputField } from '../ui/TypedInput';
-import { TypedInputEnum, TypedInput } from '@/lib/flow/data';
+import { TypedInputEnum, TypedInput, NodeProps, NodeTypeEnum } from '@/lib/flow/data';
 import { generateTypedInputId } from '../ui/TypedInput';
+import { IDLCommon, IDLInput, IDLInputEnum, IDLInputField } from '../ui/IDLInput';
 
-interface Props {
-  nodeidl: NodeIDLNode | null;
-  inputValues: Record<string, TypedInput>;
-  onChange: (key: string, value: TypedInput) => void;
-  renderOnly?: boolean; // if true, only render inputs, don't modify state
-}
-
-// Small helper to create label/description
-const fieldLabel = (field: Field) => {
-  if (field.type === 'scalar') return field.data.shortname || field.data.id || 'Field';
-  if (field.type === 'group') return 'Group';
-  if (field.type === 'array') return 'Array';
-  return 'Field';
+const getFieldData = (field: Field): FieldData | GroupData => {
+	if (field.type == 'scalar') return field.data;
+	else if (field.type == 'array') return getFieldData(field.elementType);
+	else if (field.type == 'group') return field.groupData;
+	else throw new Error('Invalid field with no field data found');
 };
 
-const NodeFromIDL: React.FC<Props> = ({ nodeidl, inputValues, onChange }) => {
-  if (!nodeidl || !nodeidl.flowui?.input) return <div className="text-muted-foreground">No input schema defined</div>;
+export const fieldToIDLInput = (field: Field, ud: TypedInput): IDLInput => {
+	let data = getFieldData(field);
+	let common: IDLCommon = {
+		shortname: data.shortname,
+		description: data.description
+	};
 
-  const fields: JSX.Element[] = [];
+	if (field.type == 'scalar') {
+		switch (field.data.type) {
+			case 'string': {
+				return {
+					type: IDLInputEnum.String,
+					interpolated: false,
+					value: ud.type == TypedInputEnum.String ? ud.value : '',
+					id: field.data.id,
+					common
+				};
+			}
+			case 'number':
+				return {
+					type: IDLInputEnum.Number,
+					value: ud.type == TypedInputEnum.Number ? ud.value : 0,
+					id: field.data.id,
+					common
+				};
+			case 'integer': {
+				return {
+					type: IDLInputEnum.Number,
+					value: ud.type == TypedInputEnum.Number ? ud.value : 0,
+					id: field.data.id,
+					common
+				};
+			}
+			case 'boolean': {
+				return {
+					type: IDLInputEnum.Boolean,
+					value: ud.type == TypedInputEnum.Boolean ? ud.value : false,
+					id: field.data.id,
+					common
+				};
+			}
+			default: {
+				return {
+					type: IDLInputEnum.Nil,
+					id: field.data.id,
+					common
+				};
+			}
+		}
+	} else if (field.type == 'array') {
+		let idlFields = [];
 
-  const processFieldForRender = (field: Field, prefix: string) => {
-    let fieldKey = '';
-    if (field.type === 'scalar') fieldKey = `${prefix}_${field.data.id}`;
-    else if (field.type === 'array') fieldKey = `${prefix}_array`;
-    else if (field.type === 'group') fieldKey = `${prefix}_group`;
-    else fieldKey = `${prefix}_unknown`;
+		// Inject array elements into idlinput if found
+		if (ud.type == TypedInputEnum.TableArray) {
+			for (let element of ud.value) {
+				idlFields.push(fieldToIDLInput(field.elementType, element));
+			}
+		}
+		return {
+			type: IDLInputEnum.Array,
+			common,
+			id: data.id,
+			inline: false,
+			value: idlFields
+		};
+	} else if (field.type == 'group') {
+		let groupVals = [];
 
-    if (field.type === 'group') {
-      field.fields.forEach((subField, idx) => {
-        let subKey = '';
-        if (subField.type === 'scalar') subKey = `${prefix}_${subField.data.id}`;
-        else if (subField.type === 'array') subKey = `${prefix}_array_${idx}`;
-        else subKey = `${prefix}_field_${idx}`;
-        processFieldForRender(subField, subKey);
-      });
-    } else {
-      const value = inputValues[fieldKey] || {
-        type: TypedInputEnum.String,
-        value: '',
-        id: generateTypedInputId()
-      };
+		// Add in every group field into the group
+		for (let gfield of field.fields) {
+			let element: TypedInput = {
+				type: TypedInputEnum.Nil,
+				id: ud.id
+			};
+			let gdata = getFieldData(gfield);
 
-      fields.push(
-        <TypedInputField
-          key={fieldKey}
-          id={fieldKey}
-          label={fieldLabel(field)}
-          description={field.type === 'scalar' ? (field.data.description || '') : ''}
-          value={value}
-          onChange={(v) => onChange(fieldKey, v)}
-          placeholder={`Enter ${fieldLabel(field).toLowerCase()}`}
-          className="w-full"
-        />
-      );
-    }
-  };
+			// Inject the value into the idlinput if found
 
-  processFieldForRender(nodeidl.flowui.input, 'input');
+			if (ud.type == TypedInputEnum.Table) {
+				let e = ud.value.find((v) => {
+					if (v.key.type != TypedInputEnum.String) return false;
+					return v.key.value == gdata.id;
+				});
+				if (e) {
+					element = e.value;
+				}
+			}
 
-  return <div className="space-y-2">{fields}</div>;
+			groupVals.push(fieldToIDLInput(gfield, element));
+		}
+		return {
+			type: IDLInputEnum.Group,
+			common,
+			id: data.id,
+			values: groupVals
+		};
+	} else {
+		throw new Error(`Invalid field of type ${JSON.stringify(field)}`);
+	}
 };
 
-export default NodeFromIDL;
+/**
+ * Lossily convert a IDLInput to a TypedInput that can then be stored
+ * @param inp The idl input
+ * @returns typed input data to save
+ */
+export const idlInputToField = (inp: IDLInput): TypedInput => {
+	switch (inp.type) {
+		case IDLInputEnum.Nil:
+			return {
+				type: TypedInputEnum.Nil,
+				id: inp.id
+			};
+		case IDLInputEnum.String:
+			return {
+				type: TypedInputEnum.String,
+				value: inp.value,
+				interpolated: inp.interpolated,
+				id: inp.id
+			};
+		case IDLInputEnum.Number:
+			return {
+				type: TypedInputEnum.Number,
+				value: inp.value,
+				id: inp.id
+			};
+		case IDLInputEnum.Boolean:
+			return {
+				type: TypedInputEnum.Boolean,
+				value: inp.value,
+				id: inp.id
+			};
+		case IDLInputEnum.Raw:
+			return {
+				type: TypedInputEnum.Raw,
+				value: inp.value,
+				id: inp.id
+			};
+		case IDLInputEnum.Vector:
+			return {
+				type: TypedInputEnum.Vector,
+				x: inp.x,
+				y: inp.y,
+				z: inp.z,
+				id: inp.id
+			};
+		case IDLInputEnum.Array:
+			return {
+				type: TypedInputEnum.TableArray,
+				value: inp.value.map((x) => idlInputToField(x)),
+				inline: inp.inline,
+				id: inp.id
+			};
+		case IDLInputEnum.Table:
+			return {
+				type: TypedInputEnum.Table,
+				value: inp.value.map((x) => {
+					return {
+						key: idlInputToField(x.key),
+						value: idlInputToField(x.value)
+					};
+				}),
+				inline: inp.inline,
+				id: inp.id
+			};
+		case IDLInputEnum.Group:
+			// TODO: Check this again
+			return {
+				type: TypedInputEnum.Table,
+				value: inp.values.map((x) => {
+					return {
+						key: {
+							type: TypedInputEnum.String,
+							id: `g${inp.id}_${x.id}`,
+							interpolated: false,
+							value: x.id
+						},
+						value: idlInputToField(x)
+					};
+				}),
+				inline: true,
+				id: inp.id
+			};
+	}
+};

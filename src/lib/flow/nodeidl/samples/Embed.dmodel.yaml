@@ -1,36 +1,36 @@
 # Embeds in discord
-shortname: "Embed"
-id: "embed"
-description: "A discord embed is a special object that can be attached to a message for sending rich structured content"
+shortname: 'Embed'
+id: 'embed'
+description: 'A discord embed is a special object that can be attached to a message for sending rich structured content'
 imports: []
 fields:
-    title:
-        type:
-            type: "scalar"
-            name: "string"
-            optional: true
-        shortname: "Title"
-        description: "The title of the embed"
-    description:
-        type:
-            type: "scalar"
-            name: "string"
-            optional: true
-        shortname: "Description"
-        description: "The description of the embed"
-    url:
-        type:
-            type: "scalar"
-            name: "string"
-            optional: true
-        style: "url"
-        shortname: "URL"
-        description: "The URL of the embed"
-    color:
-        type:
-            type: "scalar"
-            name: "number"
-            optional: true
-        style: "color"
-        shortname: "Color"
-        description: "The color code of the embed"
+  title:
+    type:
+      type: 'scalar'
+      name: 'string'
+      optional: true
+    shortname: 'Title'
+    description: 'The title of the embed'
+  description:
+    type:
+      type: 'scalar'
+      name: 'string'
+      optional: true
+    shortname: 'Description'
+    description: 'The description of the embed'
+  url:
+    type:
+      type: 'scalar'
+      name: 'string'
+      optional: true
+    style: 'url'
+    shortname: 'URL'
+    description: 'The URL of the embed'
+  color:
+    type:
+      type: 'scalar'
+      name: 'number'
+      optional: true
+    style: 'color'
+    shortname: 'Color'
+    description: 'The color code of the embed'

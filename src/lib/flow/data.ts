@@ -456,8 +456,8 @@ export interface GroupNode {
 export interface APINode {
 	type: NodeTypeEnum.APINode;
 	data: SharedNodeData & {
-		nodeidl: any; // NodeIDLNode from nodeidl
-		inputValues: Record<string, TypedInput>;
+		nodeidl: string;
+		inputValues: TypedInput;
 	};
 }
 
