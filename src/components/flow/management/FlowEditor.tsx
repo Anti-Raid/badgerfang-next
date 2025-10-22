@@ -47,11 +47,19 @@ export default function FlowEditor({ initialData, onChange }: Props) {
 	const wrappedOnNodesChange = useCallback(
 		(changes: NodeChange<Node<NodeExtData>>[]) => {
 			if (changes.length > 0) {
+				// Only trigger onChange for non-position changes
+				const hasNonPositionChanges = changes.some(change => 
+					change.type !== 'position' && change.type !== 'dimensions'
+				);
+				
 				onNodesChange(changes);
-				onChange();
+				
+				if (hasNonPositionChanges) {
+					onChange();
+				}
 			}
 		},
-		[onNodesChange, onChange, getNode]
+		[onNodesChange, onChange]
 	);
 
 	// Custom onEdgesChange that triggers onChange when edges change
@@ -62,7 +70,7 @@ export default function FlowEditor({ initialData, onChange }: Props) {
 				onChange();
 			}
 		},
-		[getEdge, onEdgesChange, onChange]
+		[onEdgesChange, onChange]
 	);
 
 	const onNodesDelete = (deletedNodes: Node[]) => {

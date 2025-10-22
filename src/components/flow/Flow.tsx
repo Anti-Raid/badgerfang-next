@@ -1,3 +1,4 @@
+import React, { memo } from 'react';
 import { FlowData } from '@/lib/flow/data';
 import FlowEditor from './management/FlowEditor';
 import FlowNodeExplorer from './ui/NodeToolbar';
@@ -13,15 +14,17 @@ interface Props {
 	onChange: () => void;
 }
 
-export default function Flow({ flowData, onChange }: Props) {
+const Flow = memo(function Flow({ flowData, onChange }: Props) {
 	return (
 		<div className="flex flex-auto overflow-y-hidden relative">
-			<div className="flex-none">
+			<div className="flex flex-row w-full h-full">
 				<FlowNodeExplorer />
 			</div>
-			<div className="flex-auto">
+			<div className="flex flex-row w-full h-full">
 				<FlowEditor initialData={flowData} onChange={onChange} />
 			</div>
 		</div>
 	);
-}
+});
+
+export default Flow;
