@@ -12,7 +12,6 @@ import {
 	TypedInputString
 } from './data';
 import { Node as IDLNode } from './nodeidl/nodeidl';
-import { v4 as uuidv4 } from 'uuid';
 import { generateTypedInputId } from '@/components/flow/ui/TypedInput';
 
 export interface NodeValues {
@@ -28,7 +27,6 @@ const createEmptyTypedInputString = (): TypedInputString => ({
 	type: TypedInputEnum.String,
 	value: '',
 	interpolated: false,
-	id: uuidv4()
 });
 
 const createEmptyForLoopIterable = (): TypedInputString => createEmptyTypedInputString();
@@ -181,7 +179,6 @@ export const defaultNodeDataForType: Record<string, NodeExtData> = {
 			nodeidl: 'test',
 			inputValues: {
 				type: TypedInputEnum.Nil,
-				id: generateTypedInputId()
 			}
 		}
 	},
@@ -210,7 +207,7 @@ class NodeIDLSet {
 export const nodeIdls: NodeIDLSet = new NodeIDLSet();
 nodeIdls.add({
 	id: 'test',
-	shortname: 'Test',
+	shortname: 'Test IDL',
 	description: 'Test node',
 	code: '',
 	flowui: {
@@ -235,6 +232,47 @@ nodeIdls.add({
 						shortname: 'test field',
 						type: 'string'
 					}
+				},
+				{
+					type: 'scalar',
+					optional: false,
+					data: {
+						id: 'test2',
+						description: 'test desc 2',
+						shortname: 'test field 2',
+						type: 'number'
+					}
+				},
+				{
+					type: 'group',
+					optional: false,
+					groupData: {
+						id: 'reqdata',
+						description: 'request data 2',
+						shortname: 'Request Data 2'
+					},
+					fields: [
+						{
+							type: 'scalar',
+							optional: false,
+							data: {
+								id: 'test',
+								description: 'test desc',
+								shortname: 'test field',
+								type: 'string'
+							}
+						},
+						{
+							type: 'scalar',
+							optional: false,
+							data: {
+								id: 'test2',
+								description: 'test desc 2',
+								shortname: 'test field 2',
+								type: 'number'
+							}
+						},
+					]
 				}
 			]
 		},

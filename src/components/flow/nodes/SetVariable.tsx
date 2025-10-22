@@ -12,7 +12,7 @@ import { InputField } from '../ui/Inputs';
 import { FlowExpanded } from '../management/FlowExpanded';
 import logger from '@/lib/logger';
 import Handle from '../ui/Handle';
-import { generateTypedInputId, TypedInputField } from '../ui/TypedInput';
+import { TypedInputField } from '../ui/TypedInput';
 
 // Static validation for SetVariable: SetVariable nodes can only have one source connection and one target connection.
 registerValidationSource('set_variable', (srcCons: string[], tgtCons: string[]) => {
@@ -36,7 +36,7 @@ export default function SetVariable(props: NodeProps) {
 	const flow = useReactFlow();
 	const [variableName, setVariableName] = useState<string>(props.data.data.name || '');
 	const [variableValue, setVariableValue] = useState<TypedInput>(
-		props.data.data.value || { type: TypedInputEnum.Nil, id: generateTypedInputId() }
+		props.data.data.value || { type: TypedInputEnum.Nil }
 	);
 
 	useEffect(() => {

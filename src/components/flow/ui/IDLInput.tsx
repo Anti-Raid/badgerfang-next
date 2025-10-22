@@ -6,6 +6,7 @@ import logger from '@/lib/logger';
 import { Fragment } from 'react';
 
 export interface IDLCommon {
+	key: string;
 	shortname: string;
 	description: string;
 }
@@ -24,20 +25,17 @@ export enum IDLInputEnum {
 
 export interface IDLInputNil {
 	type: IDLInputEnum.Nil;
-	id: string;
 }
 
 export interface IDLInputString {
 	type: IDLInputEnum.String;
 	value: string;
 	interpolated: boolean;
-	id: string;
 }
 
 export interface IDLInputNumber {
 	type: IDLInputEnum.Number;
 	value: number;
-	id: string;
 }
 
 export interface IDLInputTableEntry {
@@ -49,26 +47,22 @@ export interface IDLInputTable {
 	type: IDLInputEnum.Table;
 	value: IDLInputTableEntry[];
 	inline: boolean;
-	id: string;
 }
 
 export interface IDLInputArray {
 	type: IDLInputEnum.Array;
 	value: IDLInput[];
 	inline: boolean;
-	id: string;
 }
 
 export interface IDLInputGroup {
 	type: IDLInputEnum.Group;
 	values: IDLInput[];
-	id: string;
 }
 
 export interface IDLInputBoolean {
 	type: IDLInputEnum.Boolean;
 	value: boolean;
-	id: string;
 }
 
 export interface IDLInputVector {
@@ -76,13 +70,11 @@ export interface IDLInputVector {
 	x: number;
 	y: number;
 	z: number;
-	id: string;
 }
 
 export interface IDLInputRaw {
 	type: IDLInputEnum.Raw;
 	value: string; // Raw code or expression
-	id: string;
 }
 
 export type IDLInput = { common: IDLCommon } & (
@@ -97,10 +89,6 @@ export type IDLInput = { common: IDLCommon } & (
 	| IDLInputRaw
 );
 
-export const generateIDLInputId = () => {
-	return Math.random().toString(36).substring(2, 15);
-};
-
 interface IDLInputProps {
 	label?: string;
 	description?: string;
@@ -109,6 +97,7 @@ interface IDLInputProps {
 	onChange: (data: IDLInput) => void;
 	className?: string;
 	id?: string;
+	depth?: number;
 	icon?: typeof Icon;
 	error?: string;
 	marginClass?: string;
@@ -148,16 +137,17 @@ export const IDLInputField: React.FC<IDLInputProps> = ({
 	onChange,
 	className = '',
 	id: idT,
+	depth = 0,
 	marginClass = 'mb-1',
 	error,
 	isArray
 }) => {
-	const inputId = idT || value.id || label?.toLowerCase().replace(/\s+/g, '-');
+	const id = `${idT ?? 'tif'}_f${depth}`
 
 	return (
 		<>
 			<BaseLabelAndDescription
-				id={`${inputId}-type`}
+				id={`${id}-type`}
 				label={label}
 				description={description}
 				className={isArray ? 'border-4 border-primary' : className}
@@ -177,6 +167,7 @@ export const IDLInputField: React.FC<IDLInputProps> = ({
 								}}
 								disabled={disabled}
 								common={value.common}
+								did={{depth, id}}
 							/>
 						</>
 					)}
@@ -195,7 +186,7 @@ export const IDLInputField: React.FC<IDLInputProps> = ({
 										value: e.target.value
 									});
 								}}
-								id={`${inputId}-value`}
+								id={`${id}-value`}
 								aria-required="true"
 							/>
 						</>
@@ -212,7 +203,7 @@ export const IDLInputField: React.FC<IDLInputProps> = ({
 									if (disabled) return;
 									onChange({ ...value, value: e.target.value });
 								}}
-								id={`${inputId}-value`}
+								id={`${id}-value`}
 								aria-required="true"
 							/>
 						</>
@@ -235,7 +226,7 @@ export const IDLInputField: React.FC<IDLInputProps> = ({
 
 									onChange({ ...value, value: numberValue });
 								}}
-								id={`${inputId}-value`}
+								id={`${id}-value`}
 								aria-required="true"
 							/>
 						</>
@@ -277,7 +268,7 @@ export const IDLInputField: React.FC<IDLInputProps> = ({
 											x: numberValue
 										});
 									}}
-									id={`${inputId}-x`}
+									id={`${id}-x`}
 									aria-required="true"
 									small={true}
 								/>
@@ -300,7 +291,7 @@ export const IDLInputField: React.FC<IDLInputProps> = ({
 											y: numberValue
 										});
 									}}
-									id={`${inputId}-y`}
+									id={`${id}-y`}
 									aria-required="true"
 									small={true}
 								/>
@@ -323,7 +314,7 @@ export const IDLInputField: React.FC<IDLInputProps> = ({
 											z: numberValue
 										});
 									}}
-									id={`${inputId}-z`}
+									id={`${id}-z`}
 									aria-required="true"
 									small={true}
 								/>
@@ -335,6 +326,7 @@ export const IDLInputField: React.FC<IDLInputProps> = ({
 						<>
 							<ArrayTableInput
 								value={value.value}
+								did={{depth, id}}
 								onChange={(newArray) => {
 									onChange({
 										...value,
@@ -373,6 +365,7 @@ export const IDLInputField: React.FC<IDLInputProps> = ({
 									});
 								}}
 								common={value.common}
+								did={{depth, id}}
 								disabled={disabled}
 							/>
 						</>
@@ -389,14 +382,20 @@ export const IDLInputField: React.FC<IDLInputProps> = ({
 	);
 };
 
+interface DepthAndID {
+	depth: number;
+	id: string;
+}
+
 interface ArrayTableInputProps {
+	did: DepthAndID;
 	value: IDLInput[];
 	onChange: (data: IDLInput[]) => void;
 	disabled?: boolean;
 	common: IDLCommon;
 }
 
-const ArrayTableInput: React.FC<ArrayTableInputProps> = ({ value, onChange, disabled, common }) => {
+const ArrayTableInput: React.FC<ArrayTableInputProps> = ({ did, value, onChange, disabled, common }) => {
 	return (
 		<>
 			{disabled ? (
@@ -405,6 +404,8 @@ const ArrayTableInput: React.FC<ArrayTableInputProps> = ({ value, onChange, disa
 						return (
 							<IDLInputField
 								key={i}
+								id={`${did.id}_${i}e`}
+								depth={did.depth + 1}
 								label={`Item ${i + 1} (${valueToString(v)})`}
 								value={v}
 								onChange={(_newVal) => {}}
@@ -415,53 +416,43 @@ const ArrayTableInput: React.FC<ArrayTableInputProps> = ({ value, onChange, disa
 				</div>
 			) : (
 				<>
-					<Reorder.Group
-						axis="y"
-						values={value}
-						onReorder={(newValues) => {
-							logger.debug('IDLInput', 'Reordering array table input:', newValues);
-							onChange(newValues);
-						}}
-					>
-						{value.map((v, i) => (
-							<Reorder.Item key={v.id} value={v}>
-								<div className="border border-border hover:border-primary/20 rounded-lg p-4 transition-all shadow-sm">
-									<div className="flex items-center gap-3">
-										<GripVertical className="w-5 h-5 text-muted-foreground cursor-grab active:cursor-grabbing" />
-										<span className="font-medium text-foreground">
-											Element {i + 1} ({valueToString(v)})
-										</span>
-										<div className="ml-auto flex items-center gap-2">
-											<button
-												className="p-1 rounded-md hover:bg-accent/50 transition-colors"
-												onClick={() => {
-													let newArray = [...value];
-													newArray.splice(i, 1);
-													onChange(newArray);
-												}}
-												aria-label="Delete entry"
-											>
-												<Trash2 className="w-4 h-4 text-muted-foreground" />
-											</button>
-										</div>
-									</div>
-
-									<div className="p-4">
-										<IDLInputField
-											label={`Item ${i + 1}`}
-											value={v}
-											onChange={(newVal) => {
-												let newArray = [...value];
-												newArray[i] = newVal;
-												onChange(newArray);
-											}}
-											disabled={disabled}
-										/>
-									</div>
+					{value.map((v, i) => (
+						<div className="border border-border hover:border-primary/20 rounded-lg p-4 transition-all shadow-sm">
+							<div className="flex items-center gap-3">
+								<span className="font-medium text-foreground">
+									Element {i + 1} ({valueToString(v)})
+								</span>
+								<div className="ml-auto flex items-center gap-2">
+									<button
+										className="p-1 rounded-md hover:bg-accent/50 transition-colors"
+										onClick={() => {
+											let newArray = [...value];
+											newArray.splice(i, 1);
+											onChange(newArray);
+										}}
+										aria-label="Delete entry"
+									>
+										<Trash2 className="w-4 h-4 text-muted-foreground" />
+									</button>
 								</div>
-							</Reorder.Item>
-						))}
-					</Reorder.Group>
+							</div>
+
+							<div className="p-4">
+								<IDLInputField
+									label={`Item ${i + 1}`}
+									value={v}
+									depth={did.depth + 1}
+									id={`${did.id}_${i}e`}
+									onChange={(newVal) => {
+										let newArray = [...value];
+										newArray[i] = newVal;
+										onChange(newArray);
+									}}
+									disabled={disabled}
+								/>
+							</div>
+						</div>
+					))}
 				</>
 			)}
 
@@ -471,7 +462,7 @@ const ArrayTableInput: React.FC<ArrayTableInputProps> = ({ value, onChange, disa
 						Title="Add Element"
 						onClick={() => {
 							let newArray = [...value];
-							newArray.push({ type: IDLInputEnum.Nil, id: generateIDLInputId(), common });
+							newArray.push({ type: IDLInputEnum.Nil, common });
 							onChange(newArray);
 						}}
 					/>
@@ -487,9 +478,10 @@ interface GroupTableInputProps {
 	onChange: (values: IDLInput[]) => void;
 	disabled?: boolean;
 	common: IDLCommon;
+	did: DepthAndID;
 }
 
-const GroupTableInput: React.FC<GroupTableInputProps> = ({ value, onChange, disabled, common }) => {
+const GroupTableInput: React.FC<GroupTableInputProps> = ({ did, value, onChange, disabled, common }) => {
 	return (
 		<>
 			{disabled ? (
@@ -501,6 +493,8 @@ const GroupTableInput: React.FC<GroupTableInputProps> = ({ value, onChange, disa
 								label={v.common.shortname}
 								description={v.common.description}
 								value={v}
+								id={`${did.id}_${i}eg`}
+								depth={did.depth + 1}
 								onChange={(_newVal) => {}}
 								disabled={true}
 							/>
@@ -512,21 +506,21 @@ const GroupTableInput: React.FC<GroupTableInputProps> = ({ value, onChange, disa
 					{value.map((v, i) => (
 						<div
 							key={i}
-							className="border border-border hover:border-primary/20 rounded-lg p-4 transition-all shadow-sm"
+							className="px-4 py-1"
 						>
-							<div className="p-4">
-								<IDLInputField
-									label={v.common.shortname}
-									description={v.common.description}
-									value={v}
-									onChange={(newVal) => {
-										let newArray = [...value];
-										newArray[i] = newVal;
-										onChange(newArray);
-									}}
-									disabled={disabled}
-								/>
-							</div>
+							<IDLInputField
+								label={v.common.shortname}
+								description={v.common.description}
+								value={v}
+								id={`${did.id}_${i}eg`}
+								depth={did.depth + 1}
+								onChange={(newVal) => {
+									let newArray = [...value];
+									newArray[i] = newVal;
+									onChange(newArray);
+								}}
+								disabled={disabled}
+							/>
 						</div>
 					))}
 				</>
@@ -536,13 +530,14 @@ const GroupTableInput: React.FC<GroupTableInputProps> = ({ value, onChange, disa
 };
 
 interface TableInputProps {
+	did: DepthAndID;
 	value: IDLInputTableEntry[];
 	onChange: (data: IDLInputTableEntry[]) => void;
 	disabled?: boolean;
 	common: IDLCommon;
 }
 
-const TableInput: React.FC<TableInputProps> = ({ value, onChange, disabled, common }) => {
+const TableInput: React.FC<TableInputProps> = ({ did, value, onChange, disabled, common }) => {
 	return (
 		<>
 			{disabled ? (
@@ -552,6 +547,8 @@ const TableInput: React.FC<TableInputProps> = ({ value, onChange, disabled, comm
 							<Fragment key={i}>
 								<IDLInputField
 									label={`Item ${i + 1} (${valueToString(v.key)}) Key`}
+									id={`${did.id}_${i}kc`}
+									depth={did.depth + 1}
 									value={v.key}
 									onChange={(_newVal) => {}}
 									disabled={true}
@@ -560,6 +557,8 @@ const TableInput: React.FC<TableInputProps> = ({ value, onChange, disabled, comm
 								<IDLInputField
 									key={i}
 									label={`Item ${i + 1} (${valueToString(v.value)}) Value`}
+									id={`${did.id}_${i}vc`}
+									depth={did.depth + 1}
 									value={v.value}
 									onChange={(_newVal) => {}}
 									disabled={true}
@@ -570,67 +569,59 @@ const TableInput: React.FC<TableInputProps> = ({ value, onChange, disabled, comm
 				</div>
 			) : (
 				<>
-					<Reorder.Group
-						axis="y"
-						values={value}
-						onReorder={(newValues) => {
-							logger.debug('IDLInput', 'Reordering array table input:', newValues);
-							onChange(newValues);
-						}}
-					>
-						{value.map((v, i) => (
-							<Reorder.Item key={v.key.id} value={v}>
-								<div className="border border-border hover:border-primary/20 rounded-lg p-4 transition-all shadow-sm">
-									<div className="flex items-center gap-3">
-										<GripVertical className="w-5 h-5 text-muted-foreground cursor-grab active:cursor-grabbing" />
-										<span className="font-medium text-foreground">
-											Element {i + 1} ({valueToString(v.key)} = {valueToString(v.value)})
-										</span>
-										<div className="ml-auto flex items-center gap-2">
-											<button
-												className="p-1 rounded-md hover:bg-accent/50 transition-colors"
-												onClick={() => {
-													let newArray = [...value];
-													newArray.splice(i, 1);
-													onChange(newArray);
-												}}
-												aria-label="Delete entry"
-											>
-												<Trash2 className="w-4 h-4 text-muted-foreground" />
-											</button>
-										</div>
-									</div>
-
-									<div className="p-4">
-										<div>
-											<IDLInputField
-												label={`Item ${i + 1} Key`}
-												value={v.key}
-												onChange={(newVal) => {
-													let newArray = [...value];
-													newArray[i].key = newVal;
-													onChange(newArray);
-												}}
-												disabled={disabled}
-											/>
-										</div>
-										<div>
-											<IDLInputField
-												label={`Item ${i + 1} Value`}
-												value={v.value}
-												onChange={(newVal) => {
-													let newArray = [...value];
-													newArray[i].value = newVal;
-													onChange(newArray);
-												}}
-												disabled={disabled}
-											/>
-										</div>
+					{value.map((v, i) => (
+							<div className="border border-border hover:border-primary/20 rounded-lg p-4 transition-all shadow-sm">
+								<div className="flex items-center gap-3">
+									<span className="font-medium text-foreground">
+										Element {i + 1} ({valueToString(v.key)} = {valueToString(v.value)})
+									</span>
+									<div className="ml-auto flex items-center gap-2">
+										<button
+											className="p-1 rounded-md hover:bg-accent/50 transition-colors"
+											onClick={() => {
+												let newArray = [...value];
+												newArray.splice(i, 1);
+												onChange(newArray);
+											}}
+											aria-label="Delete entry"
+										>
+											<Trash2 className="w-4 h-4 text-muted-foreground" />
+										</button>
 									</div>
 								</div>
-							</Reorder.Item>
-						))}
-					</Reorder.Group>
+
+								<div className="p-4">
+									<div>
+										<IDLInputField
+											label={`Item ${i + 1} Key`}
+											value={v.key}
+											id={`${did.id}_${i}kc`}
+											depth={did.depth + 1}
+											onChange={(newVal) => {
+												let newArray = [...value];
+												newArray[i].key = newVal;
+												onChange(newArray);
+											}}
+											disabled={disabled}
+										/>
+									</div>
+									<div>
+										<IDLInputField
+											label={`Item ${i + 1} Value`}
+											value={v.value}
+											id={`${did.id}_${i}vc`}
+											depth={did.depth + 1}
+											onChange={(newVal) => {
+												let newArray = [...value];
+												newArray[i].value = newVal;
+												onChange(newArray);
+											}}
+											disabled={disabled}
+										/>
+									</div>
+								</div>
+							</div>
+					))}
 				</>
 			)}
 
@@ -640,8 +631,8 @@ const TableInput: React.FC<TableInputProps> = ({ value, onChange, disabled, comm
 						Title="Add Element"
 						onClick={() => {
 							let newArray = [...value];
-							let key = { type: IDLInputEnum.Nil, id: generateIDLInputId(), common };
-							let valueL = { type: IDLInputEnum.Nil, id: generateIDLInputId(), common };
+							let key = { type: IDLInputEnum.Nil, common };
+							let valueL = { type: IDLInputEnum.Nil, common };
 							newArray.push({ key: key as IDLInput, value: valueL as IDLInput });
 							onChange(newArray);
 						}}

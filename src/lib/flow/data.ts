@@ -73,20 +73,17 @@ export const stringToTypedInputEnum = (value: string): TypedInputEnum => {
 
 export interface TypedInputNil {
 	type: TypedInputEnum.Nil;
-	id: string;
 }
 
 export interface TypedInputString {
 	type: TypedInputEnum.String;
 	value: string;
 	interpolated: boolean;
-	id: string;
 }
 
 export interface TypedInputNumber {
 	type: TypedInputEnum.Number;
 	value: number;
-	id: string;
 }
 
 export interface TypedInputTableEntry {
@@ -98,20 +95,17 @@ export interface TypedInputTable {
 	type: TypedInputEnum.Table;
 	value: TypedInputTableEntry[];
 	inline: boolean;
-	id: string;
 }
 
 export interface TypedInputTableArray {
 	type: TypedInputEnum.TableArray;
 	value: TypedInput[];
 	inline: boolean;
-	id: string;
 }
 
 export interface TypedInputBoolean {
 	type: TypedInputEnum.Boolean;
 	value: boolean;
-	id: string;
 }
 
 export interface TypedInputVector {
@@ -119,13 +113,11 @@ export interface TypedInputVector {
 	x: number;
 	y: number;
 	z: number;
-	id: string;
 }
 
 export interface TypedInputRaw {
 	type: TypedInputEnum.Raw;
 	value: string; // Raw code or expression
-	id: string;
 }
 
 export type TypedInput =

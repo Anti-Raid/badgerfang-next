@@ -7,8 +7,7 @@ import {
 	TypedInput,
 	TypedInputEnum
 } from '@/lib/flow/data';
-import { useEffect, useMemo, useState } from 'react';
-import { InputField } from '../ui/Inputs';
+import { memo, useMemo, useState } from 'react';
 import { FlowExpanded } from '../management/FlowExpanded';
 import logger from '@/lib/logger';
 import Handle from '../ui/Handle';
@@ -23,7 +22,7 @@ registerValidationSource('api_node', (srcCons: string[], tgtCons: string[]) => {
 	return true;
 });
 
-export default function APINode(props: NodeProps) {
+function APINode(props: NodeProps) {
 	if (props?.data?.type !== NodeTypeEnum.APINode) {
 		return <div className="text-red-500">Invalid node type: {props?.data?.type}</div>;
 	}
@@ -45,8 +44,11 @@ export default function APINode(props: NodeProps) {
 
 	const inpValues = props.data.data.inputValues;
 	const inp = useMemo(
-		() => fieldToIDLInput(nodeidl.flowui.input, inpValues),
-		[props.data.data.inputValues]
+		() => {
+			console.log("Rerendering inputs")
+			return fieldToIDLInput(nodeidl.flowui.input, inpValues)
+		},
+		[inpValues]
 	);
 
 	const flow = useReactFlow();
@@ -56,6 +58,7 @@ export default function APINode(props: NodeProps) {
 		<FlowNodeBase
 			{...props}
 			title={nodeidl?.shortname || 'API Node'}
+			description={nodeidl?.description || 'No description found'}
 			className="bg-purple-100 hover:bg-purple-200"
 		>
 			{nodeidl?.flowui?.handles?.allow?.includes('top') && (
@@ -69,6 +72,9 @@ export default function APINode(props: NodeProps) {
 			<FlowExpanded
 				nodeProps={props}
 				onDone={() => {
+					console.log("saving")
+					let tyt = idlInputToField(inputValues);
+					console.log("f2idl", fieldToIDLInput(nodeidl.flowui.input, tyt))
 					flow.updateNodeData(props.id, {
 						data: {
 							nodeidl: nodeidl.id,
@@ -95,7 +101,7 @@ export default function APINode(props: NodeProps) {
 
 						{/* Input Fields */}
 						<div className="space-y-3">
-							<IDLInputField value={inputValues} onChange={setInputValues} />
+							<IDLInputField label={inputValues.common.shortname} description={inputValues.common.description} value={inputValues} onChange={setInputValues} />
 						</div>
 					</div>
 				</div>
@@ -103,3 +109,5 @@ export default function APINode(props: NodeProps) {
 		</FlowNodeBase>
 	);
 }
+
+export default memo(APINode);

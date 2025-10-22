@@ -404,7 +404,6 @@ export const ForLoopTypeInputField: React.FC<ForLoopTypeProps> = ({
 								iterable: {
 									type: TypedInputEnum.TableArray,
 									value: [],
-									id: generateTypedInputId(),
 									inline: true
 								}
 							};
