@@ -1,4 +1,5 @@
 import {
+	APINode,
 	CommandArgumentNode,
 	CommandArgumentType,
 	CommandNode,
@@ -21,7 +22,7 @@ import {
 	TypedInputEnum,
 	VariableSetNode,
 	WhileLoopNode
-} from '../data';
+} from '../../data';
 import { Node, Edge, getOutgoers, getIncomers } from '@xyflow/react';
 import {
 	CodeGenAST,
@@ -44,10 +45,10 @@ import {
 	ITypedInput,
 	ITypedInputEnum,
 	ITypedInputTableEntry
-} from './ast';
-import { baseCommandNodeSchema } from '../validation';
+} from '../astlayer/ast';
+import { baseCommandNodeSchema } from '../../validation';
 import z from 'zod';
-import { startNodeTypes } from '../startnode';
+import { startNodeTypes } from '../../startnode';
 
 interface Visit<T> {
 	/**
@@ -105,7 +106,7 @@ export class CodeGenASTGenerator {
 	 *
 	 * @returns The AST representing the flow.
 	 */
-	public generate(): CodeGenAST {
+	public async generate(): Promise<CodeGenAST> {
 		let currentAst = new CodeGenAST();
 
 		// Find a start node
@@ -119,7 +120,7 @@ export class CodeGenASTGenerator {
 			return currentAst;
 		}
 		try {
-			currentAst.nodes = this.visitNodeAndChildren(currentAst, startNode[0]);
+			currentAst.nodes = await this.visitNodeAndChildren(currentAst, startNode[0]);
 		} catch (error) {
 			currentAst.fatalError = `Error generating AST: ${error instanceof Error ? error.message : String(error)}`;
 		}
@@ -159,7 +160,7 @@ export class CodeGenASTGenerator {
 	/**
 	 * Visits a node and returns its AST representation.
 	 */
-	private visitNode(currentAst: CodeGenAST, node: Node<NodeExtData>): VisitResult {
+	private async visitNode(currentAst: CodeGenAST, node: Node<NodeExtData>): Promise<VisitResult> {
 		const data = node.data;
 
 		switch (data.type) {
@@ -174,7 +175,7 @@ export class CodeGenASTGenerator {
 			case NodeTypeEnum.SetVariable:
 				return this.visitSetVariable({ nodeId: node.id, data, currentAst });
 			case NodeTypeEnum.IfCondition:
-				return this.visitIfCondition({ nodeId: node.id, data, currentAst });
+				return await this.visitIfCondition({ nodeId: node.id, data, currentAst });
 			case NodeTypeEnum.ElseIfCondition:
 				throw new Error(
 					`An ElseIfCondition node must be connected to an IfCondition node or a ForLoop node.`
@@ -188,24 +189,24 @@ export class CodeGenASTGenerator {
 					`An EndCondition node must be connected to an IfCondition node or a ForLoop node.`
 				);
 			case NodeTypeEnum.ForLoop:
-				return this.visitForLoop({ nodeId: node.id, data, currentAst });
+				return await this.visitForLoop({ nodeId: node.id, data, currentAst });
 			case NodeTypeEnum.WhileLoop:
-				return this.visitWhileLoop({ nodeId: node.id, data, currentAst });
+				return await this.visitWhileLoop({ nodeId: node.id, data, currentAst });
 			case NodeTypeEnum.CustomCode:
 				return this.visitCustomCode({ nodeId: node.id, data, currentAst });
 			case NodeTypeEnum.UnknownNode:
 				throw new Error(`Unknown node type ${data.type} encountered.`);
 			case NodeTypeEnum.Group:
-				throw new Error('Unreachable node GroupNode: GroupNodes be transparent and unconnected');
+				throw new Error('Unreachable node GroupNode: GroupNodes must be transparent and unconnected');
 			case NodeTypeEnum.APINode:
-				throw new Error('Visiting API nodes is not yet implemented.'); // TODO: Implement visiting API nodes
+				return await this.visitAPINode({ nodeId: node.id, data, currentAst })
 		}
 	}
 
 	/**
 	 * Helper to continuously visit nodes and their children and return their AST representation
 	 */
-	private visitNodeAndChildren(currentAst: CodeGenAST, node: Node<NodeExtData>): INode[] {
+	private async visitNodeAndChildren(currentAst: CodeGenAST, node: Node<NodeExtData>): Promise<INode[]> {
 		let currentNode: Node<NodeExtData> | null = node;
 		let astNodes: INode[] = [];
 		let visited = new Set<string>();
@@ -218,7 +219,7 @@ export class CodeGenASTGenerator {
 
 			visited.add(currentNode.id);
 
-			const visitResult = this.visitNode(currentAst, currentNode);
+			const visitResult = await this.visitNode(currentAst, currentNode);
 			if (visitResult.ast) {
 				astNodes.push(visitResult.ast);
 			}
@@ -383,7 +384,7 @@ export class CodeGenASTGenerator {
 	/**
 	 * Visits a IfStatement and returns its AST representation.
 	 */
-	private visitIfCondition(node: Visit<IfConditionNode>): VisitResult {
+	private async visitIfCondition(node: Visit<IfConditionNode>): Promise<VisitResult> {
 		// Find the block, continuation statement and end condition nodes from children
 		let children = this.getChildrenOfNode(node.nodeId);
 		let bodyStart: Node<NodeExtData> | null = null;
@@ -444,7 +445,7 @@ export class CodeGenASTGenerator {
 
 		let bodyNodes: INode[] = [];
 		if (bodyStart) {
-			bodyNodes = this.visitNodeAndChildren(node.currentAst, bodyStart);
+			bodyNodes = await this.visitNodeAndChildren(node.currentAst, bodyStart);
 		}
 
 		let elseIfs: IElseIf[] = [];
@@ -468,7 +469,7 @@ export class CodeGenASTGenerator {
 
 			elseIfs.push({
 				condition: this.visitConditionalType(node.currentAst, elseif.data.data.condition),
-				body: this.visitNodeAndChildren(node.currentAst, elseifChildren[0])
+				body: await this.visitNodeAndChildren(node.currentAst, elseifChildren[0])
 			});
 		}
 
@@ -484,7 +485,7 @@ export class CodeGenASTGenerator {
 					`ElseCondition ${elseNode.id} has multiple outgoing connections, only the first will be considered.`
 				);
 			}
-			elseBlock = this.visitNodeAndChildren(node.currentAst, elseChildren[0]);
+			elseBlock = await this.visitNodeAndChildren(node.currentAst, elseChildren[0]);
 		}
 
 		if (!endNode) {
@@ -518,7 +519,7 @@ export class CodeGenASTGenerator {
 	/**
 	 * Visits a ForLoop and returns its AST representation.
 	 */
-	private visitForLoop(node: Visit<ForLoopNode>): VisitResult {
+	private async visitForLoop(node: Visit<ForLoopNode>): Promise<VisitResult> {
 		// Find the block, continuation statement and end condition nodes from children
 		let children = this.getChildrenOfNode(node.nodeId);
 		let bodyStart: Node<NodeExtData> | null = null;
@@ -552,7 +553,7 @@ export class CodeGenASTGenerator {
 
 		let bodyNodes: INode[] = [];
 		if (bodyStart) {
-			bodyNodes = this.visitNodeAndChildren(node.currentAst, bodyStart);
+			bodyNodes = await this.visitNodeAndChildren(node.currentAst, bodyStart);
 		}
 
 		if (!endNode) {
@@ -584,7 +585,7 @@ export class CodeGenASTGenerator {
 	/**
 	 * Visits a WhileLoop and returns its AST representation.
 	 */
-	private visitWhileLoop(node: Visit<WhileLoopNode>): VisitResult {
+	private async visitWhileLoop(node: Visit<WhileLoopNode>): Promise<VisitResult> {
 		// Find the block, continuation statement and end condition nodes from children
 		let children = this.getChildrenOfNode(node.nodeId);
 		let bodyStart: Node<NodeExtData> | null = null;
@@ -618,7 +619,7 @@ export class CodeGenASTGenerator {
 
 		let bodyNodes: INode[] = [];
 		if (bodyStart) {
-			bodyNodes = this.visitNodeAndChildren(node.currentAst, bodyStart);
+			bodyNodes = await this.visitNodeAndChildren(node.currentAst, bodyStart);
 		}
 
 		if (!endNode) {
@@ -645,6 +646,13 @@ export class CodeGenASTGenerator {
 			},
 			nextNode // The next node is the EndCondition's first child, if any
 		};
+	}
+
+	/**
+	 * Visits an 'API node' (from dnodec) and runs its custom codegen
+	 */
+	private async visitAPINode(node: Visit<APINode>): Promise<VisitResult> {
+		throw new Error("[visitAPINode] Not yet implemented fully yet") // TODO: Implement visiting API nodes
 	}
 
 	/**

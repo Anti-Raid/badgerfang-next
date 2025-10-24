@@ -37,6 +37,7 @@ pub extern "C" fn luau_template(
     code: *const c_char,
     json: *const c_char,
     env: *const c_char,
+    vfs: *const c_char,
 ) -> *mut c_char {
     if code.is_null() {
         let c_string = CString::new("1got null code").unwrap();
@@ -50,6 +51,11 @@ pub extern "C" fn luau_template(
 
     if env.is_null() {
         let c_string = CString::new("1got null env").unwrap();
+        return c_string.into_raw();
+    }
+
+    if vfs.is_null() {
+        let c_string = CString::new("1got null vfs").unwrap();
         return c_string.into_raw();
     }
 
@@ -71,6 +77,12 @@ pub extern "C" fn luau_template(
         return c_string.into_raw();
     };
 
+    let c_str = unsafe { CStr::from_ptr(vfs) };
+    let Ok(vfs_str) = c_str.to_str() else {
+        let c_string = CString::new("1vfs has utf8 code sequences").unwrap();
+        return c_string.into_raw();
+    };
+
     let value = match serde_json::from_str::<Value>(json_str) {
         Ok(value) => value,
         Err(e) => {
@@ -79,7 +91,15 @@ pub extern "C" fn luau_template(
         }
     };
 
-    let result = match call_luau(code_str.to_string(), value, env_str.to_string()) {
+    let vfs = match serde_json::from_str::<HashMap<String, String>>(vfs_str) {
+        Ok(value) => value,
+        Err(e) => {
+            let c_string = CString::new(format!("1vfs parse error: {e}")).unwrap();
+            return c_string.into_raw();
+        }
+    };
+
+    let result = match call_luau(code_str.to_string(), value, vfs, env_str.to_string()) {
         Ok(result) => result,
         Err(e) => {
             let c_string = CString::new(format!("2{e}")).unwrap();
@@ -119,7 +139,7 @@ pub unsafe extern "C" fn wasm_free_string(ptr: *mut c_char) {
 
 type Error = Box<dyn std::error::Error + Send + Sync>;
 
-pub fn call_luau(code: String, value: Value, env: String) -> Result<Value, Error> {
+pub fn call_luau(code: String, value: Value, vfs: HashMap<String, String>, env: String) -> Result<Value, Error> {
     let vm_result = VM.get_or_init(|| {
         let lua = Lua::new_with(
             LuaStdLib::ALL_SAFE,

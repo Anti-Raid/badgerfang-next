@@ -3,21 +3,21 @@
 
 export type Field =
 	| {
-			type: 'scalar';
-			data: FieldData;
-			optional: boolean;
-	  }
+		type: 'scalar';
+		data: FieldData;
+		optional: boolean;
+	}
 	| {
-			type: 'array';
-			elementType: Field;
-			optional: boolean;
-	  }
+		type: 'array';
+		elementType: Field;
+		optional: boolean;
+	}
 	| {
-			type: 'group';
-			fields: Field[];
-			groupData: GroupData;
-			optional: boolean;
-	  };
+		type: 'group';
+		fields: Field[];
+		groupData: GroupData;
+		optional: boolean;
+	};
 
 export interface GroupData {
 	shortname: string;
@@ -45,5 +45,5 @@ export interface Node {
 	shortname: string;
 	description: string;
 	flowui: FlowUI;
-	code: string; // the luau code to execute to generate code for this node
+	code: Record<string, string>; // the luau vfs to execute to generate code for this node
 }

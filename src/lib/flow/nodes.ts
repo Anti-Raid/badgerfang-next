@@ -209,7 +209,7 @@ nodeIdls.add({
 	id: 'test',
 	shortname: 'Test IDL',
 	description: 'Test node',
-	code: '',
+	code: {},
 	flowui: {
 		handles: {
 			allow: ['top', 'bottom']

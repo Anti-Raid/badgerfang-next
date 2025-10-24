@@ -20,7 +20,7 @@ interface Module {
 	//
 	// We need to explicitly free the memory allocated by this function, so it returns a number.
 	// which we can then free using the `_free` function.
-	cwrapped: (code: string, args: string, env: string) => number;
+	cwrapped: (code: string, args: string, env: string, vfs: string) => number;
 }
 
 let module: Module | null = null;
@@ -38,7 +38,7 @@ const getModule = async () => {
 		const wasmModule = (await wasm_js.default()) as WasmExports;
 		module = {
 			module: wasmModule,
-			cwrapped: wasmModule.cwrap('luau_template', 'number', ['string', 'string', 'string'])
+			cwrapped: wasmModule.cwrap('luau_template', 'number', ['string', 'string', 'string', 'string'])
 		};
 		return module;
 	} catch (error) {
@@ -66,11 +66,9 @@ const markModuleAsBroken = () => {
  * @param code The code to run
  * @param args The args, which must be serializable to JSON to call with.
  */
-const luauTemplate = async (code: string, args: any, env: string): Promise<LuauTemplateResult> => {
+const luauTemplate = async (code: string, args: any, env: string, vfs: Record<string, string>): Promise<LuauTemplateResult> => {
 	let argsJson = JSON.stringify(args);
-	if (argsJson.includes('\0')) {
-		throw new Error('Arguments contain null bytes, which are not allowed across Luau/JS boundary');
-	}
+	let vfsJson = JSON.stringify(vfs);
 
 	let { module, cwrapped } = await getModule();
 
@@ -78,7 +76,7 @@ const luauTemplate = async (code: string, args: any, env: string): Promise<LuauT
 	let sp = module.stackSave(); // Save the stack pointer before calling the function
 	let valuePtr: number | null = null;
 	try {
-		valuePtr = cwrapped(code, argsJson, env);
+		valuePtr = cwrapped(code, argsJson, env, vfsJson);
 		resp = module.UTF8ToString(valuePtr);
 	} catch (error) {
 		module.stackRestore(sp); // Restore the stack pointer to prevent memory leaks
@@ -127,9 +125,9 @@ const luauTemplate = async (code: string, args: any, env: string): Promise<LuauT
 
 // onmessage event handler for the web worker
 self.onmessage = async (event) => {
-	const { id, code, args, env } = event.data;
+	const { id, code, args, env, vfs } = event.data;
 
-	if (!code || !args || !id || !env) {
+	if (!code || !args || !id || !env || !vfs) {
 		self.postMessage({
 			id,
 			data: { code: LuauTemplateResultCode.ErrorGeneral, message: 'Code and args are required' }
@@ -138,7 +136,7 @@ self.onmessage = async (event) => {
 	}
 
 	try {
-		const result = await luauTemplate(code, args, env);
+		const result = await luauTemplate(code, args, env, vfs);
 		self.postMessage({ id, data: result });
 	} catch (error) {
 		self.postMessage({

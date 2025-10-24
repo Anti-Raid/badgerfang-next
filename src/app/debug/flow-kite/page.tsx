@@ -2,13 +2,14 @@
 import { useState } from 'react';
 import { ConditionalType, ConditionalTypeEnum, FlowData, NodeExtData } from '@/lib/flow/data';
 import { motion } from 'framer-motion';
-import { CodeGenASTGenerator } from '@/lib/flow/codegen/block2ast';
+import { CodeGenASTGenerator } from '@/lib/flow/codegen/blocklayer/block2ast';
 import { ConditionalTypeField } from '@/components/flow/ui/ConditionalType';
 import FlowList from '@/components/flow/ui/FlowList';
 import { Primary } from '@/components/ui/Buttons';
 
-const codegenAst = (data: FlowData) => {
-	let r = new CodeGenASTGenerator(data.nodes, data.edges).generate();
+const codegenAst = async (data: FlowData) => {
+	let generator = new CodeGenASTGenerator(data.nodes, data.edges)
+	let r = await generator.generate();
 
 	let stage1 = r.toJSON();
 
@@ -61,9 +62,9 @@ export default function Blockly() {
 					<div className="mt-2">
 						<Primary
 							Title="Compile Flow"
-							onClick={() => {
+							onClick={async () => {
 								const flowData = data[selectedFlowIndex];
-								const codegennedAst = codegenAst(flowData);
+								const codegennedAst = await codegenAst(flowData);
 								setCompiledAst(codegennedAst);
 							}}
 						/>
