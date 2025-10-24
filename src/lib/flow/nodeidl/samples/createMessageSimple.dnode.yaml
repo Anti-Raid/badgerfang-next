@@ -28,7 +28,7 @@ flowui:
         type: 'scalar'
         name: 'string'
         optional: true
-      style: 'channel'
+        style: 'channel'
       shortname: 'Channel ID'
       description: 'The ID of the channel to send the message to'
   output:
@@ -38,9 +38,6 @@ flowui:
         name: 'Message'
         optional: false
       shortname: 'Message'
-      id: 'message'
       description: 'The output message'
-code: |
-  -- Code for codegen here
-  --
-  -- Builtin module codegen may be used here if desired.
+code: 
+  - createMessageSimple.luau

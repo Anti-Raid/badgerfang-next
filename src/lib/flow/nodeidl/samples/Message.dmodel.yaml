@@ -16,9 +16,7 @@ fields:
       elementType:
         type: 'scalar'
         name: 'Embed'
+        optional: false
       optional: true
     shortname: 'Embeds'
     description: 'The embeds of the message'
-code: |
-  local function Message__example(data)
-  end

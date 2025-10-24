@@ -1,7 +1,9 @@
 import * as nodeidl from '../nodeidl.ts';
+import * as zod from 'zod'
 
 export interface ImportResolver {
 	resolve: (modpath: string) => any;
+	readFile: (fp: string) => string;
 }
 
 /**
@@ -14,6 +16,11 @@ export class ImportStorage {
 	constructor(importResolver: ImportResolver) {
 		this.importResolver = importResolver;
 		this.imports = new Map<string, DModel>();
+	}
+
+	readFile(fp: string, from: string): string {
+		console.log(`=> Read file ${fp} from ${from}`);
+		return this.importResolver.readFile(fp)
 	}
 
 	resolveModelImport(from: string, modpath: string): DModel {
@@ -66,15 +73,15 @@ export class ModuleImports {
 
 export type DFieldType =
 	| {
-			type: 'scalar';
-			name: string;
-			optional: boolean;
-	  }
+		type: 'scalar';
+		name: string;
+		optional: boolean;
+	}
 	| {
-			type: 'array';
-			elementType: DFieldType;
-			optional: boolean;
-	  };
+		type: 'array';
+		elementType: DFieldType;
+		optional: boolean;
+	};
 
 /**
  * A field in a DModel/DNode
@@ -94,11 +101,10 @@ export class DField {
 		description: string
 	) {
 		this.imports = imports;
-		this.type = this.validateDFieldType(type);
+		this.type = type;
 		this.shortname = shortname;
 		this.id = id;
 		this.description = description;
-		this.validate();
 	}
 
 	// Convert the DField into a nodeidl.Field
@@ -132,69 +138,30 @@ export class DField {
 		}
 	}
 
-	// Validate a DFieldType object
-	private validateDFieldType = (obj: any): DFieldType => {
-		if (typeof obj !== 'object' || obj === null) {
-			throw new Error('DFieldType must be an object.');
-		}
-		if (obj.type === 'scalar') {
-			if (typeof obj.name !== 'string' || obj.name.length === 0) {
-				throw new Error(
-					`DFieldType of type 'scalar' must have a non-empty string 'name' property. [when processing ${JSON.stringify(obj)}]`
-				);
-			}
-			if (obj.optional && typeof obj.optional !== 'boolean') {
-				throw new Error(
-					`DFieldType of type 'scalar' must have a boolean 'optional' property if present. [when processing ${JSON.stringify(obj)}]`
-				);
-			}
-			return {
-				type: 'scalar',
-				name: obj.name,
-				optional: obj.optional
-			};
-		} else if (obj.type === 'array') {
-			if (typeof obj.elementType !== 'object' || obj.elementType === null) {
-				throw new Error(
-					`DFieldType of type 'array' must have an 'elementType' property that is an object. [when processing ${JSON.stringify(obj)}]`
-				);
-			}
-			if (obj.optional && typeof obj.optional !== 'boolean') {
-				throw new Error(
-					`DFieldType of type 'array' must have a boolean 'optional' property if present. [when processing ${JSON.stringify(obj)}]`
-				);
-			}
-			return {
-				type: 'array',
-				elementType: this.validateDFieldType(obj.elementType),
-				optional: obj.optional
-			};
-		} else {
-			throw new Error("DFieldType must have a 'type' property that is either 'scalar' or 'array'.");
-		}
-	};
+	static fromJSON(imports: ModuleImports, id: string, obj: any): DField {
+		const fieldTypeSchema = zod.discriminatedUnion('type', [
+			zod.strictObject({
+				type: zod.literal('scalar'),
+				name: zod.string(),
+				style: zod.string().optional(),
+				optional: zod.boolean().default(false),
+			}),
+			zod.strictObject({
+				type: zod.literal("array"),
+				elementType: zod.lazy((): zod.ZodType<DFieldType> => fieldTypeSchema),
+				optional: zod.boolean().default(false)
+			})
+		])
 
-	private validate() {
-		if (typeof this.type !== 'object' || this.type === null) {
-			throw new Error('DField.type must be a non-empty object.');
-		}
-		if (typeof this.shortname !== 'string' || this.shortname.length === 0) {
-			throw new Error('DField.shortname must be a non-empty string.');
-		}
-		if (typeof this.id !== 'string' || this.id.length === 0) {
-			throw new Error('DField.id must be a non-empty string.');
-		}
-		if (typeof this.description !== 'string' || this.description.length === 0) {
-			throw new Error('DField.description must be a non-empty string.');
-		}
-	}
+		const schema = zod.strictObject({
+			shortname: zod.string().min(1),
+			description: zod.string().min(1),
+			type: fieldTypeSchema
+		})
 
-	static fromJSON(imports: ModuleImports, id: string, json: any): DField {
-		if (typeof json !== 'object' || json === null) {
-			throw new Error('DField JSON must be an object.');
-		}
+		let validatedJson = schema.parse(obj);
 
-		return new DField(imports, json.type, json.shortname, id, json.description);
+		return new DField(imports, validatedJson.type, validatedJson.shortname, id, validatedJson.description);
 	}
 
 	toJSON() {
@@ -216,7 +183,6 @@ export class DModel {
 	private description: string;
 	private imports: ModuleImports;
 	private fields: DField[];
-	private code: string; // The codegen code for this module
 
 	constructor(
 		shortname: string,
@@ -224,82 +190,48 @@ export class DModel {
 		description: string,
 		imports: ModuleImports,
 		fields: DField[],
-		code: string
 	) {
 		this.shortname = shortname;
 		this.id = id;
 		this.description = description;
 		this.imports = imports;
 		this.fields = fields;
-		this.code = code;
-		this.validate();
-	}
-
-	// Helper method to validate the DModel
-	//
-	// Part of: Import/Parse Pass
-	private validate() {
-		if (!Array.isArray(this.fields)) {
-			throw new Error('Internal Error: DModel.fields must be an array.');
-		}
-		for (let i = 0; i < this.fields.length; i++) {
-			if (!(this.fields[i] instanceof DField)) {
-				throw new Error(`Internal Error: DModel.fields[${i}] must be a DField.`);
-			}
-		}
-		if (typeof this.shortname !== 'string' || this.shortname.length === 0) {
-			throw new Error('DModel.shortname must be a non-empty string.');
-		}
-		if (typeof this.id !== 'string' || this.id.length === 0) {
-			throw new Error('DModel.id must be a non-empty string.');
-		}
-		if (typeof this.description !== 'string') {
-			throw new Error('DModel.description must be a string.');
-		}
-		if (typeof this.code !== 'string') {
-			throw new Error('DModel.code must be a string.');
-		}
 	}
 
 	// Create a DModel from a JSON object
-	//
-	// Part of: Import/Parse Pass
-	static fromJSON(json: any, importStorage: ImportStorage, filename: string): DModel {
-		if (typeof json !== 'object' || json === null) {
-			throw new Error(
-				`DModel JSON must be an object when processing file ${filename}. with current obj: ${JSON.stringify(json)}`
-			);
-		}
-		if (typeof json.imports !== 'object' || json.imports === null || !Array.isArray(json.imports)) {
-			throw new Error('DModel.imports must be an array.');
-		}
-		if (typeof json.id !== 'string' || json.id.length === 0) {
-			throw new Error('DModel.id must be a non-empty string.');
+	static fromJSON(obj: any, importStorage: ImportStorage, filename: string): DModel {
+		const schema = zod.strictObject({
+			id: zod.string().min(1),
+			shortname: zod.string().min(1),
+			description: zod.string().min(1),
+			imports: zod.array(
+				zod.strictObject({
+					from: zod.string(),
+					to: zod.string()
+				})
+			),
+			fields: zod.record(zod.string(), zod.any())
+		})
+		let validatedJson;
+		try {
+			validatedJson = schema.parse(obj)
+		} catch (err: any) {
+			throw new Error(zod.prettifyError(err))
 		}
 
 		// Ensure ID is alphanumeric or underscore
 		// and does not start with a number
-		if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(json.id)) {
+		if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(validatedJson.id)) {
 			throw new Error(
-				`DModel.id must be alphanumeric or underscore and cannot start with a number. Invalid id: ${json.id}`
+				`DModel.id must be alphanumeric or underscore and cannot start with a number. Invalid id: ${validatedJson.id}`
 			);
 		}
 
 		const imports = new ModuleImports();
-		for (let i = 0; i < json.imports.length; i++) {
-			const imp = json.imports[i];
-			if (
-				typeof imp !== 'object' ||
-				imp === null ||
-				typeof imp.from !== 'string' ||
-				typeof imp.to !== 'string'
-			) {
-				throw new Error(
-					`DModel.imports[${i}] must be an object with 'from' and 'to' string properties.`
-				);
-			}
+		for (let i = 0; i < validatedJson.imports.length; i++) {
+			const imp = validatedJson.imports[i];
 			let importedModel = importStorage.resolveModelImport(
-				`${json.id} (model ${filename})`,
+				`${validatedJson.id} (model ${filename})`,
 				imp.from
 			);
 			if (imports.hasImport(imp.to)) {
@@ -307,25 +239,14 @@ export class DModel {
 			}
 			imports.addImport(imp.to, importedModel);
 		}
-		if (typeof json.fields !== 'object' || json.fields === null) {
-			throw new Error('DModel.fields must be an object.');
-		}
 		const fields: DField[] = [];
-		for (const key in json.fields) {
-			const fieldJson = json.fields[key];
+		for (const key in validatedJson.fields) {
+			const fieldJson = validatedJson.fields[key];
 			const field = DField.fromJSON(imports, key, fieldJson);
 			fields.push(field);
 		}
 
-		let code = '';
-		if (typeof json.code !== 'string' && json.code !== undefined) {
-			throw new Error('DModel.code must be a string if present.');
-		}
-		if (typeof json.code === 'string') {
-			code = json.code;
-		}
-
-		return new DModel(json.shortname, json.id, json.description, imports, fields, code);
+		return new DModel(validatedJson.shortname, validatedJson.id, validatedJson.description, imports, fields);
 	}
 
 	toJSON() {
@@ -335,20 +256,19 @@ export class DModel {
 			description: this.description,
 			imports: this.imports,
 			fields: this.fields.map((field) => field.toJSON()),
-			code: this.code
 		};
 	}
 }
 
 type FlowUI_IO =
 	| {
-			typ: 'model';
-			model: DModel;
-	  }
+		typ: 'model';
+		model: DModel;
+	}
 	| {
-			typ: 'fields';
-			fields: Map<string, DField>;
-	  };
+		typ: 'fields';
+		fields: Map<string, DField>;
+	};
 
 /**
  * FlowUI related things for a node
@@ -367,38 +287,31 @@ export class FlowUI {
 	}
 
 	static fromJSON(
-		json: any,
+		obj: any,
 		importStorage: ImportStorage,
 		imports: ModuleImports,
 		filename: string
 	): FlowUI {
-		if (typeof json !== 'object' || json === null) {
-			throw new Error('FlowUI JSON must be an object.');
-		}
-
-		if (
-			typeof json.handles !== 'object' ||
-			json.handles === null ||
-			!Array.isArray(json.handles.allow)
-		) {
-			throw new Error("FlowUI.handles must be an object with an 'allow' array property.");
-		}
-
-		for (let i = 0; i < json.handles.allow.length; i++) {
-			if (json.handles.allow[i] !== 'top' && json.handles.allow[i] !== 'bottom') {
-				throw new Error(`FlowUI.handles.allow[${i}] must be either 'top' or 'bottom'.`);
-			}
-		}
+		const schema = zod.strictObject({
+			handles: zod.strictObject({
+				allow: zod.array(zod.union([zod.literal("top"), zod.literal("bottom")]))
+			}),
+			input: zod.object().optional(),
+			output: zod.object().optional(),
+			inputs: zod.object().optional(),
+			outputs: zod.object().optional()
+		})
+		let validatedJson = schema.parse(obj)
 
 		let inputModel: FlowUI_IO;
 		let outputModel: FlowUI_IO;
 
-		if (json.inputs) {
-			inputModel = { typ: 'model', model: DModel.fromJSON(json.inputs, importStorage, filename) };
-		} else if (typeof json.input === 'object' && json.input !== null) {
+		if (validatedJson.inputs) {
+			inputModel = { typ: 'model', model: DModel.fromJSON(validatedJson.inputs, importStorage, filename) };
+		} else if (validatedJson.input !== null) {
 			const fieldsMap = new Map<string, DField>();
-			for (const key in json.input) {
-				const fieldJson = json.input[key];
+			for (const key in validatedJson.input) {
+				const fieldJson = validatedJson.input[key];
 				const field = DField.fromJSON(imports, key, fieldJson);
 				fieldsMap.set(key, field);
 			}
@@ -407,12 +320,12 @@ export class FlowUI {
 			throw new Error('Either flowui.inputs or flowui.input must be provided.');
 		}
 
-		if (json.outputs) {
-			outputModel = { typ: 'model', model: DModel.fromJSON(json.outputs, importStorage, filename) };
-		} else if (typeof json.output === 'object' && json.output !== null) {
+		if (validatedJson.outputs) {
+			outputModel = { typ: 'model', model: DModel.fromJSON(validatedJson.outputs, importStorage, filename) };
+		} else if (validatedJson.output !== null) {
 			const fieldsMap = new Map<string, DField>();
-			for (const key in json.output) {
-				const fieldJson = json.output[key];
+			for (const key in validatedJson.output) {
+				const fieldJson = validatedJson.output[key];
 				const field = DField.fromJSON(imports, key, fieldJson);
 				fieldsMap.set(key, field);
 			}
@@ -421,7 +334,7 @@ export class FlowUI {
 			throw new Error('Either flowui.outputs or flowui.output must be provided.');
 		}
 
-		return new FlowUI({ allow: json.handles.allow }, inputModel, outputModel);
+		return new FlowUI(validatedJson.handles, inputModel, outputModel);
 	}
 
 	toJSON() {
@@ -441,7 +354,7 @@ export class DNode {
 	private id: string;
 	private description: string;
 	private imports: ModuleImports;
-	private code: string; // The codegen code for this node
+	private code: Map<string, string>; // The codegen code for this node
 	private flowui: FlowUI;
 
 	constructor(
@@ -449,7 +362,7 @@ export class DNode {
 		id: string,
 		description: string,
 		imports: ModuleImports,
-		code: string,
+		code: Map<string, string>,
 		flowui: FlowUI
 	) {
 		this.shortname = shortname;
@@ -458,66 +371,50 @@ export class DNode {
 		this.imports = imports;
 		this.code = code;
 		this.flowui = flowui;
-		this.validate();
 	}
 
-	private validate() {
-		if (typeof this.shortname !== 'string' || this.shortname.length === 0) {
-			throw new Error('DNode.shortname must be a non-empty string.');
+	static fromJSON(obj: any, importStorage: ImportStorage, file: string): DNode {
+		const schema = zod.strictObject({
+			id: zod.string(),
+			shortname: zod.string(),
+			description: zod.string(),
+			imports: zod.array(
+				zod.strictObject({
+					from: zod.string(),
+					to: zod.string()
+				})
+			),
+			code: zod.array(zod.string()),
+			flowui: zod.any(),
+		});
+		let validatedJson;
+		try {
+			validatedJson = schema.parse(obj)
+		} catch (err: any) {
+			throw new Error(zod.prettifyError(err))
 		}
-		if (typeof this.id !== 'string' || this.id.length === 0) {
-			throw new Error('DNode.id must be a non-empty string.');
-		}
-		if (typeof this.description !== 'string') {
-			throw new Error('DNode.description must be a string.');
-		}
-	}
 
-	static fromJSON(json: any, importStorage: ImportStorage, file: string): DNode {
-		if (typeof json !== 'object' || json === null) {
-			throw new Error('DNode JSON must be an object.');
-		}
-		if (typeof json.imports !== 'object' || json.imports === null || !Array.isArray(json.imports)) {
-			throw new Error('DNode.imports must be an array.');
-		}
-		if (typeof json.id !== 'string' || json.id.length === 0) {
-			throw new Error('DNode.id must be a non-empty string.');
-		}
 		const imports = new ModuleImports();
-		for (let i = 0; i < json.imports.length; i++) {
-			const imp = json.imports[i];
-			if (
-				typeof imp !== 'object' ||
-				imp === null ||
-				typeof imp.from !== 'string' ||
-				typeof imp.to !== 'string'
-			) {
-				throw new Error(
-					`DNode.imports[${i}] must be an object with 'from' and 'to' string properties.`
-				);
-			}
-			let importedModel = importStorage.resolveModelImport(`${json.id} (node ${file})`, imp.from);
+		for (let i = 0; i < validatedJson.imports.length; i++) {
+			const imp = validatedJson.imports[i];
+			let importedModel = importStorage.resolveModelImport(`${validatedJson.id} (node ${file})`, imp.from);
 			if (imports.hasImport(imp.to)) {
 				throw new Error(`DNode.imports has duplicate 'to' value: ${imp.to}`);
 			}
 			imports.addImport(imp.to, importedModel);
 		}
 
-		let code = '';
-		if (typeof json.code !== 'string' && json.code !== undefined) {
-			throw new Error('DNode.code must be a string if present.');
-		}
-		if (typeof json.code === 'string') {
-			code = json.code;
-		}
+		const flowui = FlowUI.fromJSON(validatedJson.flowui, importStorage, imports, file);
 
-		if (typeof json.flowui !== 'object' || json.flowui === null) {
-			throw new Error('DNode.flowui must be an object.');
+		let codeFiles = new Map()
+		for (let file of validatedJson.code) {
+			if (codeFiles.has(file)) throw new Error(`File ${file} has already been included!`)
+			let codeData = importStorage.readFile(file, `${validatedJson.id} (node ${file})`)
+			codeFiles.set(file, codeData)
 		}
 
-		const flowui = FlowUI.fromJSON(json.flowui, importStorage, imports, file);
 
-		return new DNode(json.shortname, json.id, json.description, imports, code, flowui);
+		return new DNode(validatedJson.shortname, validatedJson.id, validatedJson.description, imports, codeFiles, flowui);
 	}
 
 	toJSON() {
@@ -526,7 +423,7 @@ export class DNode {
 			id: this.id,
 			description: this.description,
 			imports: this.imports,
-			code: this.code,
+			code: Object.fromEntries(this.code),
 			flowui: this.flowui
 		};
 	}
@@ -536,7 +433,7 @@ export class DNode {
 			id: this.id,
 			shortname: this.shortname,
 			description: this.description,
-			code: this.code
+			code: Object.fromEntries(this.code)
 			//flowui: this.flowui.gen()
 		};
 	}

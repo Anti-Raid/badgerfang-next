@@ -39,6 +39,9 @@ let nodeFileContent = readFileSync(fileName, { encoding: 'utf-8' });
 
 let dir = dirname(fileName);
 let importResolver: ImportResolver = {
+	readFile: (fp) => {
+		return readFileSync(`${dir}/${fp}`, { encoding: 'utf-8' });
+	},
 	resolve: (modpath: string): any => {
 		let file = `${modpath}.yaml`;
 		if (extractTypeFromFileName(file) !== 'dmodel') {
@@ -73,5 +76,4 @@ try {
 }
 
 let dnode = DNode.fromJSON(importedJson, importStorage, nodeFileName);
-
 console.log(JSON.stringify(dnode));

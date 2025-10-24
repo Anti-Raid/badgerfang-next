@@ -23,7 +23,7 @@ fields:
       type: 'scalar'
       name: 'string'
       optional: true
-    style: 'url'
+      style: 'url'
     shortname: 'URL'
     description: 'The URL of the embed'
   color:
@@ -31,6 +31,6 @@ fields:
       type: 'scalar'
       name: 'number'
       optional: true
-    style: 'color'
+      style: 'color'
     shortname: 'Color'
     description: 'The color code of the embed'
