@@ -107,9 +107,51 @@ export class DField {
 		this.description = description;
 	}
 
+	// Helper method to convert a DField[] to a nodeidl.Field
+	static genList(fields: DField[], groupData: nodeidl.GroupData, optional: boolean): nodeidl.Field {
+		if (fields.length == 0) {
+			return {
+				type: "scalar",
+				optional,
+				data: {
+					id: "dummy",
+					shortname: "Dummy",
+					type: "nil",
+					description: "No input/output is used by this node"
+				}
+			}
+		} else {
+			let gfields: nodeidl.Field[] = []
+			for (let field of fields) {
+				gfields.push(field.gen())
+			}
+			return {
+				type: "group",
+				fields: gfields,
+				groupData,
+				optional
+			}
+		}
+	}
+
 	// Convert the DField into a nodeidl.Field
 	private gen(): nodeidl.Field {
 		if (this.type.type === 'scalar') {
+			if (this.type.name[0].toUpperCase() === this.type.name[0]) {
+				// Not a primitive type
+				let module = this.imports.getImport(this.type.name)
+				if (!module) throw new Error(`Could not find module ${this.type.name}`)
+				return {
+					type: "group",
+					groupData: {
+						shortname: this.shortname,
+						id: this.id,
+						description: this.description
+					},
+					fields: [module.gen(false)],
+					optional: this.type.optional
+				}
+			}
 			return {
 				type: 'scalar',
 				data: {
@@ -142,14 +184,14 @@ export class DField {
 		const fieldTypeSchema = zod.discriminatedUnion('type', [
 			zod.strictObject({
 				type: zod.literal('scalar'),
-				name: zod.string(),
+				name: zod.string().min(1),
 				style: zod.string().optional(),
-				optional: zod.boolean().default(false),
+				optional: zod.boolean().optional().default(false),
 			}),
 			zod.strictObject({
 				type: zod.literal("array"),
 				elementType: zod.lazy((): zod.ZodType<DFieldType> => fieldTypeSchema),
-				optional: zod.boolean().default(false)
+				optional: zod.boolean().optional().default(false)
 			})
 		])
 
@@ -178,11 +220,13 @@ export class DField {
  * A DModel represents a discord model.
  */
 export class DModel {
-	id: string;
+	private id: string;
 	private shortname: string;
 	private description: string;
 	private imports: ModuleImports;
 	private fields: DField[];
+
+	private _cachedField: nodeidl.Field | undefined
 
 	constructor(
 		shortname: string,
@@ -196,6 +240,19 @@ export class DModel {
 		this.description = description;
 		this.imports = imports;
 		this.fields = fields;
+	}
+
+	// Helper method to turn a DModel into a field group where needed
+	// 
+	// Memoizes the field as well to avoid recomputing the field data after initial use
+	gen(optional: boolean): nodeidl.Field {
+		if (this._cachedField) return this._cachedField
+		this._cachedField = DField.genList(this.fields, {
+			shortname: this.shortname,
+			id: this.id,
+			description: this.description
+		}, optional)
+		return this._cachedField
 	}
 
 	// Create a DModel from a JSON object

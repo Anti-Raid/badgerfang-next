@@ -8,7 +8,6 @@ import logger from '@/lib/logger';
 export default function TypedInputDebug() {
 	const [data, setData] = useState<TypedInput>({
 		type: TypedInputEnum.Nil,
-		id: generateTypedInputId() // Generate a random id
 	});
 
 	return (
