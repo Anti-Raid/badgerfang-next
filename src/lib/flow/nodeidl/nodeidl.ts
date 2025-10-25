@@ -45,5 +45,4 @@ export interface Node {
 	shortname: string;
 	description: string;
 	flowui: FlowUI;
-	code: Record<string, string>; // the luau vfs to execute to generate code for this node
 }
