@@ -1,11 +1,12 @@
 import { Scope } from './scope';
-import { CodeGenAST, IForLoopNode, IIfConditionNode, INode, INodeTypeEnum, ITypedInputEnum, IVariableSetNode } from './ast';
+import { CodeGenAST, IForLoopNode, IIfConditionNode, INode, INodeTypeEnum, IVariableSetNode } from './ast';
+import { LiteralValue } from './finalrepr';
 
 export class UndefinedVariableCheckScope extends Scope<UndefinedVariableCheckScope> {
 	/**
 	 * Currently known variables in the current scope.
 	 */
-	public variables: Map<string, ITypedInputEnum>; // TODO: potentially change string to contain other data
+	public variables: Map<string, LiteralValue>; // TODO: potentially change string to contain other data
 
 	constructor(root: UndefinedVariableCheckScope | null) {
 		super(root);
@@ -16,11 +17,11 @@ export class UndefinedVariableCheckScope extends Scope<UndefinedVariableCheckSco
 		return new UndefinedVariableCheckScope(this)
 	}
 
-	getVariable(variable: string): ITypedInputEnum | undefined {
+	getVariable(variable: string): LiteralValue | undefined {
 		return this.find((scope) => scope.variables.get(variable))
 	}
 
-	addVariable(variable: string, type: ITypedInputEnum) {
+	addVariable(variable: string, type: LiteralValue) {
 		this.variables.set(variable, type)
 	}
 }
@@ -78,7 +79,7 @@ export class UndefinedVariableCheck {
 			return;
 		}
 		// Add the variable to the known variables set
-		scope.addVariable(inode.data.name, inode.data.value.type);
+		scope.addVariable(inode.data.name, inode.data.value);
 	}
 
 	visitIfCondition(inode: IIfConditionNode, scope: UndefinedVariableCheckScope): void {

@@ -3,13 +3,6 @@ import {
 	CommandArgumentNode,
 	CommandArgumentType,
 	CommandNode,
-	ConditionalLogicTypeEnum,
-	ConditionalType,
-	ConditionalTypeContinuable,
-	ConditionalTypeEnum,
-	ConditionalTypeLiteral,
-	ConditionalTypeLogic,
-	ConditionalTypeParensBlock,
 	CustomCodeNode,
 	ForLoopNode,
 	ForLoopType,
@@ -20,6 +13,7 @@ import {
 	NodeTypeEnum,
 	TypedInput,
 	TypedInputEnum,
+	TypedInputLogicType,
 	VariableSetNode,
 	WhileLoopNode
 } from '../../data';
@@ -28,27 +22,17 @@ import {
 	CodeGenAST,
 	ICommandArgument,
 	ICommandArgumentType,
-	IConditionalLogicTypeEnum,
-	IConditionalType,
-	IConditionalTypeContinuable,
-	IConditionalTypeContinuableEnum,
-	IConditionalTypeEnum,
-	IConditionalTypeLiteral,
-	IConditionalTypeLogic,
-	IConditionalTypeParensBlock,
 	IElseIf,
 	IForLoopType,
 	IForLoopTypeEnum,
 	INode,
 	INodeTypeEnum,
 	IPreludeTypeEnum,
-	ITypedInput,
-	ITypedInputEnum,
-	ITypedInputTableEntry
 } from '../astlayer/ast';
 import { baseCommandNodeSchema } from '../../validation';
 import z from 'zod';
 import { startNodeTypes } from '../../startnode';
+import { LiteralEnum, LiteralLogicType, LiteralTableEntry, LiteralValue } from '../astlayer/finalrepr';
 
 interface Visit<T> {
 	/**
@@ -468,7 +452,7 @@ export class CodeGenASTGenerator {
 			}
 
 			elseIfs.push({
-				condition: this.visitConditionalType(node.currentAst, elseif.data.data.condition),
+				condition: this.visitTypedInput(elseif.data.data.condition),
 				body: await this.visitNodeAndChildren(node.currentAst, elseifChildren[0])
 			});
 		}
@@ -506,7 +490,7 @@ export class CodeGenASTGenerator {
 			ast: {
 				type: INodeTypeEnum.IfCondition,
 				data: {
-					condition: this.visitConditionalType(node.currentAst, node.data.data.condition),
+					condition: this.visitTypedInput(node.data.data.condition),
 					body: bodyNodes,
 					elseifs: elseIfs.length > 0 ? elseIfs : undefined,
 					else: elseBlock
@@ -640,7 +624,7 @@ export class CodeGenASTGenerator {
 			ast: {
 				type: INodeTypeEnum.WhileLoop,
 				data: {
-					condition: this.visitConditionalType(node.currentAst, node.data.data.condition),
+					condition: this.visitTypedInput(node.data.data.condition),
 					body: bodyNodes
 				}
 			},
@@ -660,58 +644,174 @@ export class CodeGenASTGenerator {
 	 * @param value The TypedInput value to convert to AST.
 	 * @returns The AST representation of the TypedInput value.
 	 */
-	private visitTypedInput(value: TypedInput): ITypedInput {
-		switch (value.type) {
-			case TypedInputEnum.Nil:
-				return {
-					type: ITypedInputEnum.Nil
-				};
-			case TypedInputEnum.String:
-				return {
-					type: ITypedInputEnum.String,
-					value: value.value,
-					interpolated: value.interpolated
-				};
-			case TypedInputEnum.Number:
-				return {
-					type: ITypedInputEnum.Number,
-					value: value.value
-				};
-			case TypedInputEnum.Table:
-				let tableValue: ITypedInputTableEntry[] = value.value.map((entry) => ({
-					key: this.visitTypedInput(entry.key),
-					value: this.visitTypedInput(entry.value)
-				}));
-				return {
-					type: ITypedInputEnum.Table,
-					value: tableValue,
-					inline: value.inline
-				};
-			case TypedInputEnum.TableArray:
-				let arrayValue: ITypedInput[] = value.value.map((item) => this.visitTypedInput(item));
-				return {
-					type: ITypedInputEnum.TableArray,
-					value: arrayValue,
-					inline: value.inline
-				};
-			case TypedInputEnum.Boolean:
-				return {
-					type: ITypedInputEnum.Boolean,
-					value: value.value
-				};
-			case TypedInputEnum.Vector:
-				return {
-					type: ITypedInputEnum.Vector,
-					x: value.x,
-					y: value.y,
-					z: value.z
-				};
-			case TypedInputEnum.Raw:
-				return {
-					type: ITypedInputEnum.Raw, // Raw is treated as a string in AST
-					value: value.value
-				};
+	private visitTypedInput(value: TypedInput): LiteralValue {
+		// An VisitTask to be pushed/pop from the stack
+		interface VisitTask {
+			/** The source node to process. */
+			source: TypedInput;
+			/**
+			 * A callback function to set the processed AST node
+			 * in its correct parent location.
+			 */
+			setResult: (result: LiteralValue) => void;
 		}
+
+		let rootResult: LiteralValue | null = null;
+		const stack: VisitTask[] = [];
+		stack.push({
+            source: value,
+            setResult: (result) => {
+                rootResult = result;
+            },
+        });
+		while(true) {
+			const task = stack.pop();
+			if(!task) break
+			const source = task.source;
+			switch (source.type) {
+				case TypedInputEnum.Nil:
+                    task.setResult({
+                        type: LiteralEnum.Nil
+                    });
+                    continue;
+
+                case TypedInputEnum.String:
+                    task.setResult({
+                        type: LiteralEnum.String,
+                        value: source.value,
+                        interpolated: source.interpolated
+                    });
+                    continue;
+
+                case TypedInputEnum.Number:
+                    task.setResult({
+                        type: LiteralEnum.Number,
+                        value: source.value
+                    });
+                    continue;
+                    
+                case TypedInputEnum.Boolean:
+                    task.setResult({
+                        type: LiteralEnum.Boolean,
+                        value: source.value
+                    });
+                    continue;
+
+                case TypedInputEnum.Vector:
+                    task.setResult({
+                        type: LiteralEnum.Vector,
+                        x: source.x,
+                        y: source.y,
+                        z: source.z
+                    });
+                    continue;
+
+                case TypedInputEnum.Raw:
+                    task.setResult({
+                        type: LiteralEnum.Raw,
+                        value: source.value
+                    });
+                    continue;
+				case TypedInputEnum.Table:
+                    const tableResult: LiteralValue = {
+                        type: LiteralEnum.Table,
+                        value: new Array(source.value.length), // Pre-allocate array
+                        inline: source.inline
+                    };
+					// Link to parent
+					task.setResult(tableResult);
+					for (let i = source.value.length - 1; i >= 0; i--) {
+						const sourceEntry = source.value[i];
+						const destEntry: LiteralTableEntry = { key: { type: LiteralEnum.Nil }, value: { type: LiteralEnum.Nil } }; // initially nil = nil
+						tableResult.value[i] = destEntry;
+						stack.push({
+                            source: sourceEntry.value,
+                            setResult: (result) => {
+                                destEntry.value = result;
+                            }
+                        }); // value link
+						stack.push({
+                            source: sourceEntry.key,
+                            setResult: (result) => {
+                                destEntry.key = result;
+                            }
+                        }); // key link
+					}
+                    continue;
+				case TypedInputEnum.TableArray:
+                    const arrayResult: LiteralValue = {
+                        type: LiteralEnum.TableArray,
+                        value: new Array(source.value.length), // Pre-allocate array
+                        inline: source.inline
+                    };
+					// Link to parent
+					task.setResult(arrayResult);
+					for (let i = source.value.length - 1; i >= 0; i--) {
+						const sourceItem = source.value[i];
+						const currentIdx = i;
+						stack.push({
+                            source: sourceItem,
+                            setResult: (result) => {
+                                arrayResult.value[currentIdx] = result;
+                            }
+                        }); // table value link
+					}
+					continue;
+				case TypedInputEnum.Parens:
+					const parensResult: LiteralValue = {
+                        type: LiteralEnum.Parens,
+                        inner: {
+							type: LiteralEnum.Nil // to be filled in
+						}
+                    };
+					// Link to parent
+					task.setResult(parensResult);
+					// Set inner
+					stack.push({
+                        source: source.inner,
+                        setResult: (result) => {
+                            parensResult.inner = result;
+                        }
+                    });
+					continue;
+				case TypedInputEnum.LogicExpr:
+					const condMap = {
+						[TypedInputLogicType.And]: LiteralLogicType.And,
+						[TypedInputLogicType.Eq]: LiteralLogicType.Eq,
+						[TypedInputLogicType.Gt]: LiteralLogicType.Gt,
+						[TypedInputLogicType.Gte]: LiteralLogicType.Gte,
+						[TypedInputLogicType.Lt]: LiteralLogicType.Lt,
+						[TypedInputLogicType.Lte]: LiteralLogicType.Lte,
+						[TypedInputLogicType.Neq]: LiteralLogicType.Neq,
+						[TypedInputLogicType.Or]: LiteralLogicType.Or
+					}
+					let cond = condMap[source.condition];
+					const logicResult: LiteralValue = {
+                        type: LiteralEnum.LogicExpr,
+                        condition: cond, // Copy the primitive condition
+                        lvalue: { type: LiteralEnum.Nil }, // to be filled in
+                        rvalue: { type: LiteralEnum.Nil } // to be filled in
+                    };
+					// Link to parent
+					task.setResult(logicResult);
+					stack.push({
+                        source: source.rvalue,
+                        setResult: (result) => {
+                            logicResult.rvalue = result;
+                        }
+                    });
+					stack.push({
+                        source: source.lvalue,
+                        setResult: (result) => {
+                            logicResult.lvalue = result;
+                        }
+                    });
+					continue;
+				default:
+					throw new Error("unexpected typed input found")
+			}
+		}
+		return rootResult!;
 	}
 
 	/**
@@ -795,139 +895,6 @@ export class CodeGenASTGenerator {
 			name: arg.data.name,
 			description: arg.data.description,
 			required: arg.data.required
-		};
-	}
-
-	/** Visits a ConditionalType and returns its AST representation.
-	 *
-	 * @param data The ConditionalType to convert to AST.
-	 * @return The AST representation of the ConditionalType.
-	 */
-	private visitConditionalType(currentAst: CodeGenAST, data: ConditionalType): IConditionalType {
-		switch (data.type) {
-			case ConditionalTypeEnum.Unselected:
-				this.pushError(currentAst, `Unselected ConditionalLogicType encountered.`);
-				return {
-					type: IConditionalTypeEnum.Raw,
-					condition: ''
-				};
-			case ConditionalTypeEnum.LogicExpr:
-				return this.visitConditionalLogicType(currentAst, data);
-			case ConditionalTypeEnum.ParensBlock:
-				return {
-					type: IConditionalTypeEnum.ParensBlock,
-					condition: this.visitConditionalTypeParensBlock(currentAst, data)
-				};
-			case ConditionalTypeEnum.Raw:
-				return {
-					type: IConditionalTypeEnum.Raw,
-					condition: data.condition // Raw condition for the logic expression
-				};
-			case ConditionalTypeEnum.Literal:
-				return this.visitConditionalTypeLiteral(currentAst, data);
-			default:
-				this.pushError(currentAst, `Unknown ConditionalType ${JSON.stringify(data)} encountered.`);
-				return {
-					type: IConditionalTypeEnum.Raw,
-					condition: '' // Default to an empty string for raw condition
-				};
-		}
-	}
-
-	/**
-	 * Visits a ConditionalTypeContinuable and returns its AST representation.
-	 * @param data The ConditionalTypeContinuable to convert to AST.
-	 * @return The AST representation of the ConditionalTypeContinuable.
-	 */
-	private visitConditionalTypeContinuable(
-		currentAst: CodeGenAST,
-		data: ConditionalTypeContinuable
-	): IConditionalTypeContinuable {
-		let op = IConditionalTypeContinuableEnum.And;
-		if (data.op === 'or') {
-			op = IConditionalTypeContinuableEnum.Or;
-		}
-
-		return {
-			op: op,
-			condition: this.visitConditionalType(currentAst, data.condition)
-		};
-	}
-
-	/**
-	 * Visits a ConditionalLogicType and returns its AST representation.
-	 * @param data The ConditionalLogicType to convert to AST.
-	 * @returns The AST representation of the ConditionalLogicType.
-	 */
-	private visitConditionalLogicType(
-		currentAst: CodeGenAST,
-		data: ConditionalTypeLogic
-	): IConditionalTypeLogic {
-		if (data.condition.type === ConditionalLogicTypeEnum.Unselected) {
-			this.pushError(currentAst, `Unselected ConditionalLogicType encountered.`);
-			return {
-				type: IConditionalTypeEnum.LogicExpr,
-				condition: {
-					type: IConditionalLogicTypeEnum.IfEq,
-					left: {
-						type: ITypedInputEnum.Nil
-					},
-					right: {
-						type: ITypedInputEnum.Nil
-					}
-				}
-			};
-		}
-
-		const typeMap = {
-			[ConditionalLogicTypeEnum.IfEq]: IConditionalLogicTypeEnum.IfEq,
-			[ConditionalLogicTypeEnum.IfNeq]: IConditionalLogicTypeEnum.IfNeq,
-			[ConditionalLogicTypeEnum.IfGt]: IConditionalLogicTypeEnum.IfGt,
-			[ConditionalLogicTypeEnum.IfGte]: IConditionalLogicTypeEnum.IfGte,
-			[ConditionalLogicTypeEnum.IfLt]: IConditionalLogicTypeEnum.IfLt,
-			[ConditionalLogicTypeEnum.IfLte]: IConditionalLogicTypeEnum.IfLte
-		};
-
-		return {
-			type: IConditionalTypeEnum.LogicExpr,
-			condition: {
-				type: typeMap[data.condition.type],
-				left: this.visitTypedInput(data.condition.left),
-				right: this.visitTypedInput(data.condition.right)
-			},
-			next: data.next ? this.visitConditionalTypeContinuable(currentAst, data.next) : undefined
-		};
-	}
-
-	/**
-	 * Visits a ConditionalTypeParensBlock and returns its AST representation.
-	 * @param data The ConditionalTypeParensBlock to convert to AST.
-	 * @returns The AST representation of the ConditionalTypeParensBlock.
-	 */
-	private visitConditionalTypeParensBlock(
-		currentAst: CodeGenAST,
-		data: ConditionalTypeParensBlock
-	): IConditionalTypeParensBlock {
-		return {
-			type: IConditionalTypeEnum.ParensBlock,
-			condition: this.visitConditionalType(currentAst, data.condition),
-			next: data.next ? this.visitConditionalTypeContinuable(currentAst, data.next) : undefined
-		};
-	}
-
-	/**
-	 * Visits a ConditionalTypeLiteral and returns its AST representation.
-	 * @param data The ConditionalTypeLiteral to convert to AST.
-	 * @returns The AST representation of the ConditionalTypeLiteral.
-	 */
-	private visitConditionalTypeLiteral(
-		currentAst: CodeGenAST,
-		data: ConditionalTypeLiteral
-	): IConditionalTypeLiteral {
-		return {
-			type: IConditionalTypeEnum.Literal,
-			value: this.visitTypedInput(data.value),
-			next: data.next ? this.visitConditionalTypeContinuable(currentAst, data.next) : undefined
 		};
 	}
 }

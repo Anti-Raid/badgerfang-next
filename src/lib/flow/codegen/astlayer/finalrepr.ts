@@ -22,6 +22,7 @@ export interface LiteralString {
 	type: LiteralEnum.String;
 	value: string;
 	interpolated: boolean;
+	multiline?: boolean;
 }
 
 export interface LiteralNumber {
@@ -260,7 +261,7 @@ export interface FunctionCall {
 
 export interface WhileLoop {
 	type: ReprEnum.WhileLoop;
-	condition: string; // The condition for the while loop
+	condition: LiteralValue; // The condition for the while loop
 	body: IRepr[]; // The body of the while loop
 }
 
@@ -286,7 +287,7 @@ export type IRepr =
 /**
  * Writer class to help handle code generation.
  */
-class Writer {
+export class Writer {
 	private code: string[] = [];
 
 	constructor(code: string[] = []) {
@@ -558,13 +559,13 @@ export class FinalRepr {
 	 * Visits a Literal node and returns the string representation.
 	 */
 	private visitLiteral(writer: Writer, inode: Literal) {
-		return this.visitLiteralValue(writer, inode.value);
+		return FinalRepr.visitLiteralValue(writer, inode.value);
 	}
 
 	/**
 	 * Visit a LiteralValue and return the string representation.
 	 */
-	private visitLiteralValue(writer: Writer, value: LiteralValue, inlineStatus?: InlineStatus) {
+	static visitLiteralValue(writer: Writer, value: LiteralValue, inlineStatus?: InlineStatus) {
 		const _isValidIdentifier = (key: string): boolean => {
 			return /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(key);
 		}
@@ -592,24 +593,30 @@ export class FinalRepr {
 
 			switch (lvalue.type) {
 				case LiteralEnum.Nil:
-					stack.push({ type: "token", "str": "nil" })
+					if (value.tableKey) {
+						stack.push({ type: "token", "str": "[nil]" })
+					} else {
+						stack.push({ type: "token", "str": "nil" })
+					}
 					continue;
 				case LiteralEnum.String:
 					if (value.tableKey) {
-						if (value.tableKey) {
-							if (lvalue.interpolated) {
-								throw new Error("Table key cannot be an interpolated string");
-							}
-
-							if (_isValidIdentifier(lvalue.value)) {
-								// It's a valid identifier, write it directly (e.g., foo)
-								stack.push({ type: "token", str: lvalue.value });
-							} else {
-								// Not a valid identifier, wrap it (e.g., ["foo bar"])
-								stack.push({ type: "token", str: `["${lvalue.value.replaceAll('"', '\\"')}"]` });
-							}
-							continue;
+						if (lvalue.interpolated) {
+							throw new Error("Table key cannot be an interpolated string");
 						}
+
+						if (lvalue.multiline) {
+							throw new Error("Table key cannot be an multiline string");
+						}
+
+						if (_isValidIdentifier(lvalue.value)) {
+							// It's a valid identifier, write it directly (e.g., foo)
+							stack.push({ type: "token", str: lvalue.value });
+						} else {
+							// Not a valid identifier, wrap it (e.g., ["foo bar"])
+							stack.push({ type: "token", str: `["${lvalue.value.replaceAll('"', '\\"').replaceAll('\n', '\\n')}"]` });
+						}
+						continue;
 					}
 
 					if (lvalue.interpolated) {
@@ -617,16 +624,12 @@ export class FinalRepr {
 						continue
 					}
 
-					if (
-						lvalue.value.includes('\n') &&
-						!lvalue.value.includes('[[') &&
-						!lvalue.value.includes(']]')
-					) {
+					if (lvalue.multiline) {
 						// If the string contains a newline, use a multiline string
-						stack.push({ type: "token", "str": `[[${lvalue.value}]` })
+						stack.push({ type: "token", "str": `[[${lvalue.value.replaceAll('[[', '\[\[').replaceAll("']]", '\]\]')}]]` })
 						continue;
 					}
-					stack.push({ type: "token", "str": `"${lvalue.value.replaceAll('"', '\\"')}"` })
+					stack.push({ type: "token", "str": `"${lvalue.value.replaceAll('"', '\\"').replaceAll('\n', '\\n')}"` })
 					continue;
 				case LiteralEnum.Number:
 					const numStr = lvalue.value.toString();
@@ -715,8 +718,10 @@ export class FinalRepr {
 	 * Visit IfCondition and return the string representation.
 	 */
 	private visitIfCondition(writer: Writer, inode: IfCondition) {
-		writer.write(`if ${inode.data.condition} then\n`);
-		let lvw = new Writer();
+		let lvw = new Writer()
+		FinalRepr.visitLiteralValue(lvw, inode.data.condition)
+		writer.write(`if ${lvw.getCodeString()} then\n`);
+		lvw.clear(); // Clear the writer for the body bit
 
 		// First handle body statements
 		this.visitStatementOrCommentNodes(lvw, inode.data.body);
@@ -834,7 +839,7 @@ export class FinalRepr {
 		switch (condition.type) {
 			case LiteralForLoopEnum.GeneralizedIteration:
 				let lvw = new Writer();
-				this.visitLiteralValue(lvw, condition.iterable);
+				FinalRepr.visitLiteralValue(lvw, condition.iterable);
 				if (lvw.getCode().length === 0) {
 					this.pushError('Iterable in generalized for loop cannot be empty');
 				}
@@ -855,7 +860,7 @@ export class FinalRepr {
 		let args = inode.args
 			.map((arg) => {
 				let argWriter = new Writer();
-				this.visitLiteralValue(argWriter, arg);
+				FinalRepr.visitLiteralValue(argWriter, arg);
 				return argWriter.getCodeString();
 			})
 			.join(',\n\t');
@@ -880,8 +885,10 @@ export class FinalRepr {
 	 * Visits a WhileLoop and returns the string representation.
 	 */
 	private visitWhileLoop(writer: Writer, inode: WhileLoop) {
-		writer.write(`while ${inode.condition} do\n`);
-		let lvw = new Writer();
+		let lvw = new Writer()
+		FinalRepr.visitLiteralValue(lvw, inode.condition)
+		writer.write(`while ${lvw.getCodeString()} do\n`);
+		lvw.clear(); // Clear the lvw for the visit stmt
 		this.visitStatementOrCommentNodes(lvw, inode.body);
 
 		for (const b of lvw.getCode()) {
@@ -897,7 +904,7 @@ export class FinalRepr {
 	 */
 	private visitReturn(writer: Writer, inode: Return) {
 		let rvw = new Writer();
-		this.visitLiteralValue(rvw, inode.value);
+		FinalRepr.visitLiteralValue(rvw, inode.value);
 		writer.write(`return ${rvw.getCodeString()}\n`);
 	}
 
