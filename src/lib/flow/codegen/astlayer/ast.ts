@@ -1,144 +1,5 @@
 import { ASTPreludeApply } from './ast_transforms';
-import { LiteralValue } from './finalrepr';
-
-export enum IForLoopTypeEnum {
-	GeneralizedIteration = 'IGeneralizedIteration',
-	Range = 'IRange',
-	Raw = 'IRaw'
-}
-
-/**
- * Luau generalized for loop (for varbinds in iterable do ... end)
- */
-export interface IForLoopGeneralizedIteration {
-	type: IForLoopTypeEnum.GeneralizedIteration;
-	varbinds: string[];
-	iterable: LiteralValue;
-}
-
-/**
- * Luau numeric for loop (for i = start, end [, step] do ... end)
- */
-export interface IForLoopRange {
-	type: IForLoopTypeEnum.Range;
-	varbind: string;
-	start: number;
-	end: number;
-	step?: number; // Optional step value
-}
-
-export interface IForLoopRaw {
-	type: IForLoopTypeEnum.Raw;
-	condition: string; // Raw condition for the loop
-}
-
-export type IForLoopType = 
-	| IForLoopGeneralizedIteration
-	| IForLoopRange
-	| IForLoopRaw
-
-/**
- * A abstract syntax tree node type for code generation.
- */
-export enum INodeTypeEnum {
-	SetVariable = 'ISetVariable',
-	IfCondition = 'IIfCondition',
-	ForLoop = 'IForLoop',
-	WhileLoop = 'IWhileLoop',
-	CustomCode = 'ICustomCode',
-	Block = 'IBlock',
-
-	LocalFunctionDeclaration = 'LocalFunctionDeclaration',
-	FunctionDeclaration = 'FunctionDeclaration'
-}
-
-export interface IVariableSetNode {
-	type: INodeTypeEnum.SetVariable;
-	data: {
-		name: string;
-		value: LiteralValue;
-	};
-}
-
-export interface IIfConditionNode {
-	type: INodeTypeEnum.IfCondition;
-	data: {
-		condition: LiteralValue;
-		body: INode[];
-		elseifs?: IElseIf[];
-		else?: INode[];
-	};
-}
-
-export interface IElseIf {
-	condition: LiteralValue;
-	body: INode[];
-}
-
-export interface IForLoopNode {
-	type: INodeTypeEnum.ForLoop;
-	data: {
-		condition: IForLoopType;
-		body: INode[];
-	};
-}
-
-export interface WhileLoopNode {
-	type: INodeTypeEnum.WhileLoop;
-	data: {
-		condition: LiteralValue;
-		body: INode[];
-	};
-}
-
-export interface ICustomCodeNode {
-	type: INodeTypeEnum.CustomCode;
-	data: {
-		code: string;
-	};
-}
-
-export interface IBlockNode {
-	type: INodeTypeEnum.Block;
-	data: {
-		body: INode[];
-	};
-}
-
-export interface ILocalFunctionDeclaration {
-	type: INodeTypeEnum.LocalFunctionDeclaration;
-	name: string; // The name of the function
-	params: IFunctionParameter[]; // The parameters of the function
-	body: INode[]; // The body of the function
-	returnType: IFunctionReturn; // Optional return type of the function
-}
-
-export interface IFunctionDeclaration {
-	type: INodeTypeEnum.FunctionDeclaration;
-	name: string; // The name of the function
-	params: IFunctionParameter[]; // The parameters of the function
-	body: INode[]; // The body of the function
-	returnType: IFunctionReturn; // Optional return type of the function
-}
-
-export interface IFunctionParameter {
-	name: string; // The name of the parameter
-	type?: string; // Optional type of the parameter
-}
-
-export interface IFunctionReturn {
-	type?: string; // The type of the return value
-}
-
-export type INode =
-	| IVariableSetNode
-	| IIfConditionNode
-	| IForLoopNode
-	| WhileLoopNode
-	| ICustomCodeNode
-	| IBlockNode
-	| ILocalFunctionDeclaration
-	| IFunctionDeclaration;
+import { Node } from './finalrepr';
 
 export interface ICommandArgument {
 	type: ICommandArgumentType;
@@ -203,7 +64,7 @@ export class CodeGenAST {
 	/**
 	 * The nodes in the IR.
 	 */
-	public nodes: INode[];
+	public nodes: Node[];
 	/**
 	 * Error messages generated during the IR generation.
 	 */
@@ -224,7 +85,7 @@ export class CodeGenAST {
 
 	constructor(
 		prelude: IPreludeData = { type: IPreludeTypeEnum.Library, data: { name: 'Unnamed Library' } },
-		nodes: INode[] = [],
+		nodes: Node[] = [],
 		errors: string[] = [],
 		warnings: string[] = [],
 		dependencies: Record<string, string> = {},

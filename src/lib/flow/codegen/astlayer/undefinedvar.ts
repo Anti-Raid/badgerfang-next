@@ -1,12 +1,12 @@
 import { Scope } from './scope';
-import { CodeGenAST, IForLoopNode, IIfConditionNode, INode, INodeTypeEnum, IVariableSetNode } from './ast';
-import { LiteralValue } from './finalrepr';
+import { CodeGenAST } from './ast';
+import { ForLoop, IfCondition, LiteralValue, LocalVariableDeclaration, Node, ReprEnum } from './finalrepr';
 
 export class UndefinedVariableCheckScope extends Scope<UndefinedVariableCheckScope> {
 	/**
 	 * Currently known variables in the current scope.
 	 */
-	public variables: Map<string, LiteralValue>; // TODO: potentially change string to contain other data
+	public variables: Map<string, Node>; // TODO: potentially change string to contain other data
 
 	constructor(root: UndefinedVariableCheckScope | null) {
 		super(root);
@@ -17,11 +17,11 @@ export class UndefinedVariableCheckScope extends Scope<UndefinedVariableCheckSco
 		return new UndefinedVariableCheckScope(this)
 	}
 
-	getVariable(variable: string): LiteralValue | undefined {
+	getVariable(variable: string): Node | undefined {
 		return this.find((scope) => scope.variables.get(variable))
 	}
 
-	addVariable(variable: string, type: LiteralValue) {
+	addVariable(variable: string, type: Node) {
 		this.variables.set(variable, type)
 	}
 }
@@ -42,7 +42,7 @@ export class UndefinedVariableCheck {
 	/**
 	 * Helper to loop over a list of INodes and perform the validity check on each.
 	 */
-	public visitNodes(inodes: INode[], scope: UndefinedVariableCheckScope): void {
+	public visitNodes(inodes: Node[], scope: UndefinedVariableCheckScope): void {
 		for (const inode of inodes) {
 			this.visitNode(inode, scope);
 		}
@@ -51,38 +51,38 @@ export class UndefinedVariableCheck {
 	/**
 	 * Helper to descend into a list of INodes with a scope nested on the given scope.
 	 */
-	public descend(inodes: INode[], scope: UndefinedVariableCheckScope) {
+	public descend(inodes: Node[], scope: UndefinedVariableCheckScope) {
 		const nestedScope = scope.nest();
 		this.visitNodes(inodes, nestedScope);
 	}
 
-	visitNode(inode: INode, scope: UndefinedVariableCheckScope): void {
+	visitNode(inode: Node, scope: UndefinedVariableCheckScope): void {
 		switch (inode.type) {
-			case INodeTypeEnum.SetVariable:
-				this.visitSetVariable(inode, scope);
+			case ReprEnum.LocalVariableDeclaration:
+				this.visitLocalVariableDeclaration(inode, scope);
 				break;
-			case INodeTypeEnum.IfCondition:
+			case ReprEnum.IfCondition:
 				this.visitIfCondition(inode, scope);
 				break;
-			case INodeTypeEnum.ForLoop:
+			case ReprEnum.ForLoop:
 				this.visitForLoop(inode, scope);
 				break;
 		}
 	}
 
-	visitSetVariable(inode: IVariableSetNode, scope: UndefinedVariableCheckScope): void {
-		if (scope.getVariable(inode.data.name)) {
+	visitLocalVariableDeclaration(inode: LocalVariableDeclaration, scope: UndefinedVariableCheckScope): void {
+		if (scope.getVariable(inode.lvalue)) {
 			// Push a warning
 			this.ast.warnings.push(
-				`Variable "${inode.data.name}" is already defined in the current scope. As such, the previous variable declaration will be shadowed by the new one`
+				`Variable "${inode.lvalue}" is already defined in the current scope. As such, the previous variable declaration will be shadowed by the new one`
 			);
 			return;
 		}
 		// Add the variable to the known variables set
-		scope.addVariable(inode.data.name, inode.data.value);
+		scope.addVariable(inode.lvalue, inode.rvalue);
 	}
 
-	visitIfCondition(inode: IIfConditionNode, scope: UndefinedVariableCheckScope): void {
+	visitIfCondition(inode: IfCondition, scope: UndefinedVariableCheckScope): void {
 		// Descend into the body of the if condition
 		this.descend(inode.data.body, scope);
 
@@ -99,7 +99,7 @@ export class UndefinedVariableCheck {
 		}
 	}
 
-	visitForLoop(inode: IForLoopNode, scope: UndefinedVariableCheckScope): void {
+	visitForLoop(inode: ForLoop, scope: UndefinedVariableCheckScope): void {
 		// Descend into the body of the for loop
 		this.descend(inode.data.body, scope);
 	}

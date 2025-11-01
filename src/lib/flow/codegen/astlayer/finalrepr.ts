@@ -145,13 +145,13 @@ export const statements = [
 export interface LocalVariableDeclaration {
 	type: ReprEnum.LocalVariableDeclaration;
 	lvalue: string; // Must not contain a dot (.)
-	rvalue: IRepr;
+	rvalue: Node;
 }
 
 export interface GlobalDeclaration {
 	type: ReprEnum.GlobalDeclaration;
 	lvalue: string;
-	rvalue: IRepr;
+	rvalue: Node;
 }
 
 export interface Comment {
@@ -173,22 +173,22 @@ export interface IfCondition {
 	type: ReprEnum.IfCondition;
 	data: {
 		condition: LiteralValue;
-		body: Literal[];
-		elseifs?: LiteralElseIf[];
-		else?: Literal[];
+		body: Node[];
+		elseifs?: ElseIf[];
+		else?: Node[];
 	};
 }
 
-export interface LiteralElseIf {
+export interface ElseIf {
 	condition: LiteralValue;
-	body: Literal[];
+	body: Node[];
 }
 
 export interface LocalFunctionDeclaration {
 	type: ReprEnum.LocalFunctionDeclaration;
 	name: string; // The name of the function
 	params: FunctionParameter[]; // The parameters of the function
-	body: IRepr[]; // The body of the function
+	body: Node[]; // The body of the function
 	returnType: FunctionReturn; // Optional return type of the function
 }
 
@@ -196,7 +196,7 @@ export interface FunctionDeclaration {
 	type: ReprEnum.FunctionDeclaration;
 	name: string; // The name of the function
 	params: FunctionParameter[]; // The parameters of the function
-	body: IRepr[]; // The body of the function
+	body: Node[]; // The body of the function
 	returnType: FunctionReturn; // Optional return type of the function
 }
 
@@ -212,12 +212,12 @@ export interface FunctionReturn {
 export interface ForLoop {
 	type: ReprEnum.ForLoop;
 	data: {
-		condition: LiteralForLoopType;
-		body: IRepr[];
+		condition: ForLoopType;
+		body: Node[];
 	};
 }
 
-export enum LiteralForLoopEnum {
+export enum ForLoopEnum {
 	GeneralizedIteration = 'GeneralizedIteration',
 	Range = 'Range',
 	Raw = 'Raw'
@@ -226,8 +226,8 @@ export enum LiteralForLoopEnum {
 /**
  * Luau generalized for loop (for varbinds in iterable do ... end)
  */
-export interface LiteralForLoopGeneralizedIteration {
-	type: LiteralForLoopEnum.GeneralizedIteration;
+export interface ForLoopGeneralizedIteration {
+	type: ForLoopEnum.GeneralizedIteration;
 	varbinds: string[];
 	iterable: LiteralValue;
 }
@@ -235,23 +235,23 @@ export interface LiteralForLoopGeneralizedIteration {
 /**
  * Luau numeric for loop (for i = start, end [, step] do ... end)
  */
-export interface LiteralForLoopRange {
-	type: LiteralForLoopEnum.Range;
+export interface ForLoopRange {
+	type: ForLoopEnum.Range;
 	varbind: string;
 	start: number;
 	end: number;
 	step?: number; // Optional step value
 }
 
-export interface LiteralForLoopRaw {
-	type: LiteralForLoopEnum.Raw;
+export interface ForLoopRaw {
+	type: ForLoopEnum.Raw;
 	condition: string; // Raw condition for the loop
 }
 
-export type LiteralForLoopType =
-	| LiteralForLoopGeneralizedIteration
-	| LiteralForLoopRange
-	| LiteralForLoopRaw;
+export type ForLoopType =
+	| ForLoopGeneralizedIteration
+	| ForLoopRange
+	| ForLoopRaw;
 
 export interface FunctionCall {
 	type: ReprEnum.FunctionCall;
@@ -262,7 +262,7 @@ export interface FunctionCall {
 export interface WhileLoop {
 	type: ReprEnum.WhileLoop;
 	condition: LiteralValue; // The condition for the while loop
-	body: IRepr[]; // The body of the while loop
+	body: Node[]; // The body of the while loop
 }
 
 export interface Return {
@@ -270,7 +270,7 @@ export interface Return {
 	value: LiteralValue;
 }
 
-export type IRepr =
+export type Node =
 	| LocalVariableDeclaration
 	| GlobalDeclaration
 	| Comment
@@ -394,10 +394,10 @@ const tableSeperatorFor = (depth: number) => {
  * Final repr class
  */
 export class FinalRepr {
-	public repr: IRepr[];
+	public repr: Node[];
 	public errors: string[];
 
-	constructor(repr: IRepr[]) {
+	constructor(repr: Node[]) {
 		this.repr = repr;
 		this.errors = [];
 	}
@@ -419,9 +419,9 @@ export class FinalRepr {
 	}
 
 	/**
-	 * Asserts that a IRepr is a expression.
+	 * Asserts that a Node is a expression.
 	 */
-	private assertExpression(inode: IRepr): boolean {
+	private assertExpression(inode: Node): boolean {
 		if (!expressions.includes(inode.type)) {
 			this.pushError(`Expected an expression, got ${inode.type}`);
 			return false;
@@ -430,9 +430,9 @@ export class FinalRepr {
 	}
 
 	/**
-	 * Asserts that a IRepr is a statement.
+	 * Asserts that a Node is a statement.
 	 */
-	private assertStatement(inode: IRepr): boolean {
+	private assertStatement(inode: Node): boolean {
 		if (!statements.includes(inode.type)) {
 			this.pushError(`Expected a statement, got ${inode.type}`);
 			return false;
@@ -441,9 +441,9 @@ export class FinalRepr {
 	}
 
 	/**
-	 * Visits the IRepr and performs the validity check on said INode
+	 * Visits the Node and performs the validity check on said INode
 	 */
-	private visitRepr(writer: Writer, inode: IRepr) {
+	private visitRepr(writer: Writer, inode: Node) {
 		switch (inode.type) {
 			case ReprEnum.LocalVariableDeclaration:
 				return this.visitLocalVariableDeclaration(writer, inode);
@@ -473,17 +473,17 @@ export class FinalRepr {
 	}
 
 	/**
-	 * Helper to first assert that the IRepr is a expression and then visit it.
+	 * Helper to first assert that the Node is a expression and then visit it.
 	 */
-	private visitExpression(writer: Writer, inode: IRepr) {
+	private visitExpression(writer: Writer, inode: Node) {
 		this.assertExpression(inode);
 		return this.visitRepr(writer, inode);
 	}
 
 	/**
-	 * Helper to first assert that the IRepr is a statement and then visit it.
+	 * Helper to first assert that the Node is a statement and then visit it.
 	 */
-	private visitStatement(writer: Writer, inode: IRepr) {
+	private visitStatement(writer: Writer, inode: Node) {
 		this.assertStatement(inode);
 		return this.visitRepr(writer, inode);
 	}
@@ -492,7 +492,7 @@ export class FinalRepr {
 	 * Visits a LocalVariableDeclaration and returns the string representation.
 	 * It also checks that the lvalue does not contain a dot (.)
 	 */
-	private visitStatementOrComment(writer: Writer, inode: IRepr) {
+	private visitStatementOrComment(writer: Writer, inode: Node) {
 		if (inode.type === ReprEnum.Comment) {
 			return this.visitComment(writer, inode);
 		}
@@ -504,7 +504,7 @@ export class FinalRepr {
 	 * Visits a LocalVariableDeclaration and returns the string representation.
 	 * It also checks that the lvalue does not contain a dot (.)
 	 */
-	private visitStatementOrCommentNodes(writer: Writer, inodes: IRepr[]) {
+	private visitStatementOrCommentNodes(writer: Writer, inodes: Node[]) {
 		for (const inode of inodes) {
 			this.visitStatementOrComment(writer, inode);
 		}
@@ -816,7 +816,7 @@ export class FinalRepr {
 	 * Visits a ForLoop and returns the string representation.
 	 */
 	private visitForLoop(writer: Writer, inode: ForLoop) {
-		this.visitLiteralForLoopType(writer, inode.data.condition);
+		this.visitForLoopType(writer, inode.data.condition);
 		let lvw = new Writer();
 		this.visitStatementOrCommentNodes(lvw, inode.data.body);
 
@@ -829,26 +829,26 @@ export class FinalRepr {
 	}
 
 	/**
-	 * Visits a LiteralForLoopType and returns the string representation.
+	 * Visits a ForLoopType and returns the string representation.
 	 */
 
 	/**
-	 * Visits a LiteralForLoopType and returns the string representation.
+	 * Visits a ForLoopType and returns the string representation.
 	 */
-	private visitLiteralForLoopType(writer: Writer, condition: LiteralForLoopType): void {
+	private visitForLoopType(writer: Writer, condition: ForLoopType): void {
 		switch (condition.type) {
-			case LiteralForLoopEnum.GeneralizedIteration:
+			case ForLoopEnum.GeneralizedIteration:
 				let lvw = new Writer();
 				FinalRepr.visitLiteralValue(lvw, condition.iterable);
 				if (lvw.getCode().length === 0) {
 					this.pushError('Iterable in generalized for loop cannot be empty');
 				}
 				return writer.write(`for ${condition.varbinds.join(', ')} in ${lvw.getCodeString()} do\n`);
-			case LiteralForLoopEnum.Range:
+			case ForLoopEnum.Range:
 				return writer.write(
 					`for ${condition.varbind} = ${condition.start}, ${condition.end}${condition.step ? `, ${condition.step}` : ''} do\n`
 				);
-			case LiteralForLoopEnum.Raw:
+			case ForLoopEnum.Raw:
 				return writer.write(`for ${condition.condition} do\n`); // Raw condition for the loop
 		}
 	}
@@ -911,7 +911,7 @@ export class FinalRepr {
 	/**
 	 * Helper to loop over a list of INodes and perform the validity check on each.
 	 */
-	private visitReprs(writer: Writer, inodes: IRepr[]) {
+	private visitReprs(writer: Writer, inodes: Node[]) {
 		for (const inode of inodes) {
 			this.visitRepr(writer, inode);
 		}

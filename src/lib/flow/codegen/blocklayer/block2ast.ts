@@ -22,17 +22,13 @@ import {
 	CodeGenAST,
 	ICommandArgument,
 	ICommandArgumentType,
-	IElseIf,
-	IForLoopType,
-	IForLoopTypeEnum,
-	INode,
-	INodeTypeEnum,
 	IPreludeTypeEnum,
 } from '../astlayer/ast';
+import { ElseIf, Node as FNode, ReprEnum } from '../astlayer/finalrepr'
 import { baseCommandNodeSchema } from '../../validation';
 import z from 'zod';
 import { startNodeTypes } from '../../startnode';
-import { LiteralEnum, LiteralLogicType, LiteralTableEntry, LiteralValue } from '../astlayer/finalrepr';
+import { LiteralEnum, LiteralLogicType, LiteralTableEntry, LiteralValue, ForLoopType as FForLoopType, ForLoopEnum as FForLoopEnum } from '../astlayer/finalrepr';
 
 interface Visit<T> {
 	/**
@@ -53,7 +49,7 @@ interface VisitResult {
 	/**
 	 * The AST representation of the node being visited.
 	 */
-	ast: INode | null;
+	ast: FNode | null;
 	/**
 	 * The next node to visit in the flow.
 	 */
@@ -190,9 +186,9 @@ export class CodeGenASTGenerator {
 	/**
 	 * Helper to continuously visit nodes and their children and return their AST representation
 	 */
-	private async visitNodeAndChildren(currentAst: CodeGenAST, node: Node<NodeExtData>): Promise<INode[]> {
+	private async visitNodeAndChildren(currentAst: CodeGenAST, node: Node<NodeExtData>): Promise<FNode[]> {
 		let currentNode: Node<NodeExtData> | null = node;
-		let astNodes: INode[] = [];
+		let astNodes: FNode[] = [];
 		let visited = new Set<string>();
 		while (currentNode) {
 			if (visited.has(currentNode.id)) {
@@ -322,9 +318,10 @@ export class CodeGenASTGenerator {
 
 		return {
 			ast: {
-				type: INodeTypeEnum.SetVariable,
-				data: {
-					name: variableName,
+				type: ReprEnum.LocalVariableDeclaration,
+				lvalue: variableName,
+				rvalue: {
+					type: ReprEnum.Literal,
 					value: this.visitTypedInput(variableValue)
 				}
 			},
@@ -356,10 +353,8 @@ export class CodeGenASTGenerator {
 
 		return {
 			ast: {
-				type: INodeTypeEnum.CustomCode,
-				data: {
-					code: code
-				}
+				type: ReprEnum.Raw,
+				code
 			},
 			nextNode
 		};
@@ -427,12 +422,12 @@ export class CodeGenASTGenerator {
 			return a.data.data.index - b.data.data.index;
 		});
 
-		let bodyNodes: INode[] = [];
+		let bodyNodes: FNode[] = [];
 		if (bodyStart) {
 			bodyNodes = await this.visitNodeAndChildren(node.currentAst, bodyStart);
 		}
 
-		let elseIfs: IElseIf[] = [];
+		let elseIfs: ElseIf[] = [];
 		for (const elseif of elseifNodes) {
 			if (elseif.data.type !== NodeTypeEnum.ElseIfCondition) {
 				throw new Error(`Expected ElseIfCondition node, but got ${elseif.data.type}`);
@@ -457,7 +452,7 @@ export class CodeGenASTGenerator {
 			});
 		}
 
-		let elseBlock: INode[] | undefined = undefined;
+		let elseBlock: FNode[] | undefined = undefined;
 		if (elseNode) {
 			if (elseNode.data.type !== NodeTypeEnum.ElseCondition) {
 				throw new Error(`Expected ElseCondition node, but got ${elseNode.data.type}`);
@@ -488,7 +483,7 @@ export class CodeGenASTGenerator {
 
 		return {
 			ast: {
-				type: INodeTypeEnum.IfCondition,
+				type: ReprEnum.IfCondition,
 				data: {
 					condition: this.visitTypedInput(node.data.data.condition),
 					body: bodyNodes,
@@ -535,7 +530,7 @@ export class CodeGenASTGenerator {
 			}
 		}
 
-		let bodyNodes: INode[] = [];
+		let bodyNodes: FNode[] = [];
 		if (bodyStart) {
 			bodyNodes = await this.visitNodeAndChildren(node.currentAst, bodyStart);
 		}
@@ -556,7 +551,7 @@ export class CodeGenASTGenerator {
 
 		return {
 			ast: {
-				type: INodeTypeEnum.ForLoop,
+				type: ReprEnum.ForLoop,
 				data: {
 					condition: this.visitForLoopType(node.data.data.condition),
 					body: bodyNodes
@@ -601,7 +596,7 @@ export class CodeGenASTGenerator {
 			}
 		}
 
-		let bodyNodes: INode[] = [];
+		let bodyNodes: FNode[] = [];
 		if (bodyStart) {
 			bodyNodes = await this.visitNodeAndChildren(node.currentAst, bodyStart);
 		}
@@ -622,11 +617,9 @@ export class CodeGenASTGenerator {
 
 		return {
 			ast: {
-				type: INodeTypeEnum.WhileLoop,
-				data: {
-					condition: this.visitTypedInput(node.data.data.condition),
-					body: bodyNodes
-				}
+				type: ReprEnum.WhileLoop,
+				condition: this.visitTypedInput(node.data.data.condition),
+				body: bodyNodes
 			},
 			nextNode // The next node is the EndCondition's first child, if any
 		};
@@ -819,17 +812,17 @@ export class CodeGenASTGenerator {
 	 * @param value The ForLoopType value to convert to AST.
 	 * @returns The AST representation of the ForLoopType value.
 	 */
-	private visitForLoopType(value: ForLoopType): IForLoopType {
+	private visitForLoopType(value: ForLoopType): FForLoopType {
 		switch (value.type) {
 			case ForLoopTypeEnum.GeneralizedIteration:
 				return {
-					type: IForLoopTypeEnum.GeneralizedIteration,
+					type: FForLoopEnum.GeneralizedIteration,
 					varbinds: value.varbinds,
 					iterable: this.visitTypedInput(value.iterable)
 				};
 			case ForLoopTypeEnum.Range:
 				return {
-					type: IForLoopTypeEnum.Range,
+					type: FForLoopEnum.Range,
 					varbind: value.varbind,
 					start: value.start,
 					end: value.end,
@@ -837,7 +830,7 @@ export class CodeGenASTGenerator {
 				};
 			case ForLoopTypeEnum.Raw:
 				return {
-					type: IForLoopTypeEnum.Raw,
+					type: FForLoopEnum.Raw,
 					condition: value.condition // Raw condition for the loop
 				};
 		}

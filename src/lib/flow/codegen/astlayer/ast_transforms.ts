@@ -1,4 +1,5 @@
-import { CodeGenAST, ICommandArgumentType, INode, INodeTypeEnum, IPreludeTypeEnum } from './ast';
+import { CodeGenAST, ICommandArgumentType, IPreludeTypeEnum } from './ast';
+import { Node, ReprEnum } from './finalrepr';
 
 export abstract class BaseTransform {
 	protected ast: CodeGenAST;
@@ -69,17 +70,15 @@ export class ASTPreludeApply extends BaseTransform {
 
 				registerFuncStart.push('end');
 
-				let registerFnNode: INode = {
-					type: INodeTypeEnum.CustomCode,
-					data: {
-						code: registerFuncStart.join('\n')
-					}
+				let registerFnNode: Node = {
+					type: ReprEnum.Raw,
+					code: registerFuncStart.join('\n')
 				};
 
 				console.log(registerFuncStart.join('\n'));
 
-				let logicNode: INode = {
-					type: INodeTypeEnum.LocalFunctionDeclaration,
+				let logicNode: Node = {
+					type: ReprEnum.LocalFunctionDeclaration,
 					body: this.ast.nodes,
 					name: 'execute',
 					params: [
