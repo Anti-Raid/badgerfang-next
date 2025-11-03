@@ -21,6 +21,7 @@ import { createSNode, SubflowData, SubflowNodeExtData } from '@/lib/flow/subnode
 interface Props {
 	initialData?: SubflowData;
 	onChange: () => void;
+	id: string;
 }
 
 const edgeTypes = {
@@ -30,7 +31,7 @@ const edgeTypes = {
 // TODO: Make some nodes!
 const nodeTypes = {};
 
-export const BaseSubflow = ({ initialData, onChange }: Props) => {
+export const BaseSubflow = ({ initialData, onChange, id }: Props) => {
 	const [nodes, setNodes, onNodesChange] = useNodesState(initialData?.nodes || []);
 
 	// Trigger onChange when nodes change
@@ -182,6 +183,7 @@ export const BaseSubflow = ({ initialData, onChange }: Props) => {
 			proOptions={{
 				hideAttribution: true
 			}}
+			id={`subflow-${id}`}
 			className="!bg-background flex-auto react-flow"
 			defaultViewport={{
 				zoom: 1.5,

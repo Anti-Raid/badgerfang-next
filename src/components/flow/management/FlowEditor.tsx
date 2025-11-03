@@ -270,6 +270,7 @@ export default function FlowEditor({ initialData, onChange }: Props) {
 			proOptions={{
 				hideAttribution: true
 			}}
+			id="main-flow-editor"
 			className="!bg-background flex-auto react-flow"
 			defaultViewport={{
 				zoom: 1.5,

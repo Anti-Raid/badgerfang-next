@@ -7,9 +7,10 @@ import SubFlow from './Subflow';
 interface Props {
 	flowData: SubflowData;
 	onChange: (data: SubflowData) => void;
+	id: string;
 }
 
-function InnerSubFlow({ flowData, onChange }: Props) {
+function InnerSubFlow({ flowData, onChange, id }: Props) {
 	const { getNodes, getEdges } = useReactFlow<SubflowNodeType>();
 
 	const save = () => {
@@ -21,7 +22,7 @@ function InnerSubFlow({ flowData, onChange }: Props) {
 
 	return (
 		<div className="flex flex-col">
-			<SubFlow flowData={flowData} onChange={save} />
+			<SubFlow flowData={flowData} onChange={save} id={id} />
 		</div>
 	);
 }

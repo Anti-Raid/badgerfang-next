@@ -184,6 +184,7 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 					{value.type === TypedInputEnum.ComplexSubflow && (
 						<>
 							<SubflowSection
+								id={`typed-input-subflow-${id}`}
 								flowData={value.flow}
 								onChange={(newFlowData) => {
 									if (disabled) return;

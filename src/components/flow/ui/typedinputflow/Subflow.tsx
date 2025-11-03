@@ -11,13 +11,17 @@ interface Props {
 	 * On change handler that is called whenever the subflow data changes.
 	 */
 	onChange: () => void;
+	/**
+	 * Unique identifier for the subflow instance.
+	 */
+	id: string;
 }
 
-const SubFlow = memo(function SubFlow({ flowData, onChange }: Props) {
+const SubFlow = memo(function SubFlow({ flowData, onChange, id }: Props) {
 	return (
 		<div className="flex flex-auto overflow-y-hidden relative">
-			<div className="flex flex-row w-full h-[20vh] pointer-events-auto">
-				<BaseSubflow initialData={flowData} onChange={onChange} />
+			<div className="flex flex-row w-full h-[28vh] pointer-events-auto">
+				<BaseSubflow initialData={flowData} onChange={onChange} id={id} />
 			</div>
 		</div>
 	);
