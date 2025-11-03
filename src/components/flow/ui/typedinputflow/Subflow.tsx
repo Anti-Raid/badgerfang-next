@@ -16,10 +16,7 @@ interface Props {
 const SubFlow = memo(function SubFlow({ flowData, onChange }: Props) {
 	return (
 		<div className="flex flex-auto overflow-y-hidden relative">
-			{/*<div className="flex flex-row w-full h-full">
-                <FlowNodeExplorer />
-            </div>*/}
-			<div className="flex flex-row w-full h-full">
+			<div className="flex flex-row w-full h-[20vh] pointer-events-auto">
 				<BaseSubflow initialData={flowData} onChange={onChange} />
 			</div>
 		</div>

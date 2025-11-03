@@ -169,7 +169,11 @@ export const IfCondition = (props: NodeProps) => {
 
 	const [value, setValue] = useState<TypedInput>(
 		props.data.data.condition || {
-			type: TypedInputEnum.ComplexSubflow
+			type: TypedInputEnum.ComplexSubflow,
+			flow: {
+				nodes: [],
+				edges: []
+			}
 		}
 	);
 
@@ -204,7 +208,11 @@ export const ElseIfCondition = (props: NodeProps) => {
 
 	const [value, setValue] = useState<TypedInput>(
 		props.data.data.condition || {
-			type: TypedInputEnum.ComplexSubflow
+			type: TypedInputEnum.ComplexSubflow,
+			flow: {
+				nodes: [],
+				edges: []
+			}
 		}
 	);
 	const [index, setIndex] = useState<number>(props.data.data.index || 0);
@@ -721,7 +729,11 @@ export const WhileLoop = (props: NodeProps) => {
 
 	const [value, setValue] = useState<TypedInput>(
 		props.data.data.condition || {
-			type: TypedInputEnum.ComplexSubflow
+			type: TypedInputEnum.ComplexSubflow,
+			flow: {
+				nodes: [],
+				edges: []
+			}
 		}
 	);
 

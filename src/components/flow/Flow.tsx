@@ -17,7 +17,7 @@ interface Props {
 const Flow = memo(function Flow({ flowData, onChange }: Props) {
 	return (
 		<div className="flex flex-auto overflow-y-hidden relative">
-			<div className="flex flex-row w-full h-full">
+			<div className="flex flex-row h-full">
 				<FlowNodeExplorer />
 			</div>
 			<div className="flex flex-row w-full h-full">

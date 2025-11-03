@@ -3,6 +3,7 @@ import {
 	stringToTypedInputEnum,
 	TypedInput,
 	TypedInputEnum,
+	typedInputEnumToString,
 	TypedInputLogicType,
 	TypedInputTableEntry
 } from '@/lib/flow/data';
@@ -154,7 +155,7 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 					<InputField
 						type="select"
 						label="Type"
-						value={value.type}
+						value={typedInputEnumToString(value.type)}
 						disabled={disabled}
 						hideSelectOptionsPlaceholder={true}
 						onChange={(e) => {
@@ -164,15 +165,15 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 							onChange(createValueWithType(newType));
 						}}
 						options={[
-							{ value: TypedInputEnum.ComplexSubflow, label: 'Complex Expression / Conditionals' },
-							{ value: TypedInputEnum.Nil, label: 'Nil / Null / None' },
-							{ value: TypedInputEnum.String, label: 'String' },
-							{ value: TypedInputEnum.Number, label: 'Number' },
-							{ value: TypedInputEnum.Table, label: 'Table' },
-							{ value: TypedInputEnum.TableArray, label: 'Array' },
-							{ value: TypedInputEnum.Boolean, label: 'Boolean' },
-							{ value: TypedInputEnum.Vector, label: 'Vector' },
-							{ value: TypedInputEnum.Raw, label: 'Raw (Lua code snippet)' }
+							{ value: typedInputEnumToString(TypedInputEnum.ComplexSubflow), label: 'Complex Expression / Conditionals' },
+							{ value: typedInputEnumToString(TypedInputEnum.Nil), label: 'Nil / Null / None' },
+							{ value: typedInputEnumToString(TypedInputEnum.String), label: 'String' },
+							{ value: typedInputEnumToString(TypedInputEnum.Number), label: 'Number' },
+							{ value: typedInputEnumToString(TypedInputEnum.Table), label: 'Table' },
+							{ value: typedInputEnumToString(TypedInputEnum.TableArray), label: 'Array' },
+							{ value: typedInputEnumToString(TypedInputEnum.Boolean), label: 'Boolean' },
+							{ value: typedInputEnumToString(TypedInputEnum.Vector), label: 'Vector' },
+							{ value: typedInputEnumToString(TypedInputEnum.Raw), label: 'Raw (Lua code snippet)' }
 						]}
 						id={`${id}-type`}
 						aria-label={`${label ? label + ' Type' : 'Type'}`}
@@ -191,8 +192,7 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 										flow: newFlowData
 									});
 								}}
-							/>{' '}
-							{/**TODO: Support id here*/}
+							/>							
 						</>
 					)}
 

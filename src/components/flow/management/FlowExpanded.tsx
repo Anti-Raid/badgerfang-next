@@ -132,7 +132,7 @@ export const FlowExpanded: React.FC<FlowExpandedProps> = ({
 						exit="exit"
 						onClick={(e) => e.stopPropagation()}
 						style={{ perspective: '1000px' }}
-						className="relative w-full max-w-2xl max-h-[90vh] overflow-hidden"
+						className="relative w-full max-w-4xl max-h-[90vh] overflow-hidden" // Make max-w customizable per node
 					>
 						{/* Decorative background elements */}
 						<div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-extra/5 rounded-2xl" />

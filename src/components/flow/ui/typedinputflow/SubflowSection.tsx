@@ -20,7 +20,7 @@ function InnerSubFlow({ flowData, onChange }: Props) {
 	};
 
 	return (
-		<div className="h-[75dvh] w-[85dvw] flex flex-col">
+		<div className="flex flex-col">
 			<SubFlow flowData={flowData} onChange={save} />
 		</div>
 	);

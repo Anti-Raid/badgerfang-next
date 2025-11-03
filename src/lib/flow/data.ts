@@ -84,6 +84,37 @@ export const stringToTypedInputEnum = (value: string): TypedInputEnum => {
 	}
 };
 
+export const typedInputEnumToString = (type: TypedInputEnum): string => {
+	switch (type) {
+		case TypedInputEnum.Nil:
+			return 'nil';
+		case TypedInputEnum.String:
+			return 'string';
+		case TypedInputEnum.Number:
+			return 'number';
+		case TypedInputEnum.Table:
+			return 'table';
+		case TypedInputEnum.TableArray:
+			return 'tablearray';
+		case TypedInputEnum.Boolean:
+			return 'boolean';
+		case TypedInputEnum.Vector:
+			return 'vector';
+		case TypedInputEnum.Raw:
+			return 'raw';
+		case TypedInputEnum.Parens:
+			return 'parens';
+		case TypedInputEnum.LogicExpr:
+			return 'logicexpr';
+		case TypedInputEnum.RelationalExpr:
+			return 'relationalexpr';
+		case TypedInputEnum.ComplexSubflow:
+			return 'complexsubflow';
+		default:
+			throw new Error(`Unknown TypedInputEnum: ${type}`);
+	}
+}
+
 export interface TypedInputNil {
 	type: TypedInputEnum.Nil;
 }
