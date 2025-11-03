@@ -1,6 +1,13 @@
 import { Scope } from './scope';
 import { CodeGenAST } from './ast';
-import { ForLoop, IfCondition, LiteralValue, LocalVariableDeclaration, Node, ReprEnum } from './finalrepr';
+import {
+	ForLoop,
+	IfCondition,
+	LiteralValue,
+	LocalVariableDeclaration,
+	Node,
+	ReprEnum
+} from './finalrepr';
 
 export class UndefinedVariableCheckScope extends Scope<UndefinedVariableCheckScope> {
 	/**
@@ -14,15 +21,15 @@ export class UndefinedVariableCheckScope extends Scope<UndefinedVariableCheckSco
 	}
 
 	nest(): UndefinedVariableCheckScope {
-		return new UndefinedVariableCheckScope(this)
+		return new UndefinedVariableCheckScope(this);
 	}
 
 	getVariable(variable: string): Node | undefined {
-		return this.find((scope) => scope.variables.get(variable))
+		return this.find((scope) => scope.variables.get(variable));
 	}
 
 	addVariable(variable: string, type: Node) {
-		this.variables.set(variable, type)
+		this.variables.set(variable, type);
 	}
 }
 
@@ -33,7 +40,7 @@ export class UndefinedVariableCheckScope extends Scope<UndefinedVariableCheckSco
  * as using variables in a TypedInput etc is not yet implemented.
  */
 export class UndefinedVariableCheck {
-	private ast: CodeGenAST
+	private ast: CodeGenAST;
 
 	constructor(ast: CodeGenAST) {
 		this.ast = ast;
@@ -70,7 +77,10 @@ export class UndefinedVariableCheck {
 		}
 	}
 
-	visitLocalVariableDeclaration(inode: LocalVariableDeclaration, scope: UndefinedVariableCheckScope): void {
+	visitLocalVariableDeclaration(
+		inode: LocalVariableDeclaration,
+		scope: UndefinedVariableCheckScope
+	): void {
 		if (scope.getVariable(inode.lvalue)) {
 			// Push a warning
 			this.ast.warnings.push(

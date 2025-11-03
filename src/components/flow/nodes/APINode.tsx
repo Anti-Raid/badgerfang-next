@@ -43,13 +43,10 @@ function APINode(props: NodeProps) {
 	}
 
 	const inpValues = props.data.data.inputValues;
-	const inp = useMemo(
-		() => {
-			console.log("Rerendering inputs")
-			return fieldToIDLInput(nodeidl.flowui.input, inpValues)
-		},
-		[inpValues]
-	);
+	const inp = useMemo(() => {
+		console.log('Rerendering inputs');
+		return fieldToIDLInput(nodeidl.flowui.input, inpValues);
+	}, [inpValues]);
 
 	const flow = useReactFlow();
 	const [inputValues, setInputValues] = useState<IDLInput>(inp);
@@ -72,9 +69,9 @@ function APINode(props: NodeProps) {
 			<FlowExpanded
 				nodeProps={props}
 				onDone={() => {
-					console.log("saving")
+					console.log('saving');
 					let tyt = idlInputToField(inputValues);
-					console.log("f2idl", fieldToIDLInput(nodeidl.flowui.input, tyt))
+					console.log('f2idl', fieldToIDLInput(nodeidl.flowui.input, tyt));
 					flow.updateNodeData(props.id, {
 						data: {
 							nodeidl: nodeidl.id,
@@ -101,7 +98,12 @@ function APINode(props: NodeProps) {
 
 						{/* Input Fields */}
 						<div className="space-y-3">
-							<IDLInputField label={inputValues.common.shortname} description={inputValues.common.description} value={inputValues} onChange={setInputValues} />
+							<IDLInputField
+								label={inputValues.common.shortname}
+								description={inputValues.common.description}
+								value={inputValues}
+								onChange={setInputValues}
+							/>
 						</div>
 					</div>
 				</div>

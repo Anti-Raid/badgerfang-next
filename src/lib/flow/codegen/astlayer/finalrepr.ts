@@ -11,7 +11,8 @@ export enum LiteralEnum {
 	Vector = 'Vector',
 	Raw = 'Raw',
 	Parens = 'Parens',
-	LogicExpr = 'LogicExp'
+	LogicExpr = 'LogicExp',
+	RelationalExpr = 'RelationalExpr'
 }
 
 export interface LiteralNil {
@@ -70,21 +71,32 @@ export interface LiteralParens {
 }
 
 export enum LiteralLogicType {
+	And = 'And',
+	Or = 'Or'
+}
+
+// Method 1: a and b or c => { type: And, lvalue: a, rvalue: { type: Or, lvalue: b, rvalue: c } }
+// Method 2: a and b or c => { operand: a, operations: [ { type: And, value: b }, { type: Or, value: c } ] }
+export interface LiteralLogicStmt {
+	type: LiteralEnum.LogicExpr;
+	condition: LiteralLogicType; // The logic condition
+	operands: LiteralValue[]; // The operands involved in the logic expression
+}
+
+export enum LiteralRelationalOperatorType {
 	Eq = 'Eq',
 	Neq = 'Neq',
 	Gt = 'Gt',
 	Gte = 'Gte',
 	Lt = 'Lt',
-	Lte = 'Lte',
-	And = 'And',
-	Or = 'Or'
+	Lte = 'Lte'
 }
 
-export interface LiteralLogicStmt {
-	type: LiteralEnum.LogicExpr;
-	lvalue: LiteralValue;
-	condition: LiteralLogicType; // The logic condition
-	rvalue: LiteralValue;
+export interface LiteralRelationalExpr {
+	type: LiteralEnum.RelationalExpr;
+	operator: LiteralRelationalOperatorType; // The relational operator
+	lvalue: LiteralValue; // The left-hand side value
+	rvalue: LiteralValue; // The right-hand side value
 }
 
 export type LiteralValue =
@@ -97,7 +109,8 @@ export type LiteralValue =
 	| LiteralVector
 	| LiteralRaw
 	| LiteralParens
-	| LiteralLogicStmt;
+	| LiteralLogicStmt
+	| LiteralRelationalExpr;
 
 /**
  * A final representation type for code generation.
@@ -248,10 +261,7 @@ export interface ForLoopRaw {
 	condition: string; // Raw condition for the loop
 }
 
-export type ForLoopType =
-	| ForLoopGeneralizedIteration
-	| ForLoopRange
-	| ForLoopRaw;
+export type ForLoopType = ForLoopGeneralizedIteration | ForLoopRange | ForLoopRaw;
 
 export interface FunctionCall {
 	type: ReprEnum.FunctionCall;
@@ -330,13 +340,13 @@ export class Writer {
  */
 type InlineStatus =
 	| {
-		type: 'NotInline';
-		depth: number; // How deep we are
-	}
+			type: 'NotInline';
+			depth: number; // How deep we are
+	  }
 	| {
-		type: 'Inline';
-		depth: number; // How deep we are, needed in case a inline context goes to not inline and back
-	};
+			type: 'Inline';
+			depth: number; // How deep we are, needed in case a inline context goes to not inline and back
+	  };
 
 /**
  * Helper to create a new InlineStatus
@@ -568,23 +578,25 @@ export class FinalRepr {
 	static visitLiteralValue(writer: Writer, value: LiteralValue, inlineStatus?: InlineStatus) {
 		const _isValidIdentifier = (key: string): boolean => {
 			return /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(key);
-		}
+		};
 
-		type StackData = {
-			type: "literal",
-			value: LiteralValue,
-			tableKey?: boolean
-		} | {
-			type: "token",
-			str: string
-		}
+		type StackData =
+			| {
+					type: 'literal';
+					value: LiteralValue;
+					tableKey?: boolean;
+			  }
+			| {
+					type: 'token';
+					str: string;
+			  };
 
-		let stack: StackData[] = [{ type: "literal", value }]
+		let stack: StackData[] = [{ type: 'literal', value }];
 
 		while (true) {
-			let value = stack.pop()
+			let value = stack.pop();
 			if (!value) break;
-			if (value.type == "token") {
+			if (value.type == 'token') {
 				writer.write(value.str);
 				continue;
 			}
@@ -594,121 +606,150 @@ export class FinalRepr {
 			switch (lvalue.type) {
 				case LiteralEnum.Nil:
 					if (value.tableKey) {
-						stack.push({ type: "token", "str": "[nil]" })
+						stack.push({ type: 'token', str: '[nil]' });
 					} else {
-						stack.push({ type: "token", "str": "nil" })
+						stack.push({ type: 'token', str: 'nil' });
 					}
 					continue;
 				case LiteralEnum.String:
 					if (value.tableKey) {
 						if (lvalue.interpolated) {
-							throw new Error("Table key cannot be an interpolated string");
+							throw new Error('Table key cannot be an interpolated string');
 						}
 
 						if (lvalue.multiline) {
-							throw new Error("Table key cannot be an multiline string");
+							throw new Error('Table key cannot be an multiline string');
 						}
 
 						if (_isValidIdentifier(lvalue.value)) {
 							// It's a valid identifier, write it directly (e.g., foo)
-							stack.push({ type: "token", str: lvalue.value });
+							stack.push({ type: 'token', str: lvalue.value });
 						} else {
 							// Not a valid identifier, wrap it (e.g., ["foo bar"])
-							stack.push({ type: "token", str: `["${lvalue.value.replaceAll('"', '\\"').replaceAll('\n', '\\n')}"]` });
+							stack.push({
+								type: 'token',
+								str: `["${lvalue.value.replaceAll('"', '\\"').replaceAll('\n', '\\n')}"]`
+							});
 						}
 						continue;
 					}
 
 					if (lvalue.interpolated) {
-						stack.push({ type: "token", "str": `\`${lvalue.value.replaceAll('`', '\\`')}\`` })
-						continue
+						stack.push({ type: 'token', str: `\`${lvalue.value.replaceAll('`', '\\`')}\`` });
+						continue;
 					}
 
 					if (lvalue.multiline) {
 						// If the string contains a newline, use a multiline string
-						stack.push({ type: "token", "str": `[[${lvalue.value.replaceAll('[[', '\[\[').replaceAll("']]", '\]\]')}]]` })
+						stack.push({
+							type: 'token',
+							str: `[[${lvalue.value.replaceAll('[[', '\[\[').replaceAll("']]", '\]\]')}]]`
+						});
 						continue;
 					}
-					stack.push({ type: "token", "str": `"${lvalue.value.replaceAll('"', '\\"').replaceAll('\n', '\\n')}"` })
+					stack.push({
+						type: 'token',
+						str: `"${lvalue.value.replaceAll('"', '\\"').replaceAll('\n', '\\n')}"`
+					});
 					continue;
 				case LiteralEnum.Number:
 					const numStr = lvalue.value.toString();
 					if (value.tableKey) {
 						// Wrap it in brackets: [123]
-						stack.push({ type: "token", str: `[${numStr}]` });
+						stack.push({ type: 'token', str: `[${numStr}]` });
 					} else {
 						// Just write the number normally
-						stack.push({ type: "token", str: numStr });
+						stack.push({ type: 'token', str: numStr });
 					}
 					continue;
 				case LiteralEnum.Table:
-					stack.push({ type: 'token', str: '}' })
+					stack.push({ type: 'token', str: '}' });
 					for (let i = lvalue.value.length - 1; i >= 0; i--) {
-						stack.push({ type: 'literal', value: lvalue.value[i].value })
-						stack.push({ type: 'token', str: ' = ' })
-						stack.push({ type: 'literal', value: lvalue.value[i].key, tableKey: true })
+						stack.push({ type: 'literal', value: lvalue.value[i].value });
+						stack.push({ type: 'token', str: ' = ' });
+						stack.push({ type: 'literal', value: lvalue.value[i].key, tableKey: true });
 
 						if (i > 0) {
-							stack.push({ type: 'token', str: ', ' })
+							stack.push({ type: 'token', str: ', ' });
 						}
 					}
-					stack.push({ type: 'token', str: '{' })
+					stack.push({ type: 'token', str: '{' });
 					continue;
 				case LiteralEnum.TableArray:
 					if (lvalue.value.length === 0) {
 						// This expands down to setmetatable({}, require'@antiraid/interop'.array_metatable)
-						stack.push({ type: "token", str: "setmetatable({}, require'@antiraid/interop'.array_metatable)" });
+						stack.push({
+							type: 'token',
+							str: "setmetatable({}, require'@antiraid/interop'.array_metatable)"
+						});
 						continue;
 					}
 
-					stack.push({ type: 'token', str: '}' })
+					stack.push({ type: 'token', str: '}' });
 					for (let i = lvalue.value.length - 1; i >= 0; i--) {
-						stack.push({ type: 'literal', value: lvalue.value[i] })
+						stack.push({ type: 'literal', value: lvalue.value[i] });
 						if (i > 0) {
-							stack.push({ type: 'token', str: ', ' })
+							stack.push({ type: 'token', str: ', ' });
 						}
 					}
-					stack.push({ type: 'token', str: '{' })
+					stack.push({ type: 'token', str: '{' });
 					continue;
 				case LiteralEnum.Boolean:
-					const boolStr = lvalue.value ? 'true' : 'false'
+					const boolStr = lvalue.value ? 'true' : 'false';
 					if (value.tableKey) {
 						// Wrap it in brackets: [true | false]
-						stack.push({ type: "token", str: `[${boolStr}]` });
+						stack.push({ type: 'token', str: `[${boolStr}]` });
 					} else {
 						// Just write the boolean normally
-						stack.push({ type: "token", str: boolStr });
+						stack.push({ type: 'token', str: boolStr });
 					}
 					continue;
 				case LiteralEnum.Vector:
-					stack.push({ type: "token", "str": `vector.create(${lvalue.x}, ${lvalue.y}, ${lvalue.z})` })
+					stack.push({
+						type: 'token',
+						str: `vector.create(${lvalue.x}, ${lvalue.y}, ${lvalue.z})`
+					});
 					continue;
 				case LiteralEnum.Raw:
-					stack.push({ type: "token", "str": lvalue.value }) // Raw code or expression, return as is
+					stack.push({ type: 'token', str: lvalue.value }); // Raw code or expression, return as is
 					continue;
 				case LiteralEnum.Parens:
-					stack.push({ type: "token", str: ")" })
-					stack.push({ type: "literal", value: lvalue.inner })
-					stack.push({ type: "token", str: "(" })
-					continue
-				case LiteralEnum.LogicExpr:
+					stack.push({ type: 'token', str: `)` });
+					stack.push({ type: 'literal', value: lvalue.inner });
+					stack.push({ type: 'token', str: `(` });
+					continue;
+				case LiteralEnum.RelationalExpr:
 					let symMap = {
-						[LiteralLogicType.Eq]: "=",
-						[LiteralLogicType.Gt]: ">",
-						[LiteralLogicType.Gte]: ">=",
-						[LiteralLogicType.Lt]: "<",
-						[LiteralLogicType.Lte]: "<=",
-						[LiteralLogicType.Neq]: "~=",
-						[LiteralLogicType.And]: "and",
-						[LiteralLogicType.Or]: "or"
-					}
+						[LiteralRelationalOperatorType.Eq]: '==',
+						[LiteralRelationalOperatorType.Gt]: '>',
+						[LiteralRelationalOperatorType.Gte]: '>=',
+						[LiteralRelationalOperatorType.Lt]: '<',
+						[LiteralRelationalOperatorType.Lte]: '<=',
+						[LiteralRelationalOperatorType.Neq]: '~='
+					};
 
-					let logicOp = symMap[lvalue.condition];
+					let logicOp = symMap[lvalue.operator];
 
 					// LIFO stack
-					stack.push({ type: "literal", value: lvalue.rvalue })
-					stack.push({ type: "token", str: ` ${logicOp} ` })
-					stack.push({ type: "literal", value: lvalue.lvalue })
+					stack.push({ type: 'literal', value: lvalue.rvalue });
+					stack.push({ type: 'token', str: ` ${logicOp} ` });
+					stack.push({ type: 'literal', value: lvalue.lvalue });
+					continue;
+				case LiteralEnum.LogicExpr:
+					let logicMap = {
+						[LiteralLogicType.And]: 'and',
+						[LiteralLogicType.Or]: 'or'
+					};
+
+					let logicOperator = logicMap[lvalue.condition];
+
+					// LIFO stack
+					for (let i = lvalue.operands.length - 1; i >= 0; i--) {
+						stack.push({ type: 'literal', value: lvalue.operands[i] });
+						if (i > 0) {
+							stack.push({ type: 'token', str: ` ${logicOperator} ` });
+						}
+					}
 					continue;
 			}
 		}
@@ -718,8 +759,8 @@ export class FinalRepr {
 	 * Visit IfCondition and return the string representation.
 	 */
 	private visitIfCondition(writer: Writer, inode: IfCondition) {
-		let lvw = new Writer()
-		FinalRepr.visitLiteralValue(lvw, inode.data.condition)
+		let lvw = new Writer();
+		FinalRepr.visitLiteralValue(lvw, inode.data.condition);
 		writer.write(`if ${lvw.getCodeString()} then\n`);
 		lvw.clear(); // Clear the writer for the body bit
 
@@ -885,8 +926,8 @@ export class FinalRepr {
 	 * Visits a WhileLoop and returns the string representation.
 	 */
 	private visitWhileLoop(writer: Writer, inode: WhileLoop) {
-		let lvw = new Writer()
-		FinalRepr.visitLiteralValue(lvw, inode.condition)
+		let lvw = new Writer();
+		FinalRepr.visitLiteralValue(lvw, inode.condition);
 		writer.write(`while ${lvw.getCodeString()} do\n`);
 		lvw.clear(); // Clear the lvw for the visit stmt
 		this.visitStatementOrCommentNodes(lvw, inode.body);

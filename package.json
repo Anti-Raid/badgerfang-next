@@ -16,7 +16,7 @@
 		"testflow": "jest"
 	},
 	"jest": {
-   		"preset": "ts-jest"
+		"preset": "ts-jest"
 	},
 	"dependencies": {
 		"@monaco-editor/react": "^4.7.0",

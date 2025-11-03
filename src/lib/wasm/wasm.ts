@@ -22,7 +22,12 @@ let msgId = 0;
  * @param args The args, which must be serializable to JSON to call with.
  * @param env The environment to run the code in.
  */
-export const luauTemplate = async (code: string, args: any, env: string, vfs?: Record<string, string>): Promise<unknown> => {
+export const luauTemplate = async (
+	code: string,
+	args: any,
+	env: string,
+	vfs?: Record<string, string>
+): Promise<unknown> => {
 	if (typeof window === 'undefined') {
 		throw new Error('luauTemplate can only be called in client-side code.');
 	}

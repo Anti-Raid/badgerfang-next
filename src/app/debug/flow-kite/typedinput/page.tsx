@@ -1,13 +1,13 @@
 'use client';
 import { useState } from 'react';
 import { TypedInput, TypedInputEnum } from '@/lib/flow/data';
-import { generateTypedInputId, TypedInputField } from '@/components/flow/ui/TypedInput';
+import { TypedInputField } from '@/components/flow/ui/TypedInput';
 import { motion } from 'framer-motion';
 import logger from '@/lib/logger';
 
 export default function TypedInputDebug() {
 	const [data, setData] = useState<TypedInput>({
-		type: TypedInputEnum.Nil,
+		type: TypedInputEnum.Nil
 	});
 
 	return (

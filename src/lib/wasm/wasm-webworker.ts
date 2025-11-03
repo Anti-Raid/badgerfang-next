@@ -38,7 +38,12 @@ const getModule = async () => {
 		const wasmModule = (await wasm_js.default()) as WasmExports;
 		module = {
 			module: wasmModule,
-			cwrapped: wasmModule.cwrap('luau_template', 'number', ['string', 'string', 'string', 'string'])
+			cwrapped: wasmModule.cwrap('luau_template', 'number', [
+				'string',
+				'string',
+				'string',
+				'string'
+			])
 		};
 		return module;
 	} catch (error) {
@@ -66,7 +71,12 @@ const markModuleAsBroken = () => {
  * @param code The code to run
  * @param args The args, which must be serializable to JSON to call with.
  */
-const luauTemplate = async (code: string, args: any, env: string, vfs: Record<string, string>): Promise<LuauTemplateResult> => {
+const luauTemplate = async (
+	code: string,
+	args: any,
+	env: string,
+	vfs: Record<string, string>
+): Promise<LuauTemplateResult> => {
 	let argsJson = JSON.stringify(args);
 	let vfsJson = JSON.stringify(vfs);
 

@@ -1,15 +1,16 @@
 import {
+	RelationalOperatorType,
 	stringToTypedInputEnum,
 	TypedInput,
 	TypedInputEnum,
+	TypedInputLogicType,
 	TypedInputTableEntry
 } from '@/lib/flow/data';
 import { GripVertical, Icon, Trash2 } from 'lucide-react';
 import { BaseLabelAndDescription, InputField, Toggle } from './Inputs';
-import { motion, Reorder } from 'framer-motion';
 import { Primary } from '@/components/ui/Buttons';
-import logger from '@/lib/logger';
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment } from 'react';
+import SubflowSection from './typedinputflow/SubflowSection';
 
 export const generateTypedInputId = () => {
 	return Math.random().toString(36).substring(2, 15);
@@ -44,7 +45,7 @@ const createValueWithType = (type: TypedInputEnum): TypedInput => {
 			return {
 				type: TypedInputEnum.String,
 				value: '',
-				interpolated: false,
+				interpolated: false
 			};
 		case TypedInputEnum.Raw:
 			return { type: TypedInputEnum.Raw, value: '' };
@@ -54,12 +55,40 @@ const createValueWithType = (type: TypedInputEnum): TypedInput => {
 			return {
 				type: TypedInputEnum.TableArray,
 				value: [],
-				inline: true,
+				inline: true
 			};
 		case TypedInputEnum.Number:
 			return { type: TypedInputEnum.Number, value: 0 };
 		case TypedInputEnum.Boolean:
 			return { type: TypedInputEnum.Boolean, value: false };
+		case TypedInputEnum.Vector:
+			return { type: TypedInputEnum.Vector, x: 0, y: 0, z: 0 };
+		case TypedInputEnum.ComplexSubflow:
+			return {
+				type: TypedInputEnum.ComplexSubflow,
+				flow: {
+					nodes: [],
+					edges: []
+				}
+			};
+		case TypedInputEnum.RelationalExpr:
+			return {
+				type: TypedInputEnum.RelationalExpr,
+				lvalue: { type: TypedInputEnum.Nil },
+				operator: RelationalOperatorType.Eq,
+				rvalue: { type: TypedInputEnum.Nil }
+			}; // not supported in 'simple' UI outside ComplexSubflow
+		case TypedInputEnum.Parens:
+			return {
+				type: TypedInputEnum.Parens,
+				inner: { type: TypedInputEnum.Nil }
+			}; // not supported in 'simple' UI outside ComplexSubflow
+		case TypedInputEnum.LogicExpr:
+			return {
+				type: TypedInputEnum.LogicExpr,
+				condition: TypedInputLogicType.And,
+				operands: [{ type: TypedInputEnum.Nil }]
+			}; // not supported in 'simple' UI outside ComplexSubflow
 		case TypedInputEnum.Vector:
 			return { type: TypedInputEnum.Vector, x: 0, y: 0, z: 0 };
 		default:
@@ -85,6 +114,14 @@ const valueToString = (value: TypedInput): string => {
 			return '{ ... }';
 		case TypedInputEnum.TableArray:
 			return '[ ... ]';
+		case TypedInputEnum.ComplexSubflow:
+			return '<Complex Expression / Conditionals>';
+		case TypedInputEnum.RelationalExpr:
+			return '<Relational Expression>';
+		case TypedInputEnum.Parens:
+			return '( ... )';
+		case TypedInputEnum.LogicExpr:
+			return '<Logical Expression>';
 		default:
 			return 'unknown';
 	}
@@ -104,7 +141,7 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 	error,
 	isArray
 }) => {
-	const id = `${idT ?? 'tif'}_f${depth}`
+	const id = `${idT ?? 'tif'}_f${depth}`;
 	return (
 		<>
 			<BaseLabelAndDescription
@@ -127,6 +164,7 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 							onChange(createValueWithType(newType));
 						}}
 						options={[
+							{ value: TypedInputEnum.ComplexSubflow, label: 'Complex Expression / Conditionals' },
 							{ value: TypedInputEnum.Nil, label: 'Nil / Null / None' },
 							{ value: TypedInputEnum.String, label: 'String' },
 							{ value: TypedInputEnum.Number, label: 'Number' },
@@ -142,17 +180,33 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 						aria-labelledby={`${id}-label`}
 					/>
 
+					{value.type === TypedInputEnum.ComplexSubflow && (
+						<>
+							<SubflowSection
+								flowData={value.flow}
+								onChange={(newFlowData) => {
+									if (disabled) return;
+									onChange({
+										type: value.type,
+										flow: newFlowData
+									});
+								}}
+							/>{' '}
+							{/**TODO: Support id here*/}
+						</>
+					)}
+
 					{value.type === TypedInputEnum.Table && (
 						<>
 							<TableInput
-								did={{depth, id}}
+								did={{ depth, id }}
 								value={value.value}
 								onChange={(newArray) => {
 									if (disabled) return;
 									onChange({
 										type: value.type,
 										value: newArray,
-										inline: value.inline,
+										inline: value.inline
 									});
 								}}
 								disabled={disabled}
@@ -172,7 +226,7 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 									onChange({
 										type: value.type,
 										value: e.target.value,
-										interpolated: value.interpolated,
+										interpolated: value.interpolated
 									});
 								}}
 								id={`${id}-value`}
@@ -256,7 +310,7 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 											type: value.type,
 											x: numberValue,
 											y: value.y,
-											z: value.z,
+											z: value.z
 										});
 									}}
 									id={`${id}-x`}
@@ -281,7 +335,7 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 											type: value.type,
 											x: value.x,
 											y: numberValue,
-											z: value.z,
+											z: value.z
 										});
 									}}
 									id={`${id}-y`}
@@ -306,7 +360,7 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 											type: value.type,
 											x: value.x,
 											y: value.y,
-											z: numberValue,
+											z: numberValue
 										});
 									}}
 									id={`${id}-z`}
@@ -321,12 +375,12 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 						<>
 							<ArrayTableInput
 								value={value.value}
-								did={{depth, id}}
+								did={{ depth, id }}
 								onChange={(newArray) => {
 									onChange({
 										type: value.type,
 										value: newArray,
-										inline: value.inline,
+										inline: value.inline
 									});
 								}}
 								disabled={disabled}
@@ -342,7 +396,7 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 									onChange({
 										type: value.type,
 										value: value.value,
-										inline: !value.inline,
+										inline: !value.inline
 									});
 								}}
 								aria-required="true"
@@ -390,7 +444,10 @@ const ArrayTableInput: React.FC<ArrayTableInputProps> = ({ did, value, onChange,
 			) : (
 				<>
 					{value.map((v, i) => (
-						<div key={i} className="border border-border hover:border-primary/20 rounded-lg p-4 transition-all shadow-sm">
+						<div
+							key={i}
+							className="border border-border hover:border-primary/20 rounded-lg p-4 transition-all shadow-sm"
+						>
 							<div className="flex items-center gap-3">
 								<span className="font-medium text-foreground">
 									Element {i + 1} ({valueToString(v)})
@@ -487,7 +544,10 @@ const TableInput: React.FC<TableInputProps> = ({ did, value, onChange, disabled 
 			) : (
 				<>
 					{value.map((v, i) => (
-						<div key={i} className="border border-border hover:border-primary/20 rounded-lg p-4 transition-all shadow-sm">
+						<div
+							key={i}
+							className="border border-border hover:border-primary/20 rounded-lg p-4 transition-all shadow-sm"
+						>
 							<div className="flex items-center gap-3">
 								<span className="font-medium text-foreground">
 									Element {i + 1} ({valueToString(v.key)} = {valueToString(v.value)})

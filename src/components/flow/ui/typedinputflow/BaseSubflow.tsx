@@ -1,32 +1,36 @@
-import React, { DragEvent, MouseEvent, useCallback, useContext, useEffect } from 'react';
 import {
-	addEdge,
 	Background,
 	BackgroundVariant,
 	Connection,
 	Controls,
 	Edge,
-	EdgeChange,
-	getOutgoers,
-	Node,
-	NodeChange,
 	ReactFlow,
-	useEdgesState,
+	Node,
+	EdgeChange,
 	useNodesState,
-	useReactFlow
+	useEdgesState,
+	useReactFlow,
+	getOutgoers,
+	NodeChange,
+	addEdge
 } from '@xyflow/react';
-
-import '@xyflow/react/dist/base.css';
-import { FlowData, getValidationSource, getValidationTarget, NodeExtData } from '@/lib/flow/data';
-import { createNode } from '@/lib/flow/nodes';
-import { edgeTypes, nodeTypes, subflowComps } from '@/lib/flow/components';
+import DeleteEdge from '../../management/DeleteEdge';
+import { useCallback, useEffect, DragEvent } from 'react';
+import { createSNode, SubflowData, SubflowNodeExtData } from '@/lib/flow/subnode';
 
 interface Props {
-	initialData?: FlowData;
+	initialData?: SubflowData;
 	onChange: () => void;
 }
 
-export default function FlowEditor({ initialData, onChange }: Props) {
+const edgeTypes = {
+	delete_button: DeleteEdge
+};
+
+// TODO: Make some nodes!
+const nodeTypes = {};
+
+export const BaseSubflow = ({ initialData, onChange }: Props) => {
 	const [nodes, setNodes, onNodesChange] = useNodesState(initialData?.nodes || []);
 
 	// Trigger onChange when nodes change
@@ -45,7 +49,7 @@ export default function FlowEditor({ initialData, onChange }: Props) {
 
 	// Custom onNodesChange that triggers onChange when nodes change
 	const wrappedOnNodesChange = useCallback(
-		(changes: NodeChange<Node<NodeExtData>>[]) => {
+		(changes: NodeChange<Node<SubflowNodeExtData>>[]) => {
 			if (changes.length > 0) {
 				// Only trigger onChange for non-position changes
 				const hasNonPositionChanges = changes.some(
@@ -83,11 +87,6 @@ export default function FlowEditor({ initialData, onChange }: Props) {
 		}
 	};
 
-	const onDragOver = useCallback((e: DragEvent) => {
-		e.preventDefault();
-		e.dataTransfer!.dropEffect = 'move';
-	}, []);
-
 	// Copyright webkid GmbH, https://reactflow.dev/examples/interaction/drag-and-drop.
 	const onDrop = useCallback(
 		(event: DragEvent) => {
@@ -108,12 +107,17 @@ export default function FlowEditor({ initialData, onChange }: Props) {
 			);
 			console.log('onDrop', type, position);
 
-			const newNode = createNode(type, position);
+			const newNode = createSNode(type, position);
 
 			setNodes((nds) => nds.concat(newNode));
 		},
 		[screenToFlowPosition, setNodes]
 	);
+
+	const onDragOver = useCallback((e: DragEvent) => {
+		e.preventDefault();
+		e.dataTransfer!.dropEffect = 'move';
+	}, []);
 
 	const isValidConnection = useCallback(
 		(con: Connection | Edge) => {
@@ -153,102 +157,11 @@ export default function FlowEditor({ initialData, onChange }: Props) {
 				return false;
 			}
 
-			// Lastly, perform static validations
-			const validationSource = getValidationSource(source.type!);
-			const validationTarget = getValidationTarget(target.type!);
-			if (validationSource || validationTarget) {
-				const srcNodeIds = getOutgoers(source, nodes, edges).map((n) => n.id);
-				const tgtNodeIds = getOutgoers(target, nodes, edges).map((n) => n.id);
-
-				if (
-					validationSource &&
-					!validationSource(
-						srcNodeIds,
-						tgtNodeIds,
-						con,
-						source as Node<NodeExtData>,
-						target as Node<NodeExtData>,
-						getNode as (id: string) => Node<NodeExtData> | undefined
-					)
-				) {
-					return false;
-				}
-
-				if (
-					validationTarget &&
-					!validationTarget(
-						srcNodeIds,
-						tgtNodeIds,
-						con,
-						source as Node<NodeExtData>,
-						target as Node<NodeExtData>,
-						getNode as (id: string) => Node<NodeExtData> | undefined
-					)
-				) {
-					return false;
-				}
-			}
+			// Lastly, perform static validationn here: TODO
 
 			return true;
 		},
 		[getNode, getNodes, getEdges, getOutgoers]
-	);
-
-	const onDragEnd = useCallback(
-		(_event: MouseEvent, node: Node<NodeExtData>) => {
-			// Check if the X/Y intersects with an existing node
-			const existingNode = getIntersectingNodes(node, false).filter((node) => {
-				return subflowComps.includes(node.type || '');
-			});
-
-			let parent = undefined;
-			if (existingNode.length > 0) {
-				console.log('Found existing node', node, ':', existingNode);
-				// Choose the node with smaller area
-				let minArea = Infinity;
-				let closestNode: Node = existingNode[0];
-				for (const node of existingNode) {
-					const area = (node.width || 0) * (node.height || 0);
-					if (area < minArea) {
-						minArea = area;
-						closestNode = node;
-					}
-				}
-
-				parent = closestNode;
-			}
-
-			if (parent) {
-				// Ensure we are not moving from a child to a parent
-				if (node.parentId) {
-					let origParent = getNode(node.parentId);
-					if (!origParent || origParent.id === parent.id) {
-						return;
-					}
-					while (origParent.parentId) {
-						let p = getNode(origParent.parentId);
-						if (!p || p.id === parent.id) {
-							return;
-						}
-						origParent = p;
-					}
-				}
-
-				updateNode(node.id, (node) => {
-					return {
-						...node,
-						parentId: parent.id,
-						expandParent: true,
-						position: {
-							x: node.position.x - parent.position.x,
-							y: node.position.y - parent.position.y
-						},
-						extent: 'parent'
-					};
-				});
-			}
-		},
-		[getIntersectingNodes]
 	);
 
 	return (
@@ -258,7 +171,6 @@ export default function FlowEditor({ initialData, onChange }: Props) {
 			onNodesChange={wrappedOnNodesChange}
 			onEdgesChange={wrappedOnEdgesChange}
 			onNodesDelete={onNodesDelete}
-			onNodeDragStop={onDragEnd}
 			nodeTypes={nodeTypes}
 			edgeTypes={edgeTypes}
 			onDrop={onDrop}
@@ -287,4 +199,4 @@ export default function FlowEditor({ initialData, onChange }: Props) {
 			/>
 		</ReactFlow>
 	);
-}
+};

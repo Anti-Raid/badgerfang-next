@@ -11,6 +11,7 @@ import {
 	LibraryNode,
 	NodeExtData,
 	NodeTypeEnum,
+	RelationalOperatorType,
 	TypedInput,
 	TypedInputEnum,
 	TypedInputLogicType,
@@ -22,13 +23,25 @@ import {
 	CodeGenAST,
 	ICommandArgument,
 	ICommandArgumentType,
-	IPreludeTypeEnum,
+	IPreludeTypeEnum
 } from '../astlayer/ast';
-import { ElseIf, Node as FNode, ReprEnum } from '../astlayer/finalrepr'
+import {
+	ElseIf,
+	Node as FNode,
+	LiteralRelationalOperatorType,
+	ReprEnum
+} from '../astlayer/finalrepr';
 import { baseCommandNodeSchema } from '../../validation';
 import z from 'zod';
 import { startNodeTypes } from '../../startnode';
-import { LiteralEnum, LiteralLogicType, LiteralTableEntry, LiteralValue, ForLoopType as FForLoopType, ForLoopEnum as FForLoopEnum } from '../astlayer/finalrepr';
+import {
+	LiteralEnum,
+	LiteralLogicType,
+	LiteralTableEntry,
+	LiteralValue,
+	ForLoopType as FForLoopType,
+	ForLoopEnum as FForLoopEnum
+} from '../astlayer/finalrepr';
 
 interface Visit<T> {
 	/**
@@ -177,16 +190,21 @@ export class CodeGenASTGenerator {
 			case NodeTypeEnum.UnknownNode:
 				throw new Error(`Unknown node type ${data.type} encountered.`);
 			case NodeTypeEnum.Group:
-				throw new Error('Unreachable node GroupNode: GroupNodes must be transparent and unconnected');
+				throw new Error(
+					'Unreachable node GroupNode: GroupNodes must be transparent and unconnected'
+				);
 			case NodeTypeEnum.APINode:
-				return await this.visitAPINode({ nodeId: node.id, data, currentAst })
+				return await this.visitAPINode({ nodeId: node.id, data, currentAst });
 		}
 	}
 
 	/**
 	 * Helper to continuously visit nodes and their children and return their AST representation
 	 */
-	private async visitNodeAndChildren(currentAst: CodeGenAST, node: Node<NodeExtData>): Promise<FNode[]> {
+	private async visitNodeAndChildren(
+		currentAst: CodeGenAST,
+		node: Node<NodeExtData>
+	): Promise<FNode[]> {
 		let currentNode: Node<NodeExtData> | null = node;
 		let astNodes: FNode[] = [];
 		let visited = new Set<string>();
@@ -629,7 +647,7 @@ export class CodeGenASTGenerator {
 	 * Visits an 'API node' (from dnodec) and runs its custom codegen
 	 */
 	private async visitAPINode(node: Visit<APINode>): Promise<VisitResult> {
-		throw new Error("[visitAPINode] Not yet implemented fully yet") // TODO: Implement visiting API nodes
+		throw new Error('[visitAPINode] Not yet implemented fully yet'); // TODO: Implement visiting API nodes
 	}
 
 	/**
@@ -652,156 +670,189 @@ export class CodeGenASTGenerator {
 		let rootResult: LiteralValue | null = null;
 		const stack: VisitTask[] = [];
 		stack.push({
-            source: value,
-            setResult: (result) => {
-                rootResult = result;
-            },
-        });
-		while(true) {
+			source: value,
+			setResult: (result) => {
+				rootResult = result;
+			}
+		});
+		while (true) {
 			const task = stack.pop();
-			if(!task) break
+			if (!task) break;
 			const source = task.source;
 			switch (source.type) {
 				case TypedInputEnum.Nil:
-                    task.setResult({
-                        type: LiteralEnum.Nil
-                    });
-                    continue;
+					task.setResult({
+						type: LiteralEnum.Nil
+					});
+					continue;
 
-                case TypedInputEnum.String:
-                    task.setResult({
-                        type: LiteralEnum.String,
-                        value: source.value,
-                        interpolated: source.interpolated
-                    });
-                    continue;
+				case TypedInputEnum.String:
+					task.setResult({
+						type: LiteralEnum.String,
+						value: source.value,
+						interpolated: source.interpolated
+					});
+					continue;
 
-                case TypedInputEnum.Number:
-                    task.setResult({
-                        type: LiteralEnum.Number,
-                        value: source.value
-                    });
-                    continue;
-                    
-                case TypedInputEnum.Boolean:
-                    task.setResult({
-                        type: LiteralEnum.Boolean,
-                        value: source.value
-                    });
-                    continue;
+				case TypedInputEnum.Number:
+					task.setResult({
+						type: LiteralEnum.Number,
+						value: source.value
+					});
+					continue;
 
-                case TypedInputEnum.Vector:
-                    task.setResult({
-                        type: LiteralEnum.Vector,
-                        x: source.x,
-                        y: source.y,
-                        z: source.z
-                    });
-                    continue;
+				case TypedInputEnum.Boolean:
+					task.setResult({
+						type: LiteralEnum.Boolean,
+						value: source.value
+					});
+					continue;
 
-                case TypedInputEnum.Raw:
-                    task.setResult({
-                        type: LiteralEnum.Raw,
-                        value: source.value
-                    });
-                    continue;
+				case TypedInputEnum.Vector:
+					task.setResult({
+						type: LiteralEnum.Vector,
+						x: source.x,
+						y: source.y,
+						z: source.z
+					});
+					continue;
+
+				case TypedInputEnum.Raw:
+					task.setResult({
+						type: LiteralEnum.Raw,
+						value: source.value
+					});
+					continue;
 				case TypedInputEnum.Table:
-                    const tableResult: LiteralValue = {
-                        type: LiteralEnum.Table,
-                        value: new Array(source.value.length), // Pre-allocate array
-                        inline: source.inline
-                    };
+					const tableResult: LiteralValue = {
+						type: LiteralEnum.Table,
+						value: new Array(source.value.length), // Pre-allocate array
+						inline: source.inline
+					};
 					// Link to parent
 					task.setResult(tableResult);
 					for (let i = source.value.length - 1; i >= 0; i--) {
 						const sourceEntry = source.value[i];
-						const destEntry: LiteralTableEntry = { key: { type: LiteralEnum.Nil }, value: { type: LiteralEnum.Nil } }; // initially nil = nil
+						const destEntry: LiteralTableEntry = {
+							key: { type: LiteralEnum.Nil },
+							value: { type: LiteralEnum.Nil }
+						}; // initially nil = nil
 						tableResult.value[i] = destEntry;
 						stack.push({
-                            source: sourceEntry.value,
-                            setResult: (result) => {
-                                destEntry.value = result;
-                            }
-                        }); // value link
+							source: sourceEntry.value,
+							setResult: (result) => {
+								destEntry.value = result;
+							}
+						}); // value link
 						stack.push({
-                            source: sourceEntry.key,
-                            setResult: (result) => {
-                                destEntry.key = result;
-                            }
-                        }); // key link
+							source: sourceEntry.key,
+							setResult: (result) => {
+								destEntry.key = result;
+							}
+						}); // key link
 					}
-                    continue;
+					continue;
 				case TypedInputEnum.TableArray:
-                    const arrayResult: LiteralValue = {
-                        type: LiteralEnum.TableArray,
-                        value: new Array(source.value.length), // Pre-allocate array
-                        inline: source.inline
-                    };
+					const arrayResult: LiteralValue = {
+						type: LiteralEnum.TableArray,
+						value: new Array(source.value.length), // Pre-allocate array
+						inline: source.inline
+					};
 					// Link to parent
 					task.setResult(arrayResult);
 					for (let i = source.value.length - 1; i >= 0; i--) {
 						const sourceItem = source.value[i];
 						const currentIdx = i;
 						stack.push({
-                            source: sourceItem,
-                            setResult: (result) => {
-                                arrayResult.value[currentIdx] = result;
-                            }
-                        }); // table value link
+							source: sourceItem,
+							setResult: (result) => {
+								arrayResult.value[currentIdx] = result;
+							}
+						}); // table value link
 					}
 					continue;
 				case TypedInputEnum.Parens:
 					const parensResult: LiteralValue = {
-                        type: LiteralEnum.Parens,
-                        inner: {
+						type: LiteralEnum.Parens,
+						inner: {
 							type: LiteralEnum.Nil // to be filled in
 						}
-                    };
+					};
 					// Link to parent
 					task.setResult(parensResult);
 					// Set inner
 					stack.push({
-                        source: source.inner,
-                        setResult: (result) => {
-                            parensResult.inner = result;
-                        }
-                    });
+						source: source.inner,
+						setResult: (result) => {
+							parensResult.inner = result;
+						}
+					});
 					continue;
-				case TypedInputEnum.LogicExpr:
+				case TypedInputEnum.RelationalExpr:
 					const condMap = {
-						[TypedInputLogicType.And]: LiteralLogicType.And,
-						[TypedInputLogicType.Eq]: LiteralLogicType.Eq,
-						[TypedInputLogicType.Gt]: LiteralLogicType.Gt,
-						[TypedInputLogicType.Gte]: LiteralLogicType.Gte,
-						[TypedInputLogicType.Lt]: LiteralLogicType.Lt,
-						[TypedInputLogicType.Lte]: LiteralLogicType.Lte,
-						[TypedInputLogicType.Neq]: LiteralLogicType.Neq,
-						[TypedInputLogicType.Or]: LiteralLogicType.Or
-					}
-					let cond = condMap[source.condition];
+						[RelationalOperatorType.Eq]: LiteralRelationalOperatorType.Eq,
+						[RelationalOperatorType.Gt]: LiteralRelationalOperatorType.Gt,
+						[RelationalOperatorType.Gte]: LiteralRelationalOperatorType.Gte,
+						[RelationalOperatorType.Lt]: LiteralRelationalOperatorType.Lt,
+						[RelationalOperatorType.Lte]: LiteralRelationalOperatorType.Lte,
+						[RelationalOperatorType.Neq]: LiteralRelationalOperatorType.Neq
+					};
+					let cond = condMap[source.operator];
 					const logicResult: LiteralValue = {
-                        type: LiteralEnum.LogicExpr,
-                        condition: cond, // Copy the primitive condition
-                        lvalue: { type: LiteralEnum.Nil }, // to be filled in
-                        rvalue: { type: LiteralEnum.Nil } // to be filled in
-                    };
+						type: LiteralEnum.RelationalExpr,
+						operator: cond, // Copy the primitive condition
+						lvalue: { type: LiteralEnum.Nil }, // to be filled in
+						rvalue: { type: LiteralEnum.Nil } // to be filled in
+					};
 					// Link to parent
 					task.setResult(logicResult);
 					stack.push({
-                        source: source.rvalue,
-                        setResult: (result) => {
-                            logicResult.rvalue = result;
-                        }
-                    });
+						source: source.rvalue,
+						setResult: (result) => {
+							logicResult.rvalue = result;
+						}
+					});
 					stack.push({
-                        source: source.lvalue,
-                        setResult: (result) => {
-                            logicResult.lvalue = result;
-                        }
-                    });
+						source: source.lvalue,
+						setResult: (result) => {
+							logicResult.lvalue = result;
+						}
+					});
+					continue;
+				case TypedInputEnum.LogicExpr:
+					if (source.operands.length < 2) {
+						throw new Error('Logic expressions must have at least two operands');
+					}
+
+					const logicTypeMap = {
+						[TypedInputLogicType.And]: LiteralLogicType.And,
+						[TypedInputLogicType.Or]: LiteralLogicType.Or
+					};
+
+					let logicType = logicTypeMap[source.condition];
+
+					const logicExprResult: LiteralValue = {
+						type: LiteralEnum.LogicExpr,
+						condition: logicType, // Copy the primitive logic type
+						operands: []
+					};
+
+					// Link to parent
+					task.setResult(logicExprResult);
+
+					// Push operands in reverse order to maintain order when popping from stack
+					for (let i = source.operands.length - 1; i >= 0; i--) {
+						const sourceOperand = source.operands[i];
+						stack.push({
+							source: sourceOperand,
+							setResult: (result) => {
+								logicExprResult.operands[i] = result;
+							}
+						});
+					}
 					continue;
 				default:
-					throw new Error("unexpected typed input found")
+					throw new Error('unexpected typed input found');
 			}
 		}
 		return rootResult!;

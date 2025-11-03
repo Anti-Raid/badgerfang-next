@@ -4,7 +4,6 @@ import { Node, XYPosition } from '@xyflow/react';
 import { useMemo } from 'react';
 import {
 	CommandArgumentType,
-	ConditionalTypeEnum,
 	ForLoopTypeEnum,
 	NodeExtData,
 	NodeTypeEnum,
@@ -12,7 +11,6 @@ import {
 	TypedInputString
 } from './data';
 import { Node as IDLNode } from './nodeidl/nodeidl';
-import { generateTypedInputId } from '@/components/flow/ui/TypedInput';
 
 export interface NodeValues {
 	defaultTitle: string;
@@ -26,7 +24,7 @@ export interface NodeValues {
 const createEmptyTypedInputString = (): TypedInputString => ({
 	type: TypedInputEnum.String,
 	value: '',
-	interpolated: false,
+	interpolated: false
 });
 
 const createEmptyForLoopIterable = (): TypedInputString => createEmptyTypedInputString();
@@ -132,7 +130,7 @@ export const defaultNodeDataForType: Record<string, NodeExtData> = {
 		type: NodeTypeEnum.IfCondition,
 		data: {
 			condition: {
-				type: ConditionalTypeEnum.Unselected
+				type: TypedInputEnum.Nil
 			}
 		}
 	},
@@ -140,7 +138,7 @@ export const defaultNodeDataForType: Record<string, NodeExtData> = {
 		type: NodeTypeEnum.ElseIfCondition,
 		data: {
 			condition: {
-				type: ConditionalTypeEnum.Unselected
+				type: TypedInputEnum.Nil
 			},
 			index: 1
 		}
@@ -163,7 +161,7 @@ export const defaultNodeDataForType: Record<string, NodeExtData> = {
 		type: NodeTypeEnum.WhileLoop,
 		data: {
 			condition: {
-				type: ConditionalTypeEnum.Unselected
+				type: TypedInputEnum.Nil
 			}
 		}
 	},
@@ -178,7 +176,7 @@ export const defaultNodeDataForType: Record<string, NodeExtData> = {
 		data: {
 			nodeidl: 'test',
 			inputValues: {
-				type: TypedInputEnum.Nil,
+				type: TypedInputEnum.Nil
 			}
 		}
 	},
@@ -188,6 +186,7 @@ export const defaultNodeDataForType: Record<string, NodeExtData> = {
 	}
 };
 
+// TODO: Replace/remove the below once nodeidl is fully integrated
 class NodeIDLSet {
 	private idls: Map<string, IDLNode>;
 
@@ -205,100 +204,6 @@ class NodeIDLSet {
 }
 
 export const nodeIdls: NodeIDLSet = new NodeIDLSet();
-nodeIdls.add({
-	id: 'test',
-	shortname: 'Test IDL',
-	description: 'Test node',
-	code: {},
-	flowui: {
-		handles: {
-			allow: ['top', 'bottom']
-		},
-		input: {
-			type: 'group',
-			optional: false,
-			groupData: {
-				id: 'reqdata',
-				description: 'request data',
-				shortname: 'Request Data'
-			},
-			fields: [
-				{
-					type: 'scalar',
-					optional: false,
-					data: {
-						id: 'test',
-						description: 'test desc',
-						shortname: 'test field',
-						type: 'string'
-					}
-				},
-				{
-					type: 'scalar',
-					optional: false,
-					data: {
-						id: 'test2',
-						description: 'test desc 2',
-						shortname: 'test field 2',
-						type: 'number'
-					}
-				},
-				{
-					type: 'group',
-					optional: false,
-					groupData: {
-						id: 'reqdata',
-						description: 'request data 2',
-						shortname: 'Request Data 2'
-					},
-					fields: [
-						{
-							type: 'scalar',
-							optional: false,
-							data: {
-								id: 'test',
-								description: 'test desc',
-								shortname: 'test field',
-								type: 'string'
-							}
-						},
-						{
-							type: 'scalar',
-							optional: false,
-							data: {
-								id: 'test2',
-								description: 'test desc 2',
-								shortname: 'test field 2',
-								type: 'number'
-							}
-						},
-					]
-				}
-			]
-		},
-		output: {
-			type: 'group',
-			optional: false,
-			groupData: {
-				id: 'resdata',
-				description: 'resp data',
-				shortname: 'Response Data'
-			},
-			fields: [
-				{
-					type: 'scalar',
-					optional: false,
-					data: {
-						id: 'test',
-						description: 'test desc 2',
-						shortname: 'test field 2',
-						type: 'string'
-					}
-				}
-			]
-		}
-	}
-});
 
 // ----------------------
 // Node value helpers

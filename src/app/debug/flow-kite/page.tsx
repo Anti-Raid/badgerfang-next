@@ -1,14 +1,13 @@
 'use client';
 import { useState } from 'react';
-import { ConditionalType, ConditionalTypeEnum, FlowData, NodeExtData } from '@/lib/flow/data';
+import { FlowData } from '@/lib/flow/data';
 import { motion } from 'framer-motion';
 import { CodeGenASTGenerator } from '@/lib/flow/codegen/blocklayer/block2ast';
-import { ConditionalTypeField } from '@/components/flow/ui/ConditionalType';
 import FlowList from '@/components/flow/ui/FlowList';
 import { Primary } from '@/components/ui/Buttons';
 
 const codegenAst = async (data: FlowData) => {
-	let generator = new CodeGenASTGenerator(data.nodes, data.edges)
+	let generator = new CodeGenASTGenerator(data.nodes, data.edges);
 	let r = await generator.generate();
 
 	let stage1 = r.toJSON();
@@ -26,9 +25,6 @@ const codegenAst = async (data: FlowData) => {
 export default function Blockly() {
 	const [data, setData] = useState<FlowData[]>([]);
 	const [selectedFlowIndex, setSelectedFlowIndex] = useState(0);
-	const [dbgConditional, setDbgConditional] = useState<ConditionalType>({
-		type: ConditionalTypeEnum.Unselected
-	});
 	const [compiledAst, setCompiledAst] = useState<{
 		stage1: Record<string, unknown>;
 		stage2: Record<string, unknown>;
@@ -89,7 +85,7 @@ export default function Blockly() {
 				</>
 			)}
 
-			<ConditionalTypeField value={dbgConditional} onChange={setDbgConditional} />
+			{/*<ConditionalTypeField value={dbgConditional} onChange={setDbgConditional} />
 
 			<motion.div
 				initial={{ opacity: 0, y: 10 }}
@@ -100,7 +96,7 @@ export default function Blockly() {
 				<code className="whitespace-pre-wrap break-words text-black">
 					{JSON.stringify(dbgConditional, null, 2)}
 				</code>
-			</motion.div>
+			</motion.div>*/}
 		</>
 	);
 }

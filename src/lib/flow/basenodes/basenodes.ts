@@ -1,1 +1,1 @@
-export const nodeidl = {}
+export const nodeidl = {};

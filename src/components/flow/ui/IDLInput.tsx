@@ -142,7 +142,7 @@ export const IDLInputField: React.FC<IDLInputProps> = ({
 	error,
 	isArray
 }) => {
-	const id = `${idT ?? 'tif'}_f${depth}`
+	const id = `${idT ?? 'tif'}_f${depth}`;
 
 	return (
 		<>
@@ -167,7 +167,7 @@ export const IDLInputField: React.FC<IDLInputProps> = ({
 								}}
 								disabled={disabled}
 								common={value.common}
-								did={{depth, id}}
+								did={{ depth, id }}
 							/>
 						</>
 					)}
@@ -326,7 +326,7 @@ export const IDLInputField: React.FC<IDLInputProps> = ({
 						<>
 							<ArrayTableInput
 								value={value.value}
-								did={{depth, id}}
+								did={{ depth, id }}
 								onChange={(newArray) => {
 									onChange({
 										...value,
@@ -365,7 +365,7 @@ export const IDLInputField: React.FC<IDLInputProps> = ({
 									});
 								}}
 								common={value.common}
-								did={{depth, id}}
+								did={{ depth, id }}
 								disabled={disabled}
 							/>
 						</>
@@ -395,7 +395,13 @@ interface ArrayTableInputProps {
 	common: IDLCommon;
 }
 
-const ArrayTableInput: React.FC<ArrayTableInputProps> = ({ did, value, onChange, disabled, common }) => {
+const ArrayTableInput: React.FC<ArrayTableInputProps> = ({
+	did,
+	value,
+	onChange,
+	disabled,
+	common
+}) => {
 	return (
 		<>
 			{disabled ? (
@@ -481,7 +487,13 @@ interface GroupTableInputProps {
 	did: DepthAndID;
 }
 
-const GroupTableInput: React.FC<GroupTableInputProps> = ({ did, value, onChange, disabled, common }) => {
+const GroupTableInput: React.FC<GroupTableInputProps> = ({
+	did,
+	value,
+	onChange,
+	disabled,
+	common
+}) => {
 	return (
 		<>
 			{disabled ? (
@@ -504,10 +516,7 @@ const GroupTableInput: React.FC<GroupTableInputProps> = ({ did, value, onChange,
 			) : (
 				<>
 					{value.map((v, i) => (
-						<div
-							key={i}
-							className="px-4 py-1"
-						>
+						<div key={i} className="px-4 py-1">
 							<IDLInputField
 								label={v.common.shortname}
 								description={v.common.description}
@@ -570,57 +579,57 @@ const TableInput: React.FC<TableInputProps> = ({ did, value, onChange, disabled,
 			) : (
 				<>
 					{value.map((v, i) => (
-							<div className="border border-border hover:border-primary/20 rounded-lg p-4 transition-all shadow-sm">
-								<div className="flex items-center gap-3">
-									<span className="font-medium text-foreground">
-										Element {i + 1} ({valueToString(v.key)} = {valueToString(v.value)})
-									</span>
-									<div className="ml-auto flex items-center gap-2">
-										<button
-											className="p-1 rounded-md hover:bg-accent/50 transition-colors"
-											onClick={() => {
-												let newArray = [...value];
-												newArray.splice(i, 1);
-												onChange(newArray);
-											}}
-											aria-label="Delete entry"
-										>
-											<Trash2 className="w-4 h-4 text-muted-foreground" />
-										</button>
-									</div>
-								</div>
-
-								<div className="p-4">
-									<div>
-										<IDLInputField
-											label={`Item ${i + 1} Key`}
-											value={v.key}
-											id={`${did.id}_${i}kc`}
-											depth={did.depth + 1}
-											onChange={(newVal) => {
-												let newArray = [...value];
-												newArray[i].key = newVal;
-												onChange(newArray);
-											}}
-											disabled={disabled}
-										/>
-									</div>
-									<div>
-										<IDLInputField
-											label={`Item ${i + 1} Value`}
-											value={v.value}
-											id={`${did.id}_${i}vc`}
-											depth={did.depth + 1}
-											onChange={(newVal) => {
-												let newArray = [...value];
-												newArray[i].value = newVal;
-												onChange(newArray);
-											}}
-											disabled={disabled}
-										/>
-									</div>
+						<div className="border border-border hover:border-primary/20 rounded-lg p-4 transition-all shadow-sm">
+							<div className="flex items-center gap-3">
+								<span className="font-medium text-foreground">
+									Element {i + 1} ({valueToString(v.key)} = {valueToString(v.value)})
+								</span>
+								<div className="ml-auto flex items-center gap-2">
+									<button
+										className="p-1 rounded-md hover:bg-accent/50 transition-colors"
+										onClick={() => {
+											let newArray = [...value];
+											newArray.splice(i, 1);
+											onChange(newArray);
+										}}
+										aria-label="Delete entry"
+									>
+										<Trash2 className="w-4 h-4 text-muted-foreground" />
+									</button>
 								</div>
 							</div>
+
+							<div className="p-4">
+								<div>
+									<IDLInputField
+										label={`Item ${i + 1} Key`}
+										value={v.key}
+										id={`${did.id}_${i}kc`}
+										depth={did.depth + 1}
+										onChange={(newVal) => {
+											let newArray = [...value];
+											newArray[i].key = newVal;
+											onChange(newArray);
+										}}
+										disabled={disabled}
+									/>
+								</div>
+								<div>
+									<IDLInputField
+										label={`Item ${i + 1} Value`}
+										value={v.value}
+										id={`${did.id}_${i}vc`}
+										depth={did.depth + 1}
+										onChange={(newVal) => {
+											let newArray = [...value];
+											newArray[i].value = newVal;
+											onChange(newArray);
+										}}
+										disabled={disabled}
+									/>
+								</div>
+							</div>
+						</div>
 					))}
 				</>
 			)}

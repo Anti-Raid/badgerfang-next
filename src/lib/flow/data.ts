@@ -1,6 +1,7 @@
 // Inspired from Kite
 // SPDX: GPL-3.0
 import { Connection, Edge, Node, NodeProps as XYNodeProps } from '@xyflow/react';
+import { SubflowData } from './subnode';
 
 export const numericRegex = /^[0-9]+$/;
 export const placeholderRegex = /^\{\{[a-z0-9_.]+\}\}$/;
@@ -46,8 +47,10 @@ export enum TypedInputEnum {
 	Boolean = 'Boolean',
 	Vector = 'Vector',
 	Raw = 'Raw',
-	Parens = 'Parens',
-	LogicExpr = 'LogicExpr'
+	Parens = 'Parens', // only produced by ComplexSubflow's for now (unless we make a UI for it outside of subflows)
+	LogicExpr = 'LogicExpr', // only produced by ComplexSubflow's for now (unless we make a UI for it outside of subflows)
+	RelationalExpr = 'RelationalExpr', // only produced by ComplexSubflow's for now (unless we make a UI for it outside of subflows)
+	ComplexSubflow = 'ComplexSubflow' // A subflow that is evaluated to produce a value
 }
 
 export const stringToTypedInputEnum = (value: string): TypedInputEnum => {
@@ -72,6 +75,10 @@ export const stringToTypedInputEnum = (value: string): TypedInputEnum => {
 			return TypedInputEnum.Parens;
 		case 'logicexpr':
 			return TypedInputEnum.LogicExpr;
+		case 'relationalexpr':
+			return TypedInputEnum.RelationalExpr;
+		case 'complexsubflow':
+			return TypedInputEnum.ComplexSubflow;
 		default:
 			throw new Error(`Unknown TypedInputEnum value: ${value}`);
 	}
@@ -132,21 +139,37 @@ export interface TypedInputParens {
 }
 
 export enum TypedInputLogicType {
+	And = 'And',
+	Or = 'Or'
+}
+
+// Method 1: a and b or c => { type: And, lvalue: a, rvalue: { type: Or, lvalue: b, rvalue: c } }
+// Method 2: a and b or c => { operand: a, operations: [ { type: And, value: b }, { type: Or, value: c } ] }
+export interface TypedInputLogicStmt {
+	type: TypedInputEnum.LogicExpr;
+	condition: TypedInputLogicType; // The logic condition
+	operands: TypedInput[]; // The operands involved in the logic expression
+}
+
+export enum RelationalOperatorType {
 	Eq = 'Eq',
 	Neq = 'Neq',
 	Gt = 'Gt',
 	Gte = 'Gte',
 	Lt = 'Lt',
-	Lte = 'Lte',
-	And = 'And',
-	Or = 'Or'
+	Lte = 'Lte'
 }
 
-export interface TypedInputLogicStmt {
-	type: TypedInputEnum.LogicExpr;
-	lvalue: TypedInput;
-	condition: TypedInputLogicType; // The logic condition
-	rvalue: TypedInput;
+export interface TypedInputRelationalExpr {
+	type: TypedInputEnum.RelationalExpr;
+	operator: RelationalOperatorType; // The relational operator
+	lvalue: TypedInput; // The left-hand side value
+	rvalue: TypedInput; // The right-hand side value
+}
+
+export interface TypedInputComplexSubflow {
+	type: TypedInputEnum.ComplexSubflow;
+	flow: SubflowData;
 }
 
 export type TypedInput =
@@ -159,7 +182,9 @@ export type TypedInput =
 	| TypedInputVector
 	| TypedInputRaw
 	| TypedInputParens
-	| TypedInputLogicStmt;
+	| TypedInputLogicStmt
+	| TypedInputRelationalExpr
+	| TypedInputComplexSubflow;
 
 export enum ForLoopTypeEnum {
 	GeneralizedIteration = 'GeneralizedIteration',

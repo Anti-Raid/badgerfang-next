@@ -3,21 +3,21 @@
 
 export type Field =
 	| {
-		type: 'scalar';
-		data: FieldData;
-		optional: boolean;
-	}
+			type: 'scalar';
+			data: FieldData;
+			optional: boolean;
+	  }
 	| {
-		type: 'array';
-		elementType: Field;
-		optional: boolean;
-	}
+			type: 'array';
+			elementType: Field;
+			optional: boolean;
+	  }
 	| {
-		type: 'group';
-		fields: Field[];
-		groupData: GroupData;
-		optional: boolean;
-	};
+			type: 'group';
+			fields: Field[];
+			groupData: GroupData;
+			optional: boolean;
+	  };
 
 export interface GroupData {
 	shortname: string;

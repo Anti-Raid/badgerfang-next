@@ -97,7 +97,7 @@ export const fieldToIDLInput = (field: Field, ud: TypedInput): IDLInput => {
 		return {
 			type: IDLInputEnum.Group,
 			common,
-			values: groupVals,
+			values: groupVals
 		};
 	} else {
 		throw new Error(`Invalid field of type ${JSON.stringify(field)}`);
@@ -113,41 +113,41 @@ export const idlInputToField = (inp: IDLInput): TypedInput => {
 	switch (inp.type) {
 		case IDLInputEnum.Nil:
 			return {
-				type: TypedInputEnum.Nil,
+				type: TypedInputEnum.Nil
 			};
 		case IDLInputEnum.String:
 			return {
 				type: TypedInputEnum.String,
 				value: inp.value,
-				interpolated: inp.interpolated,
+				interpolated: inp.interpolated
 			};
 		case IDLInputEnum.Number:
 			return {
 				type: TypedInputEnum.Number,
-				value: inp.value,
+				value: inp.value
 			};
 		case IDLInputEnum.Boolean:
 			return {
 				type: TypedInputEnum.Boolean,
-				value: inp.value,
+				value: inp.value
 			};
 		case IDLInputEnum.Raw:
 			return {
 				type: TypedInputEnum.Raw,
-				value: inp.value,
+				value: inp.value
 			};
 		case IDLInputEnum.Vector:
 			return {
 				type: TypedInputEnum.Vector,
 				x: inp.x,
 				y: inp.y,
-				z: inp.z,
+				z: inp.z
 			};
 		case IDLInputEnum.Array:
 			return {
 				type: TypedInputEnum.TableArray,
 				value: inp.value.map((x) => idlInputToField(x)),
-				inline: inp.inline,
+				inline: inp.inline
 			};
 		case IDLInputEnum.Table:
 			return {
@@ -158,11 +158,11 @@ export const idlInputToField = (inp: IDLInput): TypedInput => {
 						value: idlInputToField(x.value)
 					};
 				}),
-				inline: inp.inline,
+				inline: inp.inline
 			};
 		case IDLInputEnum.Group:
-			let values = []
-			for(let field of inp.values) {
+			let values = [];
+			for (let field of inp.values) {
 			}
 			return {
 				type: TypedInputEnum.Table,
@@ -176,7 +176,7 @@ export const idlInputToField = (inp: IDLInput): TypedInput => {
 						value: idlInputToField(x)
 					};
 				}),
-				inline: true,
+				inline: true
 			};
 	}
 };
