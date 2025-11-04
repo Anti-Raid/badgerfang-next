@@ -22,7 +22,7 @@ export const FFlagProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     const setFlag = (flag: FFlag, enabled: boolean) => {
-        fflags.set(flag, enabled);
+        fflags._set(flag, enabled);
         const newFflagsInstance = new FFlags({ ...fflags.flags });
         setFflags(newFflagsInstance);
     };

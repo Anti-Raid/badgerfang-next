@@ -58,7 +58,7 @@ export class FFlags {
      * @param flag The flag
      * @param enabled Whether the flag is enabled or not
      */
-    set(flag: FFlag, enabled: boolean) {
+    _set(flag: FFlag, enabled: boolean) {
         this.flags[flag] = enabled;
         this.setOnBrowser();
     }
