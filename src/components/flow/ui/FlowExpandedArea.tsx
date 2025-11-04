@@ -1,8 +1,8 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiLayers, FiZap, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import { NodeValues } from '@/lib/flow/nodes';
-import SubflowSection from './typedinputflow/SubflowSection';
+import { useFlowHPane } from '../management/FlowHPaneProvider';
 
 /**
  * FlowExpandedArea
@@ -11,15 +11,14 @@ import SubflowSection from './typedinputflow/SubflowSection';
  */
 export default function FlowExpandedArea() {
     const [isCollapsed, setIsCollapsed] = useState(false);
-    const [testData, setTestData] = useState({
-        nodes: [],
-        edges: []
-    });
-    const [children, setChildren] = useState<React.ReactNode>(
-        <>
-            <SubflowSection flowData={testData} onChange={setTestData} id="test-subflow" />
-        </>
-    );
+    const { hpane, setHtmlRef } = useFlowHPane();
+
+    // Advertise the horizontal pane outwards to the nodes (consumers)
+    const targetRef = useCallback((node: HTMLDivElement) => {
+        if (node !== null) {
+            setHtmlRef(node);
+        }
+    }, [setHtmlRef]);
 
     return (
         <motion.div
@@ -42,26 +41,28 @@ export default function FlowExpandedArea() {
             <AnimatePresence mode="wait">
                 {!isCollapsed ? (
                     <>
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="flex flex-row w-full"
-                        >
-                            {/* Header */}
-                            <div className="p-6 py-3 border-b border-border">
-                                <div className="flex items-center gap-3 mb-2">
-                                    <div className="p-2 rounded-lg bg-primary/10">
-                                        <FiLayers className="w-5 h-5 text-primary" />
+                        {!hpane?.expanded && (
+                            <>
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="flex flex-row w-full"
+                                >
+                                    {/* Header */}
+                                    <div className="p-6 py-3 border-b border-border">
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <h2 className="text-xl font-bold text-foreground">No node being editted!</h2>
+                                        </div>
+                                        <p className="text-sm text-muted-foreground">INSERT_DESCRIPTION_HERE</p>
                                     </div>
-                                    <h2 className="text-xl font-bold text-foreground">Editting INSERT_NAME_HERE</h2>
+                                </motion.div>
+                                <div className="flex-1 overflow-x-auto p-2 space-y-6">
+                                    <p></p>
                                 </div>
-                                <p className="text-sm text-muted-foreground">INSERT_DESCRIPTION_HERE</p>
-                            </div>
-                        </motion.div>
-                        {/* Content */}
-                        <div className="flex-1 overflow-x-auto p-2 space-y-6">
-                            {children}
+                            </>
+                        )}
+                        <div ref={targetRef}>
                         </div>
                     </>
                 ) : (

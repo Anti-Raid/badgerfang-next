@@ -1,8 +1,10 @@
 import { NodeProps } from '@/lib/flow/data';
-import { Ghost } from '../../ui/Buttons';
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { useFFlags } from '@/components/ui/FFlagProvider';
+import { FFlag } from '@/lib/fflags/fflags';
+import { useFlowHPane } from './FlowHPaneProvider';
 
 interface FlowExpandedProps {
 	nodeProps: NodeProps;
@@ -12,6 +14,97 @@ interface FlowExpandedProps {
 }
 
 export const FlowExpanded: React.FC<FlowExpandedProps> = ({
+	nodeProps,
+	children,
+	title,
+	onDone
+}) => {
+	const { fflags, isLoaded } = useFFlags();
+	if (!isLoaded) return <></>;
+
+	if (fflags.has(FFlag.Flow_NodeEditor_HorizontalPane)) {
+		return <FlowExpandedHorizontalPane nodeProps={nodeProps} title={title} onDone={onDone}>{children}</FlowExpandedHorizontalPane>;
+	} else {
+		return <FlowExpandedModal nodeProps={nodeProps} title={title} onDone={onDone}>{children}</FlowExpandedModal>;
+	}
+}
+
+const FlowExpandedHorizontalPane: React.FC<FlowExpandedProps> = ({
+	nodeProps,
+	children,
+	title: _title,
+	onDone
+}) => {
+	const title = _title || `${nodeProps.data.type} Configuration`
+	const { hpane, htmlRef, setHPane } = useFlowHPane();
+
+	useEffect(() => {
+		return () => {
+			setHPane({
+				...hpane,
+				expanded: '',
+			})
+		};
+	}, [setHPane]);
+
+	const pane = (
+		<>
+			<motion.div
+				initial={{ opacity: 0 }}
+				animate={{ opacity: 1 }}
+				exit={{ opacity: 0 }}
+				className="flex flex-row w-full"
+			>
+				{/* Header */}
+				<div className="p-6 py-3 border-b border-border">
+					<div className="flex items-center gap-3 mb-2">
+						<h2 className="text-xl font-bold text-foreground">{title}</h2>
+					</div>
+					<p className="text-sm text-muted-foreground">INSERT_DESCRIPTION_HERE</p>
+				</div>
+			</motion.div>
+			<div className="flex-1 overflow-x-auto p-2 space-y-6">
+				{children}
+			</div>
+		</>
+	);
+
+	return (
+		<>
+			{(htmlRef && nodeProps.id === hpane?.expanded) && createPortal(pane, htmlRef)}
+			<div className="flex justify-center mt-3">
+				<button
+					onClick={() => {
+						setHPane({
+							title: title,
+							expanded: nodeProps.id
+						})
+					}}
+					className={`
+            group relative px-6 py-2.5 rounded-lg font-medium font-inter text-sm
+            transition-all duration-300 overflow-hidden 
+			bg-card border border-border text-foreground hover:border-primary hover:shadow-md'
+            hover:scale-105 active:scale-95
+            focus:outline-none focus:ring-2 focus:ring-primary/50
+          `}
+				>
+					{/* Animated background gradient */}
+					<span
+						className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/10 to-primary/0 
+                          opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+					/>
+
+					{/* Button content */}
+					<span className="relative flex items-center gap-2">
+						Edit
+					</span>
+				</button>
+			</div>
+		</>
+	);
+}
+
+const FlowExpandedModal: React.FC<FlowExpandedProps> = ({
 	nodeProps,
 	children,
 	title,

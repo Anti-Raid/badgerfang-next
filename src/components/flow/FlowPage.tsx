@@ -4,6 +4,7 @@ import { FlowData, NodeType } from '@/lib/flow/data';
 import { ReactFlowProvider, useReactFlow } from '@xyflow/react';
 import Flow from './Flow';
 import FlowExpandedArea from './ui/FlowExpandedArea';
+import { FlowHPaneProvider } from './management/FlowHPaneProvider';
 
 interface Props {
 	flowData: FlowData;
@@ -29,7 +30,7 @@ function InnerFlowPage({ flowData, onChange }: Props) {
 
 export default function FlowPage(props: Props) {
 	return (
-		<>
+		<FlowHPaneProvider>
 			<ReactFlowProvider>
 				<InnerFlowPage {...props} />
 			</ReactFlowProvider>
@@ -37,6 +38,6 @@ export default function FlowPage(props: Props) {
 			<div className="w-[85dvw]">
 				<FlowExpandedArea />
 			</div>	
-		</>
+		</FlowHPaneProvider>
 	);
 }
