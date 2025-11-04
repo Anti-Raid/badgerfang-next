@@ -7,6 +7,7 @@ import Footer from '@/components/static/Footer';
 import { ThemeProvider } from '@/components/ui/ThemeProvider';
 import ToastProvider from '@/components/ui/ToastProvider';
 import { SWRConfig } from 'swr';
+import { FFlagProvider } from '@/components/ui/FFlagProvider';
 
 /**
  * Renders a client-side layout for protected pages, showing a loading spinner on the home route before displaying the main content.
@@ -28,24 +29,26 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 	}, []);
 
 	return (
-		<ThemeProvider defaultTheme="dark" attribute="class">
-			<SWRConfig>
-				<ToastProvider>
-					{isLoading ? (
-						<Loading onClose={() => setIsLoading(false)} />
-					) : (
-						<>
-							<Header />
-							<article className="min-h-screen flex-col justify-between overflow-x-hidden">
-								<main className="mt-9 p-1 w-full md:max-w-7xl mx-auto h-full min-h-screen">
-									{children}
-								</main>
-								<Footer />
-							</article>
-						</>
-					)}
-				</ToastProvider>
-			</SWRConfig>
-		</ThemeProvider>
+		<FFlagProvider>
+			<ThemeProvider defaultTheme="dark" attribute="class">
+				<SWRConfig>
+					<ToastProvider>
+						{isLoading ? (
+							<Loading onClose={() => setIsLoading(false)} />
+						) : (
+							<>
+								<Header />
+								<article className="min-h-screen flex-col justify-between overflow-x-hidden">
+									<main className="mt-9 p-1 w-full md:max-w-7xl mx-auto h-full min-h-screen">
+										{children}
+									</main>
+									<Footer />
+								</article>
+							</>
+						)}
+					</ToastProvider>
+				</SWRConfig>
+			</ThemeProvider>
+		</FFlagProvider>
 	);
 }

@@ -26,20 +26,23 @@ import { useAuthCheck } from '@/lib/auth/checkAuthCreds';
 import ThemeSelector from '@/components/static/ThemeSwitcher';
 import { getAvatarUrl } from '@/lib/auth/getAvatarUrl';
 import { PartialUser } from '@/types/api/bindings/PartialUser';
+import { FFlag } from '@/lib/fflags/fflags';
+import { useFFlags } from '../ui/FFlagProvider';
 
 interface NavItem {
 	name: string;
 	href: string;
 	icon: React.ComponentType<{ className?: string }>;
+	needsFFlag?: FFlag;
 }
 
 const NavItems: NavItem[] = [
 	{ name: 'Home', href: '/', icon: Home },
 	{ name: 'About', href: '/about', icon: Info },
 	{ name: 'Invite', href: '/invite', icon: Plus },
-	{ name: 'Script Shop', href: '/script/shop', icon: ShoppingCart },
+	{ name: 'Script Shop', href: '/script/shop', icon: ShoppingCart, needsFFlag: FFlag.Header_ScriptShopVisible },
 	{ name: 'Commands', href: '/commands', icon: Terminal },
-	{ name: 'Forums', href: '/forums', icon: MessageCircle }
+	{ name: 'Forums', href: '/forums', icon: MessageCircle, needsFFlag: FFlag.Header_ForumVisible }
 ];
 
 const NavBar: React.FC = () => {
@@ -56,6 +59,8 @@ const NavBar: React.FC = () => {
 	const profileRef = useRef<HTMLDivElement>(null);
 
 	const { authData } = useAuthCheck();
+
+	const { fflags, isLoaded } = useFFlags();
 
 	useEffect(() => {
 		setCurrentPath(pathname || '/');
@@ -263,7 +268,9 @@ const NavBar: React.FC = () => {
 
 					{/* Navigation Links */}
 					<div className={`hidden md:flex space-x-4`}>
-						{NavItems.map((item) => (
+						{NavItems
+						.filter(x => !x.needsFFlag || !isLoaded || fflags.has(x.needsFFlag!))
+						.map((item) => (
 							<Link
 								key={item.name}
 								href={item.href}
@@ -294,7 +301,9 @@ const NavBar: React.FC = () => {
 								className="md:hidden absolute top-full left-0 w-full bg-card rounded-lg shadow-xl ring-1 ring-border z-50"
 							>
 								<div className="py-1">
-									{NavItems.map((item) => (
+									{NavItems
+									.filter(x => !x.needsFFlag || !isLoaded || fflags.has(x.needsFFlag!))
+									.map((item) => (
 										<Link
 											key={item.name}
 											href={item.href}
