@@ -11,8 +11,10 @@ export enum LiteralEnum {
 	Vector = 'Vector',
 	Raw = 'Raw',
 	Parens = 'Parens',
+	Passthrough = 'Passthrough', // Used internally by block2ast to passthrough a value
 	LogicExpr = 'LogicExp',
-	RelationalExpr = 'RelationalExpr'
+	RelationalExpr = 'RelationalExpr',
+	Not = 'Not'
 }
 
 export interface LiteralNil {
@@ -99,6 +101,16 @@ export interface LiteralRelationalExpr {
 	rvalue: LiteralValue; // The right-hand side value
 }
 
+export interface LiteralNot {
+	type: LiteralEnum.Not;
+	value: LiteralValue;
+}
+
+export interface LiteralPassthrough {
+	type: LiteralEnum.Passthrough;
+	value: LiteralValue;
+}
+
 export type LiteralValue =
 	| LiteralNil
 	| LiteralString
@@ -110,7 +122,9 @@ export type LiteralValue =
 	| LiteralRaw
 	| LiteralParens
 	| LiteralLogicStmt
-	| LiteralRelationalExpr;
+	| LiteralRelationalExpr
+	| LiteralNot
+	| LiteralPassthrough;
 
 /**
  * A final representation type for code generation.
@@ -750,6 +764,13 @@ export class FinalRepr {
 							stack.push({ type: 'token', str: ` ${logicOperator} ` });
 						}
 					}
+					continue;
+				case LiteralEnum.Not:
+					stack.push({ type: 'literal', value: lvalue.value });
+					stack.push({ type: 'token', str: 'not ' });
+					continue;
+				case LiteralEnum.Passthrough:
+					stack.push({ type: 'literal', value: lvalue.value });
 					continue;
 			}
 		}

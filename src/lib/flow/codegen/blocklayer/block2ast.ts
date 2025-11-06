@@ -42,6 +42,7 @@ import {
 	ForLoopType as FForLoopType,
 	ForLoopEnum as FForLoopEnum
 } from '../astlayer/finalrepr';
+import { AndNode, NotNode, OrNode, OutputNode, SubflowNodeExtData, SubnodeTypeEnum, TypedInputNode } from '../../subnode';
 
 interface Visit<T> {
 	/**
@@ -523,8 +524,7 @@ export class CodeGenASTGenerator {
 		let endNode: Node<NodeExtData> | null = null;
 
 		for (const child of children) {
-			const childData = this.getAuxDataForNode(child.id);
-			switch (childData.type) {
+			switch (child.data.type) {
 				case NodeTypeEnum.EndCondition:
 					if (endNode) {
 						this.pushWarning(
@@ -589,8 +589,7 @@ export class CodeGenASTGenerator {
 		let endNode: Node<NodeExtData> | null = null;
 
 		for (const child of children) {
-			const childData = this.getAuxDataForNode(child.id);
-			switch (childData.type) {
+			switch (child.data.type) {
 				case NodeTypeEnum.EndCondition:
 					if (endNode) {
 						this.pushWarning(
@@ -834,7 +833,7 @@ export class CodeGenASTGenerator {
 					const logicExprResult: LiteralValue = {
 						type: LiteralEnum.LogicExpr,
 						condition: logicType, // Copy the primitive logic type
-						operands: []
+						operands: new Array(source.operands.length) // to be filled in
 					};
 
 					// Link to parent
@@ -842,14 +841,48 @@ export class CodeGenASTGenerator {
 
 					// Push operands in reverse order to maintain order when popping from stack
 					for (let i = source.operands.length - 1; i >= 0; i--) {
-						const sourceOperand = source.operands[i];
+						const currentIdx = i;
+						const sourceOperand = source.operands[currentIdx];
 						stack.push({
 							source: sourceOperand,
 							setResult: (result) => {
-								logicExprResult.operands[i] = result;
+								logicExprResult.operands[currentIdx] = result;
 							}
 						});
 					}
+					continue;
+				case TypedInputEnum.Not:
+					const notResult: LiteralValue = {
+						type: LiteralEnum.Not,
+						value: { type: LiteralEnum.Nil } // to be filled in
+					};
+					// Link to parent
+					task.setResult(notResult);
+					// Set inner
+					stack.push({
+						source: source.value,
+						setResult: (result) => {
+							notResult.value = result;
+						}
+					});
+					continue;
+				case TypedInputEnum.ComplexSubflow:
+					// Unfortunately, this one does do recursion via a sub-processor
+					let p = new TISubnodeProcessor(source.flow.nodes, source.flow.edges);
+					let subflowResult = p.generate();
+					const literalValue: LiteralValue = {
+						type: LiteralEnum.Passthrough,
+						value: { type: LiteralEnum.Nil } // to be filled in
+					};
+					// Link to parent
+					task.setResult(literalValue);
+					// Set inner
+					stack.push({
+						source: subflowResult,
+						setResult: (result) => {
+							literalValue.value = result;
+						}
+					});
 					continue;
 				default:
 					throw new Error('unexpected typed input found');
@@ -940,5 +973,165 @@ export class CodeGenASTGenerator {
 			description: arg.data.description,
 			required: arg.data.required
 		};
+	}
+}
+
+interface SVisit<T> {
+	/**
+	 * The ID of the node being visited.
+	 */
+	nodeId: string;
+	/**
+	 * The data associated with the node being visited.
+	 */
+	data: T;
+}
+
+export class TISubnodeProcessor {
+	private nodes: Node<SubflowNodeExtData>[];
+	private edges: Edge[];
+	private visitCache: Map<string, TypedInput>;
+	private visiting: Set<string>
+
+	/**
+	 * Creates a new TISubnodeProcessor instance to convert between the nodes and edges of a subflow
+	 * into a TypedInput
+	 *
+	 * @param nodes The nodes of the graph
+	 * @param edges The edges of the graph
+	 * @param auxData The auxiliary data for the nodes, containing additional information about each node.
+	 */
+	constructor(nodes: Node<SubflowNodeExtData>[], edges: Edge[]) {
+		this.nodes = nodes;
+		this.edges = edges;
+		this.visitCache = new Map<string, TypedInput>();
+		this.visiting = new Set<string>();
+	}
+
+	/**
+	 * Helper to return the parents of a node
+	 */
+	private getParentOfNode(nodeId: string): Node<SubflowNodeExtData>[] {
+		return getIncomers({ id: nodeId }, this.nodes, this.edges);
+	}
+
+	/**
+	 * Generates the AST representation of the flow.
+	 *
+	 * @returns The typed input representing the subflow or throws an error if generation fails.
+	 */
+	public generate(): TypedInput {
+		// Clear caches
+		this.visitCache.clear();
+		this.visiting.clear();
+
+		// Find the output node
+		const outputNode = this.nodes.filter((node) => node.data.type === SubnodeTypeEnum.OutputNode);
+
+		if (outputNode.length === 0) {
+			throw new Error('No Output Node found in the subflow.');
+		} else if (outputNode.length > 1) {
+			throw new Error('Multiple Output Nodes found in the subflow.');
+		}
+		return this.visitNode(outputNode[0]);
+	}
+
+	/**
+	 * Visits a node and returns its typed input representation.
+	 */
+	private visitNode(node: Node<SubflowNodeExtData>): TypedInput {
+		if (this.visiting.has(node.id)) {
+			throw new Error(`Cycle detected in subflow at node ${node.id}`);
+		}
+		if (this.visitCache.has(node.id)) {
+			return this.visitCache.get(node.id)!;
+		}
+		const data = node.data;
+
+		this.visiting.add(node.id); // Mark as visiting to detect cycles
+		
+		let ti: TypedInput;
+		switch (data.type) {
+			case SubnodeTypeEnum.TypedInputNode:
+				ti = this.visitTypedInputNode({ nodeId: node.id, data });
+				break;
+			case SubnodeTypeEnum.AndNode:
+				ti = this.visitAndNode({ nodeId: node.id, data });
+				break;
+			case SubnodeTypeEnum.OrNode:
+				ti = this.visitOrNode({ nodeId: node.id, data });
+				break;
+			case SubnodeTypeEnum.NotNode:
+				ti = this.visitNotNode({ nodeId: node.id, data });
+				break;
+			case SubnodeTypeEnum.OutputNode:
+				ti = this.visitOutputNode({ nodeId: node.id, data });
+				break;
+			case SubnodeTypeEnum.UnknownNode:
+				throw new Error(`Unknown subnode type ${data.type} encountered.`);
+		}
+
+		this.visitCache.set(node.id, ti); // Memoize result
+		this.visiting.delete(node.id); // Unmark as visiting
+		return ti;
+	}
+
+	// Visits a typed input node
+	private visitTypedInputNode(node: SVisit<TypedInputNode>): TypedInput {
+		let parents = this.getParentOfNode(node.nodeId);
+		if (parents.length > 0) {
+			throw new Error(`TypedInputNode ${node.nodeId} should not have any parents.`);
+		}
+		return node.data.value;
+	}
+
+	// Visits an and node
+	private visitAndNode(node: SVisit<AndNode>): TypedInput {
+		let parents = this.getParentOfNode(node.nodeId);
+		let operands: TypedInput[] = [];
+		for (const parent of parents) {
+			operands.push(this.visitNode(parent));
+		}
+		return {
+			type: TypedInputEnum.LogicExpr,
+			condition: TypedInputLogicType.And,
+			operands
+		};
+	}
+
+	// Visits an or node
+	private visitOrNode(node: SVisit<OrNode>): TypedInput {
+		let parents = this.getParentOfNode(node.nodeId);
+		let operands: TypedInput[] = [];
+		for (const parent of parents) {
+			operands.push(this.visitNode(parent));
+		}
+		return {
+			type: TypedInputEnum.LogicExpr,
+			condition: TypedInputLogicType.Or,
+			operands
+		};
+	}
+
+	// Visits a not node
+	private visitNotNode(node: SVisit<NotNode>): TypedInput {
+		let parents = this.getParentOfNode(node.nodeId);
+		if (parents.length !== 1) {
+			throw new Error(`NotNode ${node.nodeId} must have exactly one parent.`);
+		}
+		let operand = this.visitNode(parents[0]);
+		return {
+			type: TypedInputEnum.Not,
+			value: operand
+		};
+	}
+
+	// Visits the output node
+	private visitOutputNode(node: SVisit<OutputNode>): TypedInput {
+		let parents = this.getParentOfNode(node.nodeId);
+		if (parents.length !== 1) {
+			throw new Error(`OutputNode ${node.nodeId} must have exactly one parent.`);
+		}
+		return this.visitNode(parents[0]);
 	}
 }

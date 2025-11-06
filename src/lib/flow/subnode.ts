@@ -1,19 +1,41 @@
 import { Edge, XYPosition, Node } from '@xyflow/react';
+import { TypedInput, TypedInputEnum } from './data';
 
-export interface OutputNode {
-	type: 'OutputNode';
+export enum SubnodeTypeEnum {
+	OutputNode = 'OutputNode',
+	TypedInputNode = 'NumberNode', // done
+	AndNode = 'AndNode',
+	OrNode = 'OrNode',
+	NotNode = 'NotNode',
+	UnknownNode = 'UnknownNode'
 }
 
-export interface NumberNode {
-	type: 'NumberNode';
-	value: number;
+export interface OutputNode {
+	type: SubnodeTypeEnum.OutputNode;
+}
+
+export interface TypedInputNode {
+	type: SubnodeTypeEnum.TypedInputNode;
+	value: TypedInput;
+}
+
+export interface AndNode {
+	type: SubnodeTypeEnum.AndNode;
+}
+
+export interface OrNode {
+	type: SubnodeTypeEnum.OrNode;
+}
+
+export interface NotNode {
+	type: SubnodeTypeEnum.NotNode;
 }
 
 export interface UnknownNode {
-	type: 'UnknownNode';
+	type: SubnodeTypeEnum.UnknownNode;
 }
 
-export type SubflowNodeData = OutputNode | NumberNode | UnknownNode;
+export type SubflowNodeData = OutputNode | TypedInputNode | AndNode | OrNode | NotNode | UnknownNode;
 
 export type SubflowNodeExtData = SubflowNodeData & Record<string, unknown>;
 
@@ -26,7 +48,22 @@ export type SubflowNodeType = Node<SubflowNodeExtData>;
 
 export const defaultNodeDataForType: Record<string, SubflowNodeExtData> = {
 	unknown: {
-		type: 'UnknownNode'
+		type: SubnodeTypeEnum.UnknownNode
+	},
+	output: {
+		type: SubnodeTypeEnum.OutputNode
+	},
+	typedinput: {
+		type: SubnodeTypeEnum.TypedInputNode,
+		value: {
+			type: TypedInputEnum.Nil
+		}
+	},
+	and: {
+		type: SubnodeTypeEnum.AndNode
+	},
+	or: {
+		type: SubnodeTypeEnum.OrNode
 	}
 };
 

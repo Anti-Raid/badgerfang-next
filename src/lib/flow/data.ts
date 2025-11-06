@@ -50,6 +50,7 @@ export enum TypedInputEnum {
 	Parens = 'Parens', // only produced by ComplexSubflow's for now (unless we make a UI for it outside of subflows)
 	LogicExpr = 'LogicExpr', // only produced by ComplexSubflow's for now (unless we make a UI for it outside of subflows)
 	RelationalExpr = 'RelationalExpr', // only produced by ComplexSubflow's for now (unless we make a UI for it outside of subflows)
+	Not = 'Not', // Logical NOT expression
 	ComplexSubflow = 'ComplexSubflow' // A subflow that is evaluated to produce a value
 }
 
@@ -79,6 +80,8 @@ export const stringToTypedInputEnum = (value: string): TypedInputEnum => {
 			return TypedInputEnum.RelationalExpr;
 		case 'complexsubflow':
 			return TypedInputEnum.ComplexSubflow;
+		case 'not':
+			return TypedInputEnum.Not;
 		default:
 			throw new Error(`Unknown TypedInputEnum value: ${value}`);
 	}
@@ -110,6 +113,8 @@ export const typedInputEnumToString = (type: TypedInputEnum): string => {
 			return 'relationalexpr';
 		case TypedInputEnum.ComplexSubflow:
 			return 'complexsubflow';
+		case TypedInputEnum.Not:
+			return 'not';
 		default:
 			throw new Error(`Unknown TypedInputEnum: ${type}`);
 	}
@@ -198,6 +203,11 @@ export interface TypedInputRelationalExpr {
 	rvalue: TypedInput; // The right-hand side value
 }
 
+export interface TypedInputNot {
+	type: TypedInputEnum.Not;
+	value: TypedInput;
+}
+
 export interface TypedInputComplexSubflow {
 	type: TypedInputEnum.ComplexSubflow;
 	flow: SubflowData;
@@ -215,6 +225,7 @@ export type TypedInput =
 	| TypedInputParens
 	| TypedInputLogicStmt
 	| TypedInputRelationalExpr
+	| TypedInputNot
 	| TypedInputComplexSubflow;
 
 export enum ForLoopTypeEnum {
