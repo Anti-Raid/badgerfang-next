@@ -308,6 +308,51 @@ export type Node =
 	| WhileLoop
 	| Return;
 
+// FinalRepr parsing 'compiles' down statements into ParseCommands
+export type ParseCommand = {
+	type: "token", // A raw token
+	value: string
+} | {
+	type: "line.next" // denotes the start of a new line (which will include the desired indent)
+} | {
+	type: "indent.incr"
+} | {
+	type: "indent.decr"
+}
+
+const stringifyParseCommands = (pc: ParseCommand[]): string => {
+	let indent = 0;
+	let lines: string[] = [];
+	let currentIndex = 0;
+
+	for (let stmt of pc) {
+		// Add any lines we need to lines array
+		while (currentIndex >= currentIndex) {
+			lines.push("\t".repeat(indent)) // Push new line with indentation
+		}
+
+		switch (stmt.type) {
+			case "token":
+				lines[currentIndex] += stmt.value;
+				break;
+			case "line.next":
+				currentIndex++;
+				break;
+			case "indent.incr":
+				indent++;
+				break;
+			case "indent.decr":
+				indent--;
+				if (indent < 0) {
+					throw new Error(`internal error: indent.decr without indent.incr`)
+				}
+				break;
+		}
+	}
+
+	return lines.join("\n")
+}
+
 /**
  * Writer class to help handle code generation.
  */
@@ -354,13 +399,13 @@ export class Writer {
  */
 type InlineStatus =
 	| {
-			type: 'NotInline';
-			depth: number; // How deep we are
-	  }
+		type: 'NotInline';
+		depth: number; // How deep we are
+	}
 	| {
-			type: 'Inline';
-			depth: number; // How deep we are, needed in case a inline context goes to not inline and back
-	  };
+		type: 'Inline';
+		depth: number; // How deep we are, needed in case a inline context goes to not inline and back
+	};
 
 /**
  * Helper to create a new InlineStatus
@@ -597,14 +642,14 @@ export class FinalRepr {
 
 		type StackData =
 			| {
-					type: 'literal';
-					value: LiteralValue;
-					tableKey?: boolean;
-			  }
+				type: 'literal';
+				value: LiteralValue;
+				tableKey?: boolean;
+			}
 			| {
-					type: 'token';
-					str: string;
-			  };
+				type: 'token';
+				str: string;
+			};
 
 		let stack: StackData[] = [{ type: 'literal', value }];
 
