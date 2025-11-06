@@ -178,7 +178,7 @@ const NavBar: React.FC = () => {
 								<Link
 									key={item.name}
 									href={item.href}
-									className="flex items-center px-4 py-2 text-sm text-foreground hover:bg-accent transition-colors"
+									className="flex items-center px-4 py-2 text-sm lg:inline text-foreground hover:bg-accent transition-colors"
 									onClick={() => {
 										setIsProfileOpen(false);
 										setIsMobileMenuOpen(false);
@@ -191,7 +191,7 @@ const NavBar: React.FC = () => {
 								<button
 									key={item.name}
 									onClick={item.onClick}
-									className="w-full text-left flex items-center px-4 py-2 text-sm text-foreground hover:bg-accent transition-colors"
+									className="w-full text-left flex items-center lg:inline px-4 py-2 text-sm text-foreground hover:bg-accent transition-colors"
 								>
 									<item.icon className="mr-3 h-5 w-5 text-muted-foreground" />
 									{item.name}
@@ -206,34 +206,34 @@ const NavBar: React.FC = () => {
 
 	return (
 		<header className="sticky top-0 z-50 backdrop-blur-md shadow-sm bg-background/75">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<nav className="flex items-center justify-between h-16">
+			<div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
+				<nav className="flex items-center justify-between h-14 sm:h-16">
 					{/* Logo Section */}
-					<div className="flex items-center space-x-2">
+					<div className="flex items-center space-x-1 sm:space-x-2">
 						<Link href="/" className="flex items-center">
 							<img
 								src={getLogoPath()}
 								alt="AntiRaid Logo"
-								className="h-8 w-auto rounded-full mr-2"
+								className="h-7 sm:h-8 w-auto rounded-full mr-1.5 sm:mr-2"
 							/>
-							<span className="text-xl font-bold text-foreground">AntiRaid</span>
+							<span className="text-lg sm:text-xl font-bold text-foreground">AntiRaid</span>
 						</Link>
 					</div>
 
 					{/* Mobile Menu Button */}
-					<div className="md:hidden flex items-center space-x-2">
+					<div className="md:hidden flex items-center space-x-1.5 sm:space-x-2">
 						<button
 							onClick={() => {
 								setIsMobileMenuOpen(!isMobileMenuOpen);
 								setIsThemeOpen(false);
 								setIsProfileOpen(false);
 							}}
-							className="p-2 rounded-full hover:bg-accent transition-colors"
+							className="p-1.5 sm:p-2 rounded-full hover:bg-accent transition-colors"
 						>
 							{isMobileMenuOpen ? (
-								<X className="h-6 w-6 text-muted-foreground" />
+								<X className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground" />
 							) : (
-								<Menu className="h-6 w-6 text-muted-foreground" />
+								<Menu className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground" />
 							)}
 						</button>
 						<div className="relative">
@@ -248,7 +248,7 @@ const NavBar: React.FC = () => {
 									<img
 										src={userData ? getAvatarUrl(userData) : getLogoPath()}
 										alt="User Avatar"
-										className="h-8 w-8 rounded-full ring-2 ring-primary"
+										className="h-7 w-7 sm:h-8 sm:w-8 rounded-full ring-2 ring-primary"
 									/>
 								</button>
 							) : (
@@ -257,7 +257,7 @@ const NavBar: React.FC = () => {
 										loginUser();
 										router.push('/dashboard');
 									}}
-									className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+									className="px-2.5 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
 								>
 									Login
 								</button>
@@ -267,7 +267,7 @@ const NavBar: React.FC = () => {
 					</div>
 
 					{/* Navigation Links */}
-					<div className={`hidden md:flex space-x-4`}>
+					<div className={`hidden md:flex space-x-2 lg:space-x-4`}>
 						{NavItems
 						.filter(x => !x.needsFFlag || !isLoaded || fflags.has(x.needsFFlag!))
 						.map((item) => (
@@ -275,7 +275,7 @@ const NavBar: React.FC = () => {
 								key={item.name}
 								href={item.href}
 								className={`
-                  flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200
+                  flex items-center px-2 lg:px-3 py-2 rounded-md text-xs lg:text-sm font-medium transition-colors duration-200
                   ${
 										currentPath === item.href
 											? 'bg-primary/10 text-primary'
@@ -284,7 +284,7 @@ const NavBar: React.FC = () => {
                 `}
 							>
 								<motion.div whileHover={{ x: 5 }} transition={{ type: 'spring', stiffness: 300 }}>
-									<item.icon className="h-4 w-4 mr-2" />
+									<item.icon className="h-4 w-4 mr-1.5 lg:mr-2" />
 								</motion.div>
 								{item.name}
 							</Link>
@@ -325,7 +325,7 @@ const NavBar: React.FC = () => {
 					</AnimatePresence>
 
 					{/* Action Buttons */}
-					<div className="hidden md:flex items-center space-x-4">
+					<div className="hidden md:flex items-center space-x-2 lg:space-x-4">
 						{/* Theme Switcher */}
 						<div className="relative">
 							<ThemeSelector />
@@ -341,7 +341,7 @@ const NavBar: React.FC = () => {
 									<img
 										src={userData ? getAvatarUrl(userData) : getLogoPath()}
 										alt="User Avatar"
-										className="h-8 w-8 rounded-full ring-2 ring-primary"
+										className="h-7 w-7 lg:h-8 lg:w-8 rounded-full ring-2 ring-primary"
 									/>
 								</button>
 							) : (
@@ -350,7 +350,7 @@ const NavBar: React.FC = () => {
 										loginUser();
 										router.push('/dashboard');
 									}}
-									className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+									className="px-3 py-1.5 lg:px-4 lg:py-2 text-xs lg:text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
 								>
 									Login
 								</button>
