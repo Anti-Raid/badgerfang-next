@@ -568,8 +568,9 @@ export class FinalRepr {
 	private visitComment(writer: Writer, inode: Comment) {
 		if (inode.comment.includes('\n')) {
 			writer.write(`--[[ ${inode.comment} ]]\n`);
+		} else {
+			writer.write(`-- ${inode.comment.replaceAll('--', '\-\-')}\n`);
 		}
-		writer.write(`-- ${inode.comment.replaceAll('--', '\-\-')}\n`);
 	}
 
 	/**
@@ -795,7 +796,10 @@ export class FinalRepr {
 		if (inode.data.elseifs) {
 			lvw.clear(); // Clear the writer for elseif statements
 			for (const elseif of inode.data.elseifs) {
-				writer.write(`elseif ${elseif.condition} then\n`);
+				let lvw = new Writer();
+				FinalRepr.visitLiteralValue(lvw, elseif.condition);
+				writer.write(`elseif ${lvw.getCodeString()} then\n`);
+				lvw.clear(); // Clear the writer for the body bit
 
 				this.visitStatementOrCommentNodes(lvw, elseif.body);
 

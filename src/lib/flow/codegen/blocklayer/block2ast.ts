@@ -921,21 +921,6 @@ export class CodeGenASTGenerator {
 	}
 
 	/**
-	 * Helper to return the auxilliary data for the given node ID.
-	 * @param nodeId The ID of the node to get auxiliary data for.
-	 * @returns The auxiliary data for the node.
-	 */
-	private getAuxDataForNode(nodeId: string): NodeExtData {
-		for (const node of this.nodes) {
-			if (node.id === nodeId) {
-				return node.data; // Return the aux data directly from the node
-			}
-		}
-
-		throw new Error(`Node with ID ${nodeId} not found in the flow.`);
-	}
-
-	/**
 	 * Returns the AST representation of a CommandArgument.
 	 * @param arg The CommandArgument to convert to AST.
 	 * @returns The AST representation of the CommandArgument.
