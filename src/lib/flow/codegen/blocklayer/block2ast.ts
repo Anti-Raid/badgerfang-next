@@ -42,7 +42,7 @@ import {
 	ForLoopType as FForLoopType,
 	ForLoopEnum as FForLoopEnum
 } from '../astlayer/finalrepr';
-import { AndNode, NotNode, OrNode, OutputNode, SubflowNodeExtData, SubnodeTypeEnum, TypedInputNode } from '../../subnode';
+import { AndNode, NotNode, OrNode, OutputNode, ParensNode, SubflowNodeExtData, SubnodeTypeEnum, TypedInputNode } from '../../subnode';
 
 interface Visit<T> {
 	/**
@@ -1052,6 +1052,9 @@ export class TISubnodeProcessor {
 			case SubnodeTypeEnum.OutputNode:
 				ti = this.visitOutputNode({ nodeId: node.id, data });
 				break;
+			case SubnodeTypeEnum.ParensNode:
+				ti = this.visitParensNode({ nodeId: node.id, data });
+				break;
 			case SubnodeTypeEnum.UnknownNode:
 				throw new Error(`Unknown subnode type ${data.type} encountered.`);
 		}
@@ -1108,6 +1111,19 @@ export class TISubnodeProcessor {
 		return {
 			type: TypedInputEnum.Not,
 			value: operand
+		};
+	}
+
+	// Visits a parenthesis node
+	private visitParensNode(node: SVisit<ParensNode>): TypedInput {
+		let parents = this.getParentOfNode(node.nodeId);
+		if (parents.length !== 1) {
+			throw new Error(`ParensNode ${node.nodeId} must have exactly one parent.`);
+		}
+		let inner = this.visitNode(parents[0]);
+		return {
+			type: TypedInputEnum.Parens,
+			inner
 		};
 	}
 

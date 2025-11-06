@@ -7,6 +7,7 @@ export enum SubnodeTypeEnum {
 	AndNode = 'AndNode',
 	OrNode = 'OrNode',
 	NotNode = 'NotNode',
+	ParensNode = 'ParensNode',
 	UnknownNode = 'UnknownNode'
 }
 
@@ -35,7 +36,11 @@ export interface UnknownNode {
 	type: SubnodeTypeEnum.UnknownNode;
 }
 
-export type SubflowNodeData = OutputNode | TypedInputNode | AndNode | OrNode | NotNode | UnknownNode;
+export interface ParensNode {
+	type: SubnodeTypeEnum.ParensNode;
+}
+
+export type SubflowNodeData = OutputNode | TypedInputNode | AndNode | OrNode | NotNode | ParensNode | UnknownNode;
 
 export type SubflowNodeExtData = SubflowNodeData & Record<string, unknown>;
 
