@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { CodeGenASTGenerator } from '@/lib/flow/codegen/blocklayer/block2ast';
 import FlowList from '@/components/flow/ui/FlowList';
 import { Primary } from '@/components/ui/Buttons';
+import { stringifyParseCommands } from '@/lib/flow/codegen/astlayer/parsecommand';
 
 const codegenAst = async (data: FlowData) => {
 	let generator = new CodeGenASTGenerator(data.nodes, data.edges);
@@ -13,13 +14,15 @@ const codegenAst = async (data: FlowData) => {
 	let stage1 = r.toJSON();
 
 	let stage2: any = 'Cannot proceed further due to AST errors';
+	let compiledStr = null;
 
 	if (!r.isError()) {
-		r.applyDefaultTransforms();
-		stage2 = r.toJSON();
+		let finalRepr = r.toFinalRepr()
+		stage2 = finalRepr.toParseCommand();
+		compiledStr = stringifyParseCommands(stage2)
 	}
 
-	return { stage1, stage2 };
+	return { stage1, stage2, compiledStr };
 };
 
 export default function Blockly() {
@@ -28,6 +31,7 @@ export default function Blockly() {
 	const [compiledAst, setCompiledAst] = useState<{
 		stage1: Record<string, unknown>;
 		stage2: Record<string, unknown>;
+		compiledStr: string | null;
 	} | null>(null);
 
 	return (

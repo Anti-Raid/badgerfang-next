@@ -21,10 +21,7 @@ import {
 import { Node, Edge, getOutgoers, getIncomers } from '@xyflow/react';
 import {
 	CodeGenAST,
-	ICommandArgument,
-	ICommandArgumentType,
-	IPreludeTypeEnum
-} from '../astlayer/ast';
+} from './ast';
 import {
 	ElseIf,
 	FinalRepr,
@@ -44,6 +41,7 @@ import {
 	ForLoopEnum as FForLoopEnum
 } from '../astlayer/finalrepr';
 import { AndNode, NotNode, OrNode, OutputNode, ParensNode, SubflowNodeExtData, SubnodeTypeEnum, TypedInputNode } from '../../subnode';
+import { ICommandArgument, ICommandArgumentType, IPreludeTypeEnum } from './prelude';
 
 interface Visit<T> {
 	/**
@@ -132,6 +130,7 @@ export class CodeGenASTGenerator {
 		} catch (error) {
 			currentAst.fatalError = `Error generating AST: ${error instanceof Error ? error.message : String(error)}`;
 		}
+		currentAst.dependencies = this.dependencies
 		return currentAst;
 	}
 

@@ -443,7 +443,7 @@ export class FinalRepr {
 		let exprTok = this.visitExpression(inode.rvalue);
 
 		return [
-			{ type: "token", value: "local " },
+			{ type: "token.luau", value: "local" },
 			{ type: "token", value: inode.lvalue },
 			{ type: "token", value: " = " },
 			...exprTok,
