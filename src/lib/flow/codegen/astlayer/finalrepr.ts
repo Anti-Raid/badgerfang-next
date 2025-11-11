@@ -313,7 +313,7 @@ export type ParseCommand = {
 	type: "token", // A raw token
 	value: string
 } | {
-	type: "line.next" // denotes the start of a new line (which will include the desired indent)
+	type: "line.next" // denotes the start of a new line (which will include the desired indent) by incrementing currentIndex
 } | {
 	type: "indent.incr"
 } | {
@@ -322,21 +322,23 @@ export type ParseCommand = {
 
 const stringifyParseCommands = (pc: ParseCommand[]): string => {
 	let indent = 0;
-	let lines: string[] = [];
-	let currentIndex = 0;
+	let output = "";
+	// We start at the beginning of a line
+	let isStartOfLine = true;
 
-	for (let stmt of pc) {
-		// Add any lines we need to lines array
-		while (currentIndex >= currentIndex) {
-			lines.push("\t".repeat(indent)) // Push new line with indentation
-		}
-
-		switch (stmt.type) {
+	for (const cmd of pc) {
+		switch (cmd.type) {
 			case "token":
-				lines[currentIndex] += stmt.value;
+				// Only apply indentation if we are currently at the start of a line
+				if (isStartOfLine) {
+					output += "\t".repeat(indent);
+					isStartOfLine = false;
+				}
+				output += cmd.value;
 				break;
 			case "line.next":
-				currentIndex++;
+				output += "\n";
+				isStartOfLine = true;
 				break;
 			case "indent.incr":
 				indent++;
@@ -344,13 +346,13 @@ const stringifyParseCommands = (pc: ParseCommand[]): string => {
 			case "indent.decr":
 				indent--;
 				if (indent < 0) {
-					throw new Error(`internal error: indent.decr without indent.incr`)
+					throw new Error(`internal error: indent.decr without indent.incr`);
 				}
 				break;
 		}
 	}
 
-	return lines.join("\n")
+	return output;
 }
 
 /**
@@ -393,71 +395,6 @@ export class Writer {
 		this.code.push(code);
 	}
 }
-
-/**
- * The current inline status
- */
-type InlineStatus =
-	| {
-		type: 'NotInline';
-		depth: number; // How deep we are
-	}
-	| {
-		type: 'Inline';
-		depth: number; // How deep we are, needed in case a inline context goes to not inline and back
-	};
-
-/**
- * Helper to create a new InlineStatus
- * @param inline Whether we are inline or not
- * @returns A new InlineStatus
- */
-const newInlineStatus = (inline: boolean): InlineStatus => {
-	if (inline) {
-		return {
-			type: 'Inline',
-			depth: 1
-		};
-	} else {
-		return {
-			type: 'NotInline',
-			depth: 1
-		};
-	}
-};
-
-/**
- * Helper method to either create a new inline status if the passed
- * inline status is null/undefined, otherwise return a new inline status with the depth of the inline status being one more than current depth
- */
-const enterInlineStatus = (status: InlineStatus | undefined, inline: boolean): InlineStatus => {
-	if (status) {
-		return {
-			type: inline ? 'Inline' : 'NotInline',
-			depth: status.depth + 1
-		};
-	}
-
-	return newInlineStatus(inline);
-};
-
-/**
- * Helper method to go one level deeper in the inline status
- * @param status The current inline status
- */
-const incrInline = (status: InlineStatus): InlineStatus => {
-	return {
-		type: status.type,
-		depth: status.depth + 1
-	};
-};
-
-/**
- * Helper method to create the \n\t*N table key-value seperator for a given depth
- */
-const tableSeperatorFor = (depth: number) => {
-	return '\n' + '\t'.repeat(depth);
-};
 
 /**
  * Final repr class
@@ -512,7 +449,7 @@ export class FinalRepr {
 	/**
 	 * Visits the Node and performs the validity check on said INode
 	 */
-	private visitRepr(writer: Writer, inode: Node) {
+	private visitRepr(inode: Node): ParseCommand[] {
 		switch (inode.type) {
 			case ReprEnum.LocalVariableDeclaration:
 				return this.visitLocalVariableDeclaration(writer, inode);
@@ -544,98 +481,102 @@ export class FinalRepr {
 	/**
 	 * Helper to first assert that the Node is a expression and then visit it.
 	 */
-	private visitExpression(writer: Writer, inode: Node) {
+	private visitExpression(inode: Node): ParseCommand[] {
 		this.assertExpression(inode);
-		return this.visitRepr(writer, inode);
+		return this.visitRepr(inode);
 	}
 
 	/**
-	 * Helper to first assert that the Node is a statement and then visit it.
+	 * Visits a statement or comment node and returns the string representation.
 	 */
-	private visitStatement(writer: Writer, inode: Node) {
-		this.assertStatement(inode);
-		return this.visitRepr(writer, inode);
-	}
-
-	/**
-	 * Visits a LocalVariableDeclaration and returns the string representation.
-	 * It also checks that the lvalue does not contain a dot (.)
-	 */
-	private visitStatementOrComment(writer: Writer, inode: Node) {
+	private visitStatementOrComment(inode: Node): ParseCommand[] {
 		if (inode.type === ReprEnum.Comment) {
-			return this.visitComment(writer, inode);
+			return this.visitComment(inode);
 		}
 		this.assertStatement(inode);
-		return this.visitRepr(writer, inode);
+		return this.visitRepr(inode);
 	}
 
 	/**
-	 * Visits a LocalVariableDeclaration and returns the string representation.
-	 * It also checks that the lvalue does not contain a dot (.)
+	 * Visits a set of statement/comment nodes and returns the string representation.
 	 */
-	private visitStatementOrCommentNodes(writer: Writer, inodes: Node[]) {
+	private visitStatementOrCommentNodes(inodes: Node[]): ParseCommand[] {
+		let pc: ParseCommand[] = []
 		for (const inode of inodes) {
-			this.visitStatementOrComment(writer, inode);
+			pc.push(...this.visitStatementOrComment(inode));
 		}
-		return;
+		return pc;
 	}
 
 	/**
 	 * Visits a LocalVariableDeclaration and returns the string representation.
 	 */
-	private visitLocalVariableDeclaration(writer: Writer, inode: LocalVariableDeclaration) {
-		this.assertExpression(inode.rvalue);
+	private visitLocalVariableDeclaration(inode: LocalVariableDeclaration): ParseCommand[] {
 		if (inode.lvalue.includes('.')) {
 			this.pushError(`Local variable name "${inode.lvalue}" cannot contain a dot (.)`);
 		}
 
-		let rvalue = new Writer();
-		this.visitExpression(rvalue, inode.rvalue);
+		let exprTok = this.visitExpression(inode.rvalue);
 
-		return writer.write(`local ${inode.lvalue} = ${rvalue.getCodeString()};\n`);
+		return [
+			{ type: "token", value: "local " },
+			{ type: "token", value: inode.lvalue },
+			{ type: "token", value: " = " },
+			...exprTok,
+			{ type: "line.next" },
+		]
 	}
 
 	/**
 	 * Visits a GlobalDeclaration and returns the string representation.
 	 */
-	private visitGlobalDeclaration(writer: Writer, inode: GlobalDeclaration) {
-		this.assertExpression(inode.rvalue);
+	private visitGlobalDeclaration(inode: GlobalDeclaration): ParseCommand[] {
+		let exprTok = this.visitExpression(inode.rvalue);
 
-		let rvalue = new Writer();
-		this.visitExpression(rvalue, inode.rvalue);
-
-		writer.write(`${inode.lvalue} = ${rvalue.getCodeString()};\n`);
+		return [
+			{ type: "token", value: inode.lvalue },
+			{ type: "token", value: " = " },
+			...exprTok,
+			{ type: "line.next" },
+		]
 	}
 
 	/**
 	 * Visits a Comment and returns the string representation.
 	 */
-	private visitComment(writer: Writer, inode: Comment) {
+	private visitComment(inode: Comment): ParseCommand[] {
 		if (inode.comment.includes('\n')) {
-			writer.write(`--[[ ${inode.comment} ]]\n`);
+			return [
+				{ type: "token", value: `--[[ ${inode.comment} ]]` },
+				{ type: "line.next" },
+			]
 		} else {
-			writer.write(`-- ${inode.comment.replaceAll('--', '\-\-')}\n`);
+			return [
+				{ type: "token", value: `-- ${inode.comment.replaceAll('--', '\-\-')}\n` },
+			]
 		}
 	}
 
 	/**
 	 * Visits a Raw and returns the string representation.
 	 */
-	private visitRaw(writer: Writer, inode: Raw) {
-		writer.write(inode.code);
+	private visitRaw(inode: Raw): ParseCommand[] {
+		return [
+			{ type: "token", value: inode.code }
+		]
 	}
 
 	/**
 	 * Visits a Literal node and returns the string representation.
 	 */
-	private visitLiteral(writer: Writer, inode: Literal) {
-		return FinalRepr.visitLiteralValue(writer, inode.value);
+	private visitLiteral(inode: Literal): ParseCommand[] {
+		return FinalRepr.visitLiteralValue(inode.value);
 	}
 
 	/**
 	 * Visit a LiteralValue and return the string representation.
 	 */
-	static visitLiteralValue(writer: Writer, value: LiteralValue, inlineStatus?: InlineStatus) {
+	static visitLiteralValue(value: LiteralValue): ParseCommand[] {
 		const _isValidIdentifier = (key: string): boolean => {
 			return /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(key);
 		};
@@ -653,11 +594,14 @@ export class FinalRepr {
 
 		let stack: StackData[] = [{ type: 'literal', value }];
 
+		let outputToks: ParseCommand[] = []
+
 		while (true) {
 			let value = stack.pop();
 			if (!value) break;
 			if (value.type == 'token') {
-				writer.write(value.str);
+				// todo: handle inline better
+				outputToks.push({ type: "token", value: value.str });
 				continue;
 			}
 
@@ -820,53 +764,63 @@ export class FinalRepr {
 					continue;
 			}
 		}
+
+		return outputToks
 	}
 
 	/**
-	 * Visit IfCondition and return the string representation.
+	 * Visit IfCondition (statement) and return the string representation.
 	 */
-	private visitIfCondition(writer: Writer, inode: IfCondition) {
-		let lvw = new Writer();
-		FinalRepr.visitLiteralValue(lvw, inode.data.condition);
-		writer.write(`if ${lvw.getCodeString()} then\n`);
-		lvw.clear(); // Clear the writer for the body bit
+	private visitIfCondition(inode: IfCondition): ParseCommand[] {
+		let condToks = FinalRepr.visitLiteralValue(inode.data.condition);
+		let bodyStmts = this.visitStatementOrCommentNodes(inode.data.body);
 
-		// First handle body statements
-		this.visitStatementOrCommentNodes(lvw, inode.data.body);
-
-		for (const b of lvw.getCode()) {
-			writer.write(`\t${b}`);
-		}
+		let ifCondToks: ParseCommand[] = [
+			//{type: "line.next"},
+			{ type: "token", value: "if " },
+			...condToks,
+			{ type: "token", value: " then" },
+			{ type: "line.next" },
+			{ type: "indent.incr" },
+			...bodyStmts,
+			{ type: "indent.decr" },
+			{ type: "line.next" },
+		];
 
 		if (inode.data.elseifs) {
-			lvw.clear(); // Clear the writer for elseif statements
 			for (const elseif of inode.data.elseifs) {
-				let lvw = new Writer();
-				FinalRepr.visitLiteralValue(lvw, elseif.condition);
-				writer.write(`elseif ${lvw.getCodeString()} then\n`);
-				lvw.clear(); // Clear the writer for the body bit
+				let elseIfCondToks = FinalRepr.visitLiteralValue(elseif.condition);
+				let elseIfToks = this.visitStatementOrCommentNodes(elseif.body);
 
-				this.visitStatementOrCommentNodes(lvw, elseif.body);
-
-				for (const b of lvw.getCode()) {
-					writer.write(`\t${b}`);
-				}
-
-				lvw.clear(); // Clear the writer for the next elseif
+				ifCondToks.push(
+					{ type: "token", value: "elseif " },
+					...elseIfCondToks,
+					{ type: "token", value: " then" },
+					{ type: "line.next" },
+					{ type: "indent.incr" },
+					...elseIfToks,
+					{ type: "indent.decr" },
+					{ type: "line.next" },
+				)
 			}
 		}
 
 		if (inode.data.else) {
-			writer.write('else\n');
-			lvw.clear(); // Clear the writer for else statements
-			this.visitStatementOrCommentNodes(lvw, inode.data.else);
-			for (const b of lvw.getCode()) {
-				writer.write(`\t${b}`);
-			}
+			let elseToks = this.visitStatementOrCommentNodes(inode.data.else);
+
+			ifCondToks.push(
+				{ type: "token", value: "else" },
+				{ type: "line.next" },
+				{ type: "indent.incr" },
+				...elseToks,
+				{ type: "indent.decr" },
+				{ type: "line.next" },
+			)
 		}
 
-		writer.write('end\n');
-		return;
+		ifCondToks.push({ type: "token", value: "end" })
+
+		return ifCondToks
 	}
 
 	/**
