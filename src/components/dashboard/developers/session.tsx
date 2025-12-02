@@ -287,7 +287,7 @@ const CreateSessionForm: React.FC<{ onSessionCreated: () => void }> = ({ onSessi
 							</button>
 						</div>
 						<p className="text-xs text-muted-foreground mt-3">
-							Make sure to copy this token now. You won't be able to see it again!
+							Make sure to copy this token now. You won&apos;t be able to see it again!
 						</p>
 					</motion.div>
 				)}

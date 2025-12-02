@@ -42,7 +42,8 @@ import {
 	INodeTypeEnum,
 	IPreludeTypeEnum,
 	ITypedInput,
-	ITypedInputEnum
+	ITypedInputEnum,
+	ITypedInputTableEntry
 } from './ast';
 import { baseCommandNodeSchema } from '../validation';
 import z from 'zod';
@@ -651,10 +652,15 @@ export class CodeGenASTGenerator {
 	 */
 	private visitTypedInput(value: TypedInput): ITypedInput {
 		switch (value.type) {
+			case TypedInputEnum.Nil:
+				return {
+					type: ITypedInputEnum.Nil
+				};
 			case TypedInputEnum.String:
 				return {
 					type: ITypedInputEnum.String,
-					value: value.value
+					value: value.value,
+					interpolated: value.interpolated
 				};
 			case TypedInputEnum.Number:
 				return {
@@ -662,14 +668,33 @@ export class CodeGenASTGenerator {
 					value: value.value
 				};
 			case TypedInputEnum.Table:
+				let tableValue: ITypedInputTableEntry[] = value.value.map((entry) => ({
+					key: this.visitTypedInput(entry.key),
+					value: this.visitTypedInput(entry.value)
+				}));
 				return {
 					type: ITypedInputEnum.Table,
-					value: value.value
+					value: tableValue,
+					inline: value.inline
+				};
+			case TypedInputEnum.TableArray:
+				let arrayValue: ITypedInput[] = value.value.map((item) => this.visitTypedInput(item));
+				return {
+					type: ITypedInputEnum.TableArray,
+					value: arrayValue,
+					inline: value.inline
 				};
 			case TypedInputEnum.Boolean:
 				return {
 					type: ITypedInputEnum.Boolean,
 					value: value.value
+				};
+			case TypedInputEnum.Vector:
+				return {
+					type: ITypedInputEnum.Vector,
+					x: value.x,
+					y: value.y,
+					z: value.z
 				};
 			case TypedInputEnum.Raw:
 				return {
@@ -835,12 +860,10 @@ export class CodeGenASTGenerator {
 				condition: {
 					type: IConditionalLogicTypeEnum.IfEq,
 					left: {
-						type: ITypedInputEnum.String,
-						value: ''
+						type: ITypedInputEnum.Nil
 					},
 					right: {
-						type: ITypedInputEnum.String,
-						value: ''
+						type: ITypedInputEnum.Nil
 					}
 				}
 			};

@@ -1,8 +1,8 @@
 import { Position, useReactFlow } from '@xyflow/react';
-import FlowNodeBase from './BaseNode';
+import FlowNodeBase from '../ui/BaseNode';
 import { NodeProps, NodeTypeEnum, registerValidationSource } from '@/lib/flow/data';
 import { useEffect, useState } from 'react';
-import { InputField } from '../utils/Inputs';
+import { InputField } from '../ui/Inputs';
 import { FlowExpanded } from '../management/FlowExpanded';
 import logger from '@/lib/logger';
 import Handle from '../ui/Handle';

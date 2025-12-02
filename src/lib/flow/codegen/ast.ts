@@ -4,16 +4,24 @@ import { ASTPreludeApply } from './ast_transforms';
  * The different types that a value in Luau can be user-initialized to.
  */
 export enum ITypedInputEnum {
+	Nil = 'INil',
 	String = 'IString',
 	Number = 'INumber',
 	Table = 'ITable',
+	TableArray = 'ITableArray',
 	Boolean = 'IBoolean',
+	Vector = 'IVector',
 	Raw = 'IRaw'
+}
+
+export interface ITypedInputNil {
+	type: ITypedInputEnum.Nil;
 }
 
 export interface ITypedInputString {
 	type: ITypedInputEnum.String;
 	value: string;
+	interpolated: boolean;
 }
 
 export interface ITypedInputNumber {
@@ -21,14 +29,33 @@ export interface ITypedInputNumber {
 	value: number;
 }
 
+export interface ITypedInputTableEntry {
+	key: ITypedInput;
+	value: ITypedInput;
+}
+
 export interface ITypedInputTable {
 	type: ITypedInputEnum.Table;
-	value: Record<string, unknown>;
+	value: ITypedInputTableEntry[];
+	inline: boolean;
+}
+
+export interface ITypedInputTableArray {
+	type: ITypedInputEnum.TableArray;
+	value: ITypedInput[];
+	inline: boolean;
 }
 
 export interface ITypedInputBoolean {
 	type: ITypedInputEnum.Boolean;
 	value: boolean;
+}
+
+export interface ITypedInputVector {
+	type: ITypedInputEnum.Vector;
+	x: number;
+	y: number;
+	z: number;
 }
 
 export interface ITypedInputRaw {
@@ -37,10 +64,13 @@ export interface ITypedInputRaw {
 }
 
 export type ITypedInput =
+	| ITypedInputNil
 	| ITypedInputString
 	| ITypedInputNumber
 	| ITypedInputTable
+	| ITypedInputTableArray
 	| ITypedInputBoolean
+	| ITypedInputVector
 	| ITypedInputRaw;
 
 export enum IForLoopTypeEnum {

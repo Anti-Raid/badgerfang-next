@@ -10,8 +10,9 @@ import {
 	stringToConditionalLogicTypeEnum,
 	TypedInputEnum
 } from '@/lib/flow/data';
-import { InlineGhost, SmallGhost } from '../../ui/Buttons';
-import { InputField, TypedInputField } from '../utils/Inputs';
+import { Ghost } from '@/components/ui/Buttons';
+import { InputField } from './Inputs';
+import { generateTypedInputId, TypedInputField } from './TypedInput';
 
 export interface ConditionalTypeProps {
 	value: ConditionalType;
@@ -24,21 +25,23 @@ export const ConditionalTypeField: React.FC<ConditionalTypeProps> = ({ value, on
 			{value.type === ConditionalTypeEnum.Unselected ? (
 				<>
 					<div className="text-gray-500">No condition selected</div>
-					<InlineGhost
+					<Ghost
+						size="smallInline"
 						Title="Add Logic Condition"
 						onClick={() => {
 							onChange({
 								type: ConditionalTypeEnum.LogicExpr,
 								condition: {
 									type: ConditionalLogicTypeEnum.Unselected,
-									left: { type: TypedInputEnum.String, value: '' },
-									right: { type: TypedInputEnum.String, value: '' }
+									left: { type: TypedInputEnum.Nil, id: generateTypedInputId() },
+									right: { type: TypedInputEnum.Nil, id: generateTypedInputId() }
 								}
 							});
 						}}
 					/>
 
-					<InlineGhost
+					<Ghost
+						size="smallInline"
 						Title="Add Group"
 						onClick={() => {
 							onChange({
@@ -50,7 +53,8 @@ export const ConditionalTypeField: React.FC<ConditionalTypeProps> = ({ value, on
 						}}
 					/>
 
-					<InlineGhost
+					<Ghost
+						size="smallInline"
 						Title="Add Raw"
 						onClick={() => {
 							onChange({
@@ -60,12 +64,13 @@ export const ConditionalTypeField: React.FC<ConditionalTypeProps> = ({ value, on
 						}}
 					/>
 
-					<InlineGhost
+					<Ghost
+						size="smallInline"
 						Title="Add Literal"
 						onClick={() => {
 							onChange({
 								type: ConditionalTypeEnum.Literal,
-								value: { type: TypedInputEnum.String, value: '' }
+								value: { type: TypedInputEnum.Nil, id: generateTypedInputId() }
 							});
 						}}
 					/>
@@ -132,7 +137,8 @@ export const ConditionalTypeField: React.FC<ConditionalTypeProps> = ({ value, on
 			)}
 
 			{value.type !== ConditionalTypeEnum.Unselected && (
-				<SmallGhost
+				<Ghost
+					size="small"
 					Title="Remove Condition"
 					onClick={() => {
 						onChange({
@@ -172,7 +178,8 @@ export const ConditionalTypeContinuationField: React.FC<ConditionalTypeContinuat
 						}}
 					/>
 
-					<InlineGhost
+					<Ghost
+						size="smallInline"
 						Title="Remove"
 						onClick={() => {
 							onChange(undefined);
@@ -181,7 +188,8 @@ export const ConditionalTypeContinuationField: React.FC<ConditionalTypeContinuat
 				</div>
 			) : (
 				<div className="flex items-center gap-2">
-					<InlineGhost
+					<Ghost
+						size="smallInline"
 						Title="AND"
 						onClick={() => {
 							onChange({
@@ -193,7 +201,8 @@ export const ConditionalTypeContinuationField: React.FC<ConditionalTypeContinuat
 						}}
 					/>
 
-					<InlineGhost
+					<Ghost
+						size="smallInline"
 						Title="OR"
 						onClick={() => {
 							onChange({

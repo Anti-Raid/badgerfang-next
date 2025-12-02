@@ -8,11 +8,11 @@ import type { Blog } from '@/types/blogs/index';
 import { fetchStrapiBlogs } from '@/lib/api';
 
 /**
- * Displays the blog listing page with animated header, search, tag filtering, and newsletter subscription.
+ * Render the blog listing page with an animated header, search, tag filtering, and newsletter subscription.
  *
- * Fetches blog posts on mount, enables filtering by search term and tags, and presents results with animated UI elements. Includes a newsletter subscription form and decorative background effects.
+ * Fetches blog data on mount, maintains search and tag filter state, and displays loading skeletons, filtered blog cards, or an empty state as appropriate.
  *
- * @remark If blog fetching fails, an error is logged to the console and no blogs are displayed.
+ * @returns A React element representing the blog listing page.
  */
 export default function BlogLayout() {
 	const [blogs, setBlogs] = useState<Blog[]>([]);
@@ -260,7 +260,7 @@ export default function BlogLayout() {
 						</div>
 						<h3 className="text-2xl font-bold mb-2">No results found</h3>
 						<p className="text-muted-foreground mb-6">
-							We couldn't find any blogs matching your search criteria.
+							We couldn&apos;t find any blogs matching your search criteria.
 						</p>
 						<button
 							onClick={() => {
