@@ -21,12 +21,10 @@ import {
 import { Node, Edge, getOutgoers, getIncomers } from '@xyflow/react';
 import {
 	CodeGenAST,
-	ICommandArgument,
-	ICommandArgumentType,
-	IPreludeTypeEnum
-} from '../astlayer/ast';
+} from './ast';
 import {
 	ElseIf,
+	FinalRepr,
 	Node as FNode,
 	LiteralRelationalOperatorType,
 	ReprEnum
@@ -43,6 +41,7 @@ import {
 	ForLoopEnum as FForLoopEnum
 } from '../astlayer/finalrepr';
 import { AndNode, NotNode, OrNode, OutputNode, ParensNode, SubflowNodeExtData, SubnodeTypeEnum, TypedInputNode } from '../../subnode';
+import { ICommandArgument, ICommandArgumentType, IPreludeTypeEnum } from './prelude';
 
 interface Visit<T> {
 	/**
@@ -76,6 +75,7 @@ interface VisitResult {
 export class CodeGenASTGenerator {
 	private nodes: Node<NodeExtData>[];
 	private edges: Edge[];
+	public dependencies: Map<string, string>
 
 	/**
 	 * Creates a new CodeGenASTGenerator instance to convert between the nodes and edges of a flow
@@ -91,6 +91,18 @@ export class CodeGenASTGenerator {
 	constructor(nodes: Node<NodeExtData>[], edges: Edge[]) {
 		this.nodes = nodes;
 		this.edges = edges;
+		this.dependencies = new Map();
+	}
+
+	/**
+	 * Pushes a dependency with given name if needed
+	 */
+	private pushDep(dep: string) {
+		let depName = FinalRepr.mangleDep(dep)
+		if (!this.dependencies.has(dep)) {
+			this.dependencies.set(dep, depName)
+		}
+		return depName
 	}
 
 	/**
@@ -118,6 +130,7 @@ export class CodeGenASTGenerator {
 		} catch (error) {
 			currentAst.fatalError = `Error generating AST: ${error instanceof Error ? error.message : String(error)}`;
 		}
+		currentAst.dependencies = this.dependencies
 		return currentAst;
 	}
 
@@ -752,6 +765,10 @@ export class CodeGenASTGenerator {
 					}
 					continue;
 				case TypedInputEnum.TableArray:
+					if (source.value.length == 0) {
+						// finalrepr requires antiraid/interop as a dependency if we have a value.length == 0
+						this.pushDep("@antiraid/interop")
+					}
 					const arrayResult: LiteralValue = {
 						type: LiteralEnum.TableArray,
 						value: new Array(source.value.length), // Pre-allocate array
@@ -1034,7 +1051,7 @@ export class TISubnodeProcessor {
 		const data = node.data;
 
 		this.visiting.add(node.id); // Mark as visiting to detect cycles
-		
+
 		let ti: TypedInput;
 		switch (data.type) {
 			case SubnodeTypeEnum.TypedInputNode:

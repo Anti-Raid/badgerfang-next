@@ -1,3 +1,6 @@
+import { writeLiteral } from "./literals";
+import { ParseCommand } from "./parsecommand";
+
 /**
  * The different types that a value in Luau can be user-initialized to.
  */
@@ -213,10 +216,7 @@ export interface ElseIf {
 
 export interface LocalFunctionDeclaration {
 	type: ReprEnum.LocalFunctionDeclaration;
-	name: string; // The name of the function
-	params: FunctionParameter[]; // The parameters of the function
-	body: Node[]; // The body of the function
-	returnType: FunctionReturn; // Optional return type of the function
+	funcdecl: FunctionDeclaration;
 }
 
 export interface FunctionDeclaration {
@@ -309,130 +309,31 @@ export type Node =
 	| Return;
 
 /**
- * Writer class to help handle code generation.
- */
-export class Writer {
-	private code: string[] = [];
-
-	constructor(code: string[] = []) {
-		this.code = code;
-	}
-
-	/**
-	 * The code thats been pushed
-	 * @returns The current code as an array of strings.
-	 */
-	getCode(): string[] {
-		return this.code;
-	}
-
-	/**
-	 * Returns the current code as a single string.
-	 */
-	getCodeString(): string {
-		return this.code.join('');
-	}
-
-	/**
-	 * Clear the current code.
-	 */
-	clear(): void {
-		this.code = [];
-	}
-
-	/**
-	 * Write a piece of code to the current code.
-	 * @param code The code to write.
-	 */
-	write(code: string): void {
-		this.code.push(code);
-	}
-}
-
-/**
- * The current inline status
- */
-type InlineStatus =
-	| {
-			type: 'NotInline';
-			depth: number; // How deep we are
-	  }
-	| {
-			type: 'Inline';
-			depth: number; // How deep we are, needed in case a inline context goes to not inline and back
-	  };
-
-/**
- * Helper to create a new InlineStatus
- * @param inline Whether we are inline or not
- * @returns A new InlineStatus
- */
-const newInlineStatus = (inline: boolean): InlineStatus => {
-	if (inline) {
-		return {
-			type: 'Inline',
-			depth: 1
-		};
-	} else {
-		return {
-			type: 'NotInline',
-			depth: 1
-		};
-	}
-};
-
-/**
- * Helper method to either create a new inline status if the passed
- * inline status is null/undefined, otherwise return a new inline status with the depth of the inline status being one more than current depth
- */
-const enterInlineStatus = (status: InlineStatus | undefined, inline: boolean): InlineStatus => {
-	if (status) {
-		return {
-			type: inline ? 'Inline' : 'NotInline',
-			depth: status.depth + 1
-		};
-	}
-
-	return newInlineStatus(inline);
-};
-
-/**
- * Helper method to go one level deeper in the inline status
- * @param status The current inline status
- */
-const incrInline = (status: InlineStatus): InlineStatus => {
-	return {
-		type: status.type,
-		depth: status.depth + 1
-	};
-};
-
-/**
- * Helper method to create the \n\t*N table key-value seperator for a given depth
- */
-const tableSeperatorFor = (depth: number) => {
-	return '\n' + '\t'.repeat(depth);
-};
-
-/**
  * Final repr class
  */
 export class FinalRepr {
 	public repr: Node[];
 	public errors: string[];
+	public dependencies: Map<string, string>
 
-	constructor(repr: Node[]) {
+	constructor(repr: Node[], dependencies: Map<string, string>) {
 		this.repr = repr;
 		this.errors = [];
+		this.dependencies = dependencies
 	}
 
 	/**
 	 * Takes the repr and makes a string representation of it.
 	 */
-	toString(): string {
-		let writer = new Writer();
-		this.visitReprs(writer, this.repr);
-		return writer.getCodeString();
+	toParseCommand(): ParseCommand[] {
+		return this.visitNodes(this.repr, true);
+	}
+
+	/**
+	 * Mangles dep to depName
+	 */
+	static mangleDep(dep: string) {
+		return "fd_" + dep.replaceAll("@", "__").replaceAll("/", "_")
 	}
 
 	/**
@@ -467,470 +368,281 @@ export class FinalRepr {
 	/**
 	 * Visits the Node and performs the validity check on said INode
 	 */
-	private visitRepr(writer: Writer, inode: Node) {
+	private visitRepr(inode: Node): ParseCommand[] {
 		switch (inode.type) {
 			case ReprEnum.LocalVariableDeclaration:
-				return this.visitLocalVariableDeclaration(writer, inode);
+				return this.visitLocalVariableDeclaration(inode);
 			case ReprEnum.GlobalDeclaration:
-				return this.visitGlobalDeclaration(writer, inode);
+				return this.visitGlobalDeclaration(inode);
 			case ReprEnum.Comment:
-				return this.visitComment(writer, inode);
+				return this.visitComment(inode);
 			case ReprEnum.Raw:
-				return this.visitRaw(writer, inode);
+				return this.visitRaw(inode);
 			case ReprEnum.Literal:
-				return this.visitLiteral(writer, inode);
+				return this.visitLiteral(inode);
 			case ReprEnum.IfCondition:
-				return this.visitIfCondition(writer, inode);
+				return this.visitIfCondition(inode);
 			case ReprEnum.LocalFunctionDeclaration:
-				return this.visitLocalFunctionDeclaration(writer, inode);
+				return this.visitLocalFunctionDeclaration(inode);
 			case ReprEnum.FunctionDeclaration:
-				return this.visitFunctionDeclaration(writer, inode);
+				return this.visitFunctionDeclaration(inode);
 			case ReprEnum.ForLoop:
-				return this.visitForLoop(writer, inode);
+				return this.visitForLoop(inode);
 			case ReprEnum.FunctionCall:
-				return this.visitFunctionCall(writer, inode);
+				return this.visitFunctionCall(inode);
 			case ReprEnum.WhileLoop:
-				return this.visitWhileLoop(writer, inode);
+				return this.visitWhileLoop(inode);
 			case ReprEnum.Return:
-				return this.visitReturn(writer, inode);
+				return this.visitReturn(inode);
 		}
 	}
 
 	/**
 	 * Helper to first assert that the Node is a expression and then visit it.
 	 */
-	private visitExpression(writer: Writer, inode: Node) {
+	private visitExpression(inode: Node): ParseCommand[] {
 		this.assertExpression(inode);
-		return this.visitRepr(writer, inode);
+		return this.visitRepr(inode);
 	}
 
 	/**
-	 * Helper to first assert that the Node is a statement and then visit it.
+	 * Visits a statement or comment node and returns the string representation.
 	 */
-	private visitStatement(writer: Writer, inode: Node) {
-		this.assertStatement(inode);
-		return this.visitRepr(writer, inode);
-	}
-
-	/**
-	 * Visits a LocalVariableDeclaration and returns the string representation.
-	 * It also checks that the lvalue does not contain a dot (.)
-	 */
-	private visitStatementOrComment(writer: Writer, inode: Node) {
+	private visitStatementOrComment(inode: Node): ParseCommand[] {
 		if (inode.type === ReprEnum.Comment) {
-			return this.visitComment(writer, inode);
+			return this.visitComment(inode);
 		}
 		this.assertStatement(inode);
-		return this.visitRepr(writer, inode);
+		return this.visitRepr(inode);
 	}
 
 	/**
-	 * Visits a LocalVariableDeclaration and returns the string representation.
-	 * It also checks that the lvalue does not contain a dot (.)
+	 * Visits a set of statement/comment nodes and returns the string representation.
 	 */
-	private visitStatementOrCommentNodes(writer: Writer, inodes: Node[]) {
-		for (const inode of inodes) {
-			this.visitStatementOrComment(writer, inode);
+	private visitNodes(inodes: Node[], allowExprs?: boolean): ParseCommand[] {
+		let pc: ParseCommand[] = []
+		for (let i = 0; i < inodes.length; i++) {
+			if (i > 0) pc.push({ type: "line.next" })
+			if (allowExprs) {
+				pc.push(...this.visitRepr(inodes[i]))
+			} else {
+				pc.push(...this.visitStatementOrComment(inodes[i]));
+			}
 		}
-		return;
+		return pc;
 	}
 
 	/**
 	 * Visits a LocalVariableDeclaration and returns the string representation.
 	 */
-	private visitLocalVariableDeclaration(writer: Writer, inode: LocalVariableDeclaration) {
-		this.assertExpression(inode.rvalue);
+	private visitLocalVariableDeclaration(inode: LocalVariableDeclaration): ParseCommand[] {
 		if (inode.lvalue.includes('.')) {
 			this.pushError(`Local variable name "${inode.lvalue}" cannot contain a dot (.)`);
 		}
 
-		let rvalue = new Writer();
-		this.visitExpression(rvalue, inode.rvalue);
+		let exprTok = this.visitExpression(inode.rvalue);
 
-		return writer.write(`local ${inode.lvalue} = ${rvalue.getCodeString()};\n`);
+		return [
+			{ type: "token.luau", value: "local" },
+			{ type: "token", value: inode.lvalue },
+			{ type: "token", value: " = " },
+			...exprTok,
+			{ type: "token", value: ";" },
+			//{ type: "line.next" },
+		]
 	}
 
 	/**
 	 * Visits a GlobalDeclaration and returns the string representation.
 	 */
-	private visitGlobalDeclaration(writer: Writer, inode: GlobalDeclaration) {
-		this.assertExpression(inode.rvalue);
+	private visitGlobalDeclaration(inode: GlobalDeclaration): ParseCommand[] {
+		let exprTok = this.visitExpression(inode.rvalue);
 
-		let rvalue = new Writer();
-		this.visitExpression(rvalue, inode.rvalue);
-
-		writer.write(`${inode.lvalue} = ${rvalue.getCodeString()};\n`);
+		return [
+			{ type: "token", value: inode.lvalue },
+			{ type: "token", value: " = " },
+			...exprTok,
+			{ type: "token", value: ";" },
+			//{ type: "line.next" },
+		]
 	}
 
 	/**
 	 * Visits a Comment and returns the string representation.
 	 */
-	private visitComment(writer: Writer, inode: Comment) {
+	private visitComment(inode: Comment): ParseCommand[] {
 		if (inode.comment.includes('\n')) {
-			writer.write(`--[[ ${inode.comment} ]]\n`);
+			return [
+				{ type: "token", value: `--[[ ${inode.comment} ]]` },
+			]
 		} else {
-			writer.write(`-- ${inode.comment.replaceAll('--', '\-\-')}\n`);
+			return [
+				{ type: "token", value: `-- ${inode.comment.replaceAll('--', '\-\-')}` },
+			]
 		}
 	}
 
 	/**
 	 * Visits a Raw and returns the string representation.
 	 */
-	private visitRaw(writer: Writer, inode: Raw) {
-		writer.write(inode.code);
+	private visitRaw(inode: Raw): ParseCommand[] {
+		return [
+			{ type: "token", value: inode.code }
+		]
 	}
 
 	/**
 	 * Visits a Literal node and returns the string representation.
 	 */
-	private visitLiteral(writer: Writer, inode: Literal) {
-		return FinalRepr.visitLiteralValue(writer, inode.value);
+	private visitLiteral(inode: Literal): ParseCommand[] {
+		return [{ type: "token.literal", value: inode.value }]
 	}
 
 	/**
-	 * Visit a LiteralValue and return the string representation.
+	 * Visit IfCondition (statement) and return the string representation.
 	 */
-	static visitLiteralValue(writer: Writer, value: LiteralValue, inlineStatus?: InlineStatus) {
-		const _isValidIdentifier = (key: string): boolean => {
-			return /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(key);
-		};
+	private visitIfCondition(inode: IfCondition): ParseCommand[] {
+		let bodyStmts = this.visitNodes(inode.data.body);
 
-		type StackData =
-			| {
-					type: 'literal';
-					value: LiteralValue;
-					tableKey?: boolean;
-			  }
-			| {
-					type: 'token';
-					str: string;
-			  };
-
-		let stack: StackData[] = [{ type: 'literal', value }];
-
-		while (true) {
-			let value = stack.pop();
-			if (!value) break;
-			if (value.type == 'token') {
-				writer.write(value.str);
-				continue;
-			}
-
-			let lvalue = value.value;
-
-			switch (lvalue.type) {
-				case LiteralEnum.Nil:
-					if (value.tableKey) {
-						stack.push({ type: 'token', str: '[nil]' });
-					} else {
-						stack.push({ type: 'token', str: 'nil' });
-					}
-					continue;
-				case LiteralEnum.String:
-					if (value.tableKey) {
-						if (lvalue.interpolated) {
-							throw new Error('Table key cannot be an interpolated string');
-						}
-
-						if (lvalue.multiline) {
-							throw new Error('Table key cannot be an multiline string');
-						}
-
-						if (_isValidIdentifier(lvalue.value)) {
-							// It's a valid identifier, write it directly (e.g., foo)
-							stack.push({ type: 'token', str: lvalue.value });
-						} else {
-							// Not a valid identifier, wrap it (e.g., ["foo bar"])
-							stack.push({
-								type: 'token',
-								str: `["${lvalue.value.replaceAll('"', '\\"').replaceAll('\n', '\\n')}"]`
-							});
-						}
-						continue;
-					}
-
-					if (lvalue.interpolated) {
-						stack.push({ type: 'token', str: `\`${lvalue.value.replaceAll('`', '\\`')}\`` });
-						continue;
-					}
-
-					if (lvalue.multiline) {
-						// If the string contains a newline, use a multiline string
-						stack.push({
-							type: 'token',
-							str: `[[${lvalue.value.replaceAll('[[', '\[\[').replaceAll("']]", '\]\]')}]]`
-						});
-						continue;
-					}
-					stack.push({
-						type: 'token',
-						str: `"${lvalue.value.replaceAll('"', '\\"').replaceAll('\n', '\\n')}"`
-					});
-					continue;
-				case LiteralEnum.Number:
-					const numStr = lvalue.value.toString();
-					if (value.tableKey) {
-						// Wrap it in brackets: [123]
-						stack.push({ type: 'token', str: `[${numStr}]` });
-					} else {
-						// Just write the number normally
-						stack.push({ type: 'token', str: numStr });
-					}
-					continue;
-				case LiteralEnum.Table:
-					stack.push({ type: 'token', str: '}' });
-					for (let i = lvalue.value.length - 1; i >= 0; i--) {
-						stack.push({ type: 'literal', value: lvalue.value[i].value });
-						stack.push({ type: 'token', str: ' = ' });
-						stack.push({ type: 'literal', value: lvalue.value[i].key, tableKey: true });
-
-						if (i > 0) {
-							stack.push({ type: 'token', str: ', ' });
-						}
-					}
-					stack.push({ type: 'token', str: '{' });
-					continue;
-				case LiteralEnum.TableArray:
-					if (lvalue.value.length === 0) {
-						// This expands down to setmetatable({}, require'@antiraid/interop'.array_metatable)
-						stack.push({
-							type: 'token',
-							str: "setmetatable({}, require'@antiraid/interop'.array_metatable)"
-						});
-						continue;
-					}
-
-					stack.push({ type: 'token', str: '}' });
-					for (let i = lvalue.value.length - 1; i >= 0; i--) {
-						stack.push({ type: 'literal', value: lvalue.value[i] });
-						if (i > 0) {
-							stack.push({ type: 'token', str: ', ' });
-						}
-					}
-					stack.push({ type: 'token', str: '{' });
-					continue;
-				case LiteralEnum.Boolean:
-					const boolStr = lvalue.value ? 'true' : 'false';
-					if (value.tableKey) {
-						// Wrap it in brackets: [true | false]
-						stack.push({ type: 'token', str: `[${boolStr}]` });
-					} else {
-						// Just write the boolean normally
-						stack.push({ type: 'token', str: boolStr });
-					}
-					continue;
-				case LiteralEnum.Vector:
-					stack.push({
-						type: 'token',
-						str: `vector.create(${lvalue.x}, ${lvalue.y}, ${lvalue.z})`
-					});
-					continue;
-				case LiteralEnum.Raw:
-					stack.push({ type: 'token', str: lvalue.value }); // Raw code or expression, return as is
-					continue;
-				case LiteralEnum.Parens:
-					stack.push({ type: 'token', str: `)` });
-					stack.push({ type: 'literal', value: lvalue.inner });
-					stack.push({ type: 'token', str: `(` });
-					continue;
-				case LiteralEnum.RelationalExpr:
-					let symMap = {
-						[LiteralRelationalOperatorType.Eq]: '==',
-						[LiteralRelationalOperatorType.Gt]: '>',
-						[LiteralRelationalOperatorType.Gte]: '>=',
-						[LiteralRelationalOperatorType.Lt]: '<',
-						[LiteralRelationalOperatorType.Lte]: '<=',
-						[LiteralRelationalOperatorType.Neq]: '~='
-					};
-
-					let logicOp = symMap[lvalue.operator];
-
-					// LIFO stack
-					stack.push({ type: 'literal', value: lvalue.rvalue });
-					stack.push({ type: 'token', str: ` ${logicOp} ` });
-					stack.push({ type: 'literal', value: lvalue.lvalue });
-					continue;
-				case LiteralEnum.LogicExpr:
-					let logicMap = {
-						[LiteralLogicType.And]: 'and',
-						[LiteralLogicType.Or]: 'or'
-					};
-
-					let logicOperator = logicMap[lvalue.condition];
-
-					// LIFO stack
-					for (let i = lvalue.operands.length - 1; i >= 0; i--) {
-						stack.push({ type: 'literal', value: lvalue.operands[i] });
-						if (i > 0) {
-							stack.push({ type: 'token', str: ` ${logicOperator} ` });
-						}
-					}
-					continue;
-				case LiteralEnum.Not:
-					stack.push({ type: 'literal', value: lvalue.value });
-					stack.push({ type: 'token', str: 'not ' });
-					continue;
-				case LiteralEnum.Passthrough:
-					stack.push({ type: 'literal', value: lvalue.value });
-					continue;
-			}
-		}
-	}
-
-	/**
-	 * Visit IfCondition and return the string representation.
-	 */
-	private visitIfCondition(writer: Writer, inode: IfCondition) {
-		let lvw = new Writer();
-		FinalRepr.visitLiteralValue(lvw, inode.data.condition);
-		writer.write(`if ${lvw.getCodeString()} then\n`);
-		lvw.clear(); // Clear the writer for the body bit
-
-		// First handle body statements
-		this.visitStatementOrCommentNodes(lvw, inode.data.body);
-
-		for (const b of lvw.getCode()) {
-			writer.write(`\t${b}`);
-		}
+		let ifCondToks: ParseCommand[] = [
+			//{type: "line.next"},
+			{ type: "token.luau", value: "if" },
+			{ type: "token.literal", value: inode.data.condition },
+			{ type: "token.luau", value: "then" },
+			{ type: "line.next" },
+			{ type: "indent.incr" },
+			...bodyStmts,
+			{ type: "indent.decr" },
+			{ type: "line.next" },
+		];
 
 		if (inode.data.elseifs) {
-			lvw.clear(); // Clear the writer for elseif statements
 			for (const elseif of inode.data.elseifs) {
-				let lvw = new Writer();
-				FinalRepr.visitLiteralValue(lvw, elseif.condition);
-				writer.write(`elseif ${lvw.getCodeString()} then\n`);
-				lvw.clear(); // Clear the writer for the body bit
+				let elseIfToks = this.visitNodes(elseif.body);
 
-				this.visitStatementOrCommentNodes(lvw, elseif.body);
-
-				for (const b of lvw.getCode()) {
-					writer.write(`\t${b}`);
-				}
-
-				lvw.clear(); // Clear the writer for the next elseif
+				ifCondToks.push(
+					{ type: "token.luau", value: "elseif" },
+					{ type: "token.literal", value: elseif.condition },
+					{ type: "token.luau", value: "then" },
+					{ type: "line.next" },
+					{ type: "indent.incr" },
+					...elseIfToks,
+					{ type: "indent.decr" },
+					{ type: "line.next" },
+				)
 			}
 		}
 
 		if (inode.data.else) {
-			writer.write('else\n');
-			lvw.clear(); // Clear the writer for else statements
-			this.visitStatementOrCommentNodes(lvw, inode.data.else);
-			for (const b of lvw.getCode()) {
-				writer.write(`\t${b}`);
-			}
+			let elseToks = this.visitNodes(inode.data.else);
+
+			ifCondToks.push(
+				{ type: "token.luau", value: "else" },
+				{ type: "line.next" },
+				{ type: "indent.incr" },
+				...elseToks,
+				{ type: "indent.decr" },
+				{ type: "line.next" },
+			)
 		}
 
-		writer.write('end\n');
-		return;
+		ifCondToks.push({ type: "token.luau", value: "end" })
+
+		return ifCondToks
 	}
 
 	/**
 	 * Visits a LocalFunctionDeclaration and returns the string representation.
 	 */
-	private visitLocalFunctionDeclaration(writer: Writer, inode: LocalFunctionDeclaration) {
-		if (inode.name.includes('.')) {
-			this.pushError(`Local function name "${inode.name}" cannot contain a dot (.)`);
+	private visitLocalFunctionDeclaration(inode: LocalFunctionDeclaration): ParseCommand[] {
+		if (inode.funcdecl.name.includes('.')) {
+			this.pushError(`Local function name "${inode.funcdecl.name}" cannot contain a dot (.)`);
 		}
-		if (inode.params.some((param) => param.name.includes('.'))) {
-			this.pushError(`Function parameter names cannot contain a dot (.)`);
-		}
-		const params = inode.params
-			.map((param) => param.name + (param.type ? `: ${param.type}` : ''))
-			.join(', ');
-		writer.write(
-			`local function ${inode.name}(${params})${inode.returnType.type ? ': ' + inode.returnType.type : ''}\n`
-		);
 
-		let lvw = new Writer();
-		this.visitStatementOrCommentNodes(lvw, inode.body);
+		let toks: ParseCommand[] = [
+			{ type: "token.luau", value: "local" },
+			...this.visitFunctionDeclaration(inode.funcdecl),
+		];
 
-		for (const b of lvw.getCode()) {
-			writer.write(`\t${b}`);
-		}
-		writer.write('\nend\n');
-		return;
+		return toks;
 	}
 
 	/**
 	 * Visits a FunctionDeclaration and returns the string representation.
 	 */
-	private visitFunctionDeclaration(writer: Writer, inode: FunctionDeclaration) {
+	private visitFunctionDeclaration(inode: FunctionDeclaration): ParseCommand[] {
 		if (inode.params.some((param) => param.name.includes('.'))) {
 			this.pushError(`Function parameter names cannot contain a dot (.)`);
 		}
-		if (inode.params.some((param) => param.name.includes('.'))) {
-			this.pushError(`Function parameter names cannot contain a dot (.)`);
-		}
-		const params = inode.params
-			.map((param) => param.name + (param.type ? `: ${param.type}` : ''))
-			.join(', ');
-		writer.write(
-			`function ${inode.name}(${params})${inode.returnType.type ? ': ' + inode.returnType.type : ''}\n`
-		);
 
-		let lvw = new Writer();
-		this.visitStatementOrCommentNodes(lvw, inode.body);
-
-		for (const b of lvw.getCode()) {
-			writer.write(`\t${b}`);
+		const params: ParseCommand[] = []
+		for (let i = 0; i < inode.params.length; i++) {
+			if (i > 0) params.push({ type: "token", value: ", " })
+			params.push({ type: "token.luau.funcarg", name: inode.params[i].name, argtype: inode.params[i].type })
 		}
-		writer.write('\nend\n');
-		return;
+
+		return [
+			{ type: "token.luau", value: "function" },
+			{ type: "token", value: `${inode.name}` },
+			{ type: "token", value: `(` },
+			...params,
+			{ type: "token", value: `)` },
+			{ type: "indent.incr" },
+			...this.visitNodes(inode.body),
+			{ type: "indent.decr" },
+			{ type: "token.luau", value: "end" }
+		];
 	}
 
 	/**
 	 * Visits a ForLoop and returns the string representation.
 	 */
-	private visitForLoop(writer: Writer, inode: ForLoop) {
-		this.visitForLoopType(writer, inode.data.condition);
-		let lvw = new Writer();
-		this.visitStatementOrCommentNodes(lvw, inode.data.body);
-
-		for (const b of lvw.getCode()) {
-			writer.write(`\t${b}`);
-		}
-
-		writer.write('end\n');
-		return;
+	private visitForLoop(inode: ForLoop): ParseCommand[] {
+		return [
+			{ type: "token.luau", value: "for" },
+			...this.visitForLoopType(inode.data.condition),
+			{ type: "token.luau", value: "do" },
+			{ type: "indent.incr" },
+			...this.visitNodes(inode.data.body),
+			{ type: "indent.decr" },
+			{ type: "token.luau", value: "end" }
+		]
 	}
 
 	/**
 	 * Visits a ForLoopType and returns the string representation.
 	 */
-
-	/**
-	 * Visits a ForLoopType and returns the string representation.
-	 */
-	private visitForLoopType(writer: Writer, condition: ForLoopType): void {
+	private visitForLoopType(condition: ForLoopType): ParseCommand[] {
 		switch (condition.type) {
 			case ForLoopEnum.GeneralizedIteration:
-				let lvw = new Writer();
-				FinalRepr.visitLiteralValue(lvw, condition.iterable);
-				if (lvw.getCode().length === 0) {
-					this.pushError('Iterable in generalized for loop cannot be empty');
-				}
-				return writer.write(`for ${condition.varbinds.join(', ')} in ${lvw.getCodeString()} do\n`);
+				return [
+					{ type: "token", value: `${condition.varbinds.join(', ')}` },
+					{ type: "token.luau", value: "in" },
+					{ type: "token.literal", value: condition.iterable },
+				]
 			case ForLoopEnum.Range:
-				return writer.write(
-					`for ${condition.varbind} = ${condition.start}, ${condition.end}${condition.step ? `, ${condition.step}` : ''} do\n`
-				);
+				let toks: ParseCommand[] = [
+					{ type: "token", value: `${condition.varbind}` },
+					{ type: "token", value: " = " },
+					{ type: "token", value: `${condition.start}` },
+					{ type: "token", value: ", " },
+					{ type: "token", value: `${condition.end}` },
+				]
+				if (condition.step) {
+					toks.push({ type: "token", value: condition.step ? `, ${condition.step}` : '' })
+				}
+				return toks
 			case ForLoopEnum.Raw:
-				return writer.write(`for ${condition.condition} do\n`); // Raw condition for the loop
+				return [
+					{ type: "token", value: `${condition.condition}` },
+				] // Raw condition for the loop
 		}
 	}
 
 	/**
 	 * Visits a FunctionCall and returns the string representation.
 	 */
-	private visitFunctionCall(writer: Writer, inode: FunctionCall) {
-		let args = inode.args
-			.map((arg) => {
-				let argWriter = new Writer();
-				FinalRepr.visitLiteralValue(argWriter, arg);
-				return argWriter.getCodeString();
-			})
-			.join(',\n\t');
-
+	private visitFunctionCall(inode: FunctionCall): ParseCommand[] {
 		// Ensure name is valid (contains only letters, numbers, underscores, dots and one colon at the end if a method call)
 		if (
 			!(
@@ -944,42 +656,39 @@ export class FinalRepr {
 			);
 		}
 
-		writer.write(`${inode.name}(${args})\n`);
+		let toks: ParseCommand[] = [
+			{ type: "token", value: inode.name },
+			{ type: "token", value: "(" },
+		]
+		for (const arg of inode.args) {
+			toks.push({ type: "token.literal", value: arg })
+		}
+		toks.push({ type: "token", value: ")" },)
+		return toks
 	}
 
 	/**
 	 * Visits a WhileLoop and returns the string representation.
 	 */
-	private visitWhileLoop(writer: Writer, inode: WhileLoop) {
-		let lvw = new Writer();
-		FinalRepr.visitLiteralValue(lvw, inode.condition);
-		writer.write(`while ${lvw.getCodeString()} do\n`);
-		lvw.clear(); // Clear the lvw for the visit stmt
-		this.visitStatementOrCommentNodes(lvw, inode.body);
-
-		for (const b of lvw.getCode()) {
-			writer.write(`\t${b}`);
-		}
-		writer.write('end\n');
-
-		return;
+	private visitWhileLoop(inode: WhileLoop): ParseCommand[] {
+		return [
+			{ type: "token.luau", value: "while" },
+			{ type: "token.literal", value: inode.condition },
+			{ type: "token.luau", value: "do" },
+			{ type: "indent.incr" },
+			...this.visitNodes(inode.body),
+			{ type: "indent.decr" },
+			{ type: "token.luau", value: "end" }
+		]
 	}
 
 	/**
 	 * Visits a Return and returns the string representation.
 	 */
-	private visitReturn(writer: Writer, inode: Return) {
-		let rvw = new Writer();
-		FinalRepr.visitLiteralValue(rvw, inode.value);
-		writer.write(`return ${rvw.getCodeString()}\n`);
-	}
-
-	/**
-	 * Helper to loop over a list of INodes and perform the validity check on each.
-	 */
-	private visitReprs(writer: Writer, inodes: Node[]) {
-		for (const inode of inodes) {
-			this.visitRepr(writer, inode);
-		}
+	private visitReturn(inode: Return): ParseCommand[] {
+		return [
+			{ type: "token.luau", value: "return" },
+			{ type: "token.literal", value: inode.value }
+		]
 	}
 }

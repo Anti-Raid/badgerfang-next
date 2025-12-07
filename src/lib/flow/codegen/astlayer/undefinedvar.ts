@@ -1,5 +1,5 @@
 import { Scope } from './scope';
-import { CodeGenAST } from './ast';
+import { CodeGenAST } from '../blocklayer/ast';
 import {
 	ForLoop,
 	IfCondition,

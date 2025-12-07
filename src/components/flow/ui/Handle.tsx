@@ -10,10 +10,9 @@ export default function FlowNodeHandle(props: HandleProps) {
 	return (
 		<Handle
 			{...props}
-			className="!rounded-full !h-2.5 !w-2.5 !border !border-background transition-all duration-200 hover:scale-110"
+			className="rounded-full h-[10px] w-[10px]"
 			style={{
-				backgroundColor: 'hsl(var(--primary))',
-				boxShadow: '0 0 4px hsla(var(--primary), 0.4)'
+				backgroundColor: '#3B82F6'
 			}}
 		/>
 	);

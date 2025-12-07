@@ -1,11 +1,7 @@
-import { FinalRepr, LiteralEnum, LiteralValue, Writer } from './finalrepr';
+import { LiteralEnum } from "./finalrepr";
+import { writeLiteral } from "./literals";
 
-console.log('=> Testing finalrepr');
-const writeLiteral = (v: LiteralValue): string => {
-	let w = new Writer();
-	FinalRepr.visitLiteralValue(w, v);
-	return w.getCodeString();
-};
+console.log('=> Testing literal');
 
 describe('literals', () => {
 	test('basic literal formatting', () => {
