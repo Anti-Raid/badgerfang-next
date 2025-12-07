@@ -5,6 +5,14 @@ import { TypedInputField } from '@/components/flow/ui/TypedInput';
 import { motion } from 'framer-motion';
 import logger from '@/lib/logger';
 
+/**
+ * Renders an interactive debug view for a TypedInput value and shows its JSON representation.
+ *
+ * The component displays a typed input field bound to local state and an animated code block
+ * that updates to reflect the current value as pretty-printed JSON.
+ *
+ * @returns A React element containing the TypedInputField and an animated JSON display of its value.
+ */
 export default function TypedInputDebug() {
 	const [data, setData] = useState<TypedInput>({
 		type: TypedInputEnum.Nil

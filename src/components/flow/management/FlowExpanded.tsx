@@ -116,6 +116,9 @@ const FlowExpandedModal: React.FC<FlowExpandedProps> = ({
 	useEffect(() => {
 		setMounted(true);
 	}, []);
+	useEffect(() => {
+		setMounted(true);
+	}, []);
 
 	useEffect(() => {
 		if (isExpanded) {
@@ -286,6 +289,13 @@ const FlowExpandedModal: React.FC<FlowExpandedProps> = ({
 							>
 								<div className="prose prose-sm max-w-none dark:prose-invert">{children}</div>
 							</motion.div>
+							{/* Content */}
+							<motion.div
+								variants={contentVariants}
+								className="relative px-6 py-6 max-h-[60vh] overflow-y-auto custom-scrollbar"
+							>
+								<div className="prose prose-sm max-w-none dark:prose-invert">{children}</div>
+							</motion.div>
 
 							{/* Footer */}
 							<motion.div
@@ -318,7 +328,11 @@ const FlowExpandedModal: React.FC<FlowExpandedProps> = ({
 	);
 
 	if (!mounted) return null;
+	if (!mounted) return null;
 
+	return (
+		<>
+			{createPortal(modal, document.body)}
 	return (
 		<>
 			{createPortal(modal, document.body)}
@@ -329,6 +343,11 @@ const FlowExpandedModal: React.FC<FlowExpandedProps> = ({
 					className={`
             group relative px-6 py-2.5 rounded-lg font-medium font-inter text-sm
             transition-all duration-300 overflow-hidden
+            ${
+							isExpanded
+								? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
+								: 'bg-card border border-border text-foreground hover:border-primary hover:shadow-md'
+						}
             ${
 							isExpanded
 								? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'

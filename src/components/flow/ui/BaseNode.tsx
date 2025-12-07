@@ -14,6 +14,16 @@ interface Props extends NodeProps {
 	className?: string;
 }
 
+/**
+ * Renders a styled flow node card with an icon, title, description, and optional selection glow.
+ *
+ * The title is chosen in this order: `props.title`, `props.data?.custom_label`, `defaultTitle`, `"Node"`.
+ * The description falls back to `props.description`, `defaultDescription`, or `"Description"`.
+ * When `props.selected` is true, the node renders a prominent border and a subtle overlay glow.
+ *
+ * @param props - Component props (notable fields: `title`, `description`, `children`, `selected`, `data`, `type`, `highlight`) used to customize content and visual state.
+ * @returns `JSX.Element` representing the rendered flow node card
+ */
 export default function FlowNodeBase(props: Props) {
 	const { title, description, children, highlight, selected, data, type } = props;
 	const { defaultTitle, defaultDescription } = useNodeValues(type);
