@@ -28,6 +28,12 @@ function InnerFlowPage({ flowData, onChange }: Props) {
 	);
 }
 
+/**
+ * Render the flow editor page wrapped with layout and React Flow providers.
+ *
+ * @param props - Component props containing flow data and change handler for the editor
+ * @returns The page element composed of FlowHPaneProvider, ReactFlowProvider with InnerFlowPage, and the FlowExpandedArea pane
+ */
 export default function FlowPage(props: Props) {
 	return (
 		<FlowHPaneProvider>
