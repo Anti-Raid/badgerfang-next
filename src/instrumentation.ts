@@ -3,7 +3,12 @@ import { registerOTel } from '@vercel/otel';
 // This file is the safe entrypoint for both node and edge runtimes.
 // It will register @vercel/otel which supports edge and node. If you
 // need custom Node-only SDK configuration, create `instrumentation.node.ts`
-// and import it conditionally from this file.
+/**
+ * Registers the OpenTelemetry SDK for the current runtime using a default service name.
+ *
+ * The default service name is "badgerfang-antiraid"; set the NEXT_OTEL_SERVICE_NAME environment
+ * variable to override this value.
+ */
 export function register() {
 	// Default serviceName; override with NEXT_OTEL_SERVICE_NAME
 	registerOTel({ serviceName: 'badgerfang-antiraid' });

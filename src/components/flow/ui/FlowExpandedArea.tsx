@@ -5,9 +5,12 @@ import { NodeValues } from '@/lib/flow/nodes';
 import { useFlowHPane } from '../management/FlowHPaneProvider';
 
 /**
- * FlowExpandedArea
+ * Renders a collapsible horizontal panel for displaying expanded flows.
  *
- * Collapsible horizontal panel where expanded flows will show up in.
+ * When expanded, the panel shows header and content areas; when collapsed, it shows a compact header.
+ * The component registers an internal DOM element with the FlowHPane context (via setHtmlRef) so consumer nodes can access the horizontal pane.
+ *
+ * @returns A JSX element representing the flow expanded area.
  */
 export default function FlowExpandedArea() {
     const [isCollapsed, setIsCollapsed] = useState(false);
@@ -91,11 +94,25 @@ export default function FlowExpandedArea() {
 }
 
 /**
- * Draggable node card
+ * Renders a draggable node card used to initiate drag-and-drop of a flow node.
+ *
+ * The card displays an icon, title, and description, and when dragged it writes the node `type`
+ * to the drag data under the `application/reactflow` MIME type with move semantics.
+ *
+ * @param type - The node type identifier written to the drag data when dragging starts
+ * @param values - Display metadata for the node (e.g., `defaultTitle`, `defaultDescription`)
+ * @returns A JSX element representing the draggable node card
  */
 function AvailableNode({ type, values }: { type: string; values: NodeValues }) {
     const Icon = FiZap;
 
+    /**
+     * Initialize a drag operation by attaching the node type to the drag data for React Flow.
+     *
+     * Sets the drag data key `application/reactflow` to the node `type` and marks the allowed effect as `move`.
+     *
+     * @param e - The drag event whose dataTransfer is populated for the drag-and-drop operation
+     */
     function onStartDrag(e: React.DragEvent<HTMLDivElement>) {
         e.dataTransfer.setData('application/reactflow', type);
         e.dataTransfer.effectAllowed = 'move';

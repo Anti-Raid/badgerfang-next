@@ -22,6 +22,12 @@ registerValidationSource('api_node', (srcCons: string[], tgtCons: string[]) => {
 	return true;
 });
 
+/**
+ * Renders an API node for the flow editor using the node's NodeIDL and editable IDL inputs.
+ *
+ * @param props - Node props whose data must include type `NodeTypeEnum.APINode` and a `data` object containing `nodeidl` and `inputValues`.
+ * @returns The React element for the API node UI, or an error message element when required node data or nodeidl metadata is missing.
+ */
 function APINode(props: NodeProps) {
 	if (props?.data?.type !== NodeTypeEnum.APINode) {
 		return <div className="text-red-500">Invalid node type: {props?.data?.type}</div>;
