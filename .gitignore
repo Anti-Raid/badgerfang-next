@@ -40,3 +40,4 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 target
+src/lib/flow/nodeidl/prepvfs/target

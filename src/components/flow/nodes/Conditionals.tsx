@@ -14,8 +14,6 @@ import { Connection, Edge, Node, Position, useReactFlow } from '@xyflow/react';
 import FlowNodeBase from '../ui/BaseNode';
 import Handle from '../ui/Handle';
 import {
-	ConditionalType,
-	ConditionalTypeEnum,
 	ForLoopType,
 	ForLoopTypeEnum,
 	NodeData,
@@ -24,6 +22,7 @@ import {
 	NodeTypeEnum,
 	registerValidationSource,
 	registerValidationTarget,
+	TypedInput,
 	TypedInputEnum
 } from '@/lib/flow/data';
 import { useEffect, useState } from 'react';
@@ -33,7 +32,6 @@ import { FlowExpanded } from '../management/FlowExpanded';
 import logger from '@/lib/logger';
 import React from 'react';
 import { Ghost } from '@/components/ui/Buttons';
-import { ConditionalTypeField } from '../ui/ConditionalType';
 
 // Static validation for if_condition: If conditions have rule 1 for source connections, meaning they can only have one source connection
 registerValidationSource(
@@ -169,19 +167,23 @@ export const IfCondition = (props: NodeProps) => {
 
 	const flow = useReactFlow();
 
-	const [condition, setCondition] = useState<ConditionalType>(
+	const [value, setValue] = useState<TypedInput>(
 		props.data.data.condition || {
-			type: ConditionalTypeEnum.Unselected
+			type: TypedInputEnum.ComplexSubflow,
+			flow: {
+				nodes: [],
+				edges: []
+			}
 		}
 	);
 
 	useEffect(() => {
 		flow.updateNodeData(props.id, {
 			data: {
-				condition: condition
+				condition: value
 			}
 		});
-	}, [condition, props.id]);
+	}, [value, props.id]);
 
 	return (
 		<FlowNodeBase {...props}>
@@ -191,7 +193,7 @@ export const IfCondition = (props: NodeProps) => {
 			<Handle type="source" position={Position.Bottom} />
 
 			<FlowExpanded nodeProps={props}>
-				<ConditionalTypeField value={condition} onChange={setCondition} />
+				<TypedInputField value={value} onChange={setValue} />
 			</FlowExpanded>
 		</FlowNodeBase>
 	);
@@ -204,9 +206,13 @@ export const ElseIfCondition = (props: NodeProps) => {
 
 	const flow = useReactFlow();
 
-	const [condition, setCondition] = useState<ConditionalType>(
+	const [value, setValue] = useState<TypedInput>(
 		props.data.data.condition || {
-			type: ConditionalTypeEnum.Unselected
+			type: TypedInputEnum.ComplexSubflow,
+			flow: {
+				nodes: [],
+				edges: []
+			}
 		}
 	);
 	const [index, setIndex] = useState<number>(props.data.data.index || 0);
@@ -214,11 +220,11 @@ export const ElseIfCondition = (props: NodeProps) => {
 	useEffect(() => {
 		flow.updateNodeData(props.id, {
 			data: {
-				condition: condition,
+				condition: value,
 				index: index
 			}
 		});
-	}, [condition, index, props.id]);
+	}, [value, index, props.id]);
 
 	return (
 		<FlowNodeBase {...props}>
@@ -244,7 +250,7 @@ export const ElseIfCondition = (props: NodeProps) => {
 					error={!index ? 'Index is required.' : ''}
 				/>
 
-				<ConditionalTypeField value={condition} onChange={setCondition} />
+				<TypedInputField value={value} onChange={setValue} />
 			</FlowExpanded>
 		</FlowNodeBase>
 	);
@@ -404,7 +410,6 @@ export const ForLoopTypeInputField: React.FC<ForLoopTypeProps> = ({
 								iterable: {
 									type: TypedInputEnum.TableArray,
 									value: [],
-									id: generateTypedInputId(),
 									inline: true
 								}
 							};
@@ -722,19 +727,23 @@ export const WhileLoop = (props: NodeProps) => {
 
 	const flow = useReactFlow();
 
-	const [condition, setCondition] = useState<ConditionalType>(
+	const [value, setValue] = useState<TypedInput>(
 		props.data.data.condition || {
-			type: ConditionalTypeEnum.Unselected
+			type: TypedInputEnum.ComplexSubflow,
+			flow: {
+				nodes: [],
+				edges: []
+			}
 		}
 	);
 
 	useEffect(() => {
 		flow.updateNodeData(props.id, {
 			data: {
-				condition: condition
+				condition: value
 			}
 		});
-	}, [condition, props.id]);
+	}, [value, props.id]);
 
 	return (
 		<FlowNodeBase {...props}>
@@ -742,7 +751,7 @@ export const WhileLoop = (props: NodeProps) => {
 			<Handle type="source" position={Position.Bottom} />
 
 			<FlowExpanded nodeProps={props}>
-				<ConditionalTypeField value={condition} onChange={setCondition} />
+				<TypedInputField value={value} onChange={setValue} />
 			</FlowExpanded>
 		</FlowNodeBase>
 	);

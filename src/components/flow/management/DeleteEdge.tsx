@@ -1,7 +1,12 @@
+<<<<<<< HEAD
 import React from 'react';
 import { BaseEdge, EdgeLabelRenderer, getBezierPath, useReactFlow } from '@xyflow/react';
 import { FiX } from 'react-icons/fi';
 import { motion } from 'framer-motion';
+=======
+import { BaseEdge, EdgeLabelRenderer, EdgeProps, getBezierPath, useReactFlow } from '@xyflow/react';
+import { XIcon } from 'lucide-react';
+>>>>>>> 69c9267d012b3eddc0ccdddaf124d8ea78b21421
 
 interface EdgeProps {
   id: string;
@@ -52,6 +57,7 @@ export default function FlowEdgeDeleteButton({
     setEdges((edges) => edges.filter((edge) => edge.id !== id));
   };
 
+<<<<<<< HEAD
   return (
     <>
       <BaseEdge
@@ -65,33 +71,38 @@ export default function FlowEdgeDeleteButton({
         }}
       />
 
-      <EdgeLabelRenderer>
-        <div
-          style={{
-            position: 'absolute',
-            transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
-            pointerEvents: 'all'
-          }}
-          className="nodrag nopan"
-        >
-          <motion.button
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            whileHover={{ scale: 1.2 }}
-            whileTap={{ scale: 0.9 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-            className="h-6 w-6 rounded-full bg-destructive hover:bg-destructive/90 
-                       flex items-center justify-center shadow-lg 
-                       border border-destructive-foreground/20
-                       transition-colors duration-200"
-            onClick={onEdgeClick}
-            aria-label="Delete edge"
-          >
-            <FiX className="text-destructive-foreground w-3.5 h-3.5" />
-          </motion.button>
-        </div>
-      </EdgeLabelRenderer>
-    </>
-  );
+=======
+	return (
+		<>
+			<BaseEdge
+				path={edgePath}
+				markerEnd={markerEnd}
+				style={{
+					stroke: selected ? '#6e6a95' : '#908dae',
+					...style
+				}}
+			/>
+>>>>>>> 69c9267d012b3eddc0ccdddaf124d8ea78b21421
+			<EdgeLabelRenderer>
+				<div
+					style={{
+						position: 'absolute',
+						transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
+						// everything inside EdgeLabelRenderer has no pointer events by default
+						// if you have an interactive element, set pointer-events: all
+						pointerEvents: 'all',
+						zIndex: 100
+					}}
+					className="nodrag nopan cursor-pointer h-4 w-4 rounded-full flex items-center justify-center bg-muted cursor-pointer hover:cursor-pointer hover:bg-muted/50"
+					onClick={onEdgeClick}
+				>
+					<XIcon className="h-3 w-3 text-foreground" />
+				</div>
+			</EdgeLabelRenderer>
+
+			<circle r="4" fill="#ff0073">
+				<animateMotion dur="1s" repeatCount="indefinite" path={edgePath} />
+			</circle>
+		</>
+	);
 }
