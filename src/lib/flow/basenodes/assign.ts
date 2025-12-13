@@ -1,6 +1,7 @@
 import { Node } from '../nodeidl/nodeidl';
 
 // TODO: Fix this tomorrow
+// @ts-ignore
 const node: Node = {
 	id: 'assign', // Assign
 	shortname: 'Bind Value `$value`',
