@@ -1,6 +1,7 @@
 // Inspired from Kite
 // SPDX: GPL-3.0
 import { Connection, Edge, Node, NodeProps as XYNodeProps } from '@xyflow/react';
+import { SubflowData } from './subnode';
 
 export const numericRegex = /^[0-9]+$/;
 export const placeholderRegex = /^\{\{[a-z0-9_.]+\}\}$/;
@@ -45,7 +46,12 @@ export enum TypedInputEnum {
 	TableArray = 'TableArray',
 	Boolean = 'Boolean',
 	Vector = 'Vector',
-	Raw = 'Raw'
+	Raw = 'Raw',
+	Parens = 'Parens', // only produced by ComplexSubflow's for now (unless we make a UI for it outside of subflows)
+	LogicExpr = 'LogicExpr', // only produced by ComplexSubflow's for now (unless we make a UI for it outside of subflows)
+	RelationalExpr = 'RelationalExpr', // only produced by ComplexSubflow's for now (unless we make a UI for it outside of subflows)
+	Not = 'Not', // Logical NOT expression
+	ComplexSubflow = 'ComplexSubflow' // A subflow that is evaluated to produce a value
 }
 
 export const stringToTypedInputEnum = (value: string): TypedInputEnum => {
@@ -66,27 +72,67 @@ export const stringToTypedInputEnum = (value: string): TypedInputEnum => {
 			return TypedInputEnum.Vector;
 		case 'raw':
 			return TypedInputEnum.Raw;
+		case 'parens':
+			return TypedInputEnum.Parens;
+		case 'logicexpr':
+			return TypedInputEnum.LogicExpr;
+		case 'relationalexpr':
+			return TypedInputEnum.RelationalExpr;
+		case 'complexsubflow':
+			return TypedInputEnum.ComplexSubflow;
+		case 'not':
+			return TypedInputEnum.Not;
 		default:
 			throw new Error(`Unknown TypedInputEnum value: ${value}`);
 	}
 };
 
+export const typedInputEnumToString = (type: TypedInputEnum): string => {
+	switch (type) {
+		case TypedInputEnum.Nil:
+			return 'nil';
+		case TypedInputEnum.String:
+			return 'string';
+		case TypedInputEnum.Number:
+			return 'number';
+		case TypedInputEnum.Table:
+			return 'table';
+		case TypedInputEnum.TableArray:
+			return 'tablearray';
+		case TypedInputEnum.Boolean:
+			return 'boolean';
+		case TypedInputEnum.Vector:
+			return 'vector';
+		case TypedInputEnum.Raw:
+			return 'raw';
+		case TypedInputEnum.Parens:
+			return 'parens';
+		case TypedInputEnum.LogicExpr:
+			return 'logicexpr';
+		case TypedInputEnum.RelationalExpr:
+			return 'relationalexpr';
+		case TypedInputEnum.ComplexSubflow:
+			return 'complexsubflow';
+		case TypedInputEnum.Not:
+			return 'not';
+		default:
+			throw new Error(`Unknown TypedInputEnum: ${type}`);
+	}
+}
+
 export interface TypedInputNil {
 	type: TypedInputEnum.Nil;
-	id: string;
 }
 
 export interface TypedInputString {
 	type: TypedInputEnum.String;
 	value: string;
 	interpolated: boolean;
-	id: string;
 }
 
 export interface TypedInputNumber {
 	type: TypedInputEnum.Number;
 	value: number;
-	id: string;
 }
 
 export interface TypedInputTableEntry {
@@ -98,20 +144,17 @@ export interface TypedInputTable {
 	type: TypedInputEnum.Table;
 	value: TypedInputTableEntry[];
 	inline: boolean;
-	id: string;
 }
 
 export interface TypedInputTableArray {
 	type: TypedInputEnum.TableArray;
 	value: TypedInput[];
 	inline: boolean;
-	id: string;
 }
 
 export interface TypedInputBoolean {
 	type: TypedInputEnum.Boolean;
 	value: boolean;
-	id: string;
 }
 
 export interface TypedInputVector {
@@ -119,13 +162,55 @@ export interface TypedInputVector {
 	x: number;
 	y: number;
 	z: number;
-	id: string;
 }
 
 export interface TypedInputRaw {
 	type: TypedInputEnum.Raw;
 	value: string; // Raw code or expression
-	id: string;
+}
+
+export interface TypedInputParens {
+	type: TypedInputEnum.Parens;
+	inner: TypedInput;
+}
+
+export enum TypedInputLogicType {
+	And = 'And',
+	Or = 'Or'
+}
+
+// Method 1: a and b or c => { type: And, lvalue: a, rvalue: { type: Or, lvalue: b, rvalue: c } }
+// Method 2: a and b or c => { operand: a, operations: [ { type: And, value: b }, { type: Or, value: c } ] }
+export interface TypedInputLogicStmt {
+	type: TypedInputEnum.LogicExpr;
+	condition: TypedInputLogicType; // The logic condition
+	operands: TypedInput[]; // The operands involved in the logic expression
+}
+
+export enum RelationalOperatorType {
+	Eq = 'Eq',
+	Neq = 'Neq',
+	Gt = 'Gt',
+	Gte = 'Gte',
+	Lt = 'Lt',
+	Lte = 'Lte'
+}
+
+export interface TypedInputRelationalExpr {
+	type: TypedInputEnum.RelationalExpr;
+	operator: RelationalOperatorType; // The relational operator
+	lvalue: TypedInput; // The left-hand side value
+	rvalue: TypedInput; // The right-hand side value
+}
+
+export interface TypedInputNot {
+	type: TypedInputEnum.Not;
+	value: TypedInput;
+}
+
+export interface TypedInputComplexSubflow {
+	type: TypedInputEnum.ComplexSubflow;
+	flow: SubflowData;
 }
 
 export type TypedInput =
@@ -136,7 +221,12 @@ export type TypedInput =
 	| TypedInputTableArray
 	| TypedInputBoolean
 	| TypedInputVector
-	| TypedInputRaw;
+	| TypedInputRaw
+	| TypedInputParens
+	| TypedInputLogicStmt
+	| TypedInputRelationalExpr
+	| TypedInputNot
+	| TypedInputComplexSubflow;
 
 export enum ForLoopTypeEnum {
 	GeneralizedIteration = 'GeneralizedIteration',
@@ -171,112 +261,6 @@ export interface ForLoopRaw {
 
 export type ForLoopType = ForLoopGeneralizedIteration | ForLoopRange | ForLoopRaw;
 
-export enum ConditionalLogicTypeEnum {
-	Unselected = 'Unselected', // Used for UI to indicate no logic condition is selected
-	IfEq = 'IfEq',
-	IfNeq = 'IfNeq',
-	IfGt = 'IfGt',
-	IfGte = 'IfGte',
-	IfLt = 'IfLt',
-	IfLte = 'IfLte'
-}
-
-export const stringToConditionalLogicTypeEnum = (value: string): ConditionalLogicTypeEnum => {
-	switch (value?.toLowerCase()) {
-		case 'ifeq':
-			return ConditionalLogicTypeEnum.IfEq;
-		case 'ifneq':
-			return ConditionalLogicTypeEnum.IfNeq;
-		case 'ifgt':
-			return ConditionalLogicTypeEnum.IfGt;
-		case 'ifgte':
-			return ConditionalLogicTypeEnum.IfGte;
-		case 'iflt':
-			return ConditionalLogicTypeEnum.IfLt;
-		case 'iflte':
-			return ConditionalLogicTypeEnum.IfLte;
-		case 'unselected':
-			return ConditionalLogicTypeEnum.Unselected;
-		default:
-			return ConditionalLogicTypeEnum.Unselected; // Fallback for unknown types
-	}
-};
-
-export const conditionalLogicTypeEnumToString = (type: ConditionalLogicTypeEnum): string => {
-	switch (type) {
-		case ConditionalLogicTypeEnum.IfEq:
-			return 'IfEq';
-		case ConditionalLogicTypeEnum.IfNeq:
-			return 'IfNeq';
-		case ConditionalLogicTypeEnum.IfGt:
-			return 'IfGt';
-		case ConditionalLogicTypeEnum.IfGte:
-			return 'IfGte';
-		case ConditionalLogicTypeEnum.IfLt:
-			return 'IfLt';
-		case ConditionalLogicTypeEnum.IfLte:
-			return 'IfLte';
-		case ConditionalLogicTypeEnum.Unselected:
-			return 'Unselected'; // For UI purposes
-		default:
-			return 'Unselected'; // Fallback for unknown types
-	}
-};
-
-export interface ConditionalLogicType {
-	type: ConditionalLogicTypeEnum;
-	left: TypedInput;
-	right: TypedInput;
-}
-
-export enum ConditionalTypeEnum {
-	LogicExpr = 'LogicExpr',
-	ParensBlock = 'ParensBlock',
-	Raw = 'Raw',
-	Literal = 'Literal',
-	Unselected = 'Unselected' // Used for UI to indicate no condition is selected
-}
-
-export interface ConditionalTypeContinuable {
-	op: 'and' | 'or';
-	condition: ConditionalType; // The next condition in the chain
-}
-
-export interface ConditionalTypeLogic {
-	type: ConditionalTypeEnum.LogicExpr;
-	condition: ConditionalLogicType; // The logic condition (e.g., IfEq, IfGt)
-	next?: ConditionalTypeContinuable; // Optional next condition in the chain
-}
-
-export interface ConditionalTypeParensBlock {
-	type: ConditionalTypeEnum.ParensBlock;
-	condition: ConditionalType; // The condition inside the parentheses
-	next?: ConditionalTypeContinuable; // Optional next condition in the chain
-}
-
-export interface ConditionalTypeRaw {
-	type: ConditionalTypeEnum.Raw;
-	condition: string; // Raw condition for the if statement
-	next?: ConditionalTypeContinuable; // Optional next condition in the chain
-}
-
-export interface ConditionalTypeLiteral {
-	type: ConditionalTypeEnum.Literal;
-	value: TypedInput; // Literal value for the condition
-	next?: ConditionalTypeContinuable; // Optional next condition in the chain
-}
-
-export interface ConditionalTypeUnselected {
-	type: ConditionalTypeEnum.Unselected;
-}
-
-export type ConditionalType =
-	| ConditionalTypeLogic
-	| ConditionalTypeParensBlock
-	| ConditionalTypeRaw
-	| ConditionalTypeLiteral
-	| ConditionalTypeUnselected;
-
 export interface FlowData {
 	nodes: Node<NodeExtData>[];
 	edges: Edge[];
@@ -297,6 +281,9 @@ export enum NodeTypeEnum {
 	CustomCode = 'CustomCode',
 	ForLoop = 'ForLoop',
 	WhileLoop = 'WhileLoop',
+
+	// API nodes
+	APINode = 'APINode',
 
 	// Special
 	UnknownNode = 'UnknownNode',
@@ -398,14 +385,14 @@ export interface VariableSetNode {
 export interface IfConditionNode {
 	type: NodeTypeEnum.IfCondition;
 	data: SharedNodeData & {
-		condition: ConditionalType;
+		condition: TypedInput;
 	};
 }
 
 export interface ElseIfConditionNode {
 	type: NodeTypeEnum.ElseIfCondition;
 	data: SharedNodeData & {
-		condition: ConditionalType;
+		condition: TypedInput;
 		index: number; // Index of the elseif in the chain
 	};
 }
@@ -437,7 +424,7 @@ export interface ForLoopNode {
 export interface WhileLoopNode {
 	type: NodeTypeEnum.WhileLoop;
 	data: SharedNodeData & {
-		condition: ConditionalType; // Condition for the while loop
+		condition: TypedInput; // Condition for the while loop
 	};
 }
 
@@ -448,6 +435,14 @@ export interface UnknownNode {
 
 export interface GroupNode {
 	type: NodeTypeEnum.Group;
+}
+
+export interface APINode {
+	type: NodeTypeEnum.APINode;
+	data: SharedNodeData & {
+		nodeidl: string;
+		inputValues: TypedInput;
+	};
 }
 
 export type FlowNodeData =
@@ -462,6 +457,7 @@ export type FlowNodeData =
 	| CustomCodeNode
 	| ForLoopNode
 	| WhileLoopNode
+	| APINode
 	| UnknownNode
 	| GroupNode;
 

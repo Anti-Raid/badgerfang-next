@@ -2,73 +2,206 @@ import { NodeProps } from '@/lib/flow/data';
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { useFFlags } from '@/components/ui/FFlagProvider';
+import { FFlag } from '@/lib/fflags/fflags';
+import { useFlowHPane } from './FlowHPaneProvider';
 
 interface FlowExpandedProps {
 	nodeProps: NodeProps;
 	children: React.ReactNode;
 	title?: string; // Optional title for the modal
+	onDone?: () => void;
 }
 
-export const FlowExpanded: React.FC<FlowExpandedProps> = ({ nodeProps, children, title }) => {
+export const FlowExpanded: React.FC<FlowExpandedProps> = ({
+	nodeProps,
+	children,
+	title,
+	onDone
+}) => {
+	const { fflags, isLoaded } = useFFlags();
+	if (!isLoaded) return <></>;
+
+	if (fflags.has(FFlag.Flow_NodeEditor_HorizontalPane)) {
+		return <FlowExpandedHorizontalPane nodeProps={nodeProps} title={title} onDone={onDone}>{children}</FlowExpandedHorizontalPane>;
+	} else {
+		return <FlowExpandedModal nodeProps={nodeProps} title={title} onDone={onDone}>{children}</FlowExpandedModal>;
+	}
+}
+
+const FlowExpandedHorizontalPane: React.FC<FlowExpandedProps> = ({
+	nodeProps,
+	children,
+	title: _title,
+	onDone
+}) => {
+	const title = _title || `${nodeProps.data.type} Configuration`
+	const { hpane, htmlRef, setHPane } = useFlowHPane();
+
+	useEffect(() => {
+		return () => {
+			setHPane({
+				...hpane,
+				expanded: '',
+			})
+		};
+	}, [setHPane]);
+
+	const pane = (
+		<>
+			<motion.div
+				initial={{ opacity: 0 }}
+				animate={{ opacity: 1 }}
+				exit={{ opacity: 0 }}
+				className="flex flex-row w-full"
+			>
+				{/* Header */}
+				<div className="p-6 py-3 border-b border-border">
+					<div className="flex items-center gap-3 mb-2">
+						<h2 className="text-xl font-bold text-foreground">{title}</h2>
+					</div>
+					<p className="text-sm text-muted-foreground">INSERT_DESCRIPTION_HERE</p>
+				</div>
+			</motion.div>
+			<div className="flex-1 overflow-x-auto p-2 space-y-6">
+				{children}
+			</div>
+		</>
+	);
+
+	return (
+		<>
+			{(htmlRef && nodeProps.id === hpane?.expanded) && createPortal(pane, htmlRef)}
+			<div className="flex justify-center mt-3">
+				<button
+					onClick={() => {
+						setHPane({
+							title: title,
+							expanded: nodeProps.id
+						})
+					}}
+					className={`
+            group relative px-6 py-2.5 rounded-lg font-medium font-inter text-sm
+            transition-all duration-300 overflow-hidden 
+			bg-card border border-border text-foreground hover:border-primary hover:shadow-md'
+            hover:scale-105 active:scale-95
+            focus:outline-none focus:ring-2 focus:ring-primary/50
+          `}
+				>
+					{/* Animated background gradient */}
+					<span
+						className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/10 to-primary/0 
+                          opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+					/>
+
+					{/* Button content */}
+					<span className="relative flex items-center gap-2">
+						Edit
+					</span>
+				</button>
+			</div>
+		</>
+	);
+}
+
+const FlowExpandedModal: React.FC<FlowExpandedProps> = ({
+	nodeProps,
+	children,
+	title,
+	onDone
+}) => {
 	const [isExpanded, setExpanded] = useState(false);
 	const [mounted, setMounted] = useState(false);
 
 	useEffect(() => {
 		setMounted(true);
 	}, []);
+	useEffect(() => {
+		setMounted(true);
+	}, []);
 
 	useEffect(() => {
-		document.body.style.overflow = isExpanded ? 'hidden' : '';
-		return () => { document.body.style.overflow = ''; };
+		if (isExpanded) {
+			document.body.style.overflow = 'hidden';
+		} else {
+			document.body.style.overflow = '';
+		}
+
+		return () => {
+			document.body.style.overflow = '';
+		};
 	}, [isExpanded]);
 
 	useEffect(() => {
 		const handleEscape = (e: KeyboardEvent) => {
-			if (e.key === 'Escape' && isExpanded) setExpanded(false);
+			if (e.key === 'Escape' && isExpanded) {
+				setExpanded(false);
+			}
 		};
+
 		document.addEventListener('keydown', handleEscape);
 		return () => document.removeEventListener('keydown', handleEscape);
 	}, [isExpanded]);
 
-	// Motion variants typed correctly
 	const backdropVariants: Variants = {
 		hidden: { opacity: 0 },
 		visible: {
 			opacity: 1,
-			transition: { duration: 0.3, ease: 'easeOut' as const }
+			transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] }
 		},
 		exit: {
 			opacity: 0,
-			transition: { duration: 0.2, ease: 'easeIn' as const }
+			transition: { duration: 0.2, ease: [0.4, 0, 0.2, 1] }
 		}
 	};
 
 	const modalVariants: Variants = {
-		hidden: { y: -60, opacity: 0, scale: 0.9, rotateX: -15 },
+		hidden: {
+			y: -60,
+			opacity: 0,
+			scale: 0.9,
+			rotateX: -15
+		},
 		visible: {
 			y: 0,
 			opacity: 1,
 			scale: 1,
 			rotateX: 0,
-			transition: { type: 'spring', stiffness: 400, damping: 30, mass: 0.8 }
+			transition: {
+				type: 'spring' as const,
+				stiffness: 400,
+				damping: 30,
+				mass: 0.8
+			}
 		},
 		exit: {
 			y: 60,
 			opacity: 0,
 			scale: 0.9,
 			rotateX: 15,
-			transition: { duration: 0.25, ease: 'easeIn' as const }
+			transition: {
+				duration: 0.25,
+				ease: [0.4, 0, 0.2, 1]
+			}
 		}
 	};
 
 	const headerVariants: Variants = {
 		hidden: { opacity: 0, x: -20 },
-		visible: { opacity: 1, x: 0, transition: { delay: 0.1, duration: 0.3 } }
+		visible: {
+			opacity: 1,
+			x: 0,
+			transition: { delay: 0.1, duration: 0.3 }
+		}
 	};
 
 	const contentVariants: Variants = {
 		hidden: { opacity: 0, y: 10 },
-		visible: { opacity: 1, y: 0, transition: { delay: 0.15, duration: 0.3 } }
+		visible: {
+			opacity: 1,
+			y: 0,
+			transition: { delay: 0.15, duration: 0.3 }
+		}
 	};
 
 	const modal = (
@@ -95,7 +228,7 @@ export const FlowExpanded: React.FC<FlowExpandedProps> = ({ nodeProps, children,
 						exit="exit"
 						onClick={(e) => e.stopPropagation()}
 						style={{ perspective: '1000px' }}
-						className="relative w-full max-w-2xl max-h-[90vh] overflow-hidden"
+						className="relative w-full max-w-4xl max-h-[90vh] overflow-hidden" // Make max-w customizable per node
 					>
 						{/* Decorative background elements */}
 						<div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-extra/5 rounded-2xl" />
@@ -142,11 +275,20 @@ export const FlowExpanded: React.FC<FlowExpandedProps> = ({ nodeProps, children,
 										</svg>
 									</button>
 								</div>
+
+								{/* Subtitle */}
 								<p className="mt-1 text-sm text-muted-foreground font-inter">
 									Configure your node settings and properties
 								</p>
 							</motion.div>
 
+							{/* Content */}
+							<motion.div
+								variants={contentVariants}
+								className="relative px-6 py-6 max-h-[60vh] overflow-y-auto custom-scrollbar"
+							>
+								<div className="prose prose-sm max-w-none dark:prose-invert">{children}</div>
+							</motion.div>
 							{/* Content */}
 							<motion.div
 								variants={contentVariants}
@@ -162,14 +304,19 @@ export const FlowExpanded: React.FC<FlowExpandedProps> = ({ nodeProps, children,
 							>
 								<div className="flex justify-end gap-3">
 									<button
-										onClick={() => setExpanded(false)}
+										onClick={() => {
+											if (onDone) {
+												onDone();
+											}
+											setExpanded(false);
+										}}
 										className="px-5 py-2.5 rounded-lg font-medium font-inter text-sm
                              bg-primary text-primary-foreground
                              hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20
                              active:scale-95 transition-all duration-200
                              focus:outline-none focus:ring-2 focus:ring-primary/50"
 									>
-										Done
+										{onDone ? 'Save' : 'Done'}
 									</button>
 								</div>
 							</motion.div>
@@ -181,7 +328,11 @@ export const FlowExpanded: React.FC<FlowExpandedProps> = ({ nodeProps, children,
 	);
 
 	if (!mounted) return null;
+	if (!mounted) return null;
 
+	return (
+		<>
+			{createPortal(modal, document.body)}
 	return (
 		<>
 			{createPortal(modal, document.body)}
@@ -189,20 +340,30 @@ export const FlowExpanded: React.FC<FlowExpandedProps> = ({ nodeProps, children,
 			<div className="flex justify-center mt-3">
 				<button
 					onClick={() => setExpanded(!isExpanded)}
-					className={`group relative px-6 py-2.5 rounded-lg font-medium font-inter text-sm
+					className={`
+            group relative px-6 py-2.5 rounded-lg font-medium font-inter text-sm
             transition-all duration-300 overflow-hidden
             ${
 							isExpanded
 								? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
 								: 'bg-card border border-border text-foreground hover:border-primary hover:shadow-md'
 						}
+            ${
+							isExpanded
+								? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
+								: 'bg-card border border-border text-foreground hover:border-primary hover:shadow-md'
+						}
             hover:scale-105 active:scale-95
-            focus:outline-none focus:ring-2 focus:ring-primary/50`}
+            focus:outline-none focus:ring-2 focus:ring-primary/50
+          `}
 				>
+					{/* Animated background gradient */}
 					<span
 						className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/10 to-primary/0 
                           opacity-0 group-hover:opacity-100 transition-opacity duration-300"
 					/>
+
+					{/* Button content */}
 					<span className="relative flex items-center gap-2">
 						<svg
 							className={`w-4 h-4 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
@@ -210,7 +371,12 @@ export const FlowExpanded: React.FC<FlowExpandedProps> = ({ nodeProps, children,
 							viewBox="0 0 24 24"
 							stroke="currentColor"
 						>
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth={2}
+								d="M19 9l-7 7-7-7"
+							/>
 						</svg>
 						{isExpanded ? 'Collapse' : 'Expand Details'}
 					</span>

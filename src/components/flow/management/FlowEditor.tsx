@@ -26,6 +26,17 @@ interface Props {
 	onChange: () => void;
 }
 
+/**
+ * Renders an interactive flow editor canvas with nodes, edges, drag-and-drop, and connection validation.
+ *
+ * Renders the React Flow workspace configured with node/edge state management, drag-and-drop node creation,
+ * custom node/edge change handlers that propagate meaningful updates via `onChange`, connection validation
+ * to prevent cycles and invalid links, and parent-assignment when nodes are dropped onto subflow components.
+ *
+ * @param initialData - Optional initial flow data containing `nodes` and `edges` to populate the editor.
+ * @param onChange - Callback invoked when the flow's meaningful structure changes (e.g., node/edge additions, deletions, or metadata updates).
+ * @returns A React element containing the configured React Flow editor.
+ */
 export default function FlowEditor({ initialData, onChange }: Props) {
 	const [nodes, setNodes, onNodesChange] = useNodesState(initialData?.nodes || []);
 
@@ -47,11 +58,19 @@ export default function FlowEditor({ initialData, onChange }: Props) {
 	const wrappedOnNodesChange = useCallback(
 		(changes: NodeChange<Node<NodeExtData>>[]) => {
 			if (changes.length > 0) {
+				// Only trigger onChange for non-position changes
+				const hasNonPositionChanges = changes.some(
+					(change) => change.type !== 'position' && change.type !== 'dimensions'
+				);
+
 				onNodesChange(changes);
-				onChange();
+
+				if (hasNonPositionChanges) {
+					onChange();
+				}
 			}
 		},
-		[onNodesChange, onChange, getNode]
+		[onNodesChange, onChange]
 	);
 
 	// Custom onEdgesChange that triggers onChange when edges change
@@ -62,7 +81,7 @@ export default function FlowEditor({ initialData, onChange }: Props) {
 				onChange();
 			}
 		},
-		[getEdge, onEdgesChange, onChange]
+		[onEdgesChange, onChange]
 	);
 
 	const onNodesDelete = (deletedNodes: Node[]) => {
@@ -262,6 +281,7 @@ export default function FlowEditor({ initialData, onChange }: Props) {
 			proOptions={{
 				hideAttribution: true
 			}}
+			id="main-flow-editor"
 			className="!bg-background flex-auto react-flow"
 			defaultViewport={{
 				zoom: 1.5,

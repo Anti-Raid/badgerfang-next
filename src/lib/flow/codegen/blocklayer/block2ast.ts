@@ -1,14 +1,8 @@
 import {
+	APINode,
 	CommandArgumentNode,
 	CommandArgumentType,
 	CommandNode,
-	ConditionalLogicTypeEnum,
-	ConditionalType,
-	ConditionalTypeContinuable,
-	ConditionalTypeEnum,
-	ConditionalTypeLiteral,
-	ConditionalTypeLogic,
-	ConditionalTypeParensBlock,
 	CustomCodeNode,
 	ForLoopNode,
 	ForLoopType,
@@ -17,37 +11,37 @@ import {
 	LibraryNode,
 	NodeExtData,
 	NodeTypeEnum,
+	RelationalOperatorType,
 	TypedInput,
 	TypedInputEnum,
+	TypedInputLogicType,
 	VariableSetNode,
 	WhileLoopNode
-} from '../data';
+} from '../../data';
 import { Node, Edge, getOutgoers, getIncomers } from '@xyflow/react';
 import {
 	CodeGenAST,
-	ICommandArgument,
-	ICommandArgumentType,
-	IConditionalLogicTypeEnum,
-	IConditionalType,
-	IConditionalTypeContinuable,
-	IConditionalTypeContinuableEnum,
-	IConditionalTypeEnum,
-	IConditionalTypeLiteral,
-	IConditionalTypeLogic,
-	IConditionalTypeParensBlock,
-	IElseIf,
-	IForLoopType,
-	IForLoopTypeEnum,
-	INode,
-	INodeTypeEnum,
-	IPreludeTypeEnum,
-	ITypedInput,
-	ITypedInputEnum,
-	ITypedInputTableEntry
 } from './ast';
-import { baseCommandNodeSchema } from '../validation';
+import {
+	ElseIf,
+	FinalRepr,
+	Node as FNode,
+	LiteralRelationalOperatorType,
+	ReprEnum
+} from '../astlayer/finalrepr';
+import { baseCommandNodeSchema } from '../../validation';
 import z from 'zod';
-import { startNodeTypes } from '../startnode';
+import { startNodeTypes } from '../../startnode';
+import {
+	LiteralEnum,
+	LiteralLogicType,
+	LiteralTableEntry,
+	LiteralValue,
+	ForLoopType as FForLoopType,
+	ForLoopEnum as FForLoopEnum
+} from '../astlayer/finalrepr';
+import { AndNode, NotNode, OrNode, OutputNode, ParensNode, SubflowNodeExtData, SubnodeTypeEnum, TypedInputNode } from '../../subnode';
+import { ICommandArgument, ICommandArgumentType, IPreludeTypeEnum } from './prelude';
 
 interface Visit<T> {
 	/**
@@ -68,7 +62,7 @@ interface VisitResult {
 	/**
 	 * The AST representation of the node being visited.
 	 */
-	ast: INode | null;
+	ast: FNode | null;
 	/**
 	 * The next node to visit in the flow.
 	 */
@@ -81,6 +75,7 @@ interface VisitResult {
 export class CodeGenASTGenerator {
 	private nodes: Node<NodeExtData>[];
 	private edges: Edge[];
+	public dependencies: Map<string, string>
 
 	/**
 	 * Creates a new CodeGenASTGenerator instance to convert between the nodes and edges of a flow
@@ -96,6 +91,18 @@ export class CodeGenASTGenerator {
 	constructor(nodes: Node<NodeExtData>[], edges: Edge[]) {
 		this.nodes = nodes;
 		this.edges = edges;
+		this.dependencies = new Map();
+	}
+
+	/**
+	 * Pushes a dependency with given name if needed
+	 */
+	private pushDep(dep: string) {
+		let depName = FinalRepr.mangleDep(dep)
+		if (!this.dependencies.has(dep)) {
+			this.dependencies.set(dep, depName)
+		}
+		return depName
 	}
 
 	/**
@@ -105,7 +112,7 @@ export class CodeGenASTGenerator {
 	 *
 	 * @returns The AST representing the flow.
 	 */
-	public generate(): CodeGenAST {
+	public async generate(): Promise<CodeGenAST> {
 		let currentAst = new CodeGenAST();
 
 		// Find a start node
@@ -119,10 +126,11 @@ export class CodeGenASTGenerator {
 			return currentAst;
 		}
 		try {
-			currentAst.nodes = this.visitNodeAndChildren(currentAst, startNode[0]);
+			currentAst.nodes = await this.visitNodeAndChildren(currentAst, startNode[0]);
 		} catch (error) {
 			currentAst.fatalError = `Error generating AST: ${error instanceof Error ? error.message : String(error)}`;
 		}
+		currentAst.dependencies = this.dependencies
 		return currentAst;
 	}
 
@@ -159,7 +167,7 @@ export class CodeGenASTGenerator {
 	/**
 	 * Visits a node and returns its AST representation.
 	 */
-	private visitNode(currentAst: CodeGenAST, node: Node<NodeExtData>): VisitResult {
+	private async visitNode(currentAst: CodeGenAST, node: Node<NodeExtData>): Promise<VisitResult> {
 		const data = node.data;
 
 		switch (data.type) {
@@ -174,7 +182,7 @@ export class CodeGenASTGenerator {
 			case NodeTypeEnum.SetVariable:
 				return this.visitSetVariable({ nodeId: node.id, data, currentAst });
 			case NodeTypeEnum.IfCondition:
-				return this.visitIfCondition({ nodeId: node.id, data, currentAst });
+				return await this.visitIfCondition({ nodeId: node.id, data, currentAst });
 			case NodeTypeEnum.ElseIfCondition:
 				throw new Error(
 					`An ElseIfCondition node must be connected to an IfCondition node or a ForLoop node.`
@@ -188,24 +196,31 @@ export class CodeGenASTGenerator {
 					`An EndCondition node must be connected to an IfCondition node or a ForLoop node.`
 				);
 			case NodeTypeEnum.ForLoop:
-				return this.visitForLoop({ nodeId: node.id, data, currentAst });
+				return await this.visitForLoop({ nodeId: node.id, data, currentAst });
 			case NodeTypeEnum.WhileLoop:
-				return this.visitWhileLoop({ nodeId: node.id, data, currentAst });
+				return await this.visitWhileLoop({ nodeId: node.id, data, currentAst });
 			case NodeTypeEnum.CustomCode:
 				return this.visitCustomCode({ nodeId: node.id, data, currentAst });
 			case NodeTypeEnum.UnknownNode:
 				throw new Error(`Unknown node type ${data.type} encountered.`);
 			case NodeTypeEnum.Group:
-				throw new Error('Unreachable node GroupNode: GroupNodes be transparent and unconnected');
+				throw new Error(
+					'Unreachable node GroupNode: GroupNodes must be transparent and unconnected'
+				);
+			case NodeTypeEnum.APINode:
+				return await this.visitAPINode({ nodeId: node.id, data, currentAst });
 		}
 	}
 
 	/**
 	 * Helper to continuously visit nodes and their children and return their AST representation
 	 */
-	private visitNodeAndChildren(currentAst: CodeGenAST, node: Node<NodeExtData>): INode[] {
+	private async visitNodeAndChildren(
+		currentAst: CodeGenAST,
+		node: Node<NodeExtData>
+	): Promise<FNode[]> {
 		let currentNode: Node<NodeExtData> | null = node;
-		let astNodes: INode[] = [];
+		let astNodes: FNode[] = [];
 		let visited = new Set<string>();
 		while (currentNode) {
 			if (visited.has(currentNode.id)) {
@@ -216,7 +231,7 @@ export class CodeGenASTGenerator {
 
 			visited.add(currentNode.id);
 
-			const visitResult = this.visitNode(currentAst, currentNode);
+			const visitResult = await this.visitNode(currentAst, currentNode);
 			if (visitResult.ast) {
 				astNodes.push(visitResult.ast);
 			}
@@ -335,9 +350,10 @@ export class CodeGenASTGenerator {
 
 		return {
 			ast: {
-				type: INodeTypeEnum.SetVariable,
-				data: {
-					name: variableName,
+				type: ReprEnum.LocalVariableDeclaration,
+				lvalue: variableName,
+				rvalue: {
+					type: ReprEnum.Literal,
 					value: this.visitTypedInput(variableValue)
 				}
 			},
@@ -369,10 +385,8 @@ export class CodeGenASTGenerator {
 
 		return {
 			ast: {
-				type: INodeTypeEnum.CustomCode,
-				data: {
-					code: code
-				}
+				type: ReprEnum.Raw,
+				code
 			},
 			nextNode
 		};
@@ -381,7 +395,7 @@ export class CodeGenASTGenerator {
 	/**
 	 * Visits a IfStatement and returns its AST representation.
 	 */
-	private visitIfCondition(node: Visit<IfConditionNode>): VisitResult {
+	private async visitIfCondition(node: Visit<IfConditionNode>): Promise<VisitResult> {
 		// Find the block, continuation statement and end condition nodes from children
 		let children = this.getChildrenOfNode(node.nodeId);
 		let bodyStart: Node<NodeExtData> | null = null;
@@ -440,12 +454,12 @@ export class CodeGenASTGenerator {
 			return a.data.data.index - b.data.data.index;
 		});
 
-		let bodyNodes: INode[] = [];
+		let bodyNodes: FNode[] = [];
 		if (bodyStart) {
-			bodyNodes = this.visitNodeAndChildren(node.currentAst, bodyStart);
+			bodyNodes = await this.visitNodeAndChildren(node.currentAst, bodyStart);
 		}
 
-		let elseIfs: IElseIf[] = [];
+		let elseIfs: ElseIf[] = [];
 		for (const elseif of elseifNodes) {
 			if (elseif.data.type !== NodeTypeEnum.ElseIfCondition) {
 				throw new Error(`Expected ElseIfCondition node, but got ${elseif.data.type}`);
@@ -465,12 +479,12 @@ export class CodeGenASTGenerator {
 			}
 
 			elseIfs.push({
-				condition: this.visitConditionalType(node.currentAst, elseif.data.data.condition),
-				body: this.visitNodeAndChildren(node.currentAst, elseifChildren[0])
+				condition: this.visitTypedInput(elseif.data.data.condition),
+				body: await this.visitNodeAndChildren(node.currentAst, elseifChildren[0])
 			});
 		}
 
-		let elseBlock: INode[] | undefined = undefined;
+		let elseBlock: FNode[] | undefined = undefined;
 		if (elseNode) {
 			if (elseNode.data.type !== NodeTypeEnum.ElseCondition) {
 				throw new Error(`Expected ElseCondition node, but got ${elseNode.data.type}`);
@@ -482,7 +496,7 @@ export class CodeGenASTGenerator {
 					`ElseCondition ${elseNode.id} has multiple outgoing connections, only the first will be considered.`
 				);
 			}
-			elseBlock = this.visitNodeAndChildren(node.currentAst, elseChildren[0]);
+			elseBlock = await this.visitNodeAndChildren(node.currentAst, elseChildren[0]);
 		}
 
 		if (!endNode) {
@@ -501,9 +515,9 @@ export class CodeGenASTGenerator {
 
 		return {
 			ast: {
-				type: INodeTypeEnum.IfCondition,
+				type: ReprEnum.IfCondition,
 				data: {
-					condition: this.visitConditionalType(node.currentAst, node.data.data.condition),
+					condition: this.visitTypedInput(node.data.data.condition),
 					body: bodyNodes,
 					elseifs: elseIfs.length > 0 ? elseIfs : undefined,
 					else: elseBlock
@@ -516,15 +530,14 @@ export class CodeGenASTGenerator {
 	/**
 	 * Visits a ForLoop and returns its AST representation.
 	 */
-	private visitForLoop(node: Visit<ForLoopNode>): VisitResult {
+	private async visitForLoop(node: Visit<ForLoopNode>): Promise<VisitResult> {
 		// Find the block, continuation statement and end condition nodes from children
 		let children = this.getChildrenOfNode(node.nodeId);
 		let bodyStart: Node<NodeExtData> | null = null;
 		let endNode: Node<NodeExtData> | null = null;
 
 		for (const child of children) {
-			const childData = this.getAuxDataForNode(child.id);
-			switch (childData.type) {
+			switch (child.data.type) {
 				case NodeTypeEnum.EndCondition:
 					if (endNode) {
 						this.pushWarning(
@@ -548,9 +561,9 @@ export class CodeGenASTGenerator {
 			}
 		}
 
-		let bodyNodes: INode[] = [];
+		let bodyNodes: FNode[] = [];
 		if (bodyStart) {
-			bodyNodes = this.visitNodeAndChildren(node.currentAst, bodyStart);
+			bodyNodes = await this.visitNodeAndChildren(node.currentAst, bodyStart);
 		}
 
 		if (!endNode) {
@@ -569,7 +582,7 @@ export class CodeGenASTGenerator {
 
 		return {
 			ast: {
-				type: INodeTypeEnum.ForLoop,
+				type: ReprEnum.ForLoop,
 				data: {
 					condition: this.visitForLoopType(node.data.data.condition),
 					body: bodyNodes
@@ -582,15 +595,14 @@ export class CodeGenASTGenerator {
 	/**
 	 * Visits a WhileLoop and returns its AST representation.
 	 */
-	private visitWhileLoop(node: Visit<WhileLoopNode>): VisitResult {
+	private async visitWhileLoop(node: Visit<WhileLoopNode>): Promise<VisitResult> {
 		// Find the block, continuation statement and end condition nodes from children
 		let children = this.getChildrenOfNode(node.nodeId);
 		let bodyStart: Node<NodeExtData> | null = null;
 		let endNode: Node<NodeExtData> | null = null;
 
 		for (const child of children) {
-			const childData = this.getAuxDataForNode(child.id);
-			switch (childData.type) {
+			switch (child.data.type) {
 				case NodeTypeEnum.EndCondition:
 					if (endNode) {
 						this.pushWarning(
@@ -614,9 +626,9 @@ export class CodeGenASTGenerator {
 			}
 		}
 
-		let bodyNodes: INode[] = [];
+		let bodyNodes: FNode[] = [];
 		if (bodyStart) {
-			bodyNodes = this.visitNodeAndChildren(node.currentAst, bodyStart);
+			bodyNodes = await this.visitNodeAndChildren(node.currentAst, bodyStart);
 		}
 
 		if (!endNode) {
@@ -635,14 +647,19 @@ export class CodeGenASTGenerator {
 
 		return {
 			ast: {
-				type: INodeTypeEnum.WhileLoop,
-				data: {
-					condition: this.visitConditionalType(node.currentAst, node.data.data.condition),
-					body: bodyNodes
-				}
+				type: ReprEnum.WhileLoop,
+				condition: this.visitTypedInput(node.data.data.condition),
+				body: bodyNodes
 			},
 			nextNode // The next node is the EndCondition's first child, if any
 		};
+	}
+
+	/**
+	 * Visits an 'API node' (from dnodec) and runs its custom codegen
+	 */
+	private async visitAPINode(node: Visit<APINode>): Promise<VisitResult> {
+		throw new Error('[visitAPINode] Not yet implemented fully yet'); // TODO: Implement visiting API nodes
 	}
 
 	/**
@@ -650,58 +667,245 @@ export class CodeGenASTGenerator {
 	 * @param value The TypedInput value to convert to AST.
 	 * @returns The AST representation of the TypedInput value.
 	 */
-	private visitTypedInput(value: TypedInput): ITypedInput {
-		switch (value.type) {
-			case TypedInputEnum.Nil:
-				return {
-					type: ITypedInputEnum.Nil
-				};
-			case TypedInputEnum.String:
-				return {
-					type: ITypedInputEnum.String,
-					value: value.value,
-					interpolated: value.interpolated
-				};
-			case TypedInputEnum.Number:
-				return {
-					type: ITypedInputEnum.Number,
-					value: value.value
-				};
-			case TypedInputEnum.Table:
-				let tableValue: ITypedInputTableEntry[] = value.value.map((entry) => ({
-					key: this.visitTypedInput(entry.key),
-					value: this.visitTypedInput(entry.value)
-				}));
-				return {
-					type: ITypedInputEnum.Table,
-					value: tableValue,
-					inline: value.inline
-				};
-			case TypedInputEnum.TableArray:
-				let arrayValue: ITypedInput[] = value.value.map((item) => this.visitTypedInput(item));
-				return {
-					type: ITypedInputEnum.TableArray,
-					value: arrayValue,
-					inline: value.inline
-				};
-			case TypedInputEnum.Boolean:
-				return {
-					type: ITypedInputEnum.Boolean,
-					value: value.value
-				};
-			case TypedInputEnum.Vector:
-				return {
-					type: ITypedInputEnum.Vector,
-					x: value.x,
-					y: value.y,
-					z: value.z
-				};
-			case TypedInputEnum.Raw:
-				return {
-					type: ITypedInputEnum.Raw, // Raw is treated as a string in AST
-					value: value.value
-				};
+	private visitTypedInput(value: TypedInput): LiteralValue {
+		// An VisitTask to be pushed/pop from the stack
+		interface VisitTask {
+			/** The source node to process. */
+			source: TypedInput;
+			/**
+			 * A callback function to set the processed AST node
+			 * in its correct parent location.
+			 */
+			setResult: (result: LiteralValue) => void;
 		}
+
+		let rootResult: LiteralValue | null = null;
+		const stack: VisitTask[] = [];
+		stack.push({
+			source: value,
+			setResult: (result) => {
+				rootResult = result;
+			}
+		});
+		while (true) {
+			const task = stack.pop();
+			if (!task) break;
+			const source = task.source;
+			switch (source.type) {
+				case TypedInputEnum.Nil:
+					task.setResult({
+						type: LiteralEnum.Nil
+					});
+					continue;
+
+				case TypedInputEnum.String:
+					task.setResult({
+						type: LiteralEnum.String,
+						value: source.value,
+						interpolated: source.interpolated
+					});
+					continue;
+
+				case TypedInputEnum.Number:
+					task.setResult({
+						type: LiteralEnum.Number,
+						value: source.value
+					});
+					continue;
+
+				case TypedInputEnum.Boolean:
+					task.setResult({
+						type: LiteralEnum.Boolean,
+						value: source.value
+					});
+					continue;
+
+				case TypedInputEnum.Vector:
+					task.setResult({
+						type: LiteralEnum.Vector,
+						x: source.x,
+						y: source.y,
+						z: source.z
+					});
+					continue;
+
+				case TypedInputEnum.Raw:
+					task.setResult({
+						type: LiteralEnum.Raw,
+						value: source.value
+					});
+					continue;
+				case TypedInputEnum.Table:
+					const tableResult: LiteralValue = {
+						type: LiteralEnum.Table,
+						value: new Array(source.value.length), // Pre-allocate array
+						inline: source.inline
+					};
+					// Link to parent
+					task.setResult(tableResult);
+					for (let i = source.value.length - 1; i >= 0; i--) {
+						const sourceEntry = source.value[i];
+						const destEntry: LiteralTableEntry = {
+							key: { type: LiteralEnum.Nil },
+							value: { type: LiteralEnum.Nil }
+						}; // initially nil = nil
+						tableResult.value[i] = destEntry;
+						stack.push({
+							source: sourceEntry.value,
+							setResult: (result) => {
+								destEntry.value = result;
+							}
+						}); // value link
+						stack.push({
+							source: sourceEntry.key,
+							setResult: (result) => {
+								destEntry.key = result;
+							}
+						}); // key link
+					}
+					continue;
+				case TypedInputEnum.TableArray:
+					if (source.value.length == 0) {
+						// finalrepr requires antiraid/interop as a dependency if we have a value.length == 0
+						this.pushDep("@antiraid/interop")
+					}
+					const arrayResult: LiteralValue = {
+						type: LiteralEnum.TableArray,
+						value: new Array(source.value.length), // Pre-allocate array
+						inline: source.inline
+					};
+					// Link to parent
+					task.setResult(arrayResult);
+					for (let i = source.value.length - 1; i >= 0; i--) {
+						const sourceItem = source.value[i];
+						const currentIdx = i;
+						stack.push({
+							source: sourceItem,
+							setResult: (result) => {
+								arrayResult.value[currentIdx] = result;
+							}
+						}); // table value link
+					}
+					continue;
+				case TypedInputEnum.Parens:
+					const parensResult: LiteralValue = {
+						type: LiteralEnum.Parens,
+						inner: {
+							type: LiteralEnum.Nil // to be filled in
+						}
+					};
+					// Link to parent
+					task.setResult(parensResult);
+					// Set inner
+					stack.push({
+						source: source.inner,
+						setResult: (result) => {
+							parensResult.inner = result;
+						}
+					});
+					continue;
+				case TypedInputEnum.RelationalExpr:
+					const condMap = {
+						[RelationalOperatorType.Eq]: LiteralRelationalOperatorType.Eq,
+						[RelationalOperatorType.Gt]: LiteralRelationalOperatorType.Gt,
+						[RelationalOperatorType.Gte]: LiteralRelationalOperatorType.Gte,
+						[RelationalOperatorType.Lt]: LiteralRelationalOperatorType.Lt,
+						[RelationalOperatorType.Lte]: LiteralRelationalOperatorType.Lte,
+						[RelationalOperatorType.Neq]: LiteralRelationalOperatorType.Neq
+					};
+					let cond = condMap[source.operator];
+					const logicResult: LiteralValue = {
+						type: LiteralEnum.RelationalExpr,
+						operator: cond, // Copy the primitive condition
+						lvalue: { type: LiteralEnum.Nil }, // to be filled in
+						rvalue: { type: LiteralEnum.Nil } // to be filled in
+					};
+					// Link to parent
+					task.setResult(logicResult);
+					stack.push({
+						source: source.rvalue,
+						setResult: (result) => {
+							logicResult.rvalue = result;
+						}
+					});
+					stack.push({
+						source: source.lvalue,
+						setResult: (result) => {
+							logicResult.lvalue = result;
+						}
+					});
+					continue;
+				case TypedInputEnum.LogicExpr:
+					if (source.operands.length < 2) {
+						throw new Error('Logic expressions must have at least two operands');
+					}
+
+					const logicTypeMap = {
+						[TypedInputLogicType.And]: LiteralLogicType.And,
+						[TypedInputLogicType.Or]: LiteralLogicType.Or
+					};
+
+					let logicType = logicTypeMap[source.condition];
+
+					const logicExprResult: LiteralValue = {
+						type: LiteralEnum.LogicExpr,
+						condition: logicType, // Copy the primitive logic type
+						operands: new Array(source.operands.length) // to be filled in
+					};
+
+					// Link to parent
+					task.setResult(logicExprResult);
+
+					// Push operands in reverse order to maintain order when popping from stack
+					for (let i = source.operands.length - 1; i >= 0; i--) {
+						const currentIdx = i;
+						const sourceOperand = source.operands[currentIdx];
+						stack.push({
+							source: sourceOperand,
+							setResult: (result) => {
+								logicExprResult.operands[currentIdx] = result;
+							}
+						});
+					}
+					continue;
+				case TypedInputEnum.Not:
+					const notResult: LiteralValue = {
+						type: LiteralEnum.Not,
+						value: { type: LiteralEnum.Nil } // to be filled in
+					};
+					// Link to parent
+					task.setResult(notResult);
+					// Set inner
+					stack.push({
+						source: source.value,
+						setResult: (result) => {
+							notResult.value = result;
+						}
+					});
+					continue;
+				case TypedInputEnum.ComplexSubflow:
+					// Unfortunately, this one does do recursion via a sub-processor
+					let p = new TISubnodeProcessor(source.flow.nodes, source.flow.edges);
+					let subflowResult = p.generate();
+					const literalValue: LiteralValue = {
+						type: LiteralEnum.Passthrough,
+						value: { type: LiteralEnum.Nil } // to be filled in
+					};
+					// Link to parent
+					task.setResult(literalValue);
+					// Set inner
+					stack.push({
+						source: subflowResult,
+						setResult: (result) => {
+							literalValue.value = result;
+						}
+					});
+					continue;
+				default:
+					throw new Error('unexpected typed input found');
+			}
+		}
+		return rootResult!;
 	}
 
 	/**
@@ -709,17 +913,17 @@ export class CodeGenASTGenerator {
 	 * @param value The ForLoopType value to convert to AST.
 	 * @returns The AST representation of the ForLoopType value.
 	 */
-	private visitForLoopType(value: ForLoopType): IForLoopType {
+	private visitForLoopType(value: ForLoopType): FForLoopType {
 		switch (value.type) {
 			case ForLoopTypeEnum.GeneralizedIteration:
 				return {
-					type: IForLoopTypeEnum.GeneralizedIteration,
+					type: FForLoopEnum.GeneralizedIteration,
 					varbinds: value.varbinds,
 					iterable: this.visitTypedInput(value.iterable)
 				};
 			case ForLoopTypeEnum.Range:
 				return {
-					type: IForLoopTypeEnum.Range,
+					type: FForLoopEnum.Range,
 					varbind: value.varbind,
 					start: value.start,
 					end: value.end,
@@ -727,25 +931,10 @@ export class CodeGenASTGenerator {
 				};
 			case ForLoopTypeEnum.Raw:
 				return {
-					type: IForLoopTypeEnum.Raw,
+					type: FForLoopEnum.Raw,
 					condition: value.condition // Raw condition for the loop
 				};
 		}
-	}
-
-	/**
-	 * Helper to return the auxilliary data for the given node ID.
-	 * @param nodeId The ID of the node to get auxiliary data for.
-	 * @returns The auxiliary data for the node.
-	 */
-	private getAuxDataForNode(nodeId: string): NodeExtData {
-		for (const node of this.nodes) {
-			if (node.id === nodeId) {
-				return node.data; // Return the aux data directly from the node
-			}
-		}
-
-		throw new Error(`Node with ID ${nodeId} not found in the flow.`);
 	}
 
 	/**
@@ -787,137 +976,180 @@ export class CodeGenASTGenerator {
 			required: arg.data.required
 		};
 	}
+}
 
-	/** Visits a ConditionalType and returns its AST representation.
+interface SVisit<T> {
+	/**
+	 * The ID of the node being visited.
+	 */
+	nodeId: string;
+	/**
+	 * The data associated with the node being visited.
+	 */
+	data: T;
+}
+
+export class TISubnodeProcessor {
+	private nodes: Node<SubflowNodeExtData>[];
+	private edges: Edge[];
+	private visitCache: Map<string, TypedInput>;
+	private visiting: Set<string>
+
+	/**
+	 * Creates a new TISubnodeProcessor instance to convert between the nodes and edges of a subflow
+	 * into a TypedInput
 	 *
-	 * @param data The ConditionalType to convert to AST.
-	 * @return The AST representation of the ConditionalType.
+	 * @param nodes The nodes of the graph
+	 * @param edges The edges of the graph
+	 * @param auxData The auxiliary data for the nodes, containing additional information about each node.
 	 */
-	private visitConditionalType(currentAst: CodeGenAST, data: ConditionalType): IConditionalType {
+	constructor(nodes: Node<SubflowNodeExtData>[], edges: Edge[]) {
+		this.nodes = nodes;
+		this.edges = edges;
+		this.visitCache = new Map<string, TypedInput>();
+		this.visiting = new Set<string>();
+	}
+
+	/**
+	 * Helper to return the parents of a node
+	 */
+	private getParentOfNode(nodeId: string): Node<SubflowNodeExtData>[] {
+		return getIncomers({ id: nodeId }, this.nodes, this.edges);
+	}
+
+	/**
+	 * Generates the AST representation of the flow.
+	 *
+	 * @returns The typed input representing the subflow or throws an error if generation fails.
+	 */
+	public generate(): TypedInput {
+		// Clear caches
+		this.visitCache.clear();
+		this.visiting.clear();
+
+		// Find the output node
+		const outputNode = this.nodes.filter((node) => node.data.type === SubnodeTypeEnum.OutputNode);
+
+		if (outputNode.length === 0) {
+			throw new Error('No Output Node found in the subflow.');
+		} else if (outputNode.length > 1) {
+			throw new Error('Multiple Output Nodes found in the subflow.');
+		}
+		return this.visitNode(outputNode[0]);
+	}
+
+	/**
+	 * Visits a node and returns its typed input representation.
+	 */
+	private visitNode(node: Node<SubflowNodeExtData>): TypedInput {
+		if (this.visiting.has(node.id)) {
+			throw new Error(`Cycle detected in subflow at node ${node.id}`);
+		}
+		if (this.visitCache.has(node.id)) {
+			return this.visitCache.get(node.id)!;
+		}
+		const data = node.data;
+
+		this.visiting.add(node.id); // Mark as visiting to detect cycles
+
+		let ti: TypedInput;
 		switch (data.type) {
-			case ConditionalTypeEnum.Unselected:
-				this.pushError(currentAst, `Unselected ConditionalLogicType encountered.`);
-				return {
-					type: IConditionalTypeEnum.Raw,
-					condition: ''
-				};
-			case ConditionalTypeEnum.LogicExpr:
-				return this.visitConditionalLogicType(currentAst, data);
-			case ConditionalTypeEnum.ParensBlock:
-				return {
-					type: IConditionalTypeEnum.ParensBlock,
-					condition: this.visitConditionalTypeParensBlock(currentAst, data)
-				};
-			case ConditionalTypeEnum.Raw:
-				return {
-					type: IConditionalTypeEnum.Raw,
-					condition: data.condition // Raw condition for the logic expression
-				};
-			case ConditionalTypeEnum.Literal:
-				return this.visitConditionalTypeLiteral(currentAst, data);
-			default:
-				this.pushError(currentAst, `Unknown ConditionalType ${JSON.stringify(data)} encountered.`);
-				return {
-					type: IConditionalTypeEnum.Raw,
-					condition: '' // Default to an empty string for raw condition
-				};
-		}
-	}
-
-	/**
-	 * Visits a ConditionalTypeContinuable and returns its AST representation.
-	 * @param data The ConditionalTypeContinuable to convert to AST.
-	 * @return The AST representation of the ConditionalTypeContinuable.
-	 */
-	private visitConditionalTypeContinuable(
-		currentAst: CodeGenAST,
-		data: ConditionalTypeContinuable
-	): IConditionalTypeContinuable {
-		let op = IConditionalTypeContinuableEnum.And;
-		if (data.op === 'or') {
-			op = IConditionalTypeContinuableEnum.Or;
+			case SubnodeTypeEnum.TypedInputNode:
+				ti = this.visitTypedInputNode({ nodeId: node.id, data });
+				break;
+			case SubnodeTypeEnum.AndNode:
+				ti = this.visitAndNode({ nodeId: node.id, data });
+				break;
+			case SubnodeTypeEnum.OrNode:
+				ti = this.visitOrNode({ nodeId: node.id, data });
+				break;
+			case SubnodeTypeEnum.NotNode:
+				ti = this.visitNotNode({ nodeId: node.id, data });
+				break;
+			case SubnodeTypeEnum.OutputNode:
+				ti = this.visitOutputNode({ nodeId: node.id, data });
+				break;
+			case SubnodeTypeEnum.ParensNode:
+				ti = this.visitParensNode({ nodeId: node.id, data });
+				break;
+			case SubnodeTypeEnum.UnknownNode:
+				throw new Error(`Unknown subnode type ${data.type} encountered.`);
 		}
 
-		return {
-			op: op,
-			condition: this.visitConditionalType(currentAst, data.condition)
-		};
+		this.visitCache.set(node.id, ti); // Memoize result
+		this.visiting.delete(node.id); // Unmark as visiting
+		return ti;
 	}
 
-	/**
-	 * Visits a ConditionalLogicType and returns its AST representation.
-	 * @param data The ConditionalLogicType to convert to AST.
-	 * @returns The AST representation of the ConditionalLogicType.
-	 */
-	private visitConditionalLogicType(
-		currentAst: CodeGenAST,
-		data: ConditionalTypeLogic
-	): IConditionalTypeLogic {
-		if (data.condition.type === ConditionalLogicTypeEnum.Unselected) {
-			this.pushError(currentAst, `Unselected ConditionalLogicType encountered.`);
-			return {
-				type: IConditionalTypeEnum.LogicExpr,
-				condition: {
-					type: IConditionalLogicTypeEnum.IfEq,
-					left: {
-						type: ITypedInputEnum.Nil
-					},
-					right: {
-						type: ITypedInputEnum.Nil
-					}
-				}
-			};
+	// Visits a typed input node
+	private visitTypedInputNode(node: SVisit<TypedInputNode>): TypedInput {
+		let parents = this.getParentOfNode(node.nodeId);
+		if (parents.length > 0) {
+			throw new Error(`TypedInputNode ${node.nodeId} should not have any parents.`);
 		}
+		return node.data.value;
+	}
 
-		const typeMap = {
-			[ConditionalLogicTypeEnum.IfEq]: IConditionalLogicTypeEnum.IfEq,
-			[ConditionalLogicTypeEnum.IfNeq]: IConditionalLogicTypeEnum.IfNeq,
-			[ConditionalLogicTypeEnum.IfGt]: IConditionalLogicTypeEnum.IfGt,
-			[ConditionalLogicTypeEnum.IfGte]: IConditionalLogicTypeEnum.IfGte,
-			[ConditionalLogicTypeEnum.IfLt]: IConditionalLogicTypeEnum.IfLt,
-			[ConditionalLogicTypeEnum.IfLte]: IConditionalLogicTypeEnum.IfLte
-		};
-
+	// Visits an and node
+	private visitAndNode(node: SVisit<AndNode>): TypedInput {
+		let parents = this.getParentOfNode(node.nodeId);
+		let operands: TypedInput[] = [];
+		for (const parent of parents) {
+			operands.push(this.visitNode(parent));
+		}
 		return {
-			type: IConditionalTypeEnum.LogicExpr,
-			condition: {
-				type: typeMap[data.condition.type],
-				left: this.visitTypedInput(data.condition.left),
-				right: this.visitTypedInput(data.condition.right)
-			},
-			next: data.next ? this.visitConditionalTypeContinuable(currentAst, data.next) : undefined
+			type: TypedInputEnum.LogicExpr,
+			condition: TypedInputLogicType.And,
+			operands
 		};
 	}
 
-	/**
-	 * Visits a ConditionalTypeParensBlock and returns its AST representation.
-	 * @param data The ConditionalTypeParensBlock to convert to AST.
-	 * @returns The AST representation of the ConditionalTypeParensBlock.
-	 */
-	private visitConditionalTypeParensBlock(
-		currentAst: CodeGenAST,
-		data: ConditionalTypeParensBlock
-	): IConditionalTypeParensBlock {
+	// Visits an or node
+	private visitOrNode(node: SVisit<OrNode>): TypedInput {
+		let parents = this.getParentOfNode(node.nodeId);
+		let operands: TypedInput[] = [];
+		for (const parent of parents) {
+			operands.push(this.visitNode(parent));
+		}
 		return {
-			type: IConditionalTypeEnum.ParensBlock,
-			condition: this.visitConditionalType(currentAst, data.condition),
-			next: data.next ? this.visitConditionalTypeContinuable(currentAst, data.next) : undefined
+			type: TypedInputEnum.LogicExpr,
+			condition: TypedInputLogicType.Or,
+			operands
 		};
 	}
 
-	/**
-	 * Visits a ConditionalTypeLiteral and returns its AST representation.
-	 * @param data The ConditionalTypeLiteral to convert to AST.
-	 * @returns The AST representation of the ConditionalTypeLiteral.
-	 */
-	private visitConditionalTypeLiteral(
-		currentAst: CodeGenAST,
-		data: ConditionalTypeLiteral
-	): IConditionalTypeLiteral {
+	// Visits a not node
+	private visitNotNode(node: SVisit<NotNode>): TypedInput {
+		let parents = this.getParentOfNode(node.nodeId);
+		if (parents.length !== 1) {
+			throw new Error(`NotNode ${node.nodeId} must have exactly one parent.`);
+		}
+		let operand = this.visitNode(parents[0]);
 		return {
-			type: IConditionalTypeEnum.Literal,
-			value: this.visitTypedInput(data.value),
-			next: data.next ? this.visitConditionalTypeContinuable(currentAst, data.next) : undefined
+			type: TypedInputEnum.Not,
+			value: operand
 		};
+	}
+
+	// Visits a parenthesis node
+	private visitParensNode(node: SVisit<ParensNode>): TypedInput {
+		let parents = this.getParentOfNode(node.nodeId);
+		if (parents.length !== 1) {
+			throw new Error(`ParensNode ${node.nodeId} must have exactly one parent.`);
+		}
+		let inner = this.visitNode(parents[0]);
+		return {
+			type: TypedInputEnum.Parens,
+			inner
+		};
+	}
+
+	// Visits the output node
+	private visitOutputNode(node: SVisit<OutputNode>): TypedInput {
+		let parents = this.getParentOfNode(node.nodeId);
+		if (parents.length !== 1) {
+			throw new Error(`OutputNode ${node.nodeId} must have exactly one parent.`);
+		}
+		return this.visitNode(parents[0]);
 	}
 }

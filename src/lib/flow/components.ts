@@ -9,6 +9,7 @@ import CustomCode from '@/components/flow/nodes/CustomCodeNode';
 import DeleteEdge from '@/components/flow/management/DeleteEdge';
 import Group from '@/components/flow/ui/Group';
 import SetVariable from '@/components/flow/nodes/SetVariable';
+import APINode from '@/components/flow/nodes/APINode';
 import { Command, CommandArgument, Library } from '@/components/flow/nodes/StartNode';
 
 export const nodeTypes = {
@@ -22,6 +23,7 @@ export const nodeTypes = {
 	for_loop: ForLoop,
 	while_loop: WhileLoop,
 	custom_code: CustomCode,
+	api_node: APINode,
 	group_x: Group
 };
 export const edgeTypes = {

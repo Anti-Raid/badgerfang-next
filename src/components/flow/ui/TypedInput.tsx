@@ -1,19 +1,26 @@
 import {
+	RelationalOperatorType,
 	stringToTypedInputEnum,
 	TypedInput,
 	TypedInputEnum,
+	typedInputEnumToString,
+	TypedInputLogicType,
 	TypedInputTableEntry
 } from '@/lib/flow/data';
 import { GripVertical, Icon, Trash2 } from 'lucide-react';
 import { BaseLabelAndDescription, InputField, Toggle } from './Inputs';
-import { motion, Reorder } from 'framer-motion';
 import { Primary } from '@/components/ui/Buttons';
-import logger from '@/lib/logger';
 import { Fragment } from 'react';
+import SubflowSection from './typedinputflow/SubflowSection';
 
 export const generateTypedInputId = () => {
 	return Math.random().toString(36).substring(2, 15);
 };
+
+interface DepthAndID {
+	depth: number;
+	id: string;
+}
 
 interface TypedInputProps {
 	label?: string;
@@ -23,6 +30,7 @@ interface TypedInputProps {
 	onChange: (data: TypedInput) => void;
 	className?: string;
 	id?: string;
+	depth?: number;
 	icon?: typeof Icon;
 	error?: string;
 	marginClass?: string;
@@ -33,33 +41,59 @@ interface TypedInputProps {
 const createValueWithType = (type: TypedInputEnum): TypedInput => {
 	switch (type) {
 		case TypedInputEnum.Nil:
-			return { type: TypedInputEnum.Nil, id: generateTypedInputId() };
+			return { type: TypedInputEnum.Nil };
 		case TypedInputEnum.String:
 			return {
 				type: TypedInputEnum.String,
 				value: '',
-				interpolated: false,
-				id: generateTypedInputId()
+				interpolated: false
 			};
 		case TypedInputEnum.Raw:
-			return { type: TypedInputEnum.Raw, value: '', id: generateTypedInputId() };
+			return { type: TypedInputEnum.Raw, value: '' };
 		case TypedInputEnum.Table:
-			return { type: TypedInputEnum.Table, value: [], inline: true, id: generateTypedInputId() };
+			return { type: TypedInputEnum.Table, value: [], inline: true };
 		case TypedInputEnum.TableArray:
 			return {
 				type: TypedInputEnum.TableArray,
 				value: [],
-				inline: true,
-				id: generateTypedInputId()
+				inline: true
 			};
 		case TypedInputEnum.Number:
-			return { type: TypedInputEnum.Number, value: 0, id: generateTypedInputId() };
+			return { type: TypedInputEnum.Number, value: 0 };
 		case TypedInputEnum.Boolean:
-			return { type: TypedInputEnum.Boolean, value: false, id: generateTypedInputId() };
+			return { type: TypedInputEnum.Boolean, value: false };
 		case TypedInputEnum.Vector:
-			return { type: TypedInputEnum.Vector, x: 0, y: 0, z: 0, id: generateTypedInputId() };
+			return { type: TypedInputEnum.Vector, x: 0, y: 0, z: 0 };
+		case TypedInputEnum.ComplexSubflow:
+			return {
+				type: TypedInputEnum.ComplexSubflow,
+				flow: {
+					nodes: [],
+					edges: []
+				}
+			};
+		case TypedInputEnum.RelationalExpr:
+			return {
+				type: TypedInputEnum.RelationalExpr,
+				lvalue: { type: TypedInputEnum.Nil },
+				operator: RelationalOperatorType.Eq,
+				rvalue: { type: TypedInputEnum.Nil }
+			}; // not supported in 'simple' UI outside ComplexSubflow
+		case TypedInputEnum.Parens:
+			return {
+				type: TypedInputEnum.Parens,
+				inner: { type: TypedInputEnum.Nil }
+			}; // not supported in 'simple' UI outside ComplexSubflow
+		case TypedInputEnum.LogicExpr:
+			return {
+				type: TypedInputEnum.LogicExpr,
+				condition: TypedInputLogicType.And,
+				operands: [{ type: TypedInputEnum.Nil }]
+			}; // not supported in 'simple' UI outside ComplexSubflow
+		case TypedInputEnum.Vector:
+			return { type: TypedInputEnum.Vector, x: 0, y: 0, z: 0 };
 		default:
-			return { type: TypedInputEnum.Nil, id: generateTypedInputId() };
+			return { type: TypedInputEnum.Nil };
 	}
 };
 
@@ -81,6 +115,14 @@ const valueToString = (value: TypedInput): string => {
 			return '{ ... }';
 		case TypedInputEnum.TableArray:
 			return '[ ... ]';
+		case TypedInputEnum.ComplexSubflow:
+			return '<Complex Expression / Conditionals>';
+		case TypedInputEnum.RelationalExpr:
+			return '<Relational Expression>';
+		case TypedInputEnum.Parens:
+			return '( ... )';
+		case TypedInputEnum.LogicExpr:
+			return '<Logical Expression>';
 		default:
 			return 'unknown';
 	}
@@ -95,16 +137,15 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 	onChange,
 	className = '',
 	id: idT,
+	depth = 0,
 	marginClass = 'mb-1',
 	error,
 	isArray
 }) => {
-	const inputId = idT || value.id || label?.toLowerCase().replace(/\s+/g, '-');
-
+	const id = `${idT ?? 'tif'}_f${depth}`;
 	return (
 		<>
 			<BaseLabelAndDescription
-				id={`${inputId}-type`}
 				label={label}
 				description={description}
 				className={isArray ? 'border-4 border-primary' : className}
@@ -114,7 +155,7 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 					<InputField
 						type="select"
 						label="Type"
-						value={value.type}
+						value={typedInputEnumToString(value.type)}
 						disabled={disabled}
 						hideSelectOptionsPlaceholder={true}
 						onChange={(e) => {
@@ -124,32 +165,49 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 							onChange(createValueWithType(newType));
 						}}
 						options={[
-							{ value: TypedInputEnum.Nil, label: 'Nil / Null / None' },
-							{ value: TypedInputEnum.String, label: 'String' },
-							{ value: TypedInputEnum.Number, label: 'Number' },
-							{ value: TypedInputEnum.Table, label: 'Table' },
-							{ value: TypedInputEnum.TableArray, label: 'Array' },
-							{ value: TypedInputEnum.Boolean, label: 'Boolean' },
-							{ value: TypedInputEnum.Vector, label: 'Vector' },
-							{ value: TypedInputEnum.Raw, label: 'Raw (Lua code snippet)' }
+							{ value: typedInputEnumToString(TypedInputEnum.ComplexSubflow), label: 'Complex Expression / Conditionals' },
+							{ value: typedInputEnumToString(TypedInputEnum.Nil), label: 'Nil / Null / None' },
+							{ value: typedInputEnumToString(TypedInputEnum.String), label: 'String' },
+							{ value: typedInputEnumToString(TypedInputEnum.Number), label: 'Number' },
+							{ value: typedInputEnumToString(TypedInputEnum.Table), label: 'Table' },
+							{ value: typedInputEnumToString(TypedInputEnum.TableArray), label: 'Array' },
+							{ value: typedInputEnumToString(TypedInputEnum.Boolean), label: 'Boolean' },
+							{ value: typedInputEnumToString(TypedInputEnum.Vector), label: 'Vector' },
+							{ value: typedInputEnumToString(TypedInputEnum.Raw), label: 'Raw (Lua code snippet)' }
 						]}
-						id={`${inputId}-type`}
+						id={`${id}-type`}
 						aria-label={`${label ? label + ' Type' : 'Type'}`}
-						aria-describedby={description ? `${inputId}-desc` : undefined}
-						aria-labelledby={`${inputId}-label`}
+						aria-describedby={description ? `${id}-desc` : undefined}
+						aria-labelledby={`${id}-label`}
 					/>
+
+					{value.type === TypedInputEnum.ComplexSubflow && (
+						<>
+							<SubflowSection
+								id={`typed-input-subflow-${id}`}
+								flowData={value.flow}
+								onChange={(newFlowData) => {
+									if (disabled) return;
+									onChange({
+										type: value.type,
+										flow: newFlowData
+									});
+								}}
+							/>							
+						</>
+					)}
 
 					{value.type === TypedInputEnum.Table && (
 						<>
 							<TableInput
+								did={{ depth, id }}
 								value={value.value}
 								onChange={(newArray) => {
 									if (disabled) return;
 									onChange({
 										type: value.type,
 										value: newArray,
-										inline: value.inline,
-										id: value.id
+										inline: value.inline
 									});
 								}}
 								disabled={disabled}
@@ -169,11 +227,10 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 									onChange({
 										type: value.type,
 										value: e.target.value,
-										interpolated: value.interpolated,
-										id: value.id
+										interpolated: value.interpolated
 									});
 								}}
-								id={`${inputId}-value`}
+								id={`${id}-value`}
 								aria-required="true"
 							/>
 						</>
@@ -188,9 +245,9 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 								type="text"
 								onChange={(e) => {
 									if (disabled) return;
-									onChange({ type: value.type, value: e.target.value, id: value.id });
+									onChange({ type: value.type, value: e.target.value });
 								}}
-								id={`${inputId}-value`}
+								id={`${id}-value`}
 								aria-required="true"
 							/>
 						</>
@@ -211,9 +268,9 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 										return;
 									}
 
-									onChange({ type: value.type, value: numberValue, id: value.id });
+									onChange({ type: value.type, value: numberValue });
 								}}
-								id={`${inputId}-value`}
+								id={`${id}-value`}
 								aria-required="true"
 							/>
 						</>
@@ -227,7 +284,7 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 								disabled={disabled}
 								onChange={() => {
 									if (disabled) return;
-									onChange({ type: value.type, value: !value.value, id: value.id });
+									onChange({ type: value.type, value: !value.value });
 								}}
 								aria-required="true"
 							/>
@@ -254,11 +311,10 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 											type: value.type,
 											x: numberValue,
 											y: value.y,
-											z: value.z,
-											id: value.id
+											z: value.z
 										});
 									}}
-									id={`${inputId}-x`}
+									id={`${id}-x`}
 									aria-required="true"
 									small={true}
 								/>
@@ -280,11 +336,10 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 											type: value.type,
 											x: value.x,
 											y: numberValue,
-											z: value.z,
-											id: value.id
+											z: value.z
 										});
 									}}
-									id={`${inputId}-y`}
+									id={`${id}-y`}
 									aria-required="true"
 									small={true}
 								/>
@@ -306,11 +361,10 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 											type: value.type,
 											x: value.x,
 											y: value.y,
-											z: numberValue,
-											id: value.id
+											z: numberValue
 										});
 									}}
-									id={`${inputId}-z`}
+									id={`${id}-z`}
 									aria-required="true"
 									small={true}
 								/>
@@ -322,12 +376,12 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 						<>
 							<ArrayTableInput
 								value={value.value}
+								did={{ depth, id }}
 								onChange={(newArray) => {
 									onChange({
 										type: value.type,
 										value: newArray,
-										inline: value.inline,
-										id: value.id
+										inline: value.inline
 									});
 								}}
 								disabled={disabled}
@@ -343,8 +397,7 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 									onChange({
 										type: value.type,
 										value: value.value,
-										inline: !value.inline,
-										id: value.id
+										inline: !value.inline
 									});
 								}}
 								aria-required="true"
@@ -364,12 +417,13 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 };
 
 interface ArrayTableInputProps {
+	did: DepthAndID;
 	value: TypedInput[];
 	onChange: (data: TypedInput[]) => void;
 	disabled?: boolean;
 }
 
-const ArrayTableInput: React.FC<ArrayTableInputProps> = ({ value, onChange, disabled }) => {
+const ArrayTableInput: React.FC<ArrayTableInputProps> = ({ did, value, onChange, disabled }) => {
 	return (
 		<>
 			{disabled ? (
@@ -378,6 +432,8 @@ const ArrayTableInput: React.FC<ArrayTableInputProps> = ({ value, onChange, disa
 						return (
 							<TypedInputField
 								key={i}
+								depth={did.depth + 1}
+								id={`${did.id}_${i}e`}
 								label={`Item ${i + 1} (${valueToString(v)})`}
 								value={v}
 								onChange={(_newVal) => {}}
@@ -388,53 +444,46 @@ const ArrayTableInput: React.FC<ArrayTableInputProps> = ({ value, onChange, disa
 				</div>
 			) : (
 				<>
-					<Reorder.Group
-						axis="y"
-						values={value}
-						onReorder={(newValues) => {
-							logger.debug('TypedInput', 'Reordering array table input:', newValues);
-							onChange(newValues);
-						}}
-					>
-						{value.map((v, i) => (
-							<Reorder.Item key={v.id} value={v}>
-								<div className="border border-border hover:border-primary/20 rounded-lg p-4 transition-all shadow-sm">
-									<div className="flex items-center gap-3">
-										<GripVertical className="w-5 h-5 text-muted-foreground cursor-grab active:cursor-grabbing" />
-										<span className="font-medium text-foreground">
-											Element {i + 1} ({valueToString(v)})
-										</span>
-										<div className="ml-auto flex items-center gap-2">
-											<button
-												className="p-1 rounded-md hover:bg-accent/50 transition-colors"
-												onClick={() => {
-													let newArray = [...value];
-													newArray.splice(i, 1);
-													onChange(newArray);
-												}}
-												aria-label="Delete entry"
-											>
-												<Trash2 className="w-4 h-4 text-muted-foreground" />
-											</button>
-										</div>
-									</div>
-
-									<div className="p-4">
-										<TypedInputField
-											label={`Item ${i + 1}`}
-											value={v}
-											onChange={(newVal) => {
-												let newArray = [...value];
-												newArray[i] = newVal;
-												onChange(newArray);
-											}}
-											disabled={disabled}
-										/>
-									</div>
+					{value.map((v, i) => (
+						<div
+							key={i}
+							className="border border-border hover:border-primary/20 rounded-lg p-4 transition-all shadow-sm"
+						>
+							<div className="flex items-center gap-3">
+								<span className="font-medium text-foreground">
+									Element {i + 1} ({valueToString(v)})
+								</span>
+								<div className="ml-auto flex items-center gap-2">
+									<button
+										className="p-1 rounded-md hover:bg-accent/50 transition-colors"
+										onClick={() => {
+											let newArray = [...value];
+											newArray.splice(i, 1);
+											onChange(newArray);
+										}}
+										aria-label="Delete entry"
+									>
+										<Trash2 className="w-4 h-4 text-muted-foreground" />
+									</button>
 								</div>
-							</Reorder.Item>
-						))}
-					</Reorder.Group>
+							</div>
+
+							<div className="p-4">
+								<TypedInputField
+									label={`Item ${i + 1}`}
+									value={v}
+									depth={did.depth + 1}
+									id={`${did.id}_${i}e`}
+									onChange={(newVal) => {
+										let newArray = [...value];
+										newArray[i] = newVal;
+										onChange(newArray);
+									}}
+									disabled={disabled}
+								/>
+							</div>
+						</div>
+					))}
 				</>
 			)}
 
@@ -444,7 +493,7 @@ const ArrayTableInput: React.FC<ArrayTableInputProps> = ({ value, onChange, disa
 						Title="Add Element"
 						onClick={() => {
 							let newArray = [...value];
-							newArray.push({ type: TypedInputEnum.Nil, id: generateTypedInputId() });
+							newArray.push({ type: TypedInputEnum.Nil });
 							onChange(newArray);
 						}}
 					/>
@@ -456,12 +505,13 @@ const ArrayTableInput: React.FC<ArrayTableInputProps> = ({ value, onChange, disa
 };
 
 interface TableInputProps {
+	did: DepthAndID;
 	value: TypedInputTableEntry[];
 	onChange: (data: TypedInputTableEntry[]) => void;
 	disabled?: boolean;
 }
 
-const TableInput: React.FC<TableInputProps> = ({ value, onChange, disabled }) => {
+const TableInput: React.FC<TableInputProps> = ({ did, value, onChange, disabled }) => {
 	return (
 		<>
 			{disabled ? (
@@ -470,6 +520,9 @@ const TableInput: React.FC<TableInputProps> = ({ value, onChange, disabled }) =>
 						return (
 							<Fragment key={i}>
 								<TypedInputField
+									key={i}
+									depth={did.depth + 1}
+									id={`${did.id}_${i}k`}
 									label={`Item ${i + 1} (${valueToString(v.key)}) Key`}
 									value={v.key}
 									onChange={(_newVal) => {}}
@@ -478,6 +531,8 @@ const TableInput: React.FC<TableInputProps> = ({ value, onChange, disabled }) =>
 
 								<TypedInputField
 									key={i}
+									depth={did.depth + 1}
+									id={`${did.id}_${i}v`}
 									label={`Item ${i + 1} (${valueToString(v.value)}) Value`}
 									value={v.value}
 									onChange={(_newVal) => {}}
@@ -489,67 +544,62 @@ const TableInput: React.FC<TableInputProps> = ({ value, onChange, disabled }) =>
 				</div>
 			) : (
 				<>
-					<Reorder.Group
-						axis="y"
-						values={value}
-						onReorder={(newValues) => {
-							logger.debug('TypedInput', 'Reordering array table input:', newValues);
-							onChange(newValues);
-						}}
-					>
-						{value.map((v, i) => (
-							<Reorder.Item key={v.key.id} value={v}>
-								<div className="border border-border hover:border-primary/20 rounded-lg p-4 transition-all shadow-sm">
-									<div className="flex items-center gap-3">
-										<GripVertical className="w-5 h-5 text-muted-foreground cursor-grab active:cursor-grabbing" />
-										<span className="font-medium text-foreground">
-											Element {i + 1} ({valueToString(v.key)} = {valueToString(v.value)})
-										</span>
-										<div className="ml-auto flex items-center gap-2">
-											<button
-												className="p-1 rounded-md hover:bg-accent/50 transition-colors"
-												onClick={() => {
-													let newArray = [...value];
-													newArray.splice(i, 1);
-													onChange(newArray);
-												}}
-												aria-label="Delete entry"
-											>
-												<Trash2 className="w-4 h-4 text-muted-foreground" />
-											</button>
-										</div>
-									</div>
-
-									<div className="p-4">
-										<div>
-											<TypedInputField
-												label={`Item ${i + 1} Key`}
-												value={v.key}
-												onChange={(newVal) => {
-													let newArray = [...value];
-													newArray[i].key = newVal;
-													onChange(newArray);
-												}}
-												disabled={disabled}
-											/>
-										</div>
-										<div>
-											<TypedInputField
-												label={`Item ${i + 1} Value`}
-												value={v.value}
-												onChange={(newVal) => {
-													let newArray = [...value];
-													newArray[i].value = newVal;
-													onChange(newArray);
-												}}
-												disabled={disabled}
-											/>
-										</div>
-									</div>
+					{value.map((v, i) => (
+						<div
+							key={i}
+							className="border border-border hover:border-primary/20 rounded-lg p-4 transition-all shadow-sm"
+						>
+							<div className="flex items-center gap-3">
+								<span className="font-medium text-foreground">
+									Element {i + 1} ({valueToString(v.key)} = {valueToString(v.value)})
+								</span>
+								<div className="ml-auto flex items-center gap-2">
+									<button
+										className="p-1 rounded-md hover:bg-accent/50 transition-colors"
+										onClick={() => {
+											let newArray = [...value];
+											newArray.splice(i, 1);
+											onChange(newArray);
+										}}
+										aria-label="Delete entry"
+									>
+										<Trash2 className="w-4 h-4 text-muted-foreground" />
+									</button>
 								</div>
-							</Reorder.Item>
-						))}
-					</Reorder.Group>
+							</div>
+
+							<div className="p-4">
+								<div>
+									<TypedInputField
+										label={`Item ${i + 1} Key`}
+										depth={did.depth + 1}
+										id={`${did.id}_${i}k`}
+										value={v.key}
+										onChange={(newVal) => {
+											let newArray = [...value];
+											newArray[i].key = newVal;
+											onChange(newArray);
+										}}
+										disabled={disabled}
+									/>
+								</div>
+								<div>
+									<TypedInputField
+										label={`Item ${i + 1} Value`}
+										depth={did.depth + 1}
+										id={`${did.id}_${i}v`}
+										value={v.value}
+										onChange={(newVal) => {
+											let newArray = [...value];
+											newArray[i].value = newVal;
+											onChange(newArray);
+										}}
+										disabled={disabled}
+									/>
+								</div>
+							</div>
+						</div>
+					))}
 				</>
 			)}
 
@@ -559,9 +609,9 @@ const TableInput: React.FC<TableInputProps> = ({ value, onChange, disabled }) =>
 						Title="Add Element"
 						onClick={() => {
 							let newArray = [...value];
-							let key = { type: TypedInputEnum.Nil, id: generateTypedInputId() };
-							let valueL = { type: TypedInputEnum.Nil, id: generateTypedInputId() };
-							newArray.push({ key: key as TypedInput, value: valueL as TypedInput });
+							let key: TypedInput = { type: TypedInputEnum.Nil };
+							let valueL: TypedInput = { type: TypedInputEnum.Nil };
+							newArray.push({ key: key, value: valueL });
 							onChange(newArray);
 						}}
 					/>

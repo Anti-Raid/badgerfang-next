@@ -24,7 +24,7 @@ export const BaseLabelAndDescription: React.FC<BaseLabelAndDescriptionProps> = (
 			{label && (
 				<label
 					className="block text-foreground font-medium mb-1.5 text-sm"
-					id={`${id}-label`}
+					id={id ?? `${id}-label`}
 					htmlFor={id}
 				>
 					{label}
@@ -32,7 +32,7 @@ export const BaseLabelAndDescription: React.FC<BaseLabelAndDescriptionProps> = (
 			)}
 
 			{description && (
-				<p className="text-sm text-muted-foreground" id={`${id}-desc`}>
+				<p className="text-sm text-muted-foreground" id={id ?? `${id}-desc`}>
 					{description}
 				</p>
 			)}
