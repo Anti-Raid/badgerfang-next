@@ -333,9 +333,6 @@ const FlowExpandedModal: React.FC<FlowExpandedProps> = ({
 	return (
 		<>
 			{createPortal(modal, document.body)}
-	return (
-		<>
-			{createPortal(modal, document.body)}
 
 			<div className="flex justify-center mt-3">
 				<button
