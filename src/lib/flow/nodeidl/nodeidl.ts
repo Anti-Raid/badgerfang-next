@@ -45,5 +45,5 @@ export interface Node {
 	shortname: string;
 	description: string;
 	flowui: FlowUI;
-	generate: () => Promise<IDLAst>; // TODO: Fix this tommorrow by defining IDLAst
+	generate: () => Promise<any>; // TODO: Fix this tommorrow by defining IDLAst
 }
