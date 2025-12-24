@@ -178,23 +178,23 @@ const NavBar: React.FC = () => {
 								<Link
 									key={item.name}
 									href={item.href}
-									className="flex items-center px-4 py-2 text-sm lg:inline text-foreground hover:bg-accent transition-colors"
+									className="flex items-center w-full px-4 py-2 text-sm text-foreground hover:bg-accent transition-colors"
 									onClick={() => {
 										setIsProfileOpen(false);
 										setIsMobileMenuOpen(false);
 									}}
 								>
-									<item.icon className="mr-3 h-5 w-5 text-muted-foreground" />
-									{item.name}
+									<item.icon className="mr-3 h-5 w-5 text-muted-foreground flex-shrink-0" />
+									<span>{item.name}</span>
 								</Link>
 							) : (
 								<button
 									key={item.name}
 									onClick={item.onClick}
-									className="w-full text-left flex items-center lg:inline px-4 py-2 text-sm text-foreground hover:bg-accent transition-colors"
+									className="w-full flex items-center px-4 py-2 text-sm text-foreground hover:bg-accent transition-colors text-left"
 								>
-									<item.icon className="mr-3 h-5 w-5 text-muted-foreground" />
-									{item.name}
+									<item.icon className="mr-3 h-5 w-5 text-muted-foreground flex-shrink-0" />
+									<span>{item.name}</span>
 								</button>
 							)
 						)}
