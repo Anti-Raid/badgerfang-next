@@ -10,8 +10,22 @@ interface Theme {
 	label: string;
 }
 
-const ThemeSelector: React.FC = () => {
-	const [isOpen, setIsOpen] = useState(false);
+interface ThemeSelectorProps {
+	isOpen?: boolean;
+	onOpenChange?: (open: boolean) => void;
+}
+
+const ThemeSelector: React.FC<ThemeSelectorProps> = ({ isOpen: controlledIsOpen, onOpenChange }) => {
+	const [internalIsOpen, setInternalIsOpen] = useState(false);
+	const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen;
+	const setIsOpen = (value: boolean) => {
+		if (onOpenChange) {
+			onOpenChange(value);
+		} else {
+			setInternalIsOpen(value);
+		}
+	};
+
 	const [mounted, setMounted] = useState(false);
 	const { theme, setTheme } = useTheme();
 	const dropdownRef = useRef<HTMLDivElement>(null);
