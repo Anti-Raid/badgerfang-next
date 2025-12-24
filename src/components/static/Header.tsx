@@ -56,6 +56,7 @@ const NavBar: React.FC = () => {
 	const router = useRouter();
 
 	const themeRef = useRef<HTMLDivElement>(null);
+	const desktopThemeRef = useRef<HTMLDivElement>(null);
 	const profileRef = useRef<HTMLDivElement>(null);
 
 	const { authData } = useAuthCheck();
@@ -68,12 +69,12 @@ const NavBar: React.FC = () => {
 
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
-			if (
-				themeRef.current &&
-				!themeRef.current.contains(event.target as Node) &&
-				profileRef.current &&
-				!profileRef.current.contains(event.target as Node)
-			) {
+			const target = event.target as Node;
+			const isOutsideTheme = (!themeRef.current || !themeRef.current.contains(target)) && 
+			                       (!desktopThemeRef.current || !desktopThemeRef.current.contains(target));
+			const isOutsideProfile = !profileRef.current || !profileRef.current.contains(target);
+
+			if (isOutsideTheme && isOutsideProfile) {
 				setIsThemeOpen(false);
 				setIsProfileOpen(false);
 			}
@@ -236,8 +237,16 @@ const NavBar: React.FC = () => {
 								<Menu className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground" />
 							)}
 						</button>
-						<div className="relative">
-							<ThemeSelector />
+						<div className="relative" ref={themeRef}>
+							<ThemeSelector
+								isOpen={isThemeOpen}
+								onOpenChange={(open) => {
+									if (open) {
+										setIsProfileOpen(false);
+									}
+									setIsThemeOpen(open);
+								}}
+							/>
 						</div>
 						<div className="relative">
 							{userData ? (
@@ -327,8 +336,16 @@ const NavBar: React.FC = () => {
 					{/* Action Buttons */}
 					<div className="hidden md:flex items-center space-x-2 lg:space-x-4">
 						{/* Theme Switcher */}
-						<div className="relative">
-							<ThemeSelector />
+						<div className="relative" ref={desktopThemeRef}>
+							<ThemeSelector
+								isOpen={isThemeOpen}
+								onOpenChange={(open) => {
+									if (open) {
+										setIsProfileOpen(false);
+									}
+									setIsThemeOpen(open);
+								}}
+							/>
 						</div>
 
 						{/* Profile/Login Section */}
