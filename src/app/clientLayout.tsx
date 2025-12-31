@@ -8,6 +8,7 @@ import { ThemeProvider } from '@/components/ui/ThemeProvider';
 import ToastProvider from '@/components/ui/ToastProvider';
 import { SWRConfig } from 'swr';
 import { FFlagProvider } from '@/components/ui/FFlagProvider';
+import Snowfall from '@/components/effects/Snowfall';
 
 /**
  * Renders a client-side layout for protected pages, showing a loading spinner on the home route before displaying the main content.
@@ -37,6 +38,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 							<Loading onClose={() => setIsLoading(false)} />
 						) : (
 							<>
+								<Snowfall />
 								<Header />
 								<article className="min-h-screen flex-col justify-between overflow-x-hidden">
 									<main className="mt-9 p-1 w-full md:max-w-7xl mx-auto h-full min-h-screen">
