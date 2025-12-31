@@ -135,7 +135,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ isOpen: controlledIsOpen,
 						animate={{ opacity: 1, scale: 1, y: 0 }}
 						exit={{ opacity: 0, scale: 0.95, y: 10 }}
 						transition={{ duration: 0.15 }}
-						className="absolute right-0 mt-2 p-3 rounded-lg shadow-xl bg-card border border-border w-72 z-50 backdrop-blur-sm"
+						className="absolute right-0 mt-2 p-3 rounded-xl shadow-2xl glass w-72 z-50 overflow-hidden"
 					>
 						<div className="mb-2 pb-2 border-b border-border">
 							<h3 className="text-sm font-medium text-foreground">Select Theme</h3>

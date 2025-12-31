@@ -12,7 +12,7 @@ import { GetStatusResponse } from '@/types/api/bindings/GetStatusResponse';
 const ServerIcons = () => {
 	const servers = [
 		{ name: 'Purrquinox', icon: 'https://purrquinox.com/_next/image?url=%2Flogo.png&w=32&q=75' },
-		{ name: 'Server 2', icon: null },
+		{ name: 'ByteBrush Studios', icon: 'https://bytebrush.dev/logo.png' },
 		{ name: 'Server 3', icon: null },
 		{ name: 'Server 4', icon: null }
 	];
@@ -32,7 +32,7 @@ const ServerIcons = () => {
 			{servers.map((server, index) => (
 				<div
 					key={index}
-					className="w-16 h-16 bg-card rounded-2xl flex items-center justify-center border border-primary/20 shadow-lg shadow-primary/10 backdrop-blur-md overflow-hidden group relative"
+					className="w-16 h-16 bg-card rounded-2xl flex items-center justify-center border border-primary/20 shadow-lg shadow-primary/10 backdrop-blur-md group relative"
 				>
 					{server.icon ? (
 						<img src={server.icon} alt={server.name} className="w-8 h-8" />
@@ -40,7 +40,7 @@ const ServerIcons = () => {
 						<FallbackSVG />
 					)}
 					<div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-accent/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-					<div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white font-bold">
+					<div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-max px-2 py-1 bg-popover text-popover-foreground text-xs rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-50 glass">
 						{server.name}
 					</div>
 				</div>
@@ -116,23 +116,6 @@ const Hero = () => {
 		<>
 			<section className="relative overflow-hidden bg-gradient-to-b from-background to-background/95 pt-10 pb-0">
 				{/* Animated background elements */}
-				<div className="absolute inset-0 overflow-hidden">
-					<div
-						className="absolute top-0 left-1/4 w-[500px] h-[500px] rounded-full bg-primary/5 blur-[120px] animate-pulse"
-						style={{ animationDuration: '8s' }}
-					></div>
-					<div
-						className="absolute bottom-0 right-1/4 w-[400px] h-[400px] rounded-full bg-accent/5 blur-[100px] animate-pulse"
-						style={{ animationDuration: '10s' }}
-					></div>
-					<div
-						className="absolute top-1/3 right-1/3 w-[300px] h-[300px] rounded-full bg-primary/10 blur-[80px] animate-pulse"
-						style={{ animationDuration: '12s' }}
-					></div>
-
-					{/* Grid overlay */}
-					<div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0wIDBoNjB2NjBIMHoiLz48cGF0aCBkPSJNNjAgMEgwdjYwaDYwVjB6TTU5IDFIMXY1OGg1OFYxeiIgZmlsbD0iIzI3MjUzRiIgZmlsbC1vcGFjaXR5PSIuMDUiLz48cGF0aCBkPSJNNjAgMEgwdjYwaDYwVjB6TTU5IDFIMXY1OGg1OFYxeiIgc3Ryb2tlPSIjMjcyNTNGIiBzdHJva2Utb3BhY2l0eT0iLjAyIi8+PC9nPjwvc3ZnPg==')] opacity-30"></div>
-				</div>
 
 				<main className="container mx-auto px-4 py-16 relative z-10" ref={heroRef}>
 					<motion.div
@@ -159,9 +142,9 @@ const Hero = () => {
 								className="text-5xl md:text-7xl font-bold tracking-tight text-foreground mb-6 font-monster"
 							>
 								Protect Your Discord Server with{' '}
-								<span className="relative">
-									<span className="absolute -inset-1 blur-md bg-gradient-to-r from-primary to-accent opacity-30 rounded-lg"></span>
-									<span className="relative bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-lora italic">
+								<span className="relative inline-block">
+									<span className="absolute -inset-1 blur-2xl bg-gradient-to-r from-primary to-accent opacity-50 rounded-lg animate-pulse"></span>
+									<span className="relative bg-gradient-to-r from-primary via-purple-500 to-accent bg-clip-text text-transparent font-lora italic drop-shadow-[0_0_15px_rgba(var(--primary),0.5)]">
 										AntiRaid
 									</span>
 								</span>
