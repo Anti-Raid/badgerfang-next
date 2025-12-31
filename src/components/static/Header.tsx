@@ -302,13 +302,23 @@ const NavBar: React.FC = () => {
 					</div>
 
 					{/* Mobile Menu */}
-					<AnimatePresence>
-						{isMobileMenuOpen && (
+				<AnimatePresence>
+					{isMobileMenuOpen && (
+						<>
+							{/* Backdrop overlay */}
+							<motion.div
+								initial={{ opacity: 0 }}
+								animate={{ opacity: 1 }}
+								exit={{ opacity: 0 }}
+								className="md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[90]"
+								onClick={() => setIsMobileMenuOpen(false)}
+							/>
+							{/* Mobile menu */}
 							<motion.div
 								initial={{ opacity: 0, y: -10 }}
 								animate={{ opacity: 1, y: 0 }}
 								exit={{ opacity: 0, y: -10 }}
-								className="md:hidden absolute top-full left-0 w-full glass rounded-b-2xl shadow-2xl z-50 overflow-hidden border-t border-white/5"
+								className="md:hidden absolute top-full left-0 w-full glass rounded-b-2xl shadow-2xl z-[100] overflow-hidden border-t border-white/5"
 							>
 								<div className="py-1">
 									{NavItems
@@ -331,8 +341,9 @@ const NavBar: React.FC = () => {
 									))}
 								</div>
 							</motion.div>
-						)}
-					</AnimatePresence>
+						</>
+					)}
+				</AnimatePresence>
 
 
 					{/* Action Buttons */}
