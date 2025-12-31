@@ -42,7 +42,6 @@ const NavItems: NavItem[] = [
 	{ name: 'Invite', href: '/invite', icon: Plus },
 	{ name: 'Script Shop', href: '/script/shop', icon: ShoppingCart, needsFFlag: FFlag.Header_ScriptShopVisible },
 	{ name: 'Commands', href: '/commands', icon: Terminal },
-	{ name: 'Forums', href: '/forums', icon: MessageCircle, needsFFlag: FFlag.Header_ForumVisible }
 ];
 
 const NavBar: React.FC = () => {
@@ -154,7 +153,7 @@ const NavBar: React.FC = () => {
 					initial={{ opacity: 0, y: -10 }}
 					animate={{ opacity: 1, y: 0 }}
 					exit={{ opacity: 0, y: -10 }}
-					className="absolute right-0 top-full mt-2 w-64 bg-card rounded-lg shadow-xl ring-1 ring-border z-50"
+					className="absolute right-0 top-full mt-2 w-64 glass rounded-xl shadow-2xl z-50 overflow-hidden ring-1 ring-white/10"
 					ref={profileRef}
 				>
 					<div className="py-1">
@@ -205,8 +204,10 @@ const NavBar: React.FC = () => {
 		</AnimatePresence>
 	);
 
+
 	return (
-		<header className="sticky top-0 z-50 backdrop-blur-md shadow-sm bg-background/75">
+		<header className="sticky top-0 z-50 backdrop-blur-[12px] shadow-sm bg-background/40 border-b border-white/5 transition-all duration-300">
+
 			<div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
 				<nav className="flex items-center justify-between h-14 sm:h-16">
 					{/* Logo Section */}
@@ -287,8 +288,8 @@ const NavBar: React.FC = () => {
                   flex items-center px-2 lg:px-3 py-2 rounded-md text-xs lg:text-sm font-medium transition-colors duration-200
                   ${
 										currentPath === item.href
-											? 'bg-primary/10 text-primary'
-											: 'text-muted-foreground hover:bg-accent'
+											? 'bg-primary/10 text-primary shadow-[0_0_15px_rgba(var(--primary),0.3)]'
+											: 'text-muted-foreground hover:bg-white/5 hover:text-foreground'
 									}
                 `}
 							>
@@ -301,13 +302,23 @@ const NavBar: React.FC = () => {
 					</div>
 
 					{/* Mobile Menu */}
-					<AnimatePresence>
-						{isMobileMenuOpen && (
+				<AnimatePresence>
+					{isMobileMenuOpen && (
+						<>
+							{/* Backdrop overlay */}
+							<motion.div
+								initial={{ opacity: 0 }}
+								animate={{ opacity: 1 }}
+								exit={{ opacity: 0 }}
+								className="md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[90]"
+								onClick={() => setIsMobileMenuOpen(false)}
+							/>
+							{/* Mobile menu */}
 							<motion.div
 								initial={{ opacity: 0, y: -10 }}
 								animate={{ opacity: 1, y: 0 }}
 								exit={{ opacity: 0, y: -10 }}
-								className="md:hidden absolute top-full left-0 w-full bg-card rounded-lg shadow-xl ring-1 ring-border z-50"
+								className="md:hidden absolute top-full left-0 w-full glass rounded-b-2xl shadow-2xl z-[100] overflow-hidden border-t border-white/5"
 							>
 								<div className="py-1">
 									{NavItems
@@ -330,8 +341,10 @@ const NavBar: React.FC = () => {
 									))}
 								</div>
 							</motion.div>
-						)}
-					</AnimatePresence>
+						</>
+					)}
+				</AnimatePresence>
+
 
 					{/* Action Buttons */}
 					<div className="hidden md:flex items-center space-x-2 lg:space-x-4">

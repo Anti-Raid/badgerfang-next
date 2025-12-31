@@ -114,24 +114,36 @@ const AllServers: React.FC = () => {
 			{/* Tab Navigation */}
 			<div className="flex mb-8 border-b border-border/50 relative">
 				<button
-					className={`px-6 py-3 font-medium text-lg transition-all duration-300 ${
+					className={`px-6 py-3 font-medium text-lg transition-all duration-300 relative ${
 						activeTab === 'managed'
-							? 'text-primary border-b-2 border-primary'
+							? 'text-primary'
 							: 'text-muted-foreground hover:text-foreground'
 					}`}
 					onClick={() => setActiveTab('managed')}
 				>
 					Managed Servers ({managedServers.length})
+					{activeTab === 'managed' && (
+						<div 
+							className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-extra"
+							style={{ animation: 'slideInFromRight 0.3s ease-out' }}
+						/>
+					)}
 				</button>
 				<button
-					className={`px-6 py-3 font-medium text-lg transition-all duration-300 ${
+					className={`px-6 py-3 font-medium text-lg transition-all duration-300 relative ${
 						activeTab === 'yours'
-							? 'text-primary border-b-2 border-primary'
+							? 'text-primary'
 							: 'text-muted-foreground hover:text-foreground'
 					}`}
 					onClick={() => setActiveTab('yours')}
 				>
 					Your Servers ({yourServers.length})
+					{activeTab === 'yours' && (
+						<div 
+							className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-extra"
+							style={{ animation: 'slideInFromRight 0.3s ease-out' }}
+						/>
+					)}
 				</button>
 				<div className="absolute bottom-0 w-full h-px bg-gradient-to-r from-primary/10 via-primary/30 to-primary/10"></div>
 			</div>
