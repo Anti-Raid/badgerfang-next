@@ -30,9 +30,10 @@ export const Section: React.FC<SectionProps> = ({
 		>
 			<div className="mb-3">
 				<h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-					{React.cloneElement(icon as React.ReactElement, {
-						className: 'w-5 h-5 text-primary'
-					})}
+					{React.isValidElement(icon) &&
+						React.cloneElement(icon as React.ReactElement<{ className?: string }>, {
+							className: 'w-5 h-5 text-primary'
+						})}
 					{title}
 				</h2>
 				<p className="text-sm text-muted-foreground mt-1">{description}</p>
