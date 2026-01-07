@@ -31,7 +31,7 @@ const categories: Category[] = [
 		items: [
 			{ name: 'Features', href: '/#features' },
 			{ name: 'Script Shop', href: '/script/shop' },
-			{ name: 'Status', href: 'https://status.purrquinox.com', external: true },
+			{ name: 'Status', href: '/status', external: true },
 		],
 	},
 	{
@@ -40,7 +40,7 @@ const categories: Category[] = [
 		items: [
 			{ name: 'Documentation', href: 'https://docs.antiraid.xyz', external: true },
 			{ name: 'API Reference', href: `${API_BASE_URL}/docs/splashtail`, external: true },
-			{ name: 'Developer Portal', href: 'https://antiraid.xyz/dashboard/developers', external: true },
+			{ name: 'Developer Portal', href: '/dashboard/developers', external: true },
 		],
 	},
 	{
@@ -56,9 +56,9 @@ const categories: Category[] = [
 		name: 'Legal',
 		icon: <RiShieldCheckFill size={18} />,
 		items: [
-			{ name: 'Terms of Service', href: '/legal/terms' },
-			{ name: 'Privacy Policy', href: '/legal/privacy' },
-			{ name: 'Cookie Policy', href: '/legal/cookies' },
+			{ name: 'Terms of Service', href: 'https://purrquinox.com/terms', external: true },
+			{ name: 'Privacy Policy', href: 'https://purrquinox.com/privacy', external: true },
+			{ name: 'Cookie Policy', href: 'https://purrquinox.com/cookies', external: true },
 		],
 	},
 ];
