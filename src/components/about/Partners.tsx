@@ -9,12 +9,12 @@ import Image from 'next/image';
 export const Partners = ({ isLoaded }: { isLoaded: boolean }) => {
 	const partners: Partner[] = [
 		{
-			name: 'Infinity List',
+			name: 'OmniPlex',
 			description: 'Search our vast list of bots for an exciting start to your server.',
 			long_description:
 				'We make it easier for you to advertise and grow your bots using our vanity links, widgets, bot packs, and more!',
-			logo: 'https://cdn.infinitybots.gg/core/logo.webp',
-			url: 'https://infinitybots.gg/',
+			logo: 'https://cdn.omniplex.gg/core/logo.webp',
+			url: 'https://omniplex.gg/',
 			owner: 'CodeMeAPixel',
 			owner_image: 'https://codemeapixel.dev/logo.png',
 			owner_website: 'https://codemeapixel.dev/',
@@ -22,7 +22,7 @@ export const Partners = ({ isLoaded }: { isLoaded: boolean }) => {
 				{
 					name: 'Website',
 					icon: <Globe className="w-5 h-5" />,
-					link: 'https://infinitybots.gg/'
+					link: 'https://omniplex.gg/'
 				},
 				{
 					name: 'Discord',

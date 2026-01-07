@@ -1,7 +1,7 @@
 'use client';
 
 import type React from 'react';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import {
 	Search,
 	ChevronDown,
@@ -12,738 +12,582 @@ import {
 	Zap,
 	ArrowRight,
 	LayoutGrid,
-	List
+	List,
+	Sparkles,
+	BookOpen,
+	Terminal,
+	Shield,
+	Rocket,
+	Code2,
+	Info,
+	ChevronRight,
+	HelpCircle,
+	Copy,
+	Check,
+	MousePointer2,
+	Globe,
+	Settings as SettingsIcon,
+	MessagesSquare,
+	ShieldAlert,
+	Wrench
 } from 'lucide-react';
+import { motion, AnimatePresence, useScroll, useTransform, useInView, useSpring, useMotionValue } from 'framer-motion';
 import { getBotState } from '@/lib/api';
-import { InputField } from '@/components/settings/components/form-elements';
 import { ApiCreateCommandOption } from '@/types/api/bindings/ApiCreateCommandOption';
 import { TwState } from '@/types/api/bindings/TwState';
 import { ApiCreateCommand } from '@/types/api/bindings/ApiCreateCommand';
-import { ApiCreateCommandOptionChoice } from '@/types/api/bindings/ApiCreateCommandOptionChoice';
 
-const Button = ({
-	children,
-	className = '',
-	variant = 'primary',
-	size = 'md',
-	icon,
-	...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement> & {
-	variant?: 'primary' | 'secondary' | 'ghost' | 'outline';
-	size?: 'sm' | 'md' | 'lg';
-	icon?: React.ReactNode;
-}) => {
-	const baseStyles =
-		'inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background';
-	const sizeStyles = {
-		sm: 'px-3 py-1.5 text-xs',
-		md: 'px-4 py-2 text-sm',
-		lg: 'px-5 py-2.5 text-base'
-	};
-	const variantStyles = {
-		primary: 'bg-primary text-white hover:bg-primary/90 focus:ring-primary/50',
-		secondary: 'bg-secondary text-foreground hover:bg-secondary/80 focus:ring-secondary/50',
-		ghost: 'bg-transparent hover:bg-secondary/50 focus:ring-secondary/50',
-		outline: 'bg-transparent border border-border hover:bg-secondary/50 focus:ring-secondary/50'
-	};
+const useMousePosition = () => {
+	const mouseX = useMotionValue(0);
+	const mouseY = useMotionValue(0);
 
-	return (
-		<button
-			className={`${baseStyles} ${sizeStyles[size]} ${variantStyles[variant]} ${className}`}
-			{...props}
-		>
-			{icon && <span className="mr-2">{icon}</span>}
-			{children}
-		</button>
-	);
+	useEffect(() => {
+		const handleMouseMove = (e: MouseEvent) => {
+			mouseX.set(e.clientX);
+			mouseY.set(e.clientY);
+		};
+		window.addEventListener('mousemove', handleMouseMove);
+		return () => window.removeEventListener('mousemove', handleMouseMove);
+	}, [mouseX, mouseY]);
+
+	return { mouseX, mouseY };
 };
 
-interface SelectOption {
-	value: string;
-	label: string;
-}
-
-interface SelectProps {
-	value: string;
-	onChange: (value: string) => void;
-	options: SelectOption[];
-	placeholder?: string;
+const CommandBadge = ({ 
+	children, 
+	variant = 'default',
+	className = "" 
+}: { 
+	children: React.ReactNode; 
+	variant?: 'default' | 'primary' | 'secondary' | 'required' | 'optional' | 'success' | 'module';
 	className?: string;
-}
-
-const Select: React.FC<SelectProps> = ({
-	value,
-	onChange,
-	options,
-	placeholder = 'Select...',
-	className = ''
 }) => {
-	const [isOpen, setIsOpen] = useState(false);
-	const selectedOption = options.find((opt) => opt.value === value);
-
-	return (
-		<div className={`relative ${className}`}>
-			<div
-				onClick={() => setIsOpen(!isOpen)}
-				className="flex items-center justify-between w-full px-3 py-2.5 bg-background text-foreground rounded-lg border border-border cursor-pointer shadow-sm hover:border-primary/50 transition-all duration-200"
-			>
-				<span className="truncate">{selectedOption?.label || placeholder}</span>
-				<ChevronDown
-					className={`h-4 w-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-				/>
-			</div>
-			{isOpen && (
-				<>
-					<div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-					<div className="absolute z-50 w-full mt-1 bg-background border border-border rounded-lg shadow-lg overflow-hidden backdrop-blur-sm">
-						<div className="max-h-60 overflow-y-auto py-1">
-							{options.map((option) => (
-								<div
-									key={option.value}
-									className={`px-3 py-2.5 cursor-pointer transition-colors duration-150 ${
-										option.value === value
-											? 'bg-primary/10 text-primary'
-											: 'hover:bg-secondary text-foreground'
-									}`}
-									onClick={() => {
-										onChange(option.value);
-										setIsOpen(false);
-									}}
-								>
-									{option.label}
-								</div>
-							))}
-						</div>
-					</div>
-				</>
-			)}
-		</div>
-	);
-};
-
-const Badge = ({
-	children,
-	className = '',
-	onClick,
-	variant = 'default'
-}: {
-	children: React.ReactNode;
-	className?: string;
-	onClick?: () => void;
-	variant?: 'default' | 'primary' | 'secondary' | 'outline' | 'required' | 'optional';
-}) => {
-	const variantStyles = {
-		default: 'bg-secondary text-foreground',
-		primary: 'bg-primary/15 text-primary',
-		secondary: 'bg-secondary/70 text-foreground',
-		outline: 'bg-transparent border border-border text-foreground',
-		required: 'bg-red-500/20 text-red-500',
-		optional: 'bg-secondary/70 text-foreground'
+	const variants = {
+		default: 'bg-white/5 text-foreground/70 border-white/10',
+		primary: 'bg-primary/20 text-primary border-primary/30',
+		secondary: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+		required: 'bg-red-500/15 text-red-400 border-red-500/20',
+		optional: 'bg-blue-500/15 text-blue-400 border-blue-500/20',
+		success: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20',
+		module: 'bg-white/10 text-foreground border-white/20 font-bold'
 	};
 
 	return (
-		<span
-			className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${variantStyles[variant]} ${className} ${onClick ? 'cursor-pointer hover:opacity-80' : ''}`}
-			onClick={onClick}
-		>
+		<span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border backdrop-blur-md ${variants[variant]} ${className}`}>
 			{children}
 		</span>
 	);
 };
 
-const randomizeArray = <T,>(arr: T[]): T[] => {
-	return [...arr].sort(() => Math.random() - 0.5);
+const CopyButton = ({ text }: { text: string }) => {
+	const [copied, setCopied] = useState(false);
+	const onCopy = async () => {
+		try {
+			if (navigator.clipboard && navigator.clipboard.writeText) {
+				await navigator.clipboard.writeText(text);
+			} else {
+				// Fallback for non-secure contexts or older browsers
+				const textArea = document.createElement("textarea");
+				textArea.value = text;
+				document.body.appendChild(textArea);
+				textArea.select();
+				document.execCommand('copy');
+				document.body.removeChild(textArea);
+			}
+			setCopied(true);
+			setTimeout(() => setCopied(false), 2000);
+		} catch (err) {
+			console.error('Failed to copy text:', err);
+		}
+	};
+
+	return (
+		<button 
+			onClick={(e) => { e.stopPropagation(); onCopy(); }}
+			className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-primary/20 hover:border-primary/50 transition-all text-muted-foreground hover:text-primary active:scale-90"
+		>
+			{copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+		</button>
+	);
 };
 
-// Utility to extract subcommands and arguments from ApplicationCommandOption
-function extractSubcommandsAndArgs(options: (ApiCreateCommandOption | undefined)[] = []) {
-	const subcommands: ApiCreateCommandOption[] = [];
-	const args: ApiCreateCommandOption[] = [];
-	options.forEach((opt) => {
-		if (!opt) return;
-		if (
-			opt.type === 1 || // ApplicationCommandOptionSubCommand
-			opt.type === 2 // ApplicationCommandOptionSubCommandGroup
-		) {
-			subcommands.push(opt);
-		} else {
-			args.push(opt);
-		}
-	});
-	return { subcommands, args };
-}
+const ModuleIcon = ({ name, size = 18 }: { name: string; size?: number }) => {
+	const n = name.toLowerCase();
+	if (n.includes('security') || n.includes('defend')) return <Shield size={size} />;
+	if (n.includes('mod') || n.includes('admin')) return <ShieldAlert size={size} />;
+	if (n.includes('util') || n.includes('tool')) return <Wrench size={size} />;
+	if (n.includes('social') || n.includes('chat')) return <MessagesSquare size={size} />;
+	if (n.includes('premium') || n.includes('star')) return <Sparkles size={size} />;
+	if (n.includes('config') || n.includes('setting')) return <SettingsIcon size={size} />;
+	return <Terminal size={size} />;
+};
 
-/**
- * Renders an interactive, responsive interface for browsing, searching, and filtering bot commands.
- *
- * Fetches bot command data and allows users to filter by module, perform full-text search, paginate results, and toggle between grid and list views. Users can expand commands to view detailed information, including subcommands, arguments, and required permissions. The UI adapts for desktop and mobile devices, and includes loading and error handling states.
- */
 export default function CommandInterface() {
 	const [botState, setBotState] = useState<TwState | null>(null);
 	const [selectedModule, setSelectedModule] = useState<string>('all');
 	const [searchQuery, setSearchQuery] = useState('');
-	const [showCount, setShowCount] = useState('20');
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
-	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+	const [isLoading, setIsLoading] = useState(true);
 	const [activeView, setActiveView] = useState<'grid' | 'list'>('grid');
+	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+	const [isMounted, setIsMounted] = useState(false);
+	const { mouseX, mouseY } = useMousePosition();
 
 	useEffect(() => {
+		setIsMounted(true);
 		const fetchBotState = async () => {
 			try {
 				const data = await getBotState();
 				setBotState(data);
-				setLoading(false);
+				setIsLoading(false);
 			} catch (err) {
 				console.error('Error fetching bot state:', err);
-				setError('Failed to load commands. Please try again later.');
-				setLoading(false);
+				setIsLoading(false);
 			}
 		};
-
 		fetchBotState();
+
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') {
+				setSearchQuery('');
+			}
+		};
+		window.addEventListener('keydown', handleKeyDown);
+		return () => window.removeEventListener('keydown', handleKeyDown);
 	}, []);
 
-	// Process commands with unique ids
+	const containerRef = useRef<HTMLDivElement>(null);
+	const { scrollYProgress } = useScroll();
+	const smoothProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
+	
 	const allCommands = useMemo(() => {
 		if (!botState) return [];
 		let idCounter = 0;
 		const commands: any[] = [];
 		botState.commands.forEach((cmd: ApiCreateCommand) => {
-			const moduleName = cmd.name;
-			const moduleId = cmd.name;
-			const { subcommands, args } = extractSubcommandsAndArgs(cmd.options);
-			const mainCommand = {
-				...cmd,
-				moduleName,
-				moduleId,
-				id: `cmd-${idCounter++}`,
-				subcommands,
-				arguments: args.map((arg: ApiCreateCommandOption) => ({
-					...arg,
-					required: arg.required ?? false,
-					choices: Array.isArray(arg.choices)
-						? arg.choices.filter((c): c is ApiCreateCommandOptionChoice => !!c).map((c) => c.name)
-						: []
-				}))
+			const extract = (options: any[] = []) => {
+				const sub: any[] = [];
+				const args: any[] = [];
+				options.forEach(o => {
+					if (!o) return;
+					if (o.type === 1 || o.type === 2) sub.push(o);
+					else args.push(o);
+				});
+				return { sub, args };
 			};
-			commands.push(mainCommand);
-			// Flatten subcommands (if any)
-			subcommands.forEach((subCmd: ApiCreateCommandOption) => {
-				const { subcommands: subSub, args: subArgs } = extractSubcommandsAndArgs(subCmd.options);
+
+			const { sub, args } = extract(cmd.options);
+			commands.push({
+				...cmd,
+				moduleName: cmd.name,
+				id: `cmd-${idCounter++}`,
+				subcommands: sub,
+				arguments: args.map(a => ({ ...a, required: a.required ?? false }))
+			});
+
+			sub.forEach(sc => {
+				const { sub: sSub, args: sArgs } = extract(sc.options);
 				commands.push({
-					...subCmd,
-					moduleName,
-					moduleId,
+					...sc,
+					moduleName: cmd.name,
 					id: `cmd-${idCounter++}`,
-					subcommands: subSub,
-					arguments: subArgs.map((arg: ApiCreateCommandOption) => ({
-						...arg,
-						required: arg.required ?? false,
-						choices: Array.isArray(arg.choices)
-							? arg.choices.filter((c): c is ApiCreateCommandOptionChoice => !!c).map((c) => c.name)
-							: []
-					}))
+					parentName: cmd.name,
+					subcommands: sSub,
+					arguments: sArgs.map(a => ({ ...a, required: a.required ?? false }))
 				});
 			});
 		});
 		return commands;
 	}, [botState]);
 
-	// Filtering and pagination (unchanged except dependency on allCommands)
 	const filteredCommands = useMemo(() => {
 		return allCommands.filter((cmd: any) => {
-			const matchesSearch =
-				cmd.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-				(cmd.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false) ||
-				(Array.isArray(cmd.arguments) &&
-					cmd.arguments.some(
-						(arg: any) =>
-							arg.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-							(arg.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
-					));
-			const matchesModule = selectedModule === 'all' || cmd.moduleId === selectedModule;
+			const matchesSearch = 
+				(cmd.name?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false) ||
+				(cmd.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
+			const matchesModule = selectedModule === 'all' || cmd.moduleName === selectedModule;
 			return matchesSearch && matchesModule;
 		});
 	}, [allCommands, searchQuery, selectedModule]);
 
-	const paginatedCommands = useMemo(() => {
-		return randomizeArray(filteredCommands).slice(0, Number.parseInt(showCount));
-	}, [filteredCommands, showCount]);
-
 	const modules = useMemo(() => {
 		if (!botState) return [];
-		const uniqueModules = new Map<string, { id: string; name: string }>();
-		botState.commands.forEach((cmd: ApiCreateCommand) => {
-			uniqueModules.set(cmd.name || `unknown_command_name`, {
-				id: cmd.name || `unknown_command_name_${Math.random().toString(36).substring(2, 9)}`,
-				name: cmd.name || 'Unknown Command'
-			});
-		});
-		return Array.from(uniqueModules.values());
+		return Array.from(new Set(botState.commands.map(c => c.name).filter((n): n is string => !!n)));
 	}, [botState]);
 
-	if (loading) {
+	if (isLoading) {
 		return (
-			<div className="flex justify-center items-center h-screen bg-background">
-				<div className="flex flex-col items-center gap-4">
-					<div className="relative w-16 h-16">
-						<div className="absolute inset-0 rounded-full border-4 border-primary/30"></div>
-						<div className="absolute inset-0 rounded-full border-4 border-t-primary border-r-transparent border-b-transparent border-l-transparent animate-spin"></div>
-					</div>
-					<p className="text-foreground font-medium">Loading commands...</p>
-				</div>
-			</div>
-		);
-	}
-
-	if (error) {
-		return (
-			<div className="flex justify-center items-center h-screen bg-background">
-				<div className="bg-background border border-border p-8 rounded-xl shadow-lg max-w-md">
-					<div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-red-500/10">
-						<X className="h-8 w-8 text-red-500" />
-					</div>
-					<h2 className="text-2xl font-bold text-center mb-4">Error</h2>
-					<p className="text-foreground text-center mb-6">{error}</p>
-					<div className="flex justify-center">
-						<Button onClick={() => window.location.reload()}>Try Again</Button>
+			<div className="min-h-screen flex items-center justify-center">
+				<div className="relative w-24 h-24">
+					<motion.div 
+						animate={{ rotate: 360 }} 
+						transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+						className="absolute inset-0 rounded-full border-t-2 border-primary border-r-transparent border-b-transparent border-l-transparent"
+					/>
+					<motion.div 
+						animate={{ rotate: -360 }} 
+						transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+						className="absolute inset-2 rounded-full border-b-2 border-accent/50 border-t-transparent border-r-transparent border-l-transparent"
+					/>
+					<div className="absolute inset-0 flex items-center justify-center">
+						<Terminal className="text-primary animate-pulse" size={24} />
 					</div>
 				</div>
 			</div>
 		);
 	}
-
-	const ModuleSidebar = () => (
-		<aside className="w-72 bg-background/50 backdrop-blur-sm border-r border-border rounded-l-xl hidden md:block overflow-hidden">
-			<div className="p-5 border-b border-border">
-				<div className="flex items-center space-x-3">
-					<Command className="h-5 w-5 text-primary" />
-					<h2 className="text-lg font-bold">Modules</h2>
-				</div>
-			</div>
-			<div className="h-[calc(100vh-12rem)] overflow-y-auto p-3 space-y-1">
-				<Button
-					variant={selectedModule === 'all' ? 'primary' : 'ghost'}
-					onClick={() => setSelectedModule('all')}
-					className="w-full justify-start text-left"
-					icon={<Zap className="h-4 w-4" />}
-				>
-					All Modules
-				</Button>
-				{modules.map((module) => (
-					<Button
-						key={module.id}
-						variant={selectedModule === module.id ? 'primary' : 'ghost'}
-						onClick={() => setSelectedModule(module.id)}
-						className="w-full justify-start text-left truncate"
-					>
-						{module.name}
-					</Button>
-				))}
-			</div>
-		</aside>
-	);
-
-	const MobileHeader = () => (
-		<div className="md:hidden flex justify-between items-center p-4 bg-background/80 backdrop-blur-sm border-b border-border sticky top-0 z-10">
-			<div className="flex items-center space-x-2">
-				<Command className="h-5 w-5 text-primary" />
-				<h1 className="text-xl font-bold">Command Reference</h1>
-			</div>
-			<button
-				onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-				className="rounded-lg p-2 hover:bg-secondary transition-colors"
-				aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
-			>
-				{isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-			</button>
-		</div>
-	);
-
-	const MobileSidebar = () => (
-		<div
-			className={`fixed inset-0 z-50 md:hidden transition-all duration-300 ${
-				isMobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-			}`}
-		>
-			<div
-				className="absolute inset-0 bg-background/80 backdrop-blur-sm"
-				onClick={() => setIsMobileMenuOpen(false)}
-			/>
-			<div
-				className={`absolute left-0 top-0 h-full w-72 bg-background border-r border-border shadow-xl overflow-y-auto transform transition-transform duration-300 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}
-			>
-				<div className="p-4 border-b border-border flex justify-between items-center">
-					<div className="flex items-center space-x-2">
-						<Command className="h-5 w-5 text-primary" />
-						<h2 className="font-bold">Modules</h2>
-					</div>
-					<button
-						onClick={() => setIsMobileMenuOpen(false)}
-						className="rounded-full p-1 hover:bg-secondary transition-colors"
-					>
-						<X className="h-5 w-5" />
-					</button>
-				</div>
-				<div className="p-3 space-y-1">
-					<Button
-						variant={selectedModule === 'all' ? 'primary' : 'ghost'}
-						onClick={() => {
-							setSelectedModule('all');
-							setIsMobileMenuOpen(false);
-						}}
-						className="w-full justify-start text-left"
-						icon={<Zap className="h-4 w-4" />}
-					>
-						All Modules
-					</Button>
-					{modules.map((module) => (
-						<Button
-							key={module.id}
-							variant={selectedModule === module.id ? 'primary' : 'ghost'}
-							onClick={() => {
-								setSelectedModule(module.id);
-								setIsMobileMenuOpen(false);
-							}}
-							className="w-full justify-start text-left truncate"
-						>
-							{module.name}
-						</Button>
-					))}
-				</div>
-			</div>
-		</div>
-	);
-
-	const CommandCard: React.FC<{ command: any }> = ({ command }) => {
-		const [expanded, setExpanded] = useState(false);
-
-		return (
-			<div className="bg-background border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
-				<div className="p-5 flex flex-col">
-					<div className="flex justify-between items-start mb-3 gap-2">
-						<h3 className="font-bold text-lg truncate">{command.name}</h3>
-						<Badge variant="primary">{command.moduleName}</Badge>
-					</div>
-					{command.description && (
-						<p className="text-muted-foreground mb-4 line-clamp-2 flex-grow">
-							{command.description}
-						</p>
-					)}
-					<div className="space-y-3 flex-grow">
-						{command.subcommands && command.subcommands.length > 0 && (
-							<div className="space-y-2">
-								<p className="text-sm font-medium flex items-center gap-1.5">
-									<ArrowRight className="h-3.5 w-3.5 text-primary" />
-									Subcommands
-								</p>
-								<div className="flex flex-wrap gap-1.5">
-									{command.subcommands
-										.slice(0, expanded ? command.subcommands.length : 3)
-										.map((subCmd: ApiCreateCommandOption) => (
-											<Badge key={subCmd.name} variant="secondary">
-												{subCmd.name}
-											</Badge>
-										))}
-									{!expanded && command.subcommands.length > 3 && (
-										<Badge variant="outline" onClick={() => setExpanded(true)}>
-											+{command.subcommands.length - 3} more
-										</Badge>
-									)}
-								</div>
-							</div>
-						)}
-						{command.arguments.length > 0 && (
-							<div className="space-y-2">
-								<p className="text-sm font-medium flex items-center gap-1.5">
-									<ArrowRight className="h-3.5 w-3.5 text-primary" />
-									Arguments
-								</p>
-								<div className="flex flex-wrap gap-1.5">
-									{command.arguments
-										.slice(0, expanded ? command.arguments.length : 3)
-										.map((arg: any) => (
-											<Badge key={arg.name} variant={arg.required ? 'required' : 'optional'}>
-												{arg.name}
-											</Badge>
-										))}
-									{!expanded && command.arguments.length > 3 && (
-										<Badge variant="outline" onClick={() => setExpanded(true)}>
-											+{command.arguments.length - 3} more
-										</Badge>
-									)}
-								</div>
-							</div>
-						)}
-					</div>
-					{!expanded && (
-						<button
-							className="mt-auto text-sm text-primary hover:underline flex items-center gap-1"
-							onClick={() => setExpanded(true)}
-						>
-							<span>Show details</span>
-							<ChevronDown className="h-3.5 w-3.5" />
-						</button>
-					)}
-					{expanded && (
-						<div className="mt-5 pt-4 border-t border-border space-y-4">
-							{command.description && (
-								<div>
-									<h4 className="text-sm font-medium mb-1.5">Description</h4>
-									<p className="text-sm text-foreground">{command.description}</p>
-								</div>
-							)}
-							{command.subcommands && command.subcommands.length > 0 && (
-								<div>
-									<h4 className="text-sm font-medium mb-1.5">Subcommands</h4>
-									<ul className="space-y-3">
-										{command.subcommands.map((subCmd: ApiCreateCommandOption) => (
-											<li key={subCmd.name} className="text-sm bg-secondary/30 p-3 rounded-lg">
-												<span className="font-medium text-primary">{subCmd.name}</span>
-												{subCmd.description && (
-													<p className="text-muted-foreground mt-1">{subCmd.description}</p>
-												)}
-											</li>
-										))}
-									</ul>
-								</div>
-							)}
-							{command.arguments.length > 0 && (
-								<div>
-									<h4 className="text-sm font-medium mb-1.5">Arguments</h4>
-									<ul className="space-y-3">
-										{command.arguments.map((arg: ApiCreateCommandOption) => (
-											<li key={arg.name} className="text-sm bg-secondary/30 p-3 rounded-lg">
-												<div className="flex items-center gap-2">
-													<span className="font-medium text-primary">{arg.name}</span>
-													{arg.required ? (
-														<Badge variant="required">Required</Badge>
-													) : (
-														<Badge variant="optional">Optional</Badge>
-													)}
-												</div>
-												{arg.description && (
-													<p className="text-muted-foreground mt-1">{arg.description}</p>
-												)}
-												{arg.choices && arg.choices.length > 0 && (
-													<div className="mt-2">
-														<span className="text-xs text-muted-foreground">Options: </span>
-														<div className="flex flex-wrap gap-1.5 mt-1.5">
-															{arg.choices &&
-																arg.choices.length > 0 &&
-																(arg.choices as unknown as string[]).map((choice, idx) => (
-																	<Badge key={idx} variant="secondary">
-																		{choice}
-																	</Badge>
-																))}
-														</div>
-													</div>
-												)}
-											</li>
-										))}
-									</ul>
-								</div>
-							)}
-							<button
-								className="text-sm text-primary hover:underline flex items-center gap-1"
-								onClick={() => setExpanded(false)}
-							>
-								<span>Show less</span>
-								<ChevronDown className="h-3.5 w-3.5 rotate-180" />
-							</button>
-						</div>
-					)}
-				</div>
-			</div>
-		);
-	};
-
-	const CommandListItem: React.FC<{ command: any }> = ({ command }) => {
-		const [expanded, setExpanded] = useState(false);
-
-		return (
-			<div className="bg-background border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
-				<div className="p-5">
-					<div className="flex justify-between items-center">
-						<div className="flex-1">
-							<div className="flex items-center gap-3">
-								<h3 className="font-bold text-lg">{command.name}</h3>
-								<Badge variant="primary">{command.moduleName}</Badge>
-							</div>
-							{command.description && (
-								<p className="text-muted-foreground mt-1 line-clamp-1">{command.description}</p>
-							)}
-						</div>
-						<button
-							onClick={() => setExpanded(!expanded)}
-							className="ml-4 p-2 rounded-full hover:bg-secondary/50 transition-colors"
-						>
-							<ChevronDown
-								className={`h-5 w-5 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
-							/>
-						</button>
-					</div>
-					{expanded && (
-						<div className="mt-4 pt-4 border-t border-border space-y-4">
-							{command.description && (
-								<div>
-									<h4 className="text-sm font-medium mb-1.5">Description</h4>
-									<p className="text-sm text-foreground">{command.description}</p>
-								</div>
-							)}
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-								{command.subcommands && command.subcommands.length > 0 && (
-									<div>
-										<h4 className="text-sm font-medium mb-1.5">Subcommands</h4>
-										<div className="bg-secondary/30 p-3 rounded-lg">
-											<div className="flex flex-wrap gap-1.5">
-												{command.subcommands.map((subCmd: ApiCreateCommandOption) => (
-													<Badge key={subCmd.name} variant="secondary">
-														{subCmd.name}
-													</Badge>
-												))}
-											</div>
-										</div>
-									</div>
-								)}
-								{command.arguments.length > 0 && (
-									<div>
-										<h4 className="text-sm font-medium mb-1.5">Arguments</h4>
-										<div className="bg-secondary/30 p-3 rounded-lg">
-											<div className="flex flex-wrap gap-1.5">
-												{command.arguments.map((arg: ApiCreateCommandOption) => (
-													<Badge key={arg.name} variant={arg.required ? 'required' : 'optional'}>
-														{arg.name}
-													</Badge>
-												))}
-											</div>
-										</div>
-									</div>
-								)}
-							</div>
-						</div>
-					)}
-				</div>
-			</div>
-		);
-	};
 
 	return (
-		<div className="min-h-screen bg-background">
-			<div className="max-w-7xl mx-auto p-4">
-				<MobileHeader />
-				<MobileSidebar />
-				<div className="flex flex-col md:flex-row rounded-xl overflow-hidden border border-border bg-background/30 backdrop-blur-sm shadow-xl mt-4">
-					<ModuleSidebar />
-					<main className="flex-1 flex flex-col min-h-[calc(100vh-2rem)]">
-						<div className="p-6 border-b border-border hidden md:block">
-							<h1 className="text-2xl font-bold mb-2">Command Reference</h1>
-							<p className="text-muted-foreground">
-								{selectedModule === 'all'
-									? 'Browse all available commands'
-									: `Browsing commands in ${modules.find((m) => m.id === selectedModule)?.name || ''}`}
-							</p>
+		<div ref={containerRef} className="min-h-screen text-foreground font-inter">
+
+			{/* Hero Section */}
+			<section className="relative pt-32 pb-20 px-6 lg:pt-56 lg:pb-32 overflow-hidden z-10">
+				<div className="max-w-7xl mx-auto flex flex-col items-center">
+					<motion.div
+						initial={{ opacity: 0, y: 30 }}
+						animate={{ opacity: 1, y: 0 }}
+						className="relative"
+					>
+						<h1 className="text-[12vw] lg:text-[10rem] font-black font-monster leading-[0.8] tracking-tighter text-center uppercase">
+							<span className="relative block italic text-transparent bg-clip-text bg-gradient-to-b from-white to-white/20">
+								Command
+							</span>
+							<span className="relative block text-primary drop-shadow-[0_0_50px_rgba(var(--primary),0.5)]">
+								Arsenal
+							</span>
+						</h1>
+						<div className="absolute -top-12 left-1/2 -translate-x-1/2 flex items-center gap-4 text-primary/40">
+							<div className="h-px w-24 bg-gradient-to-r from-transparent to-primary" />
+							<Terminal size={32} strokeWidth={3} />
+							<div className="h-px w-24 bg-gradient-to-l from-transparent to-primary" />
 						</div>
-						{/* Filters */}
-						<div className="p-4 border-b border-border bg-background/50 backdrop-blur-sm">
-							<div className="flex flex-col sm:flex-row gap-4">
-								<div className="relative flex-1">
-									<InputField
-										placeholder="Search commands, arguments, descriptions..."
-										value={searchQuery}
-										onChange={(e) => setSearchQuery(e.target.value)}
-										icon={Search}
-									/>
-								</div>
-								<div className="flex items-center gap-4 w-full sm:w-auto">
-									<div className="flex items-center gap-2">
-										<button
-											onClick={() => setActiveView('grid')}
-											className={`p-2 rounded-lg transition-colors ${
-												activeView === 'grid'
-													? 'bg-primary text-white'
-													: 'bg-secondary/50 hover:bg-secondary'
-											}`}
-											aria-label="Grid view"
-										>
-											<LayoutGrid className="h-5 w-5" />
-										</button>
-										<button
-											onClick={() => setActiveView('list')}
-											className={`p-2 rounded-lg transition-colors ${
-												activeView === 'list'
-													? 'bg-primary text-white'
-													: 'bg-secondary/50 hover:bg-secondary'
-											}`}
-											aria-label="List view"
-										>
-											<List className="h-5 w-5" />
-										</button>
-									</div>
-									<div className="flex items-center gap-2 flex-1 sm:flex-none">
-										<span className="text-muted-foreground whitespace-nowrap">Show</span>
-										<Select
-											value={showCount}
-											onChange={setShowCount}
-											options={[
-												{ value: '10', label: '10' },
-												{ value: '20', label: '20' }
-											]}
-											className="w-24"
-										/>
-									</div>
-								</div>
+					</motion.div>
+
+					{/* Digital Search Bar */}
+					<motion.div 
+						initial={{ opacity: 0, scale: 0.95 }}
+						animate={{ opacity: 1, scale: 1 }}
+						transition={{ delay: 0.3 }}
+						className="w-full max-w-3xl mt-16 group relative"
+					>
+						<div className="absolute -inset-1 bg-gradient-to-r from-primary/50 via-accent/50 to-primary/50 opacity-20 blur-xl group-focus-within:opacity-100 transition-opacity" />
+						<div className="relative bg-black/60 backdrop-blur-3xl border border-white/10 rounded-[2rem] p-2 flex items-center">
+							<div className="w-14 h-14 rounded-[1.5rem] bg-primary/10 flex items-center justify-center text-primary shrink-0 transition-transform group-focus-within:rotate-12">
+								<Search size={24} />
+							</div>
+							<input 
+								type="text" 
+								placeholder="Querying command definitions..."
+								value={searchQuery}
+								onChange={(e) => setSearchQuery(e.target.value)}
+								className="flex-1 bg-transparent border-none focus:ring-0 text-xl font-bold px-6 placeholder:text-foreground/20"
+							/>
+							<div className="hidden lg:flex items-center gap-2 px-6 border-l border-white/10 ml-4">
+								<kbd className="px-2 py-1 bg-white/5 rounded-md text-[10px] font-black">ESC</kbd>
+								<span className="text-[10px] font-bold uppercase tracking-widest text-foreground/30 text-nowrap">to clear</span>
 							</div>
 						</div>
-						{/* Results */}
-						<div className="flex-1 p-4 overflow-auto">
-							<div className="mb-4 flex items-center justify-between">
-								<p className="text-sm text-muted-foreground">
-									Showing {paginatedCommands.length} of {filteredCommands.length} commands
-								</p>
-								{selectedModule !== 'all' && (
-									<Button
-										variant="outline"
-										size="sm"
-										onClick={() => setSelectedModule('all')}
-										icon={<Filter className="h-3.5 w-3.5" />}
-									>
-										Clear filter
-									</Button>
-								)}
-							</div>
-							{paginatedCommands.length === 0 ? (
-								<div className="flex flex-col items-center justify-center h-64 text-center">
-									<div className="rounded-full bg-secondary/50 w-16 h-16 flex items-center justify-center mb-4">
-										<Search className="h-7 w-7 text-muted-foreground" />
-									</div>
-									<h3 className="text-xl font-medium mb-2">No commands found</h3>
-									<p className="text-muted-foreground max-w-md">
-										Try adjusting your search or selecting a different module
-									</p>
-								</div>
-							) : (
-								<>
-									{activeView === 'grid' ? (
-										<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
-											{paginatedCommands.map((command) => (
-												<CommandCard key={command.id} command={command} />
-											))}
-										</div>
-									) : (
-										<div className="space-y-4">
-											{paginatedCommands.map((command) => (
-												<CommandListItem key={command.id} command={command} />
-											))}
-										</div>
-									)}
-								</>
-							)}
-						</div>
-					</main>
+					</motion.div>
 				</div>
-			</div>
+			</section>
+
+			{/* Command Browsing Hub */}
+			<section className="relative max-w-7xl mx-auto px-6 pb-40 z-10 focus:outline-none">
+				<div className="flex flex-col lg:flex-row gap-12">
+					{/* Holographic Nav Drawer */}
+					<aside className="lg:w-80 shrink-0">
+						<div className="sticky top-32 space-y-12">
+							<div>
+								<div className="flex items-center justify-between mb-8 pl-4">
+									<h3 className="text-xs font-black uppercase tracking-[0.3em] text-foreground/30">System Modules</h3>
+									<div className="h-[2px] w-12 bg-primary/50" />
+								</div>
+								
+								<div className="space-y-2">
+									<button 
+										onClick={() => setSelectedModule('all')}
+										className={`w-full group relative flex items-center justify-between px-6 py-4 rounded-2xl transition-all ${selectedModule === 'all' ? 'bg-primary text-white shadow-2xl shadow-primary/30' : 'hover:bg-white/5 text-foreground/50'}`}
+									>
+										<div className="flex items-center gap-4">
+											<Globe size={20} className={selectedModule === 'all' ? 'text-white' : 'text-primary group-hover:scale-125 transition-transform'} />
+											<span className="font-monster font-black text-sm uppercase italic">Global Central</span>
+										</div>
+										<ChevronRight size={16} className={selectedModule === 'all' ? 'opacity-100' : 'opacity-0 -translate-x-2 group-hover:opacity-50 group-hover:translate-x-0 transition-all'} />
+									</button>
+									{modules.map((mod) => (
+										<button 
+											key={mod}
+											onClick={() => setSelectedModule(mod)}
+											className={`w-full group relative flex items-center justify-between px-6 py-4 rounded-2xl transition-all ${selectedModule === mod ? 'bg-primary text-white shadow-2xl shadow-primary/30' : 'hover:bg-white/5 text-foreground/50'}`}
+										>
+											<div className="flex items-center gap-4">
+												<ModuleIcon name={mod} size={20} />
+												<span className="font-monster font-black text-sm uppercase">{mod}</span>
+											</div>
+											<ChevronRight size={16} className={selectedModule === mod ? 'opacity-100' : 'opacity-0 -translate-x-2 group-hover:opacity-50 group-hover:translate-x-0 transition-all'} />
+										</button>
+									))}
+								</div>
+							</div>
+
+							{/* Cyber Widget */}
+							<div className="p-8 rounded-[2.5rem] bg-gradient-to-br from-white/5 to-transparent border border-white/5 relative overflow-hidden group">
+								<div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
+									<Shield size={48} />
+								</div>
+								<h4 className="font-monster font-black text-lg mb-4 text-white/90">Need Support?</h4>
+								<p className="text-xs text-foreground/50 leading-relaxed mb-8">
+									Our neural support team is available 24/7 on the central Discord interface.
+								</p>
+								<button className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 font-black text-[10px] uppercase tracking-[0.2em] hover:bg-primary hover:text-white transition-all">
+									Enter Support Lab
+								</button>
+							</div>
+						</div>
+					</aside>
+
+					{/* Command Interface */}
+					<div className="flex-1">
+						{/* View Matrix Controls */}
+						<div className="flex flex-col md:flex-row items-end md:items-center justify-between gap-8 mb-16">
+							<div>
+								<div className="flex items-center gap-3 mb-2">
+									<Terminal size={24} className="text-primary" />
+									<h2 className="text-4xl font-black font-monster tracking-tighter uppercase italic">
+										{selectedModule === 'all' ? 'The Registry' : `${selectedModule} Unit`}
+									</h2>
+								</div>
+								<p className="text-sm font-bold text-foreground/40 uppercase tracking-[0.2em]">
+									Accessing {filteredCommands.length} subroutines in database
+								</p>
+							</div>
+
+							<div className="flex items-center gap-2 p-1.5 bg-black/40 backdrop-blur-2xl border border-white/10 rounded-2xl">
+								<button 
+									onClick={() => setActiveView('grid')}
+									className={`p-3 rounded-xl transition-all ${activeView === 'grid' ? 'bg-primary text-white shadow-lg' : 'text-foreground/30 hover:text-foreground/70'}`}
+								>
+									<LayoutGrid size={20} />
+								</button>
+								<button 
+									onClick={() => setActiveView('list')}
+									className={`p-3 rounded-xl transition-all ${activeView === 'list' ? 'bg-primary text-white shadow-lg' : 'text-foreground/30 hover:text-foreground/70'}`}
+								>
+									<List size={20} />
+								</button>
+							</div>
+						</div>
+
+						{/* Dynamic Command Matrix */}
+						<AnimatePresence mode="popLayout">
+							{filteredCommands.length > 0 ? (
+								<motion.div 
+									layout
+									className={activeView === 'grid' 
+										? "grid grid-cols-1 md:grid-cols-2 gap-8" 
+										: "space-y-4"
+									}
+								>
+									{filteredCommands.map((command, idx) => (
+										<HolographicCard 
+											key={command.id} 
+											command={command} 
+											view={activeView}
+											index={idx}
+										/>
+									))}
+								</motion.div>
+							) : (
+								<motion.div 
+									initial={{ opacity: 0 }}
+									animate={{ opacity: 1 }}
+									className="flex flex-col items-center justify-center py-40 border-2 border-dashed border-white/5 rounded-[4rem]"
+								>
+									<ShieldAlert size={64} className="text-primary/20 mb-8" />
+									<h3 className="text-3xl font-black font-monster uppercase text-foreground/20">Null Return</h3>
+									<p className="text-sm text-foreground/40 mt-4 uppercase tracking-[0.1em]">No subroutines found for your query</p>
+								</motion.div>
+							)}
+						</AnimatePresence>
+					</div>
+				</div>
+			</section>
 		</div>
 	);
 }
+
+// --- Specific HUD Card Components ---
+
+const HolographicCard = ({ command, view, index }: any) => {
+	const [isDetailOpen, setIsDetailOpen] = useState(false);
+	const cardRef = useRef(null);
+	const isInView = useInView(cardRef, { once: true, margin: "-10%" });
+
+	return (
+		<motion.div
+			ref={cardRef}
+			layout
+			initial={{ opacity: 0, scale: 0.95, y: 20 }}
+			animate={isInView ? { opacity: 1, scale: 1, y: 0 } : {}}
+			transition={{ duration: 0.4, delay: (index % 6) * 0.05 }}
+			className={`
+				group relative overflow-hidden transition-all duration-500
+				${view === 'grid' 
+					? 'bg-gradient-to-br from-white/[0.03] to-transparent backdrop-blur-3xl border border-white/10 rounded-[2.5rem] hover:border-primary/40' 
+					: 'bg-white/[0.02] border border-white/5 rounded-2xl hover:border-primary/20'}
+			`}
+		>
+			<div className={`p-8 ${view === 'list' ? 'flex flex-col md:flex-row md:items-center gap-8' : ''}`}>
+				{/* Top HUD Line */}
+				<div className="absolute top-0 right-12 w-16 h-[2px] bg-primary/20 group-hover:w-24 group-hover:bg-primary/60 transition-all" />
+				
+				<div className={view === 'list' ? 'flex-1' : ''}>
+					<div className="flex items-start justify-between mb-6">
+						<div className="flex items-center gap-4">
+							<div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-primary group-hover:bg-primary/20 group-hover:border-primary/50 transition-all shadow-inner">
+								<ModuleIcon name={command.moduleName} size={24} />
+							</div>
+							<div>
+								<h3 className="text-2xl font-black font-monster tracking-tighter italic uppercase group-hover:text-primary transition-colors">
+									/{command.name}
+								</h3>
+								{command.parentName && (
+									<span className="text-[10px] font-black text-foreground/30 uppercase tracking-[0.2em]">Group: {command.parentName}</span>
+								)}
+							</div>
+						</div>
+						<div className="flex gap-2">
+							<CopyButton text={`/${command.name}`} />
+						</div>
+					</div>
+
+					<p className="text-muted-foreground leading-relaxed text-sm mb-8 line-clamp-2 italic">
+						{command.description || "The documentation for this subroutine has not been synthesized yet."}
+					</p>
+				</div>
+
+				<div className={`${view === 'list' ? 'md:w-72 flex flex-col items-end gap-4' : 'flex items-center justify-between border-t border-white/5 pt-8 mt-auto'}`}>
+					<div className="flex flex-wrap gap-2">
+						{command.arguments?.length > 0 && <CommandBadge variant="optional">{command.arguments.length} INPUTS</CommandBadge>}
+						{command.subcommands?.length > 0 && <CommandBadge variant="primary">{command.subcommands.length} SUBS</CommandBadge>}
+					</div>
+
+					<button 
+						onClick={() => setIsDetailOpen(!isDetailOpen)}
+						className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.3em] text-primary/60 hover:text-primary transition-all group/expand"
+					>
+						{isDetailOpen ? 'Collapse BIOS' : 'Analyze Logic'}
+						<div className={`w-6 h-6 rounded-full border border-primary/20 flex items-center justify-center transition-transform duration-500 ${isDetailOpen ? 'rotate-180 bg-primary/10 border-primary' : 'group-hover:bg-primary/10'}`}>
+							<ChevronDown size={14} className="text-primary" />
+						</div>
+					</button>
+				</div>
+
+				<AnimatePresence>
+					{isDetailOpen && (
+						<motion.div
+							initial={{ height: 0, opacity: 0 }}
+							animate={{ height: 'auto', opacity: 1 }}
+							exit={{ height: 0, opacity: 0 }}
+							transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+							className="overflow-hidden"
+						>
+							<div className="pt-12 space-y-12 pb-4">
+								{/* Arg Section */}
+								{command.arguments?.length > 0 && (
+									<div>
+										<div className="flex items-center gap-3 mb-6">
+											<div className="h-[1px] flex-1 bg-white/5" />
+											<h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground/30 italic">Parameter Matrix</h4>
+											<div className="h-[1px] flex-1 bg-white/5" />
+										</div>
+										<div className="grid grid-cols-1 gap-4">
+											{command.arguments.map((arg: any) => (
+												<div key={arg.name} className="group/arg p-6 rounded-3xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] hover:border-white/10 transition-all">
+													<div className="flex items-center justify-between mb-3">
+														<div className="flex items-center gap-3">
+															<code className="text-sm font-black text-primary font-mono">{arg.name}</code>
+															{arg.required ? <CommandBadge variant="required" className="!px-1.5 !py-0">REQ</CommandBadge> : <CommandBadge variant="optional" className="!px-1.5 !py-0 text-[8px]">OPT</CommandBadge>}
+														</div>
+														<CopyButton text={arg.name} />
+													</div>
+													<p className="text-xs text-muted-foreground leading-relaxed">
+														{arg.description}
+													</p>
+													{arg.choices?.length > 0 && (
+														<div className="mt-4 pt-4 border-t border-white/5 flex flex-wrap gap-2">
+															<span className="text-[8px] font-black text-foreground/30 uppercase mr-2 mt-1">Options:</span>
+															{arg.choices.map((c: string) => (
+																<span key={c} className="px-2 py-0.5 rounded-md bg-primary/5 border border-primary/10 text-[10px] text-primary/70 font-mono">
+																	{c}
+																</span>
+															))}
+														</div>
+													)}
+												</div>
+											))}
+										</div>
+									</div>
+								)}
+
+								{/* Subs Section */}
+								{command.subcommands?.length > 0 && (
+									<div>
+										<div className="flex items-center gap-3 mb-6">
+											<div className="h-[1px] flex-1 bg-white/5" />
+											<h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground/30 italic">Linked Subroutines</h4>
+											<div className="h-[1px] flex-1 bg-white/5" />
+										</div>
+										<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+											{command.subcommands.map((sub: any) => (
+												<div key={sub.name} className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-all group/sub">
+													<div className="flex items-center justify-between mb-2">
+														<div className="flex items-center gap-2">
+															<div className="w-1.5 h-1.5 rounded-full bg-accent group-hover:scale-125 transition-transform" />
+															<span className="font-monster font-black text-xs uppercase group-hover:text-accent transition-colors">{sub.name}</span>
+														</div>
+														<CopyButton text={`${command.name} ${sub.name}`} />
+													</div>
+													<p className="text-[10px] text-muted-foreground leading-relaxed">
+														{sub.description}
+													</p>
+												</div>
+											))}
+										</div>
+									</div>
+								)}
+
+								{/* Terminal Simulator Widget */}
+								<div className="p-6 rounded-[2rem] bg-black border border-white/5 flex items-center justify-between gap-4 group/sim relative overflow-hidden">
+									<div className="absolute inset-0 bg-primary/5 opacity-0 group-hover/sim:opacity-100 transition-opacity" />
+									<div className="flex items-center gap-4 relative z-10">
+										<div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 group-hover/sim:border-primary/30 transition-colors">
+											<Terminal size={18} className="text-primary" />
+										</div>
+										<div className="font-mono text-sm flex items-center gap-2">
+											<span className="text-primary font-bold">/</span>
+											<span className="text-white font-bold">{command.name}</span>
+											<span className="text-foreground/20 italic">
+												{command.arguments && command.arguments.length > 0 ? ` [${command.arguments[0].name}]` : ""}
+											</span>
+											<motion.div 
+												animate={{ opacity: [0, 1] }}
+												transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
+												className="w-1.5 h-4 bg-primary/50"
+											/>
+										</div>
+									</div>
+									<CopyButton text={`/${command.name}`} />
+								</div>
+							</div>
+						</motion.div>
+					)}
+				</AnimatePresence>
+			</div>
+
+			{/* Decorative Corner */}
+			<div className="absolute top-4 right-4 text-foreground/5 pointer-events-none select-none">
+				<Command size={120} />
+			</div>
+		</motion.div>
+	);
+};

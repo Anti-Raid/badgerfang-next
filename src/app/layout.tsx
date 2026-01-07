@@ -2,8 +2,9 @@ import type React from 'react';
 import type { Metadata } from 'next';
 import './globals.css';
 import ClientLayout from './clientLayout';
-import { generateMetadata } from '@/lib/Metadata';
+import { generateMetadata, siteViewport } from '@/lib/Metadata';
 export const metadata: Metadata = generateMetadata({});
+export const viewport = siteViewport;
 
 /**
  * Defines the root layout for the application, setting up the global HTML structure, loading custom fonts, and wrapping all page content with the client layout.

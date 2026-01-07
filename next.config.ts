@@ -5,6 +5,11 @@ const nextConfig: NextConfig = {
 		NEXT_PUBLIC_BUILD_ENV: process.env.NODE_ENV || 'development'
 	},
 	images: {
+		localPatterns: [
+			{
+				pathname: '**'
+			}
+		],
 		remotePatterns: [
 			{
 				hostname: '**'

@@ -133,7 +133,7 @@ export const HistoryTimeline = () => {
 						</div>
 
 						<motion.div
-							className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 text-primary"
+							className="absolute -bottom-12 w-full flex justify-center text-primary"
 							animate={{ y: [0, 10, 0] }}
 							transition={{ repeat: Infinity, duration: 2 }}
 						>

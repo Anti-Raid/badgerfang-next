@@ -17,7 +17,7 @@ export default function Dashboard() {
 	const [key] = useState(0);
 
 	return (
-		<div className="min-h-screen">
+		<div className="min-h-screen pt-16">
 			<ProtectedRoute>
 				<Servers key={key} />
 			</ProtectedRoute>

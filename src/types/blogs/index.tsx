@@ -34,4 +34,5 @@ export interface Blog {
 	documentId: string;
 	author: Author;
 	image: Image;
+	og?: Image;
 }
