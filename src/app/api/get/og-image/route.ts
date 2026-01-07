@@ -156,8 +156,6 @@ export async function GET(request: NextRequest) {
 
 		// If no slug provided, return default blog image
 		if (!slug) {
-			console.log('No slug provided, returning default blog image');
-			
 			const imageResponse = generateBlogOGImage({
 				title: 'AntiRaid Blog',
 				description: 'Read the latest news and updates from the AntiRaid team',
@@ -178,7 +176,6 @@ export async function GET(request: NextRequest) {
 		}
 
 		// Fetch blog post by slug with timeout protection
-		console.log(`Fetching blog for slug: ${slug}`);
 		const post = await Promise.race([
 			getBlogBySlug(slug),
 			new Promise((_, reject) => 
@@ -188,8 +185,6 @@ export async function GET(request: NextRequest) {
 
 		// If blog post not found, return 404 image
 		if (!post) {
-			console.log(`Blog not found for slug: ${slug}`);
-			
 			const imageResponse = generateBlogOGImage({
 				title: 'Blog Post Not Found',
 				description: 'The blog post you are looking for does not exist or has been removed.',
@@ -207,9 +202,6 @@ export async function GET(request: NextRequest) {
 
 			return response;
 		}
-
-		// Generate OG image for the found blog post
-		console.log(`Generating OG image for: ${post.title}`);
 		
 		const imageResponse = generateBlogOGImage({
 			title: post.title || 'Untitled Blog Post',

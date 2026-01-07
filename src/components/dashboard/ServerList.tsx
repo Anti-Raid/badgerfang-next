@@ -35,7 +35,7 @@ export const ServerList: React.FC<{
 
 	return (
 		<div>
-			<div className="relative mb-8 group">
+			<div className="min-h-max relative mb-8 group">
 				<div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-extra/5 rounded-xl blur-sm group-hover:blur-md transition-all duration-300"></div>
 				<div className="relative bg-accent/80 backdrop-blur-sm rounded-xl overflow-hidden border shadow-lg transition-all duration-300 group-hover:shadow-primary/10 group-focus-within:shadow-primary/20 group-focus-within:border-primary/30">
 					<Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 transition-colors group-focus-within:text-primary" />

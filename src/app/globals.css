@@ -323,6 +323,55 @@
 	--ring: 275 100% 60%;
 }
 
+.sunset-amber-theme {
+	--background: 20 60% 5%;
+	--foreground: 35 100% 98%;
+	--card: 20 50% 8%;
+	--card-foreground: 35 100% 98%;
+	--popover: 20 50% 8%;
+	--popover-foreground: 35 100% 98%;
+	--primary: 35 100% 55%;
+	--primary-foreground: 0 0% 98%;
+	--secondary: 20 40% 15%;
+	--secondary-foreground: 35 100% 98%;
+	--extra: 20 90% 65%;
+	--extra-foreground: 35 100% 98%;
+	--muted: 20 40% 15%;
+	--muted-foreground: 20 25% 70%;
+	--accent: 35 70% 22%;
+	--accent-foreground: 35 100% 98%;
+	--destructive: 0 95% 65%;
+	--destructive-foreground: 0 0% 98%;
+	--border: 20 50% 12%;
+	--input: 20 40% 18%;
+	--ring: 35 100% 55%;
+}
+
+.arctic-frost-theme {
+	--background: 210 60% 98%;
+	--foreground: 210 50% 10%;
+	--card: 210 50% 95%;
+	--card-foreground: 210 50% 10%;
+	--popover: 210 50% 95%;
+	--popover-foreground: 210 50% 10%;
+	--primary: 195 90% 50%;
+	--primary-foreground: 0 0% 98%;
+	--secondary: 210 30% 90%;
+	--secondary-foreground: 210 50% 10%;
+	--extra: 180 80% 45%;
+	--extra-foreground: 0 0% 98%;
+	--muted: 210 20% 85%;
+	--muted-foreground: 210 15% 45%;
+	--accent: 195 70% 85%;
+	--accent-foreground: 210 50% 10%;
+	--destructive: 0 84% 60%;
+	--destructive-foreground: 0 0% 98%;
+	--border: 210 30% 85%;
+	--input: 210 20% 90%;
+	--ring: 195 90% 50%;
+}
+
+
 .stargaze-theme {
 	--background: 210 20% 30%;
 	--foreground: 0 0% 95%;
@@ -453,6 +502,94 @@
 	--border: 120 20% 60%;
 	--input: 120 20% 80%;
 	--ring: 120 50% 70%;
+}
+
+.neon-cyber-theme {
+	--background: 280 85% 5%;
+	--foreground: 180 100% 90%;
+	--card: 280 65% 10%;
+	--card-foreground: 180 100% 90%;
+	--popover: 280 65% 10%;
+	--popover-foreground: 180 100% 90%;
+	--primary: 320 100% 60%;
+	--primary-foreground: 0 0% 100%;
+	--secondary: 260 50% 15%;
+	--secondary-foreground: 180 100% 90%;
+	--muted: 260 40% 20%;
+	--muted-foreground: 180 50% 70%;
+	--accent: 190 100% 50%;
+	--accent-foreground: 280 85% 5%;
+	--destructive: 0 100% 60%;
+	--destructive-foreground: 0 0% 100%;
+	--border: 280 50% 20%;
+	--input: 280 50% 15%;
+	--ring: 320 100% 60%;
+}
+
+.retro-haze-theme {
+	--background: 260 20% 15%;
+	--foreground: 35 100% 85%;
+	--card: 260 20% 20%;
+	--card-foreground: 35 100% 85%;
+	--popover: 260 20% 20%;
+	--popover-foreground: 35 100% 85%;
+	--primary: 15 85% 65%;
+	--primary-foreground: 0 0% 15%;
+	--secondary: 260 15% 25%;
+	--secondary-foreground: 35 100% 85%;
+	--muted: 260 10% 30%;
+	--muted-foreground: 35 60% 70%;
+	--accent: 280 40% 50%;
+	--accent-foreground: 35 100% 85%;
+	--destructive: 0 80% 60%;
+	--destructive-foreground: 0 0% 100%;
+	--border: 260 20% 25%;
+	--input: 260 20% 20%;
+	--ring: 15 85% 65%;
+}
+
+.deep-ocean-theme {
+	--background: 215 40% 10%;
+	--foreground: 180 30% 95%;
+	--card: 215 40% 15%;
+	--card-foreground: 180 30% 95%;
+	--popover: 215 40% 15%;
+	--popover-foreground: 180 30% 95%;
+	--primary: 190 90% 50%;
+	--primary-foreground: 215 40% 10%;
+	--secondary: 215 30% 20%;
+	--secondary-foreground: 180 30% 95%;
+	--muted: 215 20% 25%;
+	--muted-foreground: 180 20% 75%;
+	--accent: 200 80% 40%;
+	--accent-foreground: 180 30% 95%;
+	--destructive: 0 80% 60%;
+	--destructive-foreground: 0 0% 100%;
+	--border: 215 30% 20%;
+	--input: 215 30% 18%;
+	--ring: 190 90% 50%;
+}
+
+.cotton-candy-theme {
+	--background: 330 30% 98%;
+	--foreground: 260 40% 30%;
+	--card: 330 30% 95%;
+	--card-foreground: 260 40% 30%;
+	--popover: 330 30% 95%;
+	--popover-foreground: 260 40% 30%;
+	--primary: 310 70% 75%;
+	--primary-foreground: 260 40% 30%;
+	--secondary: 230 60% 92%;
+	--secondary-foreground: 260 40% 30%;
+	--muted: 260 20% 90%;
+	--muted-foreground: 260 20% 60%;
+	--accent: 200 80% 85%;
+	--accent-foreground: 260 40% 30%;
+	--destructive: 0 80% 65%;
+	--destructive-foreground: 0 0% 100%;
+	--border: 330 20% 90%;
+	--input: 330 20% 95%;
+	--ring: 310 70% 75%;
 }
 
 @layer base {
@@ -594,50 +731,8 @@
 	gap: 0.5em;
 }
 
-/* ❄️ Winter Snowfall Effect ❄️ */
-.snowfall {
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	pointer-events: none;
-	z-index: 9999;
-	overflow: hidden;
-}
+/* ❄️ Winter Snowfall Effect ❄️ (Integrated into Canvas Component) */
 
-.snowflake {
-	position: absolute;
-	top: -10px;
-	color: rgba(255, 255, 255, 0.8);
-	font-size: 1em;
-	user-select: none;
-	animation: fall linear infinite;
-}
-
-@keyframes fall {
-	0% {
-		transform: translateY(0) rotate(0deg);
-		opacity: 1;
-	}
-
-	100% {
-		transform: translateY(100vh) rotate(360deg);
-		opacity: 0.3;
-	}
-}
-
-@keyframes sway {
-
-	0%,
-	100% {
-		transform: translateX(0);
-	}
-
-	50% {
-		transform: translateX(20px);
-	}
-}
 
 /* 🎨 Enhanced UX Animations */
 @keyframes fadeInUp {
@@ -652,14 +747,36 @@
 	}
 }
 
-@keyframes shimmer {
-	0% {
-		transform: translateX(-100%);
+@keyframes scan {
+	from {
+		transform: translateY(-100%);
 	}
 
-	100% {
-		transform: translateX(100%);
+	to {
+		transform: translateY(100%);
 	}
+}
+
+.animate-scan {
+	animation: scan 4s linear infinite;
+}
+
+@keyframes pulse-glow {
+
+	0%,
+	100% {
+		opacity: 0.5;
+		filter: blur(80px);
+	}
+
+	50% {
+		opacity: 0.8;
+		filter: blur(120px);
+	}
+}
+
+.animate-pulse-glow {
+	animation: pulse-glow 4s ease-in-out infinite;
 }
 
 .animate-shimmer {

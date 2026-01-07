@@ -29,7 +29,17 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
 				'dark-green-theme',
 				'electric-purple-theme',
 				'arctic-frost-theme',
-				'sunset-amber-theme'
+				'sunset-amber-theme',
+				'stargaze-theme',
+				'sunbeam-theme',
+				'velvetsky-theme',
+				'crisp-theme',
+				'float-theme',
+				'puzzlebloom-theme',
+				'neon-cyber-theme',
+				'retro-haze-theme',
+				'deep-ocean-theme',
+				'cotton-candy-theme'
 			]}
 			{...props}
 		>
