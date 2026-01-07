@@ -56,9 +56,9 @@ const categories: Category[] = [
 		name: 'Legal',
 		icon: <RiShieldCheckFill size={18} />,
 		items: [
-			{ name: 'Terms of Service', href: '/legal/terms' },
-			{ name: 'Privacy Policy', href: '/legal/privacy' },
-			{ name: 'Cookie Policy', href: '/legal/cookies' },
+			{ name: 'Terms of Service', href: 'https://purrquinox.com/terms', external: true },
+			{ name: 'Privacy Policy', href: 'https://purrquinox.com/privacy', external: true },
+			{ name: 'Cookie Policy', href: 'https://purrquinox.com/cookies', external: true },
 		],
 	},
 ];
