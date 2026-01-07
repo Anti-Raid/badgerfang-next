@@ -31,7 +31,7 @@ const categories: Category[] = [
 		items: [
 			{ name: 'Features', href: '/#features' },
 			{ name: 'Script Shop', href: '/script/shop' },
-			{ name: 'Status', href: 'https://status.purrquinox.com', external: true },
+			{ name: 'Status', href: '/status', external: true },
 		],
 	},
 	{
