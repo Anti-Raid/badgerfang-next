@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { X, ArrowRight, RefreshCcw, AlertOctagon } from 'lucide-react';
+import { X, ArrowRight, RefreshCcw, AlertOctagon, Copy, Check } from 'lucide-react';
 import { Primary, Secondary, Ghost } from '@/components/ui/Buttons';
 
 type ErrorPageProps = {
@@ -95,6 +95,7 @@ const ParticlesBackground = () => {
 
 const ErrorPage = ({ error, reset }: ErrorPageProps) => {
 	const [isGlitching, setIsGlitching] = useState(false);
+	const [copied, setCopied] = useState(false);
 
 	useEffect(() => {
 		const glitchInterval = setInterval(() => {
@@ -140,7 +141,31 @@ const ErrorPage = ({ error, reset }: ErrorPageProps) => {
 							<Primary Title="Return Home" icon={ArrowRight} onClick={() => {}} />
 						</Link>
 						<Primary Title="Try Again" icon={RefreshCcw} onClick={reset} />
-						<Ghost Title="Dismiss" icon={X} onClick={() => {}} />
+						<div className="relative group/copy">
+							<Ghost 
+								Title={copied ? "Copied!" : "Copy Error"} 
+								icon={copied ? Check : Copy} 
+								onClick={async () => {
+									const errorData = `Error: ${error.message}\nDigest: ${error.digest || 'N/A'}`;
+									try {
+										if (navigator.clipboard && navigator.clipboard.writeText) {
+											await navigator.clipboard.writeText(errorData);
+										} else {
+											const textArea = document.createElement("textarea");
+											textArea.value = errorData;
+											document.body.appendChild(textArea);
+											textArea.select();
+											document.execCommand('copy');
+											document.body.removeChild(textArea);
+										}
+										setCopied(true);
+										setTimeout(() => setCopied(false), 2000);
+									} catch (err) {
+										console.error('Failed to copy error:', err);
+									}
+								}} 
+							/>
+						</div>
 					</div>
 
 					<div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-primary/20 opacity-50 rounded-full blur-3xl"></div>

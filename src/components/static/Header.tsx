@@ -1,8 +1,7 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import {
@@ -10,14 +9,14 @@ import {
 	Info,
 	ShoppingCart,
 	Terminal,
-	MessageCircle,
-	PaletteIcon,
-	Plus,
-	LogOut,
-	LayoutDashboard,
 	User,
 	Menu,
-	X
+	X,
+	LayoutDashboard,
+	LogOut,
+	LogIn,
+    ChevronDown,
+    Plus
 } from 'lucide-react';
 import { loginUser } from '@/lib/auth/login';
 import { logoutUser } from '@/lib/auth/logoutUser';
@@ -50,7 +49,8 @@ const NavBar: React.FC = () => {
 	const [isProfileOpen, setIsProfileOpen] = useState<boolean>(false);
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 	const [userData, setUserData] = useState<PartialUser | null>(null);
-	const { theme, setTheme } = useTheme();
+	const [scrolled, setScrolled] = useState(false);
+	const { theme } = useTheme();
 	const pathname = usePathname();
 	const router = useRouter();
 
@@ -59,17 +59,25 @@ const NavBar: React.FC = () => {
 	const profileRef = useRef<HTMLDivElement>(null);
 
 	const { authData } = useAuthCheck();
-
 	const { fflags, isLoaded } = useFFlags();
 
 	useEffect(() => {
 		setCurrentPath(pathname || '/');
 	}, [pathname]);
 
+	// Handle scroll effect for glassmorphism intensity
+	useEffect(() => {
+		const handleScroll = () => {
+			setScrolled(window.scrollY > 20);
+		};
+		window.addEventListener('scroll', handleScroll);
+		return () => window.removeEventListener('scroll', handleScroll);
+	}, []);
+
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
 			const target = event.target as Node;
-			const isOutsideTheme = (!themeRef.current || !themeRef.current.contains(target)) && 
+			const isOutsideTheme = (!themeRef.current || !themeRef.current.contains(target)) &&
 			                       (!desktopThemeRef.current || !desktopThemeRef.current.contains(target));
 			const isOutsideProfile = !profileRef.current || !profileRef.current.contains(target);
 
@@ -89,7 +97,6 @@ const NavBar: React.FC = () => {
 		const fetchUserData = async () => {
 			const authCreds = getAuthCreds();
 			if (!authCreds) return;
-
 			try {
 				const cachedUser = localStorage.getItem('authUser');
 				const user = cachedUser ? cachedUser : null;
@@ -101,28 +108,8 @@ const NavBar: React.FC = () => {
 				setUserData(null);
 			}
 		};
-
 		fetchUserData();
 	}, [authData, pathname, router]);
-
-	useEffect(() => {
-		const checkSessionExpiry = () => {
-			const authCreds = getAuthCreds();
-			if (!authCreds) return;
-
-			const sessionExpiryTime = Number(authCreds.expiry);
-			const currentTime = new Date().getTime();
-
-			if (currentTime >= sessionExpiryTime) {
-				handleLogout();
-			}
-		};
-
-		// Check session every 5 minutes
-		const interval = setInterval(checkSessionExpiry, 300000);
-
-		return () => clearInterval(interval);
-	}, []);
 
 	const getLogoPath = () => {
 		if (theme === 'dark-red-theme') return '/AR_Logo_Red.webp';
@@ -143,253 +130,216 @@ const NavBar: React.FC = () => {
 	const handleLogout = async () => {
 		await logoutUser();
 		router.push('/');
-		setUserData(null); // Clear user data on logout
+		setUserData(null);
 	};
 
 	const ProfileMenu = () => (
 		<AnimatePresence>
 			{(isProfileOpen || isMobileMenuOpen) && (
 				<motion.div
-					initial={{ opacity: 0, y: -10 }}
-					animate={{ opacity: 1, y: 0 }}
-					exit={{ opacity: 0, y: -10 }}
-					className="absolute right-0 top-full mt-2 w-64 glass rounded-xl shadow-2xl z-50 overflow-hidden ring-1 ring-white/10"
+					initial={{ opacity: 0, y: 10, scale: 0.95 }}
+					animate={{ opacity: 1, y: 0, scale: 1 }}
+					exit={{ opacity: 0, y: 10, scale: 0.95 }}
+					transition={{ duration: 0.2 }}
+					className="absolute right-0 top-full mt-4 w-60 bg-background/80 backdrop-blur-2xl rounded-2xl border border-white/10 shadow-2xl z-50 overflow-hidden"
 					ref={profileRef}
 				>
-					<div className="py-1">
+					<div className="p-2 space-y-1">
 						{[
-							{
-								name: 'Dashboard',
-								href: '/dashboard',
-								icon: LayoutDashboard
-							},
-							{
-								name: 'Developer',
-								href: '/dashboard/developers',
-								icon: User
-							},
-							{
-								name: 'Logout',
-								onClick: handleLogout,
-								icon: LogOut
-							}
-						].map((item) =>
-							item.href ? (
-								<Link
-									key={item.name}
-									href={item.href}
-									className="flex items-center w-full px-4 py-2 text-sm text-foreground hover:bg-accent transition-colors"
-									onClick={() => {
-										setIsProfileOpen(false);
-										setIsMobileMenuOpen(false);
-									}}
-								>
-									<item.icon className="mr-3 h-5 w-5 text-muted-foreground flex-shrink-0" />
-									<span>{item.name}</span>
-								</Link>
-							) : (
-								<button
-									key={item.name}
-									onClick={item.onClick}
-									className="w-full flex items-center px-4 py-2 text-sm text-foreground hover:bg-accent transition-colors text-left"
-								>
-									<item.icon className="mr-3 h-5 w-5 text-muted-foreground flex-shrink-0" />
-									<span>{item.name}</span>
-								</button>
-							)
-						)}
+							{ name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+							{ name: 'Developer', href: '/dashboard/developers', icon: Terminal },
+							{ name: 'Logout', onClick: handleLogout, icon: LogOut, danger: true }
+						].map((item) => (
+                            item.href ? (
+                                <Link
+                                    key={item.name}
+                                    href={item.href}
+                                    className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-white/5 rounded-xl transition-all group"
+                                    onClick={() => {
+                                        setIsProfileOpen(false);
+                                        setIsMobileMenuOpen(false);
+                                    }}
+                                >
+                                    <item.icon className="h-4 w-4 opacity-70 group-hover:opacity-100" />
+                                    {item.name}
+                                </Link>
+                            ) : (
+                                <button
+                                    key={item.name}
+                                    onClick={item.onClick}
+                                    className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all group text-left ${item.danger ? 'text-red-400 hover:bg-red-500/10' : 'text-foreground/80 hover:text-foreground hover:bg-white/5'}`}
+                                >
+                                    <item.icon className="h-4 w-4 opacity-70 group-hover:opacity-100" />
+                                    {item.name}
+                                </button>
+                            )
+						))}
 					</div>
 				</motion.div>
 			)}
 		</AnimatePresence>
 	);
 
-
 	return (
-		<header className="sticky top-0 z-50 backdrop-blur-[12px] shadow-sm bg-background/40 border-b border-white/5 transition-all duration-300">
-
-			<div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
-				<nav className="flex items-center justify-between h-14 sm:h-16">
-					{/* Logo Section */}
-					<div className="flex items-center space-x-1 sm:space-x-2">
-						<Link href="/" className="flex items-center">
-							<img
-								src={getLogoPath()}
-								alt="AntiRaid Logo"
-								className="h-7 sm:h-8 w-auto rounded-full mr-1.5 sm:mr-2"
-							/>
-							<span className="text-lg sm:text-xl font-bold text-foreground">AntiRaid</span>
+		<header className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${scrolled ? 'pt-4' : 'pt-6'}`}>
+			<div className="max-w-7xl mx-auto px-4 sm:px-6">
+				<motion.nav
+                    layout
+                    className={`
+                        relative flex items-center justify-between
+                        h-14 md:h-16 px-2 md:px-4
+                        bg-background/60 backdrop-blur-xl supports-[backdrop-filter]:bg-background/30
+                        border border-white/10
+                        rounded-full
+                        shadow-[0_8px_32px_-12px_rgba(0,0,0,0.3)]
+                        transition-all duration-500
+                    `}
+                >
+					{/* Logo */}
+					<div className="flex-1 flex items-center pl-2 lg:pl-4">
+						<Link href="/" className="flex items-center gap-2 group relative">
+                            <div className="relative">
+                                <div className="absolute inset-0 bg-primary/20 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                <motion.img
+                                    whileHover={{ rotate: 360, scale: 1.1 }}
+                                    transition={{ duration: 0.5 }}
+                                    src={getLogoPath()}
+                                    alt="AntiRaid"
+                                    className="h-8 w-8 lg:h-9 lg:w-9 rounded-full relative z-10"
+                                />
+                            </div>
+							<span className="text-lg lg:text-xl font-bold font-monster tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground via-foreground to-primary/80 group-hover:to-primary transition-all duration-300">
+								AntiRaid
+							</span>
 						</Link>
 					</div>
 
-					{/* Mobile Menu Button */}
-					<div className="md:hidden flex items-center space-x-1.5 sm:space-x-2">
-						<button
-							onClick={() => {
-								setIsMobileMenuOpen(!isMobileMenuOpen);
-								setIsThemeOpen(false);
-								setIsProfileOpen(false);
-							}}
-							className="p-1.5 sm:p-2 rounded-full hover:bg-accent transition-colors"
-						>
-							{isMobileMenuOpen ? (
-								<X className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground" />
-							) : (
-								<Menu className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground" />
-							)}
-						</button>
-						<div className="relative" ref={themeRef}>
-							<ThemeSelector
-								isOpen={isThemeOpen}
-								onOpenChange={(open) => {
-									if (open) {
-										setIsProfileOpen(false);
-									}
-									setIsThemeOpen(open);
-								}}
-							/>
+										{/* Desktop Navigation */}
+					<div className="hidden md:flex flex-[3] items-center justify-center">
+						<div className="flex items-center gap-1 lg:gap-1.5 p-1 bg-white/[0.03] backdrop-blur-2xl rounded-full border border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
+							{NavItems
+                            .filter(x => !x.needsFFlag || !isLoaded || fflags.has(x.needsFFlag!))
+                            .map((item) => {
+                                const isActive = currentPath === item.href;
+                                return (
+                                    <Link
+                                        key={item.name}
+                                        href={item.href}
+                                        className={`
+                                            relative px-4 lg:px-6 py-2.5 rounded-full text-xs lg:text-sm font-bold transition-all duration-300
+                                            flex items-center gap-2 lg:gap-2.5 whitespace-nowrap group/nav
+                                            ${isActive ? 'text-primary-foreground' : 'text-foreground/70 hover:text-foreground'}
+                                        `}
+                                    >
+                                        {isActive && (
+                                            <motion.div
+                                                layoutId="nav-pill"
+                                                className="absolute inset-0 bg-primary shadow-[0_4px_16px_rgba(var(--primary),0.4)] rounded-full"
+                                                initial={false}
+                                                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                                            />
+                                        )}
+                                        <span className="relative z-10 flex items-center gap-2 lg:gap-2.5">
+                                            <item.icon className={`w-4 h-4 lg:w-4.5 lg:h-4.5 transition-transform duration-300 ${isActive ? '' : 'group-hover/nav:scale-110'}`} />
+                                            {item.name}
+                                        </span>
+                                    </Link>
+                                );
+                            })}
 						</div>
+					</div>
+
+					{/* Right Actions */}
+					<div className="flex-1 flex items-center justify-end gap-2 pr-2 lg:pr-4">
+                        {/* Desktop Theme Toggle */}
+                        <div className="hidden md:block" ref={desktopThemeRef}>
+                            <ThemeSelector isOpen={isThemeOpen} onOpenChange={setIsThemeOpen} variant="dropdown" />
+                        </div>
+
+						<div className="h-6 w-px bg-white/10 hidden md:block" />
+
+						{/* Profile / Login */}
 						<div className="relative">
 							{userData ? (
-								<button
+								<motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
 									onClick={() => toggleDropdown('profile')}
-									className="flex items-center space-x-2"
+									className="flex items-center gap-2.5 pl-1.5 pr-3 py-1.5 rounded-full bg-secondary/30 hover:bg-secondary/50 border border-white/5 transition-all"
 								>
 									<img
 										src={userData ? getAvatarUrl(userData) : getLogoPath()}
-										alt="User Avatar"
-										className="h-7 w-7 sm:h-8 sm:w-8 rounded-full ring-2 ring-primary"
+										alt="User"
+										className="h-7 w-7 rounded-full ring-2 ring-primary/20"
 									/>
-								</button>
+                                    <span className="text-sm font-medium max-w-[80px] truncate hidden md:block">{userData.username}</span>
+                                    <ChevronDown className="w-3 h-3 text-muted-foreground hidden md:block" />
+								</motion.button>
 							) : (
-								<button
+								<motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
 									onClick={() => {
 										loginUser();
 										router.push('/dashboard');
 									}}
-									className="px-2.5 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+									className="group relative px-5 py-2 rounded-full overflow-hidden bg-primary"
 								>
-									Login
-								</button>
+                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
+                                    <span className="relative flex items-center gap-2 text-sm font-bold text-primary-foreground">
+                                        Login <LogIn className="w-3 h-3" />
+                                    </span>
+								</motion.button>
 							)}
 							<ProfileMenu />
 						</div>
-					</div>
 
-					{/* Navigation Links */}
-					<div className={`hidden md:flex space-x-2 lg:space-x-4`}>
-						{NavItems
-						.filter(x => !x.needsFFlag || !isLoaded || fflags.has(x.needsFFlag!))
-						.map((item) => (
+                        {/* Mobile Menu Toggle */}
+                        <div className="md:hidden ml-2">
+                             <motion.button
+                                whileTap={{ scale: 0.9 }}
+                                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                                className="p-2 rounded-full bg-secondary/30 text-foreground"
+                            >
+                                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                            </motion.button>
+                        </div>
+					</div>
+				</motion.nav>
+			</div>
+
+			{/* Mobile Menu Overlay */}
+			<AnimatePresence>
+				{isMobileMenuOpen && (
+					<motion.div
+						initial={{ opacity: 0, y: -20, scale: 0.95 }}
+						animate={{ opacity: 1, y: 0, scale: 1 }}
+						exit={{ opacity: 0, y: -20, scale: 0.95 }}
+						className="absolute top-24 inset-x-4 p-4 bg-background/90 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-2xl z-40 md:hidden flex flex-col gap-2"
+					>
+                        <div className="flex items-center justify-between mb-4 px-2">
+                            <span className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Navigation</span>
+                            <div ref={themeRef}>
+                                <ThemeSelector isOpen={isThemeOpen} onOpenChange={setIsThemeOpen} variant="dropdown" />
+                            </div>
+                        </div>
+						{NavItems.map((item) => (
 							<Link
 								key={item.name}
 								href={item.href}
+								onClick={() => setIsMobileMenuOpen(false)}
 								className={`
-                  flex items-center px-2 lg:px-3 py-2 rounded-md text-xs lg:text-sm font-medium transition-colors duration-200
-                  ${
-										currentPath === item.href
-											? 'bg-primary/10 text-primary shadow-[0_0_15px_rgba(var(--primary),0.3)]'
-											: 'text-muted-foreground hover:bg-white/5 hover:text-foreground'
-									}
-                `}
+                                    flex items-center gap-3 p-3 rounded-xl transition-all
+                                    ${currentPath === item.href ? 'bg-primary/10 text-primary font-bold' : 'hover:bg-secondary/50 text-muted-foreground hover:text-foreground'}
+                                `}
 							>
-								<motion.div whileHover={{ x: 5 }} transition={{ type: 'spring', stiffness: 300 }}>
-									<item.icon className="h-4 w-4 mr-1.5 lg:mr-2" />
-								</motion.div>
+								<item.icon className="w-5 h-5" />
 								{item.name}
 							</Link>
 						))}
-					</div>
-
-					{/* Mobile Menu */}
-				<AnimatePresence>
-					{isMobileMenuOpen && (
-						<>
-							{/* Backdrop overlay */}
-							<motion.div
-								initial={{ opacity: 0 }}
-								animate={{ opacity: 1 }}
-								exit={{ opacity: 0 }}
-								className="md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[90]"
-								onClick={() => setIsMobileMenuOpen(false)}
-							/>
-							{/* Mobile menu */}
-							<motion.div
-								initial={{ opacity: 0, y: -10 }}
-								animate={{ opacity: 1, y: 0 }}
-								exit={{ opacity: 0, y: -10 }}
-								className="md:hidden absolute top-full left-0 w-full glass rounded-b-2xl shadow-2xl z-[100] overflow-hidden border-t border-white/5"
-							>
-								<div className="py-1">
-									{NavItems
-									.filter(x => !x.needsFFlag || !isLoaded || fflags.has(x.needsFFlag!))
-									.map((item) => (
-										<Link
-											key={item.name}
-											href={item.href}
-											className="flex items-center px-4 py-2 text-sm text-foreground hover:bg-accent transition-colors"
-											onClick={() => setIsMobileMenuOpen(false)}
-										>
-											<motion.div
-												whileHover={{ x: 5 }}
-												transition={{ type: 'spring', stiffness: 300 }}
-											>
-												<item.icon className="mr-3 h-5 w-5 text-muted-foreground" />
-											</motion.div>
-											{item.name}
-										</Link>
-									))}
-								</div>
-							</motion.div>
-						</>
-					)}
-				</AnimatePresence>
-
-
-					{/* Action Buttons */}
-					<div className="hidden md:flex items-center space-x-2 lg:space-x-4">
-						{/* Theme Switcher */}
-						<div className="relative" ref={desktopThemeRef}>
-							<ThemeSelector
-								isOpen={isThemeOpen}
-								onOpenChange={(open) => {
-									if (open) {
-										setIsProfileOpen(false);
-									}
-									setIsThemeOpen(open);
-								}}
-							/>
-						</div>
-
-						{/* Profile/Login Section */}
-						<div className="relative">
-							{userData ? (
-								<button
-									onClick={() => toggleDropdown('profile')}
-									className="flex items-center space-x-2"
-								>
-									<img
-										src={userData ? getAvatarUrl(userData) : getLogoPath()}
-										alt="User Avatar"
-										className="h-7 w-7 lg:h-8 lg:w-8 rounded-full ring-2 ring-primary"
-									/>
-								</button>
-							) : (
-								<button
-									onClick={() => {
-										loginUser();
-										router.push('/dashboard');
-									}}
-									className="px-3 py-1.5 lg:px-4 lg:py-2 text-xs lg:text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-								>
-									Login
-								</button>
-							)}
-							<ProfileMenu />
-						</div>
-					</div>
-				</nav>
-			</div>
+					</motion.div>
+				)}
+			</AnimatePresence>
 		</header>
 	);
 };

@@ -1,4 +1,4 @@
-import { Metadata } from 'next';
+import { Metadata, Viewport } from 'next';
 import {
 	title as siteTitle,
 	description_short,
@@ -57,49 +57,118 @@ interface GenerateMetadataParams {
  * @param params - Optional overrides for the page's metadata, such as title, description, image, keywords, canonical URL, or base URL.
  * @returns The constructed Metadata object for Next.js page configuration.
  */
+
+/**
+ * Standard Viewport configuration for the application.
+ * Defines theme colors for light/dark modes and scaling behavior.
+ */
+export const siteViewport: Viewport = {
+	themeColor: [
+		{ media: '(prefers-color-scheme: light)', color: '#8c45f4' }, // Brand Purple (Light)
+		{ media: '(prefers-color-scheme: dark)', color: '#0f0f12' }, // Dark Background
+	],
+	width: 'device-width',
+	initialScale: 1,
+	maximumScale: 5,
+	colorScheme: 'dark light',
+};
+
+
+/**
+ * Creates a Next.js Metadata object for a page by combining site-wide defaults with optional overrides.
+ *
+ * Merges provided and default values to set the page's title, description, keywords, icons, Open Graph, and Twitter card metadata. Adds a canonical URL if specified and determines the metadata base URL from parameters, environment variables, or site defaults.
+ *
+ * @param params - Optional overrides for the page's metadata, such as title, description, image, keywords, canonical URL, or base URL.
+ * @returns The constructed Metadata object for Next.js page configuration.
+ */
 export function generateMetadata(params: MainMetaDataParam): Metadata {
 	const { title, description, image, keywords = [], Url, metadata } = params;
 
 	const fullTitle = title ? `${title} | ${siteTitle}` : `${siteTitle} - ${description_short}`;
-	const desc = siteDescription;
+	// Use provided description or fallback to site-wide description
+	const desc = description ?? siteDescription;
 	const previewImage = image ?? defaultImage;
 	const canonicalBase = metadata ?? process.env.NEXT_PUBLIC_APP_URL ?? website_url;
+
+	// Merge page-specific keywords with site-wide keywords, ensuring 'AntiRaid' and 'Discord Bot' are always present first
+	const metaKeywords = [...new Set([...keywords, 'AntiRaid', 'Discord Bot', 'Security', ...siteKeywords])];
 
 	const meta: Metadata = {
 		metadataBase: new URL(canonicalBase),
 		title: fullTitle,
 		description: desc,
-		keywords: keywords.length ? keywords : [description_short],
+		applicationName: siteTitle,
+		authors: [{ name: owner, url: website_url }],
+		creator: owner,
+		publisher: owner,
+		category: 'Technology',
+		keywords: metaKeywords,
+		manifest: '/manifest.json',
+		referrer: 'origin-when-cross-origin',
+		formatDetection: {
+			email: false,
+			address: false,
+			telephone: false,
+		},
+		appleWebApp: {
+			capable: true,
+			title: siteTitle,
+			statusBarStyle: 'black-translucent',
+		},
+		robots: {
+			index: true,
+			follow: true,
+			nocache: false,
+			googleBot: {
+				index: true,
+				follow: true,
+				noimageindex: false,
+				'max-video-preview': -1,
+				'max-image-preview': 'large',
+				'max-snippet': -1,
+			},
+		},
+		verification: {
+			// Add verification codes here (google, yandex, etc.)
+		},
 		icons: {
-			icon: logo ?? '/logo.webp'
+			icon: logo ?? '/logo.webp',
+			shortcut: logo ?? '/logo.webp',
+			apple: logo ?? '/logo.webp',
 		},
 		openGraph: {
 			title: fullTitle,
 			description: desc,
 			siteName: siteTitle,
+			url: Url ?? canonicalBase,
 			images: [
 				{
 					url: previewImage,
 					width: 1200,
 					height: 630,
-					alt: fullTitle
-				}
+					alt: fullTitle,
+				},
 			],
 			locale: 'en_US',
-			type: 'website'
+			type: 'website',
 		},
 		twitter: {
 			card: 'summary_large_image',
 			title: fullTitle,
 			description: desc,
 			images: [previewImage],
-			site: twitter || undefined
-		}
+			creator: twitter || undefined,
+			site: twitter || undefined,
+		},
 	};
 
 	if (Url) {
 		meta.alternates = {
-			canonical: Url
+			canonical: Url,
+			languages: {
+				'en-US': Url,
+			},
 		};
 	}
 
@@ -274,40 +343,3 @@ export function generateHomeMetadata(params: GenerateMetadataParams = {}): Metad
 	});
 }
 
-/**
- * Generates Next.js metadata for the Forums page with default values and optional overrides.
- *
- * @returns A Metadata object configured for the Forums page.
- */
-export function generateFourmsMetadata(params: GenerateMetadataParams = {}): Metadata {
-	return generateMetadata({
-		title: 'Forums',
-		description:
-			'Welcome to Antiraids Forums! Where you can ask support questions and get help from the community.',
-		image: params.imageUrl ?? defaultImage,
-		keywords: params.keywords?.length ? params.keywords : ['Forums', 'Antiraid'],
-		Url: params.canonicalUrl
-	});
-}
-
-/**
- * Generates Next.js metadata for a forum post page with default values and optional overrides.
- *
- * Prepends "Forum Post" to the keywords array and uses fallback values for title and description if not provided.
- *
- * @param params - Optional overrides for the forum post's title, description, image URL, keywords, and canonical URL.
- * @returns A {@link Metadata} object for the forum post page.
- */
-export function generateForumPostMetadata(params: GenerateMetadataParams): Metadata {
-	const { title, description, imageUrl, keywords = [], canonicalUrl } = params;
-
-	const blogDefaults = {
-		title: title || 'Forum Post',
-		description: description || 'Read the latest news and updates.',
-		image: imageUrl,
-		keywords: ['Forum Post', ...keywords],
-		Url: canonicalUrl
-	};
-
-	return generateMetadata(blogDefaults);
-}

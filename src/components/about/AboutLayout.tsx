@@ -18,7 +18,7 @@ const AboutLayout = () => {
 	}, []);
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-background to-background/80 text-foreground">
+		<div className="min-h-screen pt-20 bg-gradient-to-br from-background to-background/80 text-foreground">
 			{/* Hero Section */}
 			<section className="relative overflow-hidden">
 				<div className="absolute inset-0 bg-grid-white/5 [mask-image:linear-gradient(to_bottom,transparent,black)]"></div>

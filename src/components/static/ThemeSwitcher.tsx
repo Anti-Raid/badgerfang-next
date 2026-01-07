@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
-import { PaletteIcon, Check } from 'lucide-react';
+import { PaletteIcon, Check, Sparkles, X } from 'lucide-react';
 
 interface Theme {
 	id: string;
@@ -15,7 +15,11 @@ interface ThemeSelectorProps {
 	onOpenChange?: (open: boolean) => void;
 }
 
-const ThemeSelector: React.FC<ThemeSelectorProps> = ({ isOpen: controlledIsOpen, onOpenChange }) => {
+const ThemeSelector: React.FC<ThemeSelectorProps & { variant?: 'dropdown' | 'sheet' | 'icon' }> = ({ 
+	isOpen: controlledIsOpen, 
+	onOpenChange,
+	variant = 'dropdown' 
+}) => {
 	const [internalIsOpen, setInternalIsOpen] = useState(false);
 	const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen;
 	const setIsOpen = (value: boolean) => {
@@ -41,13 +45,19 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ isOpen: controlledIsOpen,
 		{ id: 'electric-purple-theme', label: 'Electric Purple' },
 		{ id: 'sunset-amber-theme', label: 'Sunset Amber' },
 
-		// New themes
+		// Modern themes
 		{ id: 'stargaze-theme', label: 'Stargaze' },
 		{ id: 'sunbeam-theme', label: 'Sunbeam' },
-		{ id: 'velvet-sky-theme', label: 'Velvet Sky' },
+		{ id: 'velvetsky-theme', label: 'Velvet Sky' },
 		{ id: 'crisp-theme', label: 'Crisp' },
 		{ id: 'float-theme', label: 'Float' },
-		{ id: 'puzzlebloom-theme', label: 'PuzzleBloom' }
+		{ id: 'puzzlebloom-theme', label: 'PuzzleBloom' },
+		
+		// New Vibrant Themes
+		{ id: 'neon-cyber-theme', label: 'Neon Cyber' },
+		{ id: 'retro-haze-theme', label: 'Retro Haze' },
+		{ id: 'deep-ocean-theme', label: 'Deep Ocean' },
+		{ id: 'cotton-candy-theme', label: 'Cotton Candy' },
 	];
 
 	const getThemeColors = (themeId: string) => {
@@ -75,7 +85,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ isOpen: controlledIsOpen,
 				return 'from-[#BBA9AB] to-[#B4A9B8]';
 			case 'sunbeam-theme':
 				return 'from-[#F0F1ED] to-[#A5CCDC]';
-			case 'velvet-sky-theme':
+			case 'velvetsky-theme':
 				return 'from-[#A792B1] to-[#A8C0D9]';
 			case 'crisp-theme':
 				return 'from-[#F0F1ED] to-[#A5CCDC]';
@@ -83,6 +93,16 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ isOpen: controlledIsOpen,
 				return 'from-[#A6D1D9] to-[#7FB8BE]';
 			case 'puzzlebloom-theme':
 				return 'from-[#F0E3CB] to-[#D9AA90]';
+			
+			// New Vibrant Themes
+			case 'neon-cyber-theme':
+				return 'from-[#d946ef] to-[#06b6d4]';
+			case 'retro-haze-theme':
+				return 'from-[#fb923c] to-[#a855f7]';
+			case 'deep-ocean-theme':
+				return 'from-[#0ea5e9] to-[#1e293b]';
+			case 'cotton-candy-theme':
+				return 'from-[#f9a8d4] to-[#a5f3fc]';
 
 			default:
 				return 'from-primary to-extra';
@@ -97,7 +117,12 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ isOpen: controlledIsOpen,
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
 			if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-				setIsOpen(false);
+				// Only close on click outside if we NOT in sheet mode (sheet deals with its own backdrop)
+				// Actually, for dropdown logic, we handle it here. 
+				// For sheet, we might want a separate backdrop handler or rely on the same logic if the sheet is inside ref.
+				// However, sheet is usually portal-like or fixed. 
+				// Let's rely on the backdrop click for sheet.
+				if (variant === 'dropdown' || variant === 'icon') setIsOpen(false);
 			}
 		};
 
@@ -105,7 +130,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ isOpen: controlledIsOpen,
 		return () => {
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
-	}, []);
+	}, [variant]); // Added variant dep
 
 	useEffect(() => {
 		if (theme && mounted) {
@@ -116,70 +141,161 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ isOpen: controlledIsOpen,
 		}
 	}, [theme, mounted]);
 
+	const ThemeButton = ({ themeOption }: { themeOption: Theme }) => {
+		const isActive = theme === themeOption.id;
+		return (
+			<button
+				onClick={() => {
+					setTheme(themeOption.id);
+					setIsOpen(false);
+				}}
+				className={`relative h-20 rounded-2xl overflow-hidden transition-all duration-300 group shadow-sm
+				${isActive ? 'ring-2 ring-primary ring-offset-2 ring-offset-background scale-[0.98]' : 'hover:scale-[1.02] hover:shadow-md'}
+				`}
+			>
+				{/* Gradient Background */}
+				<div className={`absolute inset-0 bg-gradient-to-br ${getThemeColors(themeOption.id)}`} />
+				
+				{/* Overlay */}
+				<div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
+
+				{/* Content */}
+				<div className="relative h-full p-3 flex flex-col justify-between">
+					<div className="flex justify-between items-start">
+						{isActive && (
+							<motion.div 
+								initial={{ scale: 0 }} 
+								animate={{ scale: 1 }}
+								className="bg-white/30 backdrop-blur-md rounded-full p-1"
+							>
+								<Check className="h-3 w-3 text-white" />
+							</motion.div>
+						)}
+					</div>
+					<span className={`text-sm font-bold text-white/95 group-hover:text-white transition-colors text-left truncate shadow-sm ${!isActive && 'mt-auto'}`}>
+						{themeOption.label}
+					</span>
+				</div>
+			</button>
+		);
+	};
+
 	return (
 		<div className="relative" ref={dropdownRef}>
+			{/* Trigger Button */}
 			<button
 				onClick={() => setIsOpen(!isOpen)}
-				className="p-2 rounded-full hover:bg-accent transition-all flex items-center justify-center group"
+				className={`
+                    relative group overflow-hidden
+                    flex items-center justify-center
+                    transition-all duration-300
+                    ${variant === 'sheet' 
+                        ? 'p-2 rounded-full hover:bg-muted/50 active:scale-95' 
+                        : variant === 'icon'
+                        ? 'p-2 rounded-full hover:bg-white/10'
+                        : 'p-2.5 rounded-xl hover:bg-accent/80 ring-1 ring-border/50 hover:ring-primary/50'
+                    }
+                `}
 				aria-label="Change theme"
 			>
-				<div className="relative">
-					<PaletteIcon className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                {variant === 'dropdown' && (
+                    <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                )}
+				<div className="relative z-10">
+					<PaletteIcon 
+                        className={`
+                            transition-colors duration-300
+                            ${variant === 'sheet' ? 'h-6 w-6 text-foreground' : 'h-5 w-5 text-muted-foreground group-hover:text-primary'}
+                            ${variant === 'icon' ? 'text-white/70 hover:text-white' : ''}
+                        `} 
+                    />
 				</div>
 			</button>
 
 			<AnimatePresence>
 				{isOpen && (
-					<motion.div
-						initial={{ opacity: 0, scale: 0.95, y: 10 }}
-						animate={{ opacity: 1, scale: 1, y: 0 }}
-						exit={{ opacity: 0, scale: 0.95, y: 10 }}
-						transition={{ duration: 0.15 }}
-						className="absolute right-0 mt-2 p-3 rounded-xl shadow-2xl glass w-72 z-50 overflow-hidden"
-					>
-						<div className="mb-2 pb-2 border-b border-border">
-							<h3 className="text-sm font-medium text-foreground">Select Theme</h3>
-							<p className="text-xs text-muted-foreground mt-1">
-								Customize your interface appearance
-							</p>
-						</div>
+					variant === 'sheet' ? (
+						<>
+							{/* Mobile Backdrop */}
+							<motion.div
+								initial={{ opacity: 0 }}
+								animate={{ opacity: 1 }}
+								exit={{ opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+								className="fixed inset-0 bg-black/60 backdrop-blur-[2px] z-[9998]"
+								onClick={() => setIsOpen(false)}
+                                style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+							/>
+							{/* Mobile Sheet */}
+							<motion.div
+								initial={{ y: '100%' }}
+								animate={{ y: 0 }}
+								exit={{ y: '100%' }}
+								transition={{ type: 'spring', damping: 25, stiffness: 250 }}
+								className="fixed bottom-0 left-0 right-0 z-[9999] bg-background/95 backdrop-blur-3xl rounded-t-[32px] overflow-hidden border-t border-white/10 shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.5)] max-h-[80vh] flex flex-col"
+							>
+								{/* Drag Handle Area */}
+								<div 
+                                    className="w-full flex justify-center py-4 cursor-grab active:cursor-grabbing hover:bg-white/5 transition-colors"
+                                    onClick={() => setIsOpen(false)}
+                                >
+									<div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full" />
+								</div>
+								
+								{/* Header */}
+								<div className="px-6 pb-4 flex items-center justify-between border-b border-border/30">
+									<div>
+										<h3 className="text-xl font-bold text-foreground tracking-tight">Theme Gallery</h3>
+										<p className="text-sm text-muted-foreground">Select your preferred style</p>
+									</div>
+                                    <button 
+                                        onClick={() => setIsOpen(false)}
+                                        className="p-2 bg-muted/50 rounded-full hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+                                    >
+                                        <X size={20} />
+                                    </button>
+								</div>
 
-						<div className="grid grid-cols-2 gap-2">
-							{themes.map((themeOption) => {
-								const isActive = theme === themeOption.id;
-								return (
-									<button
-										key={themeOption.id}
-										onClick={() => {
-											setTheme(themeOption.id);
-											setIsOpen(false);
-										}}
-										className={`relative rounded-lg p-4 transition-all duration-200
-                      ${isActive ? 'ring-2 ring-primary shadow-lg' : 'hover:bg-accent/50'}
-                      bg-gradient-to-br ${getThemeColors(themeOption.id)} group
-                    `}
-									>
-										<div className="absolute inset-0 bg-black opacity-60 rounded-lg group-hover:opacity-50 transition-opacity" />
+								{/* Scrollable Content */}
+								<div className="p-4 overflow-y-auto overflow-x-hidden soft-scrollbar" style={{maxHeight: '60vh'}}>
+									<div className="grid grid-cols-2 gap-3 pb-safe-area-inset-bottom">
+										{themes.map(t => <ThemeButton key={t.id} themeOption={t} />)}
+									</div>
+                                    {/* Bottom Safe Area Spacer */}
+                                    <div className="h-8 md:h-0" />
+								</div>
+							</motion.div>
+						</>
+					) : (
+						/* Desktop Dropdown (for 'dropdown' and 'icon' variants) */
+						<motion.div
+							initial={{ opacity: 0, scale: 0.95, y: 10, filter: 'blur(10px)' }}
+							animate={{ opacity: 1, scale: 1, y: 0, filter: 'blur(0px)' }}
+							exit={{ opacity: 0, scale: 0.95, y: 10, filter: 'blur(10px)' }}
+							transition={{ duration: 0.2, type: 'spring' }}
+							className="absolute right-0 mt-4 p-1 rounded-[2rem] shadow-2xl bg-background/80 backdrop-blur-2xl border border-white/10 w-[360px] z-[100] overflow-hidden ring-1 ring-black/5 origin-top-right"
+						>
+							<div className="p-5 border-b border-white/5 bg-gradient-to-br from-white/5 to-transparent">
+								<div className="flex items-center gap-3">
+									<div className="p-2.5 bg-primary/10 rounded-2xl ring-1 ring-primary/20">
+										<Sparkles className="w-5 h-5 text-primary" />
+									</div>
+									<div>
+										<h3 className="text-base font-bold text-foreground">Theme Gallery</h3>
+										<p className="text-xs text-muted-foreground font-medium">
+											Personalize your interface
+										</p>
+									</div>
+								</div>
+							</div>
 
-										<div className="relative flex items-center justify-between">
-											<span className="text-white text-sm font-medium">{themeOption.label}</span>
-											{isActive && (
-												<span className="flex items-center justify-center w-5 h-5 bg-white rounded-full shadow-md">
-													<Check className="h-3 w-3 text-primary" />
-												</span>
-											)}
-										</div>
-
-										<div className="relative mt-2 flex space-x-1">
-											<span className="w-2 h-2 rounded-full bg-white opacity-60" />
-											<span className="w-2 h-2 rounded-full bg-white opacity-80" />
-											<span className="w-2 h-2 rounded-full bg-white" />
-										</div>
-									</button>
-								);
-							})}
-						</div>
-					</motion.div>
+							<div className="p-3 max-h-[450px] overflow-y-auto no-scrollbar bg-grid-pattern">
+								<div className="grid grid-cols-2 gap-2.5">
+									{themes.map(t => <ThemeButton key={t.id} themeOption={t} />)}
+								</div>
+							</div>
+						</motion.div>
+					)
 				)}
 			</AnimatePresence>
 		</div>
