@@ -24,7 +24,7 @@ const Flow = memo(function Flow({ flowData, onChange }: Props) {
 				<div className="flex flex-row w-full h-full">
 					<FlowEditor initialData={flowData} onChange={onChange} />
 				</div>
-			</div>	
+			</div>
 		</>
 	);
 });

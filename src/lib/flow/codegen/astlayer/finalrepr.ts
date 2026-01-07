@@ -1,5 +1,5 @@
-import { writeLiteral } from "./literals";
-import { ParseCommand } from "./parsecommand";
+import { writeLiteral } from './literals';
+import { ParseCommand } from './parsecommand';
 
 /**
  * The different types that a value in Luau can be user-initialized to.
@@ -314,12 +314,12 @@ export type Node =
 export class FinalRepr {
 	public repr: Node[];
 	public errors: string[];
-	public dependencies: Map<string, string>
+	public dependencies: Map<string, string>;
 
 	constructor(repr: Node[], dependencies: Map<string, string>) {
 		this.repr = repr;
 		this.errors = [];
-		this.dependencies = dependencies
+		this.dependencies = dependencies;
 	}
 
 	/**
@@ -333,7 +333,7 @@ export class FinalRepr {
 	 * Mangles dep to depName
 	 */
 	static mangleDep(dep: string) {
-		return "fd_" + dep.replaceAll("@", "__").replaceAll("/", "_")
+		return 'fd_' + dep.replaceAll('@', '__').replaceAll('/', '_');
 	}
 
 	/**
@@ -420,11 +420,11 @@ export class FinalRepr {
 	 * Visits a set of statement/comment nodes and returns the string representation.
 	 */
 	private visitNodes(inodes: Node[], allowExprs?: boolean): ParseCommand[] {
-		let pc: ParseCommand[] = []
+		let pc: ParseCommand[] = [];
 		for (let i = 0; i < inodes.length; i++) {
-			if (i > 0) pc.push({ type: "line.next" })
+			if (i > 0) pc.push({ type: 'line.next' });
 			if (allowExprs) {
-				pc.push(...this.visitRepr(inodes[i]))
+				pc.push(...this.visitRepr(inodes[i]));
 			} else {
 				pc.push(...this.visitStatementOrComment(inodes[i]));
 			}
@@ -443,13 +443,13 @@ export class FinalRepr {
 		let exprTok = this.visitExpression(inode.rvalue);
 
 		return [
-			{ type: "token.luau", value: "local" },
-			{ type: "token", value: inode.lvalue },
-			{ type: "token", value: " = " },
+			{ type: 'token.luau', value: 'local' },
+			{ type: 'token', value: inode.lvalue },
+			{ type: 'token', value: ' = ' },
 			...exprTok,
-			{ type: "token", value: ";" },
+			{ type: 'token', value: ';' }
 			//{ type: "line.next" },
-		]
+		];
 	}
 
 	/**
@@ -459,12 +459,12 @@ export class FinalRepr {
 		let exprTok = this.visitExpression(inode.rvalue);
 
 		return [
-			{ type: "token", value: inode.lvalue },
-			{ type: "token", value: " = " },
+			{ type: 'token', value: inode.lvalue },
+			{ type: 'token', value: ' = ' },
 			...exprTok,
-			{ type: "token", value: ";" },
+			{ type: 'token', value: ';' }
 			//{ type: "line.next" },
-		]
+		];
 	}
 
 	/**
@@ -472,13 +472,9 @@ export class FinalRepr {
 	 */
 	private visitComment(inode: Comment): ParseCommand[] {
 		if (inode.comment.includes('\n')) {
-			return [
-				{ type: "token", value: `--[[ ${inode.comment} ]]` },
-			]
+			return [{ type: 'token', value: `--[[ ${inode.comment} ]]` }];
 		} else {
-			return [
-				{ type: "token", value: `-- ${inode.comment.replaceAll('--', '\-\-')}` },
-			]
+			return [{ type: 'token', value: `-- ${inode.comment.replaceAll('--', '\-\-')}` }];
 		}
 	}
 
@@ -486,16 +482,14 @@ export class FinalRepr {
 	 * Visits a Raw and returns the string representation.
 	 */
 	private visitRaw(inode: Raw): ParseCommand[] {
-		return [
-			{ type: "token", value: inode.code }
-		]
+		return [{ type: 'token', value: inode.code }];
 	}
 
 	/**
 	 * Visits a Literal node and returns the string representation.
 	 */
 	private visitLiteral(inode: Literal): ParseCommand[] {
-		return [{ type: "token.literal", value: inode.value }]
+		return [{ type: 'token.literal', value: inode.value }];
 	}
 
 	/**
@@ -506,14 +500,14 @@ export class FinalRepr {
 
 		let ifCondToks: ParseCommand[] = [
 			//{type: "line.next"},
-			{ type: "token.luau", value: "if" },
-			{ type: "token.literal", value: inode.data.condition },
-			{ type: "token.luau", value: "then" },
-			{ type: "line.next" },
-			{ type: "indent.incr" },
+			{ type: 'token.luau', value: 'if' },
+			{ type: 'token.literal', value: inode.data.condition },
+			{ type: 'token.luau', value: 'then' },
+			{ type: 'line.next' },
+			{ type: 'indent.incr' },
 			...bodyStmts,
-			{ type: "indent.decr" },
-			{ type: "line.next" },
+			{ type: 'indent.decr' },
+			{ type: 'line.next' }
 		];
 
 		if (inode.data.elseifs) {
@@ -521,15 +515,15 @@ export class FinalRepr {
 				let elseIfToks = this.visitNodes(elseif.body);
 
 				ifCondToks.push(
-					{ type: "token.luau", value: "elseif" },
-					{ type: "token.literal", value: elseif.condition },
-					{ type: "token.luau", value: "then" },
-					{ type: "line.next" },
-					{ type: "indent.incr" },
+					{ type: 'token.luau', value: 'elseif' },
+					{ type: 'token.literal', value: elseif.condition },
+					{ type: 'token.luau', value: 'then' },
+					{ type: 'line.next' },
+					{ type: 'indent.incr' },
 					...elseIfToks,
-					{ type: "indent.decr" },
-					{ type: "line.next" },
-				)
+					{ type: 'indent.decr' },
+					{ type: 'line.next' }
+				);
 			}
 		}
 
@@ -537,18 +531,18 @@ export class FinalRepr {
 			let elseToks = this.visitNodes(inode.data.else);
 
 			ifCondToks.push(
-				{ type: "token.luau", value: "else" },
-				{ type: "line.next" },
-				{ type: "indent.incr" },
+				{ type: 'token.luau', value: 'else' },
+				{ type: 'line.next' },
+				{ type: 'indent.incr' },
 				...elseToks,
-				{ type: "indent.decr" },
-				{ type: "line.next" },
-			)
+				{ type: 'indent.decr' },
+				{ type: 'line.next' }
+			);
 		}
 
-		ifCondToks.push({ type: "token.luau", value: "end" })
+		ifCondToks.push({ type: 'token.luau', value: 'end' });
 
-		return ifCondToks
+		return ifCondToks;
 	}
 
 	/**
@@ -560,8 +554,8 @@ export class FinalRepr {
 		}
 
 		let toks: ParseCommand[] = [
-			{ type: "token.luau", value: "local" },
-			...this.visitFunctionDeclaration(inode.funcdecl),
+			{ type: 'token.luau', value: 'local' },
+			...this.visitFunctionDeclaration(inode.funcdecl)
 		];
 
 		return toks;
@@ -575,22 +569,26 @@ export class FinalRepr {
 			this.pushError(`Function parameter names cannot contain a dot (.)`);
 		}
 
-		const params: ParseCommand[] = []
+		const params: ParseCommand[] = [];
 		for (let i = 0; i < inode.params.length; i++) {
-			if (i > 0) params.push({ type: "token", value: ", " })
-			params.push({ type: "token.luau.funcarg", name: inode.params[i].name, argtype: inode.params[i].type })
+			if (i > 0) params.push({ type: 'token', value: ', ' });
+			params.push({
+				type: 'token.luau.funcarg',
+				name: inode.params[i].name,
+				argtype: inode.params[i].type
+			});
 		}
 
 		return [
-			{ type: "token.luau", value: "function" },
-			{ type: "token", value: `${inode.name}` },
-			{ type: "token", value: `(` },
+			{ type: 'token.luau', value: 'function' },
+			{ type: 'token', value: `${inode.name}` },
+			{ type: 'token', value: `(` },
 			...params,
-			{ type: "token", value: `)` },
-			{ type: "indent.incr" },
+			{ type: 'token', value: `)` },
+			{ type: 'indent.incr' },
 			...this.visitNodes(inode.body),
-			{ type: "indent.decr" },
-			{ type: "token.luau", value: "end" }
+			{ type: 'indent.decr' },
+			{ type: 'token.luau', value: 'end' }
 		];
 	}
 
@@ -599,14 +597,14 @@ export class FinalRepr {
 	 */
 	private visitForLoop(inode: ForLoop): ParseCommand[] {
 		return [
-			{ type: "token.luau", value: "for" },
+			{ type: 'token.luau', value: 'for' },
 			...this.visitForLoopType(inode.data.condition),
-			{ type: "token.luau", value: "do" },
-			{ type: "indent.incr" },
+			{ type: 'token.luau', value: 'do' },
+			{ type: 'indent.incr' },
 			...this.visitNodes(inode.data.body),
-			{ type: "indent.decr" },
-			{ type: "token.luau", value: "end" }
-		]
+			{ type: 'indent.decr' },
+			{ type: 'token.luau', value: 'end' }
+		];
 	}
 
 	/**
@@ -616,26 +614,24 @@ export class FinalRepr {
 		switch (condition.type) {
 			case ForLoopEnum.GeneralizedIteration:
 				return [
-					{ type: "token", value: `${condition.varbinds.join(', ')}` },
-					{ type: "token.luau", value: "in" },
-					{ type: "token.literal", value: condition.iterable },
-				]
+					{ type: 'token', value: `${condition.varbinds.join(', ')}` },
+					{ type: 'token.luau', value: 'in' },
+					{ type: 'token.literal', value: condition.iterable }
+				];
 			case ForLoopEnum.Range:
 				let toks: ParseCommand[] = [
-					{ type: "token", value: `${condition.varbind}` },
-					{ type: "token", value: " = " },
-					{ type: "token", value: `${condition.start}` },
-					{ type: "token", value: ", " },
-					{ type: "token", value: `${condition.end}` },
-				]
+					{ type: 'token', value: `${condition.varbind}` },
+					{ type: 'token', value: ' = ' },
+					{ type: 'token', value: `${condition.start}` },
+					{ type: 'token', value: ', ' },
+					{ type: 'token', value: `${condition.end}` }
+				];
 				if (condition.step) {
-					toks.push({ type: "token", value: condition.step ? `, ${condition.step}` : '' })
+					toks.push({ type: 'token', value: condition.step ? `, ${condition.step}` : '' });
 				}
-				return toks
+				return toks;
 			case ForLoopEnum.Raw:
-				return [
-					{ type: "token", value: `${condition.condition}` },
-				] // Raw condition for the loop
+				return [{ type: 'token', value: `${condition.condition}` }]; // Raw condition for the loop
 		}
 	}
 
@@ -657,14 +653,14 @@ export class FinalRepr {
 		}
 
 		let toks: ParseCommand[] = [
-			{ type: "token", value: inode.name },
-			{ type: "token", value: "(" },
-		]
+			{ type: 'token', value: inode.name },
+			{ type: 'token', value: '(' }
+		];
 		for (const arg of inode.args) {
-			toks.push({ type: "token.literal", value: arg })
+			toks.push({ type: 'token.literal', value: arg });
 		}
-		toks.push({ type: "token", value: ")" },)
-		return toks
+		toks.push({ type: 'token', value: ')' });
+		return toks;
 	}
 
 	/**
@@ -672,14 +668,14 @@ export class FinalRepr {
 	 */
 	private visitWhileLoop(inode: WhileLoop): ParseCommand[] {
 		return [
-			{ type: "token.luau", value: "while" },
-			{ type: "token.literal", value: inode.condition },
-			{ type: "token.luau", value: "do" },
-			{ type: "indent.incr" },
+			{ type: 'token.luau', value: 'while' },
+			{ type: 'token.literal', value: inode.condition },
+			{ type: 'token.luau', value: 'do' },
+			{ type: 'indent.incr' },
 			...this.visitNodes(inode.body),
-			{ type: "indent.decr" },
-			{ type: "token.luau", value: "end" }
-		]
+			{ type: 'indent.decr' },
+			{ type: 'token.luau', value: 'end' }
+		];
 	}
 
 	/**
@@ -687,8 +683,8 @@ export class FinalRepr {
 	 */
 	private visitReturn(inode: Return): ParseCommand[] {
 		return [
-			{ type: "token.luau", value: "return" },
-			{ type: "token.literal", value: inode.value }
-		]
+			{ type: 'token.luau', value: 'return' },
+			{ type: 'token.literal', value: inode.value }
+		];
 	}
 }

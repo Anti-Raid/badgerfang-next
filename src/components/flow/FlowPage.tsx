@@ -43,7 +43,7 @@ export default function FlowPage(props: Props) {
 
 			<div className="w-[85dvw]">
 				<FlowExpandedArea />
-			</div>	
+			</div>
 		</FlowHPaneProvider>
 	);
 }

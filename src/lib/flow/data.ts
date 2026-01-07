@@ -118,7 +118,7 @@ export const typedInputEnumToString = (type: TypedInputEnum): string => {
 		default:
 			throw new Error(`Unknown TypedInputEnum: ${type}`);
 	}
-}
+};
 
 export interface TypedInputNil {
 	type: TypedInputEnum.Nil;

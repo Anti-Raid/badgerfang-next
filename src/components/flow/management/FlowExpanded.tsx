@@ -23,11 +23,19 @@ export const FlowExpanded: React.FC<FlowExpandedProps> = ({
 	if (!isLoaded) return <></>;
 
 	if (fflags.has(FFlag.Flow_NodeEditor_HorizontalPane)) {
-		return <FlowExpandedHorizontalPane nodeProps={nodeProps} title={title} onDone={onDone}>{children}</FlowExpandedHorizontalPane>;
+		return (
+			<FlowExpandedHorizontalPane nodeProps={nodeProps} title={title} onDone={onDone}>
+				{children}
+			</FlowExpandedHorizontalPane>
+		);
 	} else {
-		return <FlowExpandedModal nodeProps={nodeProps} title={title} onDone={onDone}>{children}</FlowExpandedModal>;
+		return (
+			<FlowExpandedModal nodeProps={nodeProps} title={title} onDone={onDone}>
+				{children}
+			</FlowExpandedModal>
+		);
 	}
-}
+};
 
 const FlowExpandedHorizontalPane: React.FC<FlowExpandedProps> = ({
 	nodeProps,
@@ -35,15 +43,15 @@ const FlowExpandedHorizontalPane: React.FC<FlowExpandedProps> = ({
 	title: _title,
 	onDone
 }) => {
-	const title = _title || `${nodeProps.data.type} Configuration`
+	const title = _title || `${nodeProps.data.type} Configuration`;
 	const { hpane, htmlRef, setHPane } = useFlowHPane();
 
 	useEffect(() => {
 		return () => {
 			setHPane({
 				...hpane,
-				expanded: '',
-			})
+				expanded: ''
+			});
 		};
 	}, [setHPane]);
 
@@ -63,22 +71,20 @@ const FlowExpandedHorizontalPane: React.FC<FlowExpandedProps> = ({
 					<p className="text-sm text-muted-foreground">INSERT_DESCRIPTION_HERE</p>
 				</div>
 			</motion.div>
-			<div className="flex-1 overflow-x-auto p-2 space-y-6">
-				{children}
-			</div>
+			<div className="flex-1 overflow-x-auto p-2 space-y-6">{children}</div>
 		</>
 	);
 
 	return (
 		<>
-			{(htmlRef && nodeProps.id === hpane?.expanded) && createPortal(pane, htmlRef)}
+			{htmlRef && nodeProps.id === hpane?.expanded && createPortal(pane, htmlRef)}
 			<div className="flex justify-center mt-3">
 				<button
 					onClick={() => {
 						setHPane({
 							title: title,
 							expanded: nodeProps.id
-						})
+						});
 					}}
 					className={`
             group relative px-6 py-2.5 rounded-lg font-medium font-inter text-sm
@@ -95,21 +101,14 @@ const FlowExpandedHorizontalPane: React.FC<FlowExpandedProps> = ({
 					/>
 
 					{/* Button content */}
-					<span className="relative flex items-center gap-2">
-						Edit
-					</span>
+					<span className="relative flex items-center gap-2">Edit</span>
 				</button>
 			</div>
 		</>
 	);
-}
+};
 
-const FlowExpandedModal: React.FC<FlowExpandedProps> = ({
-	nodeProps,
-	children,
-	title,
-	onDone
-}) => {
+const FlowExpandedModal: React.FC<FlowExpandedProps> = ({ nodeProps, children, title, onDone }) => {
 	const [isExpanded, setExpanded] = useState(false);
 	const [mounted, setMounted] = useState(false);
 

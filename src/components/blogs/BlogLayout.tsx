@@ -91,7 +91,10 @@ export default function BlogLayout() {
 			{/* Animated Background */}
 			<div className="fixed inset-0 pointer-events-none">
 				<div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[120px] animate-pulse" />
-				<div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '2s' }} />
+				<div
+					className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-[120px] animate-pulse"
+					style={{ animationDelay: '2s' }}
+				/>
 			</div>
 
 			{/* Hero Section */}
@@ -146,7 +149,8 @@ export default function BlogLayout() {
 							transition={{ duration: 0.7, delay: 0.4 }}
 							className="font-inter text-xl text-muted-foreground max-w-3xl mx-auto mb-12 leading-relaxed"
 						>
-							Discover insights, updates, and stories about Discord security, moderation, and community management
+							Discover insights, updates, and stories about Discord security, moderation, and
+							community management
 						</motion.p>
 
 						{/* Search Bar */}
@@ -252,7 +256,10 @@ export default function BlogLayout() {
 				{isLoading ? (
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 						{[1, 2, 3, 4, 5, 6].map((i) => (
-							<div key={i} className="h-[400px] rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 animate-pulse overflow-hidden">
+							<div
+								key={i}
+								className="h-[400px] rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 animate-pulse overflow-hidden"
+							>
 								<div className="h-48 bg-muted/50" />
 								<div className="p-6 space-y-4">
 									<div className="w-1/3 h-4 bg-muted/50 rounded-full" />
@@ -285,7 +292,8 @@ export default function BlogLayout() {
 						</div>
 						<h3 className="text-3xl font-bold mb-3 font-monster">No articles found</h3>
 						<p className="text-muted-foreground text-lg mb-8 max-w-md mx-auto">
-							We couldn't find any blogs matching your search criteria. Try different keywords or clear your filters.
+							We couldn't find any blogs matching your search criteria. Try different keywords or
+							clear your filters.
 						</p>
 						<button
 							onClick={() => {
@@ -342,13 +350,16 @@ export default function BlogLayout() {
 					<div className="relative z-10 text-center max-w-3xl mx-auto">
 						<div className="flex items-center justify-center mb-6">
 							<Sparkles className="text-primary mr-3" size={28} />
-							<span className="text-primary font-semibold text-lg tracking-wide">Stay in the Loop</span>
+							<span className="text-primary font-semibold text-lg tracking-wide">
+								Stay in the Loop
+							</span>
 						</div>
 						<h3 className="text-4xl md:text-5xl font-bold mb-4 font-monster">
 							Never Miss an Update
 						</h3>
 						<p className="text-muted-foreground text-lg mb-10 max-w-2xl mx-auto leading-relaxed">
-							Get the latest articles, security tips, and AntiRaid updates delivered straight to your inbox. Join our community of Discord server owners.
+							Get the latest articles, security tips, and AntiRaid updates delivered straight to
+							your inbox. Join our community of Discord server owners.
 						</p>
 
 						<div className="flex flex-col sm:flex-row gap-4 justify-center max-w-xl mx-auto">
