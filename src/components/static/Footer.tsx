@@ -30,7 +30,7 @@ const categories: Category[] = [
 		items: [
 			{ name: 'Features', href: '/#features' },
 			{ name: 'Script Shop', href: '/script/shop' },
-			{ name: 'Status', href: '/status', external: true }
+			{ name: 'Status', href: '/status', external: false }
 		]
 	},
 	{
