@@ -10,6 +10,14 @@ interface Props {
 	id: string;
 }
 
+/**
+ * Renders a SubFlow and provides a save callback that captures the current React Flow nodes and edges and forwards them via `onChange`.
+ *
+ * @param flowData - Initial subflow data to render in the SubFlow component
+ * @param onChange - Callback invoked with an object containing `nodes` and `edges` when the SubFlow triggers save
+ * @param id - Identifier passed to the SubFlow component
+ * @returns The rendered SubFlow wrapped in a vertical container
+ */
 function InnerSubFlow({ flowData, onChange, id }: Props) {
 	const { getNodes, getEdges } = useReactFlow<SubflowNodeType>();
 
@@ -27,6 +35,12 @@ function InnerSubFlow({ flowData, onChange, id }: Props) {
 	);
 }
 
+/**
+ * Render a subflow UI section with React Flow context provided.
+ *
+ * @param props - Component props containing the subflow data, an `onChange` callback invoked with updated `SubflowData`, and the subflow `id`.
+ * @returns A React element that provides React Flow context and renders the subflow UI. 
+ */
 export default function SubflowSection(props: Props) {
 	return (
 		<>

@@ -220,6 +220,12 @@ export function getNodeValues(nodeType: string): NodeValues {
   return values;
 }
 
+/**
+ * Retrieve the NodeValues associated with a node type.
+ *
+ * @param nodeType - The node type key to look up (e.g., "command", "for_loop")
+ * @returns The NodeValues for the specified node type; if the type is not recognized, returns the values for the unknown node type
+ */
 export function useNodeValues(nodeType: string): NodeValues {
   return useMemo(() => getNodeValues(nodeType), [nodeType]);
 }
@@ -229,7 +235,15 @@ export function useNodeValues(nodeType: string): NodeValues {
 // ----------------------
 // ----------------------
 // Node creation helpers
-// ----------------------
+/**
+ * Create a new flow node with default data for the specified node type.
+ *
+ * @param type - The node type key used to select default data when `data` is not provided
+ * @param position - The node's XY position in the canvas
+ * @param data - Optional explicit node data to use instead of the type defaults
+ * @param parent - Optional parent node id; when provided, the returned node will reference the parent and set parent-related layout fields
+ * @returns The constructed Node<NodeExtData> populated with id, type, position, data, and parent-related fields when applicable
+ */
 export function createNode(
   type: string,
   position: XYPosition,
@@ -254,14 +268,29 @@ export function createNode(
   return node;
 }
 
+/**
+ * Generate a pseudo-random integer identifier.
+ *
+ * @returns An integer between 0 and 999,999 (inclusive) suitable for use as an identifier
+ */
 export function getUniqueId(): number {
   return Math.floor(Math.random() * 1000000);
 }
 
+/**
+ * Create a unique identifier for a node.
+ *
+ * @returns A string identifier in the form `node:<number>`
+ */
 export function getNodeId(): string {
 	return `node:${getUniqueId().toString()}`;
 }
 
+/**
+ * Create a unique edge identifier string.
+ *
+ * @returns A string identifier prefixed with `edge:` followed by a numeric unique token.
+ */
 export function getEdgeId(): string {
 	return `edge:${getUniqueId().toString()}`;
 }

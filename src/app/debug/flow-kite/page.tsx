@@ -25,6 +25,13 @@ const codegenAst = async (data: FlowData) => {
 	return { stage1, stage2, compiledStr };
 };
 
+/**
+ * Renders a Blockly debug UI that manages multiple FlowData entries, allows selecting and compiling a flow into staged AST outputs, and displays both input data and compilation results.
+ *
+ * The component stores flow list state, the selected flow index, and the compiled AST ({ stage1, stage2, compiledStr }). Clicking "Compile Flow" generates the AST for the selected flow and updates the displayed results.
+ *
+ * @returns The rendered React element for the Blockly debug interface.
+ */
 export default function Blockly() {
 	const [data, setData] = useState<FlowData[]>([]);
 	const [selectedFlowIndex, setSelectedFlowIndex] = useState(0);

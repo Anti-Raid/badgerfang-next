@@ -32,6 +32,39 @@ pub extern "C" fn test_wasm() -> i32 {
 //
 // Note that the returned value must be freed by the caller using `_free`
 #[allow(clippy::not_unsafe_ptr_arg_deref)] // SAFETY: This is a C ABI function, so we can't use Rust's safety checks
+/// Execute a Luau code chunk with JSON input and a virtual file system, returning a status-prefixed JSON result as a newly allocated C string.
+///
+/// The function expects four null-terminated UTF-8 C strings:
+/// - `code`: Luau source code to execute.
+/// - `json`: JSON value passed as the single argument to the chunk.
+/// - `env`: environment key used to select or create a per-env globals table.
+/// - `vfs`: JSON object mapping virtual file paths to file contents (string-to-string).
+///
+/// The returned pointer is a C-allocated string the caller must free with `wasm_free_string`.
+/// The string starts with a single status byte followed by payload text:
+/// - `'0'` — success; payload is the JSON-serialized result value.
+/// - `'1'` — input/serialization/UTF-8 error; payload is an error message.
+/// - `'2'` — runtime error while executing Luau; payload is the error message.
+///
+/// # Examples
+///
+/// ```
+/// use std::ffi::CString;
+///
+/// let code = CString::new("return 42").unwrap();
+/// let json = CString::new("null").unwrap();
+/// let env = CString::new("default").unwrap();
+/// let vfs = CString::new("{}").unwrap();
+///
+/// let ptr = unsafe { luau_template(code.as_ptr(), json.as_ptr(), env.as_ptr(), vfs.as_ptr()) };
+/// assert!(!ptr.is_null());
+///
+/// let s = unsafe { std::ffi::CStr::from_ptr(ptr) }.to_str().unwrap();
+/// assert!(s.starts_with('0')); // success status
+///
+/// // free the allocated string
+/// unsafe { wasm_free_string(ptr) };
+/// ```
 #[unsafe(no_mangle)]
 pub extern "C" fn luau_template(
     code: *const c_char,
@@ -139,6 +172,39 @@ pub unsafe extern "C" fn wasm_free_string(ptr: *mut c_char) {
 
 type Error = Box<dyn std::error::Error + Send + Sync>;
 
+/// Execute Luau code inside the persistent, sandboxed VM and return its result as JSON.
+///
+/// The provided `value` is converted to a Lua value and passed as the chunk's single argument.
+/// The chunk is executed with a per-`env` global table (created on first use) and has access to
+/// files provided via `vfs` (a mapping of virtual paths to file contents).
+///
+/// # Parameters
+///
+/// - `code`: Luau source code to load and execute.
+/// - `value`: Input JSON value that will be passed to the chunk as its argument.
+/// - `vfs`: Virtual file system map accessible to the execution environment.
+/// - `env`: Identifier for the environment whose globals will back the chunk's global table.
+///
+/// # Returns
+///
+/// The JSON representation of the Lua return values: the single value if the chunk returned one
+/// value, otherwise an array containing all returned values.
+///
+/// # Examples
+///
+/// ```
+/// use serde_json::json;
+/// use std::collections::HashMap;
+///
+/// // Execute a chunk that returns the passed-in value doubled.
+/// let code = "local x = ...; return x * 2".to_string();
+/// let input = json!(21);
+/// let vfs = HashMap::new();
+/// let env = "default".to_string();
+///
+/// let result = call_luau(code, input, vfs, env).expect("execution failed");
+/// assert_eq!(result, json!(42));
+/// ```
 pub fn call_luau(code: String, value: Value, vfs: HashMap<String, String>, env: String) -> Result<Value, Error> {
     let vm_result = VM.get_or_init(|| {
         let lua = Lua::new_with(
