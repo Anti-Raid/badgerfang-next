@@ -357,7 +357,7 @@ export default function CommandInterface() {
 									</h2>
 								</div>
 								<p className="text-sm font-bold text-foreground/40 uppercase tracking-[0.2em]">
-									Accessing {filteredCommands.length} subroutines in database
+									Showing {filteredCommands.length} commands & sub-commands.
 								</p>
 							</div>
 
@@ -403,8 +403,7 @@ export default function CommandInterface() {
 									className="flex flex-col items-center justify-center py-40 border-2 border-dashed border-white/5 rounded-[4rem]"
 								>
 									<ShieldAlert size={64} className="text-primary/20 mb-8" />
-									<h3 className="text-3xl font-black font-monster uppercase text-foreground/20">Null Return</h3>
-									<p className="text-sm text-foreground/40 mt-4 uppercase tracking-[0.1em]">No subroutines found for your query</p>
+									<p className="text-sm text-foreground/40 mt-4 uppercase tracking-[0.1em]">No commands found for your query</p>
 								</motion.div>
 							)}
 						</AnimatePresence>
@@ -415,7 +414,7 @@ export default function CommandInterface() {
 	);
 }
 
-// --- Specific HUD Card Components ---
+// --- Specific  Card Components ---
 
 const HolographicCard = ({ command, view, index }: any) => {
 	const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -437,7 +436,7 @@ const HolographicCard = ({ command, view, index }: any) => {
 			`}
 		>
 			<div className={`p-8 ${view === 'list' ? 'flex flex-col md:flex-row md:items-center gap-8' : ''}`}>
-				{/* Top HUD Line */}
+				{/* Top  Line */}
 				<div className="absolute top-0 right-12 w-16 h-[2px] bg-primary/20 group-hover:w-24 group-hover:bg-primary/60 transition-all" />
 				
 				<div className={view === 'list' ? 'flex-1' : ''}>
@@ -556,7 +555,7 @@ const HolographicCard = ({ command, view, index }: any) => {
 									</div>
 								)}
 
-								{/* Terminal Simulator Widget */}
+								{/* Terminal Widget */}
 								<div className="p-6 rounded-[2rem] bg-black border border-white/5 flex items-center justify-between gap-4 group/sim relative overflow-hidden">
 									<div className="absolute inset-0 bg-primary/5 opacity-0 group-hover/sim:opacity-100 transition-opacity" />
 									<div className="flex items-center gap-4 relative z-10">

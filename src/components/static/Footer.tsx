@@ -31,7 +31,7 @@ const categories: Category[] = [
 		items: [
 			{ name: 'Features', href: '/#features' },
 			{ name: 'Script Shop', href: '/script/shop' },
-			{ name: 'Status', href: '/status', external: true },
+			{ name: 'Status', href: '/status', external: false },
 		],
 	},
 	{
@@ -40,7 +40,7 @@ const categories: Category[] = [
 		items: [
 			{ name: 'Documentation', href: 'https://docs.antiraid.xyz', external: true },
 			{ name: 'API Reference', href: `${API_BASE_URL}/docs/splashtail`, external: true },
-			{ name: 'Developer Portal', href: '/dashboard/developers', external: true },
+			{ name: 'Developer Portal', href: '/dashboard/developers', external: false },
 		],
 	},
 	{
