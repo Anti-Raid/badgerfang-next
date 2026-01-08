@@ -370,27 +370,12 @@ export default function CommandInterface() {
 								</div>
 							</div>
 
-							{/* Cyber Widget */}
-							<div className="p-8 rounded-[2.5rem] bg-gradient-to-br from-white/5 to-transparent border border-white/5 relative overflow-hidden group">
-								<div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
-									<Shield size={48} />
-								</div>
-								<h4 className="font-monster font-black text-lg mb-4 text-white/90">
-									Need Support?
-								</h4>
-								<p className="text-xs text-foreground/50 leading-relaxed mb-8">
-									Our neural support team is available 24/7 on the central Discord interface.
-								</p>
-								<button className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 font-black text-[10px] uppercase tracking-[0.2em] hover:bg-primary hover:text-white transition-all">
-									Enter Support Lab
-								</button>
-							</div>
 						</div>
 					</aside>
 
 					{/* Command Interface */}
 					<div className="flex-1">
-						{/* View Matrix Controls */}
+						{/* View Controls */}
 						<div className="flex flex-col md:flex-row items-end md:items-center justify-between gap-8 mb-16">
 							<div>
 								<div className="flex items-center gap-3 mb-2">
@@ -420,7 +405,7 @@ export default function CommandInterface() {
 							</div>
 						</div>
 
-						{/* Dynamic Command Matrix */}
+						{/* Dynamic Command */}
 						<AnimatePresence mode="popLayout">
 							{filteredCommands.length > 0 ? (
 								<motion.div
@@ -647,7 +632,7 @@ const HolographicCard = ({ command, view, index }: any) => {
 									</div>
 								)}
 
-								{/* Terminal Simulator Widget */}
+								{/* Terminal Widget */}
 								<div className="p-6 rounded-[2rem] bg-black border border-white/5 flex items-center justify-between gap-4 group/sim relative overflow-hidden">
 									<div className="absolute inset-0 bg-primary/5 opacity-0 group-hover/sim:opacity-100 transition-opacity" />
 									<div className="flex items-center gap-4 relative z-10">
