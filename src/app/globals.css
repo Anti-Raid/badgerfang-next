@@ -48,13 +48,17 @@
 	backdrop-filter: blur(12px);
 	-webkit-backdrop-filter: blur(12px);
 	border: 1px solid hsl(var(--border) / 0.5);
-	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+	box-shadow:
+		0 4px 6px -1px rgba(0, 0, 0, 0.1),
+		0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .glass-hover:hover {
 	background: hsl(var(--card) / 0.8);
 	border-color: hsl(var(--primary) / 0.3);
-	box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+	box-shadow:
+		0 10px 15px -3px rgba(0, 0, 0, 0.1),
+		0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 :root {
@@ -370,7 +374,6 @@
 	--input: 210 20% 90%;
 	--ring: 195 90% 50%;
 }
-
 
 .stargaze-theme {
 	--background: 210 20% 30%;
@@ -733,7 +736,6 @@
 
 /* ❄️ Winter Snowfall Effect ❄️ (Integrated into Canvas Component) */
 
-
 /* 🎨 Enhanced UX Animations */
 @keyframes fadeInUp {
 	from {
@@ -762,7 +764,6 @@
 }
 
 @keyframes pulse-glow {
-
 	0%,
 	100% {
 		opacity: 0.5;

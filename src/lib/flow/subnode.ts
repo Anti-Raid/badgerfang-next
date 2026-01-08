@@ -40,7 +40,14 @@ export interface ParensNode {
 	type: SubnodeTypeEnum.ParensNode;
 }
 
-export type SubflowNodeData = OutputNode | TypedInputNode | AndNode | OrNode | NotNode | ParensNode | UnknownNode;
+export type SubflowNodeData =
+	| OutputNode
+	| TypedInputNode
+	| AndNode
+	| OrNode
+	| NotNode
+	| ParensNode
+	| UnknownNode;
 
 export type SubflowNodeExtData = SubflowNodeData & Record<string, unknown>;
 

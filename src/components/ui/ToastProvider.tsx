@@ -10,9 +10,9 @@ export default function ToastProvider({ children }: ToastProviderProps) {
 	return (
 		<>
 			{children}
-			<ToastContainer 
-				theme="dark" 
-				role="alert" 
+			<ToastContainer
+				theme="dark"
+				role="alert"
 				aria-live="assertive"
 				position="bottom-right"
 				autoClose={3000}
@@ -24,7 +24,7 @@ export default function ToastProvider({ children }: ToastProviderProps) {
 				draggable
 				pauseOnHover
 				style={{
-					zIndex: 9999,
+					zIndex: 9999
 				}}
 				toastStyle={{
 					background: 'hsl(var(--card) / 0.95)',
@@ -32,10 +32,10 @@ export default function ToastProvider({ children }: ToastProviderProps) {
 					border: '1px solid hsl(var(--border) / 0.5)',
 					borderRadius: '0.75rem',
 					boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)',
-					color: 'hsl(var(--foreground))',
+					color: 'hsl(var(--foreground))'
 				}}
 				progressStyle={{
-					background: 'linear-gradient(to right, hsl(var(--primary)), hsl(var(--extra)))',
+					background: 'linear-gradient(to right, hsl(var(--primary)), hsl(var(--extra)))'
 				}}
 			/>
 		</>

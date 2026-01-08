@@ -65,14 +65,13 @@ interface GenerateMetadataParams {
 export const siteViewport: Viewport = {
 	themeColor: [
 		{ media: '(prefers-color-scheme: light)', color: '#8c45f4' }, // Brand Purple (Light)
-		{ media: '(prefers-color-scheme: dark)', color: '#0f0f12' }, // Dark Background
+		{ media: '(prefers-color-scheme: dark)', color: '#0f0f12' } // Dark Background
 	],
 	width: 'device-width',
 	initialScale: 1,
 	maximumScale: 5,
-	colorScheme: 'dark light',
+	colorScheme: 'dark light'
 };
-
 
 /**
  * Creates a Next.js Metadata object for a page by combining site-wide defaults with optional overrides.
@@ -92,7 +91,9 @@ export function generateMetadata(params: MainMetaDataParam): Metadata {
 	const canonicalBase = metadata ?? process.env.NEXT_PUBLIC_APP_URL ?? website_url;
 
 	// Merge page-specific keywords with site-wide keywords, ensuring 'AntiRaid' and 'Discord Bot' are always present first
-	const metaKeywords = [...new Set([...keywords, 'AntiRaid', 'Discord Bot', 'Security', ...siteKeywords])];
+	const metaKeywords = [
+		...new Set([...keywords, 'AntiRaid', 'Discord Bot', 'Security', ...siteKeywords])
+	];
 
 	const meta: Metadata = {
 		metadataBase: new URL(canonicalBase),
@@ -109,12 +110,12 @@ export function generateMetadata(params: MainMetaDataParam): Metadata {
 		formatDetection: {
 			email: false,
 			address: false,
-			telephone: false,
+			telephone: false
 		},
 		appleWebApp: {
 			capable: true,
 			title: siteTitle,
-			statusBarStyle: 'black-translucent',
+			statusBarStyle: 'black-translucent'
 		},
 		robots: {
 			index: true,
@@ -126,8 +127,8 @@ export function generateMetadata(params: MainMetaDataParam): Metadata {
 				noimageindex: false,
 				'max-video-preview': -1,
 				'max-image-preview': 'large',
-				'max-snippet': -1,
-			},
+				'max-snippet': -1
+			}
 		},
 		verification: {
 			// Add verification codes here (google, yandex, etc.)
@@ -135,7 +136,7 @@ export function generateMetadata(params: MainMetaDataParam): Metadata {
 		icons: {
 			icon: logo ?? '/logo.webp',
 			shortcut: logo ?? '/logo.webp',
-			apple: logo ?? '/logo.webp',
+			apple: logo ?? '/logo.webp'
 		},
 		openGraph: {
 			title: fullTitle,
@@ -147,11 +148,11 @@ export function generateMetadata(params: MainMetaDataParam): Metadata {
 					url: previewImage,
 					width: 1200,
 					height: 630,
-					alt: fullTitle,
-				},
+					alt: fullTitle
+				}
 			],
 			locale: 'en_US',
-			type: 'website',
+			type: 'website'
 		},
 		twitter: {
 			card: 'summary_large_image',
@@ -159,16 +160,16 @@ export function generateMetadata(params: MainMetaDataParam): Metadata {
 			description: desc,
 			images: [previewImage],
 			creator: twitter || undefined,
-			site: twitter || undefined,
-		},
+			site: twitter || undefined
+		}
 	};
 
 	if (Url) {
 		meta.alternates = {
 			canonical: Url,
 			languages: {
-				'en-US': Url,
-			},
+				'en-US': Url
+			}
 		};
 	}
 
@@ -342,4 +343,3 @@ export function generateHomeMetadata(params: GenerateMetadataParams = {}): Metad
 		Url: params.canonicalUrl
 	});
 }
-

@@ -1,5 +1,5 @@
-import { LiteralEnum } from "./finalrepr";
-import { writeLiteral } from "./literals";
+import { LiteralEnum } from './finalrepr';
+import { writeLiteral } from './literals';
 
 console.log('=> Testing literal');
 

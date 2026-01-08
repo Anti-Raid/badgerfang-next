@@ -17,9 +17,9 @@ const codegenAst = async (data: FlowData) => {
 	let compiledStr = null;
 
 	if (!r.isError()) {
-		let finalRepr = r.toFinalRepr()
+		let finalRepr = r.toFinalRepr();
 		stage2 = finalRepr.toParseCommand();
-		compiledStr = stringifyParseCommands(stage2)
+		compiledStr = stringifyParseCommands(stage2);
 	}
 
 	return { stage1, stage2, compiledStr };

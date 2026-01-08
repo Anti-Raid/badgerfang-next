@@ -115,15 +115,13 @@ const AllServers: React.FC = () => {
 			<div className="flex mb-8 border-b border-border/50 relative">
 				<button
 					className={`px-6 py-3 font-medium text-lg transition-all duration-300 relative ${
-						activeTab === 'managed'
-							? 'text-primary'
-							: 'text-muted-foreground hover:text-foreground'
+						activeTab === 'managed' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
 					}`}
 					onClick={() => setActiveTab('managed')}
 				>
 					Managed Servers ({managedServers.length})
 					{activeTab === 'managed' && (
-						<div 
+						<div
 							className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-extra"
 							style={{ animation: 'slideInFromRight 0.3s ease-out' }}
 						/>
@@ -131,15 +129,13 @@ const AllServers: React.FC = () => {
 				</button>
 				<button
 					className={`px-6 py-3 font-medium text-lg transition-all duration-300 relative ${
-						activeTab === 'yours'
-							? 'text-primary'
-							: 'text-muted-foreground hover:text-foreground'
+						activeTab === 'yours' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
 					}`}
 					onClick={() => setActiveTab('yours')}
 				>
 					Your Servers ({yourServers.length})
 					{activeTab === 'yours' && (
-						<div 
+						<div
 							className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-extra"
 							style={{ animation: 'slideInFromRight 0.3s ease-out' }}
 						/>
