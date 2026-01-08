@@ -319,7 +319,7 @@ export default function StatusPage() {
 
 	if (loading) {
 		return (
-			<div className="min-h-screen bg-[#0f0f12] flex items-center justify-center">
+			<div className="min-h-screen flex items-center justify-center">
 				<div className="relative w-32 h-32">
 					<motion.div
 						animate={{ rotate: 360, scale: [1, 1.1, 1] }}
@@ -333,38 +333,8 @@ export default function StatusPage() {
 					/>
 					<div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
 						<Terminal className="text-primary animate-pulse" size={24} />
-						<span className="text-[8px] font-black uppercase tracking-[0.3em] text-primary/60">
-							Syncing Core
-						</span>
+						<span className="text-[8px] font-black uppercase tracking-[0.3em] text-primary/60">Syncing shard status</span>
 					</div>
-				</div>
-			</div>
-		);
-	}
-
-	if (err) {
-		return (
-			<div className="min-h-screen bg-[#0f0f12] flex items-center justify-center p-6 text-center">
-				<div className="max-w-md w-full">
-					<div className="w-20 h-20 rounded-3xl bg-destructive/10 border border-destructive/20 flex items-center justify-center mx-auto mb-8 text-destructive">
-						<ShieldAlert size={40} />
-					</div>
-					<h2 className="text-3xl font-black font-monster uppercase italic mb-4">Link Severed</h2>
-					<p className="text-foreground/40 text-sm leading-relaxed mb-10 tracking-wide uppercase italic">
-						{err}
-					</p>
-					<button
-						onClick={() => window.location.reload()}
-						className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 font-black text-xs uppercase tracking-[0.2em] hover:bg-primary hover:text-white transition-all group shrink-0"
-					>
-						<span className="flex items-center justify-center gap-2">
-							<RefreshCcw
-								size={16}
-								className="group-hover:rotate-180 transition-transform duration-500"
-							/>
-							Initiate Hardware Reset
-						</span>
-					</button>
 				</div>
 			</div>
 		);
@@ -536,9 +506,7 @@ export default function StatusPage() {
 													<RadialBarChart
 														innerRadius="80%"
 														outerRadius="100%"
-														data={[
-															{ name: 'Health', value: metrics?.health, fill: 'var(--primary)' }
-														]}
+														data={[{ name: 'Health', value: metrics?.health, fill: 'var(--foreground)' }]}
 														startAngle={180}
 														endAngle={-180}
 													>
@@ -590,10 +558,6 @@ export default function StatusPage() {
 														/>
 													</ReBarChart>
 												</ResponsiveContainer>
-											</div>
-											<div className="mt-8 flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-foreground/40 px-2">
-												<span>Active_Nodes</span>
-												<span>System_Sync_032</span>
 											</div>
 										</div>
 									</div>
