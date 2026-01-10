@@ -67,6 +67,7 @@ const ServerIcons = () => {
 
 const Hero = () => {
 	const [serverCount, setServerCount] = useState(0);
+	const [userCount, setUserCount] = useState(0);
 	const [stats, setStats] = useState<GetStatusResponse | null>(null);
 	const [isVisible, setIsVisible] = useState(false);
 	const heroRef = useRef<HTMLDivElement>(null);
@@ -85,8 +86,18 @@ const Hero = () => {
 		fetchStats();
 	}, []);
 
-	const updateCount = useCallback((targetCount: number, increment: number) => {
+	const updateServerCount = useCallback((targetCount: number, increment: number) => {
 		setServerCount((prevCount) => {
+			if (prevCount < targetCount) {
+				const newCount = Math.ceil(prevCount + increment);
+				return newCount >= targetCount ? targetCount : newCount;
+			}
+			return prevCount;
+		});
+	}, []);
+
+	const updateUserCount = useCallback((targetCount: number, increment: number) => {
+		setUserCount((prevCount) => {
 			if (prevCount < targetCount) {
 				const newCount = Math.ceil(prevCount + increment);
 				return newCount >= targetCount ? targetCount : newCount;
@@ -104,9 +115,22 @@ const Hero = () => {
 		// Reset server count when target changes
 		setServerCount(0);
 
-		const intervalId = setInterval(() => updateCount(targetCount, increment), 10);
+		const intervalId = setInterval(() => updateServerCount(targetCount, increment), 10);
 		return () => clearInterval(intervalId);
-	}, [stats?.total_guilds, updateCount]);
+	}, [stats?.total_guilds, updateServerCount]);
+
+	useEffect(() => {
+		if (!stats?.total_users) return;
+
+		const targetCount = stats.total_users;
+		const increment = targetCount / 150;
+
+		// Reset server count when target changes
+		setUserCount(0);
+
+		const intervalId = setInterval(() => updateUserCount(targetCount, increment), 10);
+		return () => clearInterval(intervalId);
+	}, [stats?.total_users, updateUserCount]);
 
 	const containerVariants = {
 		hidden: { opacity: 0 },
@@ -177,7 +201,14 @@ const Hero = () => {
 										{serverCount.toLocaleString('en-US')}+
 									</span>
 								</span>{' '}
-								servers that trust AntiRaid to protect their communities
+								servers and{' '}
+								<span className="relative inline-block">
+									<span className="absolute inset-0 bg-primary/10 blur-md rounded-md"></span>
+									<span className="relative font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+										{userCount.toLocaleString('en-US')}+
+									</span>
+								</span>{' '}
+								users that trust AntiRaid to protect their communities
 							</motion.p>
 
 							{/* CTA Buttons */}
