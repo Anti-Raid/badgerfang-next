@@ -336,7 +336,9 @@ export default function StatusPage() {
 					/>
 					<div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
 						<Terminal className="text-primary animate-pulse" size={24} />
-						<span className="text-[8px] font-black uppercase tracking-[0.3em] text-primary/60">Syncing shard status</span>
+						<span className="text-[8px] font-black uppercase tracking-[0.3em] text-primary/60">
+							Syncing shard status
+						</span>
 					</div>
 				</div>
 			</div>
@@ -390,13 +392,13 @@ export default function StatusPage() {
 							color="primary"
 						/>
 
-							<MetricsBadge
+						<MetricsBadge
 							icon={User}
 							label="Total Users"
 							value={`${metrics?.totalUsers} users`}
 							color="primary"
 						/>
-						
+
 						<MetricsBadge
 							icon={Activity}
 							label="Core Ping"
@@ -517,7 +519,9 @@ export default function StatusPage() {
 													<RadialBarChart
 														innerRadius="80%"
 														outerRadius="100%"
-														data={[{ name: 'Health', value: metrics?.health, fill: 'var(--foreground)' }]}
+														data={[
+															{ name: 'Health', value: metrics?.health, fill: 'var(--foreground)' }
+														]}
 														startAngle={180}
 														endAngle={-180}
 													>
