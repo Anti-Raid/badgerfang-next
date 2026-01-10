@@ -48,8 +48,8 @@ export enum ICommandArgumentType {
 }
 
 interface AppliedPrelude {
-	nodes: Node[],
-	addDeps: Record<string, string>
+	nodes: Node[];
+	addDeps: Record<string, string>;
 }
 
 export const applyPrelude = (prelude: IPreludeData, bodyNodes: Node[]): AppliedPrelude => {
@@ -102,7 +102,7 @@ export const applyPrelude = (prelude: IPreludeData, bodyNodes: Node[]): AppliedP
 					type: ReprEnum.LocalFunctionDeclaration,
 					funcdecl: {
 						type: ReprEnum.FunctionDeclaration,
-						name: "register",
+						name: 'register',
 						params: [],
 						body: [registerFnNode],
 						returnType: {}
@@ -131,15 +131,15 @@ export const applyPrelude = (prelude: IPreludeData, bodyNodes: Node[]): AppliedP
 			return {
 				nodes: [registerFnNode, logicNode],
 				addDeps: {
-					"framework": "@antiraid-ext/flow/framework",
-					"commandBuilder": "@discord-types/builders/interaction/interaction",
-					"data": "@antiraid-ext/framework/coretypes"
+					framework: '@antiraid-ext/flow/framework',
+					commandBuilder: '@discord-types/builders/interaction/interaction',
+					data: '@antiraid-ext/framework/coretypes'
 				}
-			}
+			};
 		case IPreludeTypeEnum.Library:
 			return {
 				nodes: bodyNodes,
 				addDeps: {}
-			}
+			};
 	}
-}
+};

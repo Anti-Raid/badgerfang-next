@@ -12,8 +12,8 @@ export async function GET() {
 		const response = await fetch(`https://api.instatus.com/v1/${pageId}`, {
 			method: 'GET',
 			headers: {
-				'Authorization': `Bearer ${apiKey}`,
-				'Content-Type': 'application/json',
+				Authorization: `Bearer ${apiKey}`,
+				'Content-Type': 'application/json'
 			},
 			next: { revalidate: 300 } // Cache for 5 minutes
 		});

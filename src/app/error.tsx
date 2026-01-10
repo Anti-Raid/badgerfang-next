@@ -142,16 +142,16 @@ const ErrorPage = ({ error, reset }: ErrorPageProps) => {
 						</Link>
 						<Primary Title="Try Again" icon={RefreshCcw} onClick={reset} />
 						<div className="relative group/copy">
-							<Ghost 
-								Title={copied ? "Copied!" : "Copy Error"} 
-								icon={copied ? Check : Copy} 
+							<Ghost
+								Title={copied ? 'Copied!' : 'Copy Error'}
+								icon={copied ? Check : Copy}
 								onClick={async () => {
 									const errorData = `Error: ${error.message}\nDigest: ${error.digest || 'N/A'}`;
 									try {
 										if (navigator.clipboard && navigator.clipboard.writeText) {
 											await navigator.clipboard.writeText(errorData);
 										} else {
-											const textArea = document.createElement("textarea");
+											const textArea = document.createElement('textarea');
 											textArea.value = errorData;
 											document.body.appendChild(textArea);
 											textArea.select();
@@ -163,7 +163,7 @@ const ErrorPage = ({ error, reset }: ErrorPageProps) => {
 									} catch (err) {
 										console.error('Failed to copy error:', err);
 									}
-								}} 
+								}}
 							/>
 						</div>
 					</div>

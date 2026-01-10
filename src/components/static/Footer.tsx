@@ -10,7 +10,6 @@ import { API_BASE_URL } from '@/lib/api';
 import { Box, Heart } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
-
 interface Category {
 	name: string;
 	icon: React.ReactNode;
@@ -31,8 +30,8 @@ const categories: Category[] = [
 		items: [
 			{ name: 'Features', href: '/#features' },
 			{ name: 'Script Shop', href: '/script/shop' },
-			{ name: 'Status', href: '/status', external: false },
-		],
+			{ name: 'Status', href: '/status', external: false }
+		]
 	},
 	{
 		name: 'Resources',
@@ -40,8 +39,8 @@ const categories: Category[] = [
 		items: [
 			{ name: 'Documentation', href: 'https://docs.antiraid.xyz', external: true },
 			{ name: 'API Reference', href: `${API_BASE_URL}/docs/splashtail`, external: true },
-			{ name: 'Developer Portal', href: '/dashboard/developers', external: false },
-		],
+			{ name: 'Developer Portal', href: '/dashboard/developers', external: false }
+		]
 	},
 	{
 		name: 'Company',
@@ -49,8 +48,8 @@ const categories: Category[] = [
 		items: [
 			{ name: 'About Us', href: '/about' },
 			{ name: 'Our Team', href: '/about#staff' },
-			{ name: 'Blog', href: '/blogs' },
-		],
+			{ name: 'Blog', href: '/blogs' }
+		]
 	},
 	{
 		name: 'Legal',
@@ -58,9 +57,9 @@ const categories: Category[] = [
 		items: [
 			{ name: 'Terms of Service', href: 'https://purrquinox.com/terms', external: true },
 			{ name: 'Privacy Policy', href: 'https://purrquinox.com/privacy', external: true },
-			{ name: 'Cookie Policy', href: 'https://purrquinox.com/cookies', external: true },
-		],
-	},
+			{ name: 'Cookie Policy', href: 'https://purrquinox.com/cookies', external: true }
+		]
+	}
 ];
 
 const socials: Social[] = [
@@ -68,20 +67,20 @@ const socials: Social[] = [
 		name: 'Github',
 		icon: <FaGithub size={20} />,
 		href: 'https://github.com/Anti-Raid',
-		color: 'hover:text-white',
+		color: 'hover:text-white'
 	},
 	{
 		name: 'Discord',
 		icon: <FaDiscord size={20} />,
 		href: '/discord',
-		color: 'hover:text-[#5865F2]',
+		color: 'hover:text-[#5865F2]'
 	},
 	{
 		name: 'Twitter',
 		icon: <RiTwitterXFill size={20} />,
 		href: 'https://x.com/HeyAntiRaid',
-		color: 'hover:text-[#1DA1F2]',
-	},
+		color: 'hover:text-[#1DA1F2]'
+	}
 ];
 const Footer = () => {
 	const currentYear = new Date().getFullYear();
@@ -123,10 +122,13 @@ const Footer = () => {
 
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 				<div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 mb-16">
-					
 					{/* Brand Section */}
 					<div className="lg:col-span-5 space-y-6">
-						<Link href="/" className="inline-flex items-center gap-3 group" aria-label="AntiRaid Home">
+						<Link
+							href="/"
+							className="inline-flex items-center gap-3 group"
+							aria-label="AntiRaid Home"
+						>
 							<div className="relative">
 								<div className="absolute inset-0 bg-primary/20 blur-lg rounded-full group-hover:bg-primary/40 transition-all duration-300" />
 								<img src={logo} className="h-10 relative z-10" alt="AntiRaid Logo" />
@@ -140,10 +142,10 @@ const Footer = () => {
 								</span>
 							</div>
 						</Link>
-						
+
 						<p className="text-muted-foreground text-sm leading-relaxed max-w-sm">
-							The ultimate security solution for your Discord server. 
-							Protect your community from raids, spam, and malicious actors with advanced automated systems.
+							The ultimate security solution for your Discord server. Protect your community from
+							raids, spam, and malicious actors with advanced automated systems.
 						</p>
 
 						<div className="flex items-center gap-3">
@@ -167,9 +169,7 @@ const Footer = () => {
 						{categories.map((category) => (
 							<div key={category.name} className="space-y-4">
 								<h3 className="flex items-center gap-2 text-sm font-semibold text-foreground tracking-wider uppercase">
-									<span className="p-1 rounded bg-primary/10 text-primary">
-										{category.icon}
-									</span>
+									<span className="p-1 rounded bg-primary/10 text-primary">{category.icon}</span>
 									{category.name}
 								</h3>
 								<ul className="space-y-2">
@@ -197,7 +197,7 @@ const Footer = () => {
 					<p className="text-sm text-muted-foreground">
 						&copy; {currentYear} Purrquinox. All rights reserved.
 					</p>
-					
+
 					<div className="flex items-center gap-6 text-sm text-muted-foreground">
 						<Link
 							href="https://status.purrquinox.com"
@@ -205,17 +205,23 @@ const Footer = () => {
 							rel="noopener noreferrer"
 							className="flex items-center gap-1.5 hover:text-primary transition-colors group/status"
 						>
-							<div className={`w-2 h-2 rounded-full ${status.color} animate-pulse group-hover/status:scale-125 transition-transform`} />
+							<div
+								className={`w-2 h-2 rounded-full ${status.color} animate-pulse group-hover/status:scale-125 transition-transform`}
+							/>
 							{status.label}
 						</Link>
 						<span className="text-white/10">|</span>
 						<p className="flex items-center gap-1">
-							Made with <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500 animate-pulse" aria-hidden="true" /> by Purrquinox Team
+							Made with{' '}
+							<Heart
+								className="w-3.5 h-3.5 text-red-500 fill-red-500 animate-pulse"
+								aria-hidden="true"
+							/>{' '}
+							by Purrquinox Team
 						</p>
 					</div>
 				</div>
 			</div>
-
 		</footer>
 	);
 };

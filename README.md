@@ -46,17 +46,20 @@
 ### Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/Anti-Raid/badgerfang-next.git
    cd badgerfang-next
    ```
 
 2. Install dependencies:
+
    ```bash
    bun install
    ```
 
 3. Configure environment variables:
+
    ```bash
    cp .env.template .env
    # Edit .env with your configuration
@@ -76,7 +79,6 @@ cd wasm
 make release
 make copy
 ```
-
 
 ## 🤝 Contributing
 
@@ -99,4 +101,3 @@ We welcome contributions! If you encounter any issues or have suggestions, pleas
     <img src="https://contrib.rocks/image?repo=Anti-Raid/badgerfang-next" />
   </a>
 </div>
-

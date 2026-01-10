@@ -31,7 +31,15 @@ import {
 	ShieldAlert,
 	Wrench
 } from 'lucide-react';
-import { motion, AnimatePresence, useScroll, useTransform, useInView, useSpring, useMotionValue } from 'framer-motion';
+import {
+	motion,
+	AnimatePresence,
+	useScroll,
+	useTransform,
+	useInView,
+	useSpring,
+	useMotionValue
+} from 'framer-motion';
 import { getBotState } from '@/lib/api';
 import { ApiCreateCommandOption } from '@/types/api/bindings/ApiCreateCommandOption';
 import { TwState } from '@/types/api/bindings/TwState';
@@ -53,12 +61,12 @@ const useMousePosition = () => {
 	return { mouseX, mouseY };
 };
 
-const CommandBadge = ({ 
-	children, 
+const CommandBadge = ({
+	children,
 	variant = 'default',
-	className = "" 
-}: { 
-	children: React.ReactNode; 
+	className = ''
+}: {
+	children: React.ReactNode;
 	variant?: 'default' | 'primary' | 'secondary' | 'required' | 'optional' | 'success' | 'module';
 	className?: string;
 }) => {
@@ -73,7 +81,9 @@ const CommandBadge = ({
 	};
 
 	return (
-		<span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border backdrop-blur-md ${variants[variant]} ${className}`}>
+		<span
+			className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border backdrop-blur-md ${variants[variant]} ${className}`}
+		>
 			{children}
 		</span>
 	);
@@ -87,7 +97,7 @@ const CopyButton = ({ text }: { text: string }) => {
 				await navigator.clipboard.writeText(text);
 			} else {
 				// Fallback for non-secure contexts or older browsers
-				const textArea = document.createElement("textarea");
+				const textArea = document.createElement('textarea');
 				textArea.value = text;
 				document.body.appendChild(textArea);
 				textArea.select();
@@ -102,8 +112,11 @@ const CopyButton = ({ text }: { text: string }) => {
 	};
 
 	return (
-		<button 
-			onClick={(e) => { e.stopPropagation(); onCopy(); }}
+		<button
+			onClick={(e) => {
+				e.stopPropagation();
+				onCopy();
+			}}
 			className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-primary/20 hover:border-primary/50 transition-all text-muted-foreground hover:text-primary active:scale-90"
 		>
 			{copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
@@ -158,7 +171,7 @@ export default function CommandInterface() {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const { scrollYProgress } = useScroll();
 	const smoothProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
-	
+
 	const allCommands = useMemo(() => {
 		if (!botState) return [];
 		let idCounter = 0;
@@ -167,7 +180,7 @@ export default function CommandInterface() {
 			const extract = (options: any[] = []) => {
 				const sub: any[] = [];
 				const args: any[] = [];
-				options.forEach(o => {
+				options.forEach((o) => {
 					if (!o) return;
 					if (o.type === 1 || o.type === 2) sub.push(o);
 					else args.push(o);
@@ -181,10 +194,10 @@ export default function CommandInterface() {
 				moduleName: cmd.name,
 				id: `cmd-${idCounter++}`,
 				subcommands: sub,
-				arguments: args.map(a => ({ ...a, required: a.required ?? false }))
+				arguments: args.map((a) => ({ ...a, required: a.required ?? false }))
 			});
 
-			sub.forEach(sc => {
+			sub.forEach((sc) => {
 				const { sub: sSub, args: sArgs } = extract(sc.options);
 				commands.push({
 					...sc,
@@ -192,7 +205,7 @@ export default function CommandInterface() {
 					id: `cmd-${idCounter++}`,
 					parentName: cmd.name,
 					subcommands: sSub,
-					arguments: sArgs.map(a => ({ ...a, required: a.required ?? false }))
+					arguments: sArgs.map((a) => ({ ...a, required: a.required ?? false }))
 				});
 			});
 		});
@@ -201,7 +214,7 @@ export default function CommandInterface() {
 
 	const filteredCommands = useMemo(() => {
 		return allCommands.filter((cmd: any) => {
-			const matchesSearch = 
+			const matchesSearch =
 				(cmd.name?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false) ||
 				(cmd.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
 			const matchesModule = selectedModule === 'all' || cmd.moduleName === selectedModule;
@@ -211,21 +224,23 @@ export default function CommandInterface() {
 
 	const modules = useMemo(() => {
 		if (!botState) return [];
-		return Array.from(new Set(botState.commands.map(c => c.name).filter((n): n is string => !!n)));
+		return Array.from(
+			new Set(botState.commands.map((c) => c.name).filter((n): n is string => !!n))
+		);
 	}, [botState]);
 
 	if (isLoading) {
 		return (
 			<div className="min-h-screen flex items-center justify-center">
 				<div className="relative w-24 h-24">
-					<motion.div 
-						animate={{ rotate: 360 }} 
-						transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+					<motion.div
+						animate={{ rotate: 360 }}
+						transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
 						className="absolute inset-0 rounded-full border-t-2 border-primary border-r-transparent border-b-transparent border-l-transparent"
 					/>
-					<motion.div 
-						animate={{ rotate: -360 }} 
-						transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+					<motion.div
+						animate={{ rotate: -360 }}
+						transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
 						className="absolute inset-2 rounded-full border-b-2 border-accent/50 border-t-transparent border-r-transparent border-l-transparent"
 					/>
 					<div className="absolute inset-0 flex items-center justify-center">
@@ -238,7 +253,6 @@ export default function CommandInterface() {
 
 	return (
 		<div ref={containerRef} className="min-h-screen text-foreground font-inter">
-
 			{/* Hero Section */}
 			<section className="relative pt-32 pb-20 px-6 lg:pt-56 lg:pb-32 overflow-hidden z-10">
 				<div className="max-w-7xl mx-auto flex flex-col items-center">
@@ -263,7 +277,7 @@ export default function CommandInterface() {
 					</motion.div>
 
 					{/* Digital Search Bar */}
-					<motion.div 
+					<motion.div
 						initial={{ opacity: 0, scale: 0.95 }}
 						animate={{ opacity: 1, scale: 1 }}
 						transition={{ delay: 0.3 }}
@@ -274,8 +288,8 @@ export default function CommandInterface() {
 							<div className="w-14 h-14 rounded-[1.5rem] bg-primary/10 flex items-center justify-center text-primary shrink-0 transition-transform group-focus-within:rotate-12">
 								<Search size={24} />
 							</div>
-							<input 
-								type="text" 
+							<input
+								type="text"
 								placeholder="Querying command definitions..."
 								value={searchQuery}
 								onChange={(e) => setSearchQuery(e.target.value)}
@@ -283,7 +297,9 @@ export default function CommandInterface() {
 							/>
 							<div className="hidden lg:flex items-center gap-2 px-6 border-l border-white/10 ml-4">
 								<kbd className="px-2 py-1 bg-white/5 rounded-md text-[10px] font-black">ESC</kbd>
-								<span className="text-[10px] font-bold uppercase tracking-widest text-foreground/30 text-nowrap">to clear</span>
+								<span className="text-[10px] font-bold uppercase tracking-widest text-foreground/30 text-nowrap">
+									to clear
+								</span>
 							</div>
 						</div>
 					</motion.div>
@@ -298,23 +314,41 @@ export default function CommandInterface() {
 						<div className="sticky top-32 space-y-12">
 							<div>
 								<div className="flex items-center justify-between mb-8 pl-4">
-									<h3 className="text-xs font-black uppercase tracking-[0.3em] text-foreground/30">System Modules</h3>
+									<h3 className="text-xs font-black uppercase tracking-[0.3em] text-foreground/30">
+										System Modules
+									</h3>
 									<div className="h-[2px] w-12 bg-primary/50" />
 								</div>
-								
+
 								<div className="space-y-2">
-									<button 
+									<button
 										onClick={() => setSelectedModule('all')}
 										className={`w-full group relative flex items-center justify-between px-6 py-4 rounded-2xl transition-all ${selectedModule === 'all' ? 'bg-primary text-white shadow-2xl shadow-primary/30' : 'hover:bg-white/5 text-foreground/50'}`}
 									>
 										<div className="flex items-center gap-4">
-											<Globe size={20} className={selectedModule === 'all' ? 'text-white' : 'text-primary group-hover:scale-125 transition-transform'} />
-											<span className="font-monster font-black text-sm uppercase italic">Global Central</span>
+											<Globe
+												size={20}
+												className={
+													selectedModule === 'all'
+														? 'text-white'
+														: 'text-primary group-hover:scale-125 transition-transform'
+												}
+											/>
+											<span className="font-monster font-black text-sm uppercase italic">
+												Global Central
+											</span>
 										</div>
-										<ChevronRight size={16} className={selectedModule === 'all' ? 'opacity-100' : 'opacity-0 -translate-x-2 group-hover:opacity-50 group-hover:translate-x-0 transition-all'} />
+										<ChevronRight
+											size={16}
+											className={
+												selectedModule === 'all'
+													? 'opacity-100'
+													: 'opacity-0 -translate-x-2 group-hover:opacity-50 group-hover:translate-x-0 transition-all'
+											}
+										/>
 									</button>
 									{modules.map((mod) => (
-										<button 
+										<button
 											key={mod}
 											onClick={() => setSelectedModule(mod)}
 											className={`w-full group relative flex items-center justify-between px-6 py-4 rounded-2xl transition-all ${selectedModule === mod ? 'bg-primary text-white shadow-2xl shadow-primary/30' : 'hover:bg-white/5 text-foreground/50'}`}
@@ -323,31 +357,24 @@ export default function CommandInterface() {
 												<ModuleIcon name={mod} size={20} />
 												<span className="font-monster font-black text-sm uppercase">{mod}</span>
 											</div>
-											<ChevronRight size={16} className={selectedModule === mod ? 'opacity-100' : 'opacity-0 -translate-x-2 group-hover:opacity-50 group-hover:translate-x-0 transition-all'} />
+											<ChevronRight
+												size={16}
+												className={
+													selectedModule === mod
+														? 'opacity-100'
+														: 'opacity-0 -translate-x-2 group-hover:opacity-50 group-hover:translate-x-0 transition-all'
+												}
+											/>
 										</button>
 									))}
 								</div>
-							</div>
-
-							{/* Cyber Widget */}
-							<div className="p-8 rounded-[2.5rem] bg-gradient-to-br from-white/5 to-transparent border border-white/5 relative overflow-hidden group">
-								<div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
-									<Shield size={48} />
-								</div>
-								<h4 className="font-monster font-black text-lg mb-4 text-white/90">Need Support?</h4>
-								<p className="text-xs text-foreground/50 leading-relaxed mb-8">
-									Our neural support team is available 24/7 on the central Discord interface.
-								</p>
-								<button className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 font-black text-[10px] uppercase tracking-[0.2em] hover:bg-primary hover:text-white transition-all">
-									Enter Support Lab
-								</button>
 							</div>
 						</div>
 					</aside>
 
 					{/* Command Interface */}
 					<div className="flex-1">
-						{/* View Matrix Controls */}
+						{/* View Controls */}
 						<div className="flex flex-col md:flex-row items-end md:items-center justify-between gap-8 mb-16">
 							<div>
 								<div className="flex items-center gap-3 mb-2">
@@ -362,13 +389,13 @@ export default function CommandInterface() {
 							</div>
 
 							<div className="flex items-center gap-2 p-1.5 bg-black/40 backdrop-blur-2xl border border-white/10 rounded-2xl">
-								<button 
+								<button
 									onClick={() => setActiveView('grid')}
 									className={`p-3 rounded-xl transition-all ${activeView === 'grid' ? 'bg-primary text-white shadow-lg' : 'text-foreground/30 hover:text-foreground/70'}`}
 								>
 									<LayoutGrid size={20} />
 								</button>
-								<button 
+								<button
 									onClick={() => setActiveView('list')}
 									className={`p-3 rounded-xl transition-all ${activeView === 'list' ? 'bg-primary text-white shadow-lg' : 'text-foreground/30 hover:text-foreground/70'}`}
 								>
@@ -377,33 +404,34 @@ export default function CommandInterface() {
 							</div>
 						</div>
 
-						{/* Dynamic Command Matrix */}
+						{/* Dynamic Command */}
 						<AnimatePresence mode="popLayout">
 							{filteredCommands.length > 0 ? (
-								<motion.div 
+								<motion.div
 									layout
-									className={activeView === 'grid' 
-										? "grid grid-cols-1 md:grid-cols-2 gap-8" 
-										: "space-y-4"
+									className={
+										activeView === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-8' : 'space-y-4'
 									}
 								>
 									{filteredCommands.map((command, idx) => (
-										<HolographicCard 
-											key={command.id} 
-											command={command} 
+										<HolographicCard
+											key={command.id}
+											command={command}
 											view={activeView}
 											index={idx}
 										/>
 									))}
 								</motion.div>
 							) : (
-								<motion.div 
+								<motion.div
 									initial={{ opacity: 0 }}
 									animate={{ opacity: 1 }}
 									className="flex flex-col items-center justify-center py-40 border-2 border-dashed border-white/5 rounded-[4rem]"
 								>
 									<ShieldAlert size={64} className="text-primary/20 mb-8" />
-									<p className="text-sm text-foreground/40 mt-4 uppercase tracking-[0.1em]">No commands found for your query</p>
+									<p className="text-sm text-foreground/40 mt-4 uppercase tracking-[0.1em]">
+										No commands found for your query
+									</p>
 								</motion.div>
 							)}
 						</AnimatePresence>
@@ -419,7 +447,7 @@ export default function CommandInterface() {
 const HolographicCard = ({ command, view, index }: any) => {
 	const [isDetailOpen, setIsDetailOpen] = useState(false);
 	const cardRef = useRef(null);
-	const isInView = useInView(cardRef, { once: true, margin: "-10%" });
+	const isInView = useInView(cardRef, { once: true, margin: '-10%' });
 
 	return (
 		<motion.div
@@ -430,15 +458,19 @@ const HolographicCard = ({ command, view, index }: any) => {
 			transition={{ duration: 0.4, delay: (index % 6) * 0.05 }}
 			className={`
 				group relative overflow-hidden transition-all duration-500
-				${view === 'grid' 
-					? 'bg-gradient-to-br from-white/[0.03] to-transparent backdrop-blur-3xl border border-white/10 rounded-[2.5rem] hover:border-primary/40' 
-					: 'bg-white/[0.02] border border-white/5 rounded-2xl hover:border-primary/20'}
+				${
+					view === 'grid'
+						? 'bg-gradient-to-br from-white/[0.03] to-transparent backdrop-blur-3xl border border-white/10 rounded-[2.5rem] hover:border-primary/40'
+						: 'bg-white/[0.02] border border-white/5 rounded-2xl hover:border-primary/20'
+				}
 			`}
 		>
-			<div className={`p-8 ${view === 'list' ? 'flex flex-col md:flex-row md:items-center gap-8' : ''}`}>
+			<div
+				className={`p-8 ${view === 'list' ? 'flex flex-col md:flex-row md:items-center gap-8' : ''}`}
+			>
 				{/* Top  Line */}
 				<div className="absolute top-0 right-12 w-16 h-[2px] bg-primary/20 group-hover:w-24 group-hover:bg-primary/60 transition-all" />
-				
+
 				<div className={view === 'list' ? 'flex-1' : ''}>
 					<div className="flex items-start justify-between mb-6">
 						<div className="flex items-center gap-4">
@@ -450,7 +482,9 @@ const HolographicCard = ({ command, view, index }: any) => {
 									/{command.name}
 								</h3>
 								{command.parentName && (
-									<span className="text-[10px] font-black text-foreground/30 uppercase tracking-[0.2em]">Group: {command.parentName}</span>
+									<span className="text-[10px] font-black text-foreground/30 uppercase tracking-[0.2em]">
+										Group: {command.parentName}
+									</span>
 								)}
 							</div>
 						</div>
@@ -460,22 +494,31 @@ const HolographicCard = ({ command, view, index }: any) => {
 					</div>
 
 					<p className="text-muted-foreground leading-relaxed text-sm mb-8 line-clamp-2 italic">
-						{command.description || "The documentation for this subroutine has not been synthesized yet."}
+						{command.description ||
+							'The documentation for this subroutine has not been synthesized yet.'}
 					</p>
 				</div>
 
-				<div className={`${view === 'list' ? 'md:w-72 flex flex-col items-end gap-4' : 'flex items-center justify-between border-t border-white/5 pt-8 mt-auto'}`}>
+				<div
+					className={`${view === 'list' ? 'md:w-72 flex flex-col items-end gap-4' : 'flex items-center justify-between border-t border-white/5 pt-8 mt-auto'}`}
+				>
 					<div className="flex flex-wrap gap-2">
-						{command.arguments?.length > 0 && <CommandBadge variant="optional">{command.arguments.length} INPUTS</CommandBadge>}
-						{command.subcommands?.length > 0 && <CommandBadge variant="primary">{command.subcommands.length} SUBS</CommandBadge>}
+						{command.arguments?.length > 0 && (
+							<CommandBadge variant="optional">{command.arguments.length} INPUTS</CommandBadge>
+						)}
+						{command.subcommands?.length > 0 && (
+							<CommandBadge variant="primary">{command.subcommands.length} SUBS</CommandBadge>
+						)}
 					</div>
 
-					<button 
+					<button
 						onClick={() => setIsDetailOpen(!isDetailOpen)}
 						className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.3em] text-primary/60 hover:text-primary transition-all group/expand"
 					>
 						{isDetailOpen ? 'Collapse BIOS' : 'Analyze Logic'}
-						<div className={`w-6 h-6 rounded-full border border-primary/20 flex items-center justify-center transition-transform duration-500 ${isDetailOpen ? 'rotate-180 bg-primary/10 border-primary' : 'group-hover:bg-primary/10'}`}>
+						<div
+							className={`w-6 h-6 rounded-full border border-primary/20 flex items-center justify-center transition-transform duration-500 ${isDetailOpen ? 'rotate-180 bg-primary/10 border-primary' : 'group-hover:bg-primary/10'}`}
+						>
 							<ChevronDown size={14} className="text-primary" />
 						</div>
 					</button>
@@ -496,16 +539,34 @@ const HolographicCard = ({ command, view, index }: any) => {
 									<div>
 										<div className="flex items-center gap-3 mb-6">
 											<div className="h-[1px] flex-1 bg-white/5" />
-											<h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground/30 italic">Parameter Matrix</h4>
+											<h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground/30 italic">
+												Parameter Matrix
+											</h4>
 											<div className="h-[1px] flex-1 bg-white/5" />
 										</div>
 										<div className="grid grid-cols-1 gap-4">
 											{command.arguments.map((arg: any) => (
-												<div key={arg.name} className="group/arg p-6 rounded-3xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] hover:border-white/10 transition-all">
+												<div
+													key={arg.name}
+													className="group/arg p-6 rounded-3xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] hover:border-white/10 transition-all"
+												>
 													<div className="flex items-center justify-between mb-3">
 														<div className="flex items-center gap-3">
-															<code className="text-sm font-black text-primary font-mono">{arg.name}</code>
-															{arg.required ? <CommandBadge variant="required" className="!px-1.5 !py-0">REQ</CommandBadge> : <CommandBadge variant="optional" className="!px-1.5 !py-0 text-[8px]">OPT</CommandBadge>}
+															<code className="text-sm font-black text-primary font-mono">
+																{arg.name}
+															</code>
+															{arg.required ? (
+																<CommandBadge variant="required" className="!px-1.5 !py-0">
+																	REQ
+																</CommandBadge>
+															) : (
+																<CommandBadge
+																	variant="optional"
+																	className="!px-1.5 !py-0 text-[8px]"
+																>
+																	OPT
+																</CommandBadge>
+															)}
 														</div>
 														<CopyButton text={arg.name} />
 													</div>
@@ -514,9 +575,14 @@ const HolographicCard = ({ command, view, index }: any) => {
 													</p>
 													{arg.choices?.length > 0 && (
 														<div className="mt-4 pt-4 border-t border-white/5 flex flex-wrap gap-2">
-															<span className="text-[8px] font-black text-foreground/30 uppercase mr-2 mt-1">Options:</span>
+															<span className="text-[8px] font-black text-foreground/30 uppercase mr-2 mt-1">
+																Options:
+															</span>
 															{arg.choices.map((c: string) => (
-																<span key={c} className="px-2 py-0.5 rounded-md bg-primary/5 border border-primary/10 text-[10px] text-primary/70 font-mono">
+																<span
+																	key={c}
+																	className="px-2 py-0.5 rounded-md bg-primary/5 border border-primary/10 text-[10px] text-primary/70 font-mono"
+																>
 																	{c}
 																</span>
 															))}
@@ -533,16 +599,23 @@ const HolographicCard = ({ command, view, index }: any) => {
 									<div>
 										<div className="flex items-center gap-3 mb-6">
 											<div className="h-[1px] flex-1 bg-white/5" />
-											<h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground/30 italic">Linked Subroutines</h4>
+											<h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground/30 italic">
+												Linked Subroutines
+											</h4>
 											<div className="h-[1px] flex-1 bg-white/5" />
 										</div>
 										<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 											{command.subcommands.map((sub: any) => (
-												<div key={sub.name} className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-all group/sub">
+												<div
+													key={sub.name}
+													className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-all group/sub"
+												>
 													<div className="flex items-center justify-between mb-2">
 														<div className="flex items-center gap-2">
 															<div className="w-1.5 h-1.5 rounded-full bg-accent group-hover:scale-125 transition-transform" />
-															<span className="font-monster font-black text-xs uppercase group-hover:text-accent transition-colors">{sub.name}</span>
+															<span className="font-monster font-black text-xs uppercase group-hover:text-accent transition-colors">
+																{sub.name}
+															</span>
 														</div>
 														<CopyButton text={`${command.name} ${sub.name}`} />
 													</div>
@@ -566,11 +639,13 @@ const HolographicCard = ({ command, view, index }: any) => {
 											<span className="text-primary font-bold">/</span>
 											<span className="text-white font-bold">{command.name}</span>
 											<span className="text-foreground/20 italic">
-												{command.arguments && command.arguments.length > 0 ? ` [${command.arguments[0].name}]` : ""}
+												{command.arguments && command.arguments.length > 0
+													? ` [${command.arguments[0].name}]`
+													: ''}
 											</span>
-											<motion.div 
+											<motion.div
 												animate={{ opacity: [0, 1] }}
-												transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
+												transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
 												className="w-1.5 h-4 bg-primary/50"
 											/>
 										</div>

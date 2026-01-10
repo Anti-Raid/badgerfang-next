@@ -165,7 +165,10 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 							onChange(createValueWithType(newType));
 						}}
 						options={[
-							{ value: typedInputEnumToString(TypedInputEnum.ComplexSubflow), label: 'Complex Expression / Conditionals' },
+							{
+								value: typedInputEnumToString(TypedInputEnum.ComplexSubflow),
+								label: 'Complex Expression / Conditionals'
+							},
 							{ value: typedInputEnumToString(TypedInputEnum.Nil), label: 'Nil / Null / None' },
 							{ value: typedInputEnumToString(TypedInputEnum.String), label: 'String' },
 							{ value: typedInputEnumToString(TypedInputEnum.Number), label: 'Number' },
@@ -193,7 +196,7 @@ export const TypedInputField: React.FC<TypedInputProps> = ({
 										flow: newFlowData
 									});
 								}}
-							/>							
+							/>
 						</>
 					)}
 

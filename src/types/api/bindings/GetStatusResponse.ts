@@ -13,4 +13,8 @@ export type GetStatusResponse = {
 	 * The total number of guilds the bot is connected to
 	 */
 	total_guilds: number;
+	/**
+	 * The total number of users
+	 */
+	total_users: number;
 };

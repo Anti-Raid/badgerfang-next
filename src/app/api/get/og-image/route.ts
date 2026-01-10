@@ -151,7 +151,7 @@ export async function GET(request: NextRequest) {
 			'Content-Type': 'image/png',
 			'Cache-Control': 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400',
 			'CDN-Cache-Control': 'public, max-age=3600',
-			'X-Content-Type-Options': 'nosniff',
+			'X-Content-Type-Options': 'nosniff'
 		};
 
 		// If no slug provided, return default blog image
@@ -168,7 +168,7 @@ export async function GET(request: NextRequest) {
 				status: 200,
 				headers: {
 					...commonHeaders,
-					'X-Response-Time': `${Date.now() - startTime}ms`,
+					'X-Response-Time': `${Date.now() - startTime}ms`
 				}
 			});
 
@@ -176,12 +176,10 @@ export async function GET(request: NextRequest) {
 		}
 
 		// Fetch blog post by slug with timeout protection
-		const post = await Promise.race([
+		const post = (await Promise.race([
 			getBlogBySlug(slug),
-			new Promise((_, reject) => 
-				setTimeout(() => reject(new Error('Blog fetch timeout')), 10000)
-			)
-		]) as any;
+			new Promise((_, reject) => setTimeout(() => reject(new Error('Blog fetch timeout')), 10000))
+		])) as any;
 
 		// If blog post not found, return 404 image
 		if (!post) {
@@ -196,13 +194,13 @@ export async function GET(request: NextRequest) {
 				status: 404,
 				headers: {
 					...commonHeaders,
-					'X-Response-Time': `${Date.now() - startTime}ms`,
+					'X-Response-Time': `${Date.now() - startTime}ms`
 				}
 			});
 
 			return response;
 		}
-		
+
 		const imageResponse = generateBlogOGImage({
 			title: post.title || 'Untitled Blog Post',
 			description: post.description || 'Read more on AntiRaid blog',
@@ -218,12 +216,11 @@ export async function GET(request: NextRequest) {
 			status: 200,
 			headers: {
 				...commonHeaders,
-				'X-Response-Time': `${Date.now() - startTime}ms`,
+				'X-Response-Time': `${Date.now() - startTime}ms`
 			}
 		});
 
 		return response;
-
 	} catch (error) {
 		console.error('Error generating OG image:', error);
 
@@ -241,7 +238,7 @@ export async function GET(request: NextRequest) {
 				'Content-Type': 'image/png',
 				'Cache-Control': 'public, max-age=60, s-maxage=60, stale-while-revalidate=300',
 				'X-Response-Time': `${Date.now() - startTime}ms`,
-				'X-Error': 'OG image generation failed',
+				'X-Error': 'OG image generation failed'
 			}
 		});
 

@@ -46,9 +46,17 @@ import {
 	Terminal,
 	Radio,
 	ShieldAlert,
-	ChevronRight
+	ChevronRight,
+	User
 } from 'lucide-react';
-import { motion, AnimatePresence, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
+import {
+	motion,
+	AnimatePresence,
+	useScroll,
+	useTransform,
+	useSpring,
+	useMotionValue
+} from 'framer-motion';
 
 // --- Types & Constants ---
 
@@ -122,7 +130,15 @@ const MetricsBadge = ({ icon: Icon, label, value, color = 'primary' }: any) => (
 	</div>
 );
 
-const ShardNode = ({ shard, details, index }: { shard: string; details: ShardConn; index: number }) => {
+const ShardNode = ({
+	shard,
+	details,
+	index
+}: {
+	shard: string;
+	details: ShardConn;
+	index: number;
+}) => {
 	const config = getStatusConfig(details.status);
 	const Icon = config.icon;
 
@@ -206,7 +222,10 @@ const ShardNode = ({ shard, details, index }: { shard: string; details: ShardCon
 				<div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
 					<div className="flex items-center gap-3">
 						<div className="relative">
-							<Clock size={14} className="text-foreground/20 group-hover:text-primary/50 transition-colors" />
+							<Clock
+								size={14}
+								className="text-foreground/20 group-hover:text-primary/50 transition-colors"
+							/>
 							<motion.div
 								animate={{ rotate: 360 }}
 								transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
@@ -240,7 +259,7 @@ export default function StatusPage() {
 	const [err, setErr] = useState<string | null>(null);
 	const [tab, setTab] = useState<'overview' | 'shards'>('overview');
 	const [loading, setLoading] = useState(true);
-	
+
 	const { mouseX, mouseY } = useMousePosition();
 	const containerRef = useRef<HTMLDivElement>(null);
 	const { scrollYProgress } = useScroll();
@@ -248,7 +267,8 @@ export default function StatusPage() {
 
 	const spotlightBackground = useTransform(
 		[mouseX, mouseY],
-		([x, y]) => `radial-gradient(600px circle at ${x}px ${y}px, rgba(var(--primary), 0.08), transparent 40%)`
+		([x, y]) =>
+			`radial-gradient(600px circle at ${x}px ${y}px, rgba(var(--primary), 0.08), transparent 40%)`
 	);
 
 	const fetchData = async () => {
@@ -271,15 +291,19 @@ export default function StatusPage() {
 
 	const metrics = useMemo(() => {
 		if (!data) return null;
-		const shards = Object.values(data.shard_conns).map(s => s!);
+		const shards = Object.values(data.shard_conns).map((s) => s!);
 		const totalServers = data.total_guilds;
 		const avgLatency = Math.round(shards.reduce((a, b) => a + b.real_latency, 0) / shards.length);
-		const onlineShards = shards.filter(s => s.status === 'Ready' || s.status === 'Connected').length;
+		const totalUsers = data.total_users;
+		const onlineShards = shards.filter(
+			(s) => s.status === 'Ready' || s.status === 'Connected'
+		).length;
 		const health = Math.round((onlineShards / shards.length) * 100);
-		
+
 		return {
 			totalServers,
 			avgLatency,
+			totalUsers,
 			onlineShards,
 			totalShards: shards.length,
 			health
@@ -300,19 +324,21 @@ export default function StatusPage() {
 		return (
 			<div className="min-h-screen flex items-center justify-center">
 				<div className="relative w-32 h-32">
-					<motion.div 
-						animate={{ rotate: 360, scale: [1, 1.1, 1] }} 
-						transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+					<motion.div
+						animate={{ rotate: 360, scale: [1, 1.1, 1] }}
+						transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
 						className="absolute inset-0 rounded-full border-t-2 border-primary border-r-transparent border-b-transparent border-l-transparent"
 					/>
-					<motion.div 
-						animate={{ rotate: -360, opacity: [0.3, 0.6, 0.3] }} 
-						transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+					<motion.div
+						animate={{ rotate: -360, opacity: [0.3, 0.6, 0.3] }}
+						transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
 						className="absolute inset-4 rounded-full border-b-2 border-accent/50 border-t-transparent border-r-transparent border-l-transparent"
 					/>
 					<div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
 						<Terminal className="text-primary animate-pulse" size={24} />
-						<span className="text-[8px] font-black uppercase tracking-[0.3em] text-primary/60">Syncing shard status</span>
+						<span className="text-[8px] font-black uppercase tracking-[0.3em] text-primary/60">
+							Syncing shard status
+						</span>
 					</div>
 				</div>
 			</div>
@@ -324,7 +350,6 @@ export default function StatusPage() {
 			ref={containerRef}
 			className="min-h-screen text-foreground font-inter selection:bg-primary/30 selection:text-primary relative overflow-hidden"
 		>
-
 			{/* Hero HUD */}
 			<section className="relative pt-32 pb-20 px-6 lg:pt-56 lg:pb-32 overflow-hidden z-10">
 				<div className="max-w-7xl mx-auto flex flex-col items-center">
@@ -346,7 +371,7 @@ export default function StatusPage() {
 						<div className="absolute inset-0 pointer-events-none mix-blend-overlay opacity-30 bg-[linear-gradient(to_bottom,transparent_0%,rgba(255,255,255,0.1)_50%,transparent_100%)] bg-[length:100%_4px] animate-scan" />
 					</motion.div>
 
-					<motion.div 
+					<motion.div
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ delay: 0.2 }}
@@ -366,7 +391,20 @@ export default function StatusPage() {
 							value={`${metrics?.totalServers.toLocaleString()} Guilds`}
 							color="primary"
 						/>
-						<MetricsBadge icon={Activity} label="Core Ping" value={`${metrics?.avgLatency} MS`} color="emerald" />
+
+						<MetricsBadge
+							icon={User}
+							label="Total Users"
+							value={`${metrics?.totalUsers} users`}
+							color="primary"
+						/>
+
+						<MetricsBadge
+							icon={Activity}
+							label="Core Ping"
+							value={`${metrics?.avgLatency} MS`}
+							color="emerald"
+						/>
 						<MetricsBadge
 							icon={Server}
 							label="Shard Nodes"
@@ -376,7 +414,10 @@ export default function StatusPage() {
 						<div className="group relative overflow-hidden">
 							<div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 							<div className="flex items-center gap-5 bg-black/40 border border-white/5 rounded-2xl px-6 py-5 backdrop-blur-xl relative">
-								<div className="absolute bottom-0 left-0 h-[3px] bg-primary group-hover:w-full transition-all duration-1000 shadow-[0_0_10px_rgba(var(--primary),0.5)]" style={{ width: `${metrics?.health}%` }} />
+								<div
+									className="absolute bottom-0 left-0 h-[3px] bg-primary group-hover:w-full transition-all duration-1000 shadow-[0_0_10px_rgba(var(--primary),0.5)]"
+									style={{ width: `${metrics?.health}%` }}
+								/>
 								<div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(var(--primary),0.2)] transition-all duration-500">
 									<Zap size={24} className="animate-pulse" />
 								</div>
@@ -446,7 +487,7 @@ export default function StatusPage() {
 					<div className="w-full">
 						<AnimatePresence mode="wait">
 							{tab === 'overview' && (
-								<motion.div 
+								<motion.div
 									key="overview"
 									initial={{ opacity: 0, y: 20 }}
 									animate={{ opacity: 1, y: 0 }}
@@ -455,10 +496,14 @@ export default function StatusPage() {
 								>
 									<div className="flex items-center justify-between">
 										<div>
-											<h2 className="text-4xl font-black font-monster tracking-tighter uppercase italic mb-2">Health Log</h2>
-											<p className="text-[10px] font-black text-foreground/30 uppercase tracking-[0.3em]">Aggregate system performance metrics</p>
+											<h2 className="text-4xl font-black font-monster tracking-tighter uppercase italic mb-2">
+												Health Log
+											</h2>
+											<p className="text-[10px] font-black text-foreground/30 uppercase tracking-[0.3em]">
+												Aggregate system performance metrics
+											</p>
 										</div>
-										<button 
+										<button
 											onClick={() => fetchData()}
 											className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-primary hover:bg-primary/20 transition-all hover:rotate-180 duration-500"
 										>
@@ -474,7 +519,9 @@ export default function StatusPage() {
 													<RadialBarChart
 														innerRadius="80%"
 														outerRadius="100%"
-														data={[{ name: 'Health', value: metrics?.health, fill: 'var(--foreground)' }]}
+														data={[
+															{ name: 'Health', value: metrics?.health, fill: 'var(--foreground)' }
+														]}
 														startAngle={180}
 														endAngle={-180}
 													>
@@ -488,23 +535,41 @@ export default function StatusPage() {
 												</ResponsiveContainer>
 												<div className="absolute inset-0 flex flex-col items-center justify-center">
 													<div className="flex items-end gap-1">
-														<span className="text-6xl font-black font-monster italic text-primary drop-shadow-[0_0_20px_rgba(var(--primary),0.4)]">{metrics?.health}</span>
-														<span className="text-2xl font-black font-monster text-primary/40 uppercase italic mb-2">%</span>
+														<span className="text-6xl font-black font-monster italic text-primary drop-shadow-[0_0_20px_rgba(var(--primary),0.4)]">
+															{metrics?.health}
+														</span>
+														<span className="text-2xl font-black font-monster text-primary/40 uppercase italic mb-2">
+															%
+														</span>
 													</div>
-													<span className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground/20">Operational</span>
+													<span className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground/20">
+														Operational
+													</span>
 												</div>
 											</div>
 										</div>
 
 										<div className="lg:col-span-2 bg-black/40 backdrop-blur-3xl border border-white/10 rounded-[3rem] p-10 flex flex-col justify-center">
-											<h3 className="text-sm font-black uppercase tracking-[0.4em] text-foreground/30 mb-10 pl-6 border-l-2 border-primary/50">Latency Distribution</h3>
+											<h3 className="text-sm font-black uppercase tracking-[0.4em] text-foreground/30 mb-10 pl-6 border-l-2 border-primary/50">
+												Latency Distribution
+											</h3>
 											<div className="h-[250px] w-full">
 												<ResponsiveContainer width="100%" height="100%">
 													<ReBarChart data={chartData.slice(0, 32)}>
-														<ReBar dataKey="latency" fill="hsl(var(--primary))" radius={[10, 10, 10, 10]} />
-														<Tooltip 
+														<ReBar
+															dataKey="latency"
+															fill="hsl(var(--primary))"
+															radius={[10, 10, 10, 10]}
+														/>
+														<Tooltip
 															cursor={{ fill: 'rgba(255,255,255,0.05)' }}
-															contentStyle={{ backgroundColor: '#1a1a1f', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '1rem', fontStyle: 'italic', fontWeight: 'bold' }}
+															contentStyle={{
+																backgroundColor: '#1a1a1f',
+																border: '1px solid rgba(255,255,255,0.1)',
+																borderRadius: '1rem',
+																fontStyle: 'italic',
+																fontWeight: 'bold'
+															}}
 														/>
 													</ReBarChart>
 												</ResponsiveContainer>
@@ -517,19 +582,33 @@ export default function StatusPage() {
 										<div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
 											<Activity size={100} strokeWidth={4} />
 										</div>
-										<h3 className="text-2xl font-black font-monster uppercase italic mb-12">Network Throughput</h3>
+										<h3 className="text-2xl font-black font-monster uppercase italic mb-12">
+											Network Throughput
+										</h3>
 										<div className="h-[300px] w-full">
 											<ResponsiveContainer width="100%" height="100%">
 												<AreaChart data={chartData}>
 													<defs>
 														<linearGradient id="colorLatency" x1="0" y1="0" x2="0" y2="1">
-															<stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
-															<stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+															<stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+															<stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
 														</linearGradient>
 													</defs>
-													<Area type="monotone" dataKey="latency" stroke="hsl(var(--primary))" strokeWidth={4} fillOpacity={1} fill="url(#colorLatency)" />
-													<Tooltip 
-														contentStyle={{ backgroundColor: '#1a1a1f', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '1rem', fontStyle: 'italic' }}
+													<Area
+														type="monotone"
+														dataKey="latency"
+														stroke="hsl(var(--primary))"
+														strokeWidth={4}
+														fillOpacity={1}
+														fill="url(#colorLatency)"
+													/>
+													<Tooltip
+														contentStyle={{
+															backgroundColor: '#1a1a1f',
+															border: '1px solid rgba(255,255,255,0.1)',
+															borderRadius: '1rem',
+															fontStyle: 'italic'
+														}}
 													/>
 												</AreaChart>
 											</ResponsiveContainer>
@@ -539,7 +618,7 @@ export default function StatusPage() {
 							)}
 
 							{tab === 'shards' && (
-								<motion.div 
+								<motion.div
 									key="shards"
 									initial={{ opacity: 0, y: 20 }}
 									animate={{ opacity: 1, y: 0 }}
@@ -547,8 +626,12 @@ export default function StatusPage() {
 								>
 									<div className="flex items-center justify-between mb-16">
 										<div>
-											<h2 className="text-4xl font-black font-monster tracking-tighter uppercase italic mb-2">Shard Registry</h2>
-											<p className="text-[10px] font-black text-foreground/30 uppercase tracking-[0.3em]">Individual cluster Shard status</p>
+											<h2 className="text-4xl font-black font-monster tracking-tighter uppercase italic mb-2">
+												Shard Registry
+											</h2>
+											<p className="text-[10px] font-black text-foreground/30 uppercase tracking-[0.3em]">
+												Individual cluster Shard status
+											</p>
 										</div>
 									</div>
 
@@ -566,4 +649,3 @@ export default function StatusPage() {
 		</div>
 	);
 }
-

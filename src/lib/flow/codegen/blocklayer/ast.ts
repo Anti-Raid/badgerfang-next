@@ -2,7 +2,7 @@ import { FinalRepr, Node } from '../astlayer/finalrepr';
 import { applyPrelude, IPreludeData, IPreludeTypeEnum } from './prelude';
 
 /**
- * Internal 
+ * Internal
  */
 export class CodeGenAST {
 	/**
@@ -64,15 +64,15 @@ export class CodeGenAST {
 
 	toFinalRepr(): FinalRepr {
 		if (this.isError()) {
-			throw new Error(`Cannot convert an invalid AST to final repr`)
+			throw new Error(`Cannot convert an invalid AST to final repr`);
 		}
-		let appliedPrelude = applyPrelude(this.prelude, this.nodes)
+		let appliedPrelude = applyPrelude(this.prelude, this.nodes);
 		for (let [key, value] of Object.entries(appliedPrelude.addDeps)) {
 			if (!this.dependencies.has(key)) {
-				this.dependencies.set(key, value)
+				this.dependencies.set(key, value);
 			}
 		}
 
-		return new FinalRepr(appliedPrelude.nodes, this.dependencies)
+		return new FinalRepr(appliedPrelude.nodes, this.dependencies);
 	}
 }
