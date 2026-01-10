@@ -46,7 +46,8 @@ import {
 	Terminal,
 	Radio,
 	ShieldAlert,
-	ChevronRight
+	ChevronRight,
+	User
 } from 'lucide-react';
 import {
 	motion,
@@ -293,6 +294,7 @@ export default function StatusPage() {
 		const shards = Object.values(data.shard_conns).map((s) => s!);
 		const totalServers = data.total_guilds;
 		const avgLatency = Math.round(shards.reduce((a, b) => a + b.real_latency, 0) / shards.length);
+		const totalUsers = data.total_users;
 		const onlineShards = shards.filter(
 			(s) => s.status === 'Ready' || s.status === 'Connected'
 		).length;
@@ -301,6 +303,7 @@ export default function StatusPage() {
 		return {
 			totalServers,
 			avgLatency,
+			totalUsers,
 			onlineShards,
 			totalShards: shards.length,
 			health
@@ -384,6 +387,13 @@ export default function StatusPage() {
 							icon={Database}
 							label="Network Reach"
 							value={`${metrics?.totalServers.toLocaleString()} Guilds`}
+							color="primary"
+						/>
+
+							<MetricsBadge
+							icon={User}
+							label="Total Users"
+							value={`${metrics?.totalUsers} users`}
 							color="primary"
 						/>
 						
