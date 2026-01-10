@@ -13,9 +13,9 @@ import {
 import { Node as IDLNode } from './nodeidl/nodeidl';
 
 export interface NodeValues {
-  defaultTitle: string;
-  defaultDescription: string;
-  helpUrl?: string;
+	defaultTitle: string;
+	defaultDescription: string;
+	helpUrl?: string;
 }
 
 // ----------------------
@@ -33,8 +33,8 @@ const createEmptyForLoopIterable = (): TypedInputString => createEmptyTypedInput
 // Node type definitions
 // ----------------------
 const unknownNodeType: NodeValues = {
-  defaultTitle: 'Unknown',
-  defaultDescription: 'Unknown node type.'
+	defaultTitle: 'Unknown',
+	defaultDescription: 'Unknown node type.'
 };
 
 export const nodeTypes: Record<string, NodeValues> = {
@@ -213,11 +213,11 @@ export const nodeIdls: NodeIDLSet = new NodeIDLSet();
 // Node value helpers
 // ----------------------
 export function getNodeValues(nodeType: string): NodeValues {
-  const values = nodeTypes[nodeType];
-  if (!values) {
-    return unknownNodeType;
-  }
-  return values;
+	const values = nodeTypes[nodeType];
+	if (!values) {
+		return unknownNodeType;
+	}
+	return values;
 }
 
 /**
@@ -227,7 +227,7 @@ export function getNodeValues(nodeType: string): NodeValues {
  * @returns The NodeValues for the specified node type; if the type is not recognized, returns the values for the unknown node type
  */
 export function useNodeValues(nodeType: string): NodeValues {
-  return useMemo(() => getNodeValues(nodeType), [nodeType]);
+	return useMemo(() => getNodeValues(nodeType), [nodeType]);
 }
 
 // ----------------------
@@ -245,19 +245,19 @@ export function useNodeValues(nodeType: string): NodeValues {
  * @returns The constructed Node<NodeExtData> populated with id, type, position, data, and parent-related fields when applicable
  */
 export function createNode(
-  type: string,
-  position: XYPosition,
-  data?: NodeExtData,
-  parent?: string
+	type: string,
+	position: XYPosition,
+	data?: NodeExtData,
+	parent?: string
 ): Node<NodeExtData> {
-  const id = getNodeId();
+	const id = getNodeId();
 
-  let node: Node<NodeExtData> = {
-    id,
-    type,
-    position,
-    data: data ? data : defaultNodeDataForType[type] || defaultNodeDataForType['unknown']
-  };
+	let node: Node<NodeExtData> = {
+		id,
+		type,
+		position,
+		data: data ? data : defaultNodeDataForType[type] || defaultNodeDataForType['unknown']
+	};
 
 	if (parent) {
 		node.parentId = parent;
@@ -265,7 +265,7 @@ export function createNode(
 		node.extent = 'parent';
 	}
 
-  return node;
+	return node;
 }
 
 /**
@@ -274,7 +274,7 @@ export function createNode(
  * @returns An integer between 0 and 999,999 (inclusive) suitable for use as an identifier
  */
 export function getUniqueId(): number {
-  return Math.floor(Math.random() * 1000000);
+	return Math.floor(Math.random() * 1000000);
 }
 
 /**

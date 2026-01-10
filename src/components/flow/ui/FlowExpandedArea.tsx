@@ -13,84 +13,86 @@ import { useFlowHPane } from '../management/FlowHPaneProvider';
  * @returns A JSX element representing the flow expanded area.
  */
 export default function FlowExpandedArea() {
-    const [isCollapsed, setIsCollapsed] = useState(false);
-    const { hpane, setHtmlRef } = useFlowHPane();
+	const [isCollapsed, setIsCollapsed] = useState(false);
+	const { hpane, setHtmlRef } = useFlowHPane();
 
-    // Advertise the horizontal pane outwards to the nodes (consumers)
-    const targetRef = useCallback((node: HTMLDivElement) => {
-        if (node !== null) {
-            setHtmlRef(node);
-        }
-    }, [setHtmlRef]);
+	// Advertise the horizontal pane outwards to the nodes (consumers)
+	const targetRef = useCallback(
+		(node: HTMLDivElement) => {
+			if (node !== null) {
+				setHtmlRef(node);
+			}
+		},
+		[setHtmlRef]
+	);
 
-    return (
-        <motion.div
-            initial={false}
-            animate={{ height: isCollapsed ? 70 : "100%", width: "100%" }}
-            className="w-full bg-muted/30 border-r border-border flex flex-col relative shadow-xl"
-        >
-            {/* Collapse Button */}
-            <button
-                onClick={() => setIsCollapsed(!isCollapsed)}
-                className="absolute -left-1 top-6 z-50 h-6 w-6 rounded-full bg-primary hover:bg-primary/80 flex items-center justify-center shadow-lg transition-colors duration-200"
-            >
-                {isCollapsed ? (
-                    <FiChevronDown className="text-primary-foreground w-4 h-4" />
-                ) : (
-                    <FiChevronUp className="text-primary-foreground w-4 h-4" />
-                )}
-            </button>
+	return (
+		<motion.div
+			initial={false}
+			animate={{ height: isCollapsed ? 70 : '100%', width: '100%' }}
+			className="w-full bg-muted/30 border-r border-border flex flex-col relative shadow-xl"
+		>
+			{/* Collapse Button */}
+			<button
+				onClick={() => setIsCollapsed(!isCollapsed)}
+				className="absolute -left-1 top-6 z-50 h-6 w-6 rounded-full bg-primary hover:bg-primary/80 flex items-center justify-center shadow-lg transition-colors duration-200"
+			>
+				{isCollapsed ? (
+					<FiChevronDown className="text-primary-foreground w-4 h-4" />
+				) : (
+					<FiChevronUp className="text-primary-foreground w-4 h-4" />
+				)}
+			</button>
 
-            <AnimatePresence mode="wait">
-                {!isCollapsed ? (
-                    <>
-                        {!hpane?.expanded && (
-                            <>
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    className="flex flex-row w-full"
-                                >
-                                    {/* Header */}
-                                    <div className="p-6 py-3 border-b border-border">
-                                        <div className="flex items-center gap-3 mb-2">
-                                            <h2 className="text-xl font-bold text-foreground">No node being editted!</h2>
-                                        </div>
-                                        <p className="text-sm text-muted-foreground">INSERT_DESCRIPTION_HERE</p>
-                                    </div>
-                                </motion.div>
-                                <div className="flex-1 overflow-x-auto p-2 space-y-6">
-                                    <p></p>
-                                </div>
-                            </>
-                        )}
-                        <div ref={targetRef}>
-                        </div>
-                    </>
-                ) : (
-                    <>
-                        <motion.div 
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="flex flex-row w-full"
-                        >
-                            {/* Header */}
-                            <div className="p-6 py-3 border-b border-border">
-                                <div className="flex items-center gap-3 mb-2">
-                                    <div className="p-2 rounded-lg bg-primary/10">
-                                        <FiLayers className="w-5 h-5 text-primary" />
-                                    </div>
-                                    <h2 className="text-xl font-bold text-foreground">Expand Area</h2>
-                                </div>
-                            </div>
-                        </motion.div>
-                    </>
-                )}
-            </AnimatePresence>
-        </motion.div>
-    );
+			<AnimatePresence mode="wait">
+				{!isCollapsed ? (
+					<>
+						{!hpane?.expanded && (
+							<>
+								<motion.div
+									initial={{ opacity: 0 }}
+									animate={{ opacity: 1 }}
+									exit={{ opacity: 0 }}
+									className="flex flex-row w-full"
+								>
+									{/* Header */}
+									<div className="p-6 py-3 border-b border-border">
+										<div className="flex items-center gap-3 mb-2">
+											<h2 className="text-xl font-bold text-foreground">No node being editted!</h2>
+										</div>
+										<p className="text-sm text-muted-foreground">INSERT_DESCRIPTION_HERE</p>
+									</div>
+								</motion.div>
+								<div className="flex-1 overflow-x-auto p-2 space-y-6">
+									<p></p>
+								</div>
+							</>
+						)}
+						<div ref={targetRef}></div>
+					</>
+				) : (
+					<>
+						<motion.div
+							initial={{ opacity: 0 }}
+							animate={{ opacity: 1 }}
+							exit={{ opacity: 0 }}
+							className="flex flex-row w-full"
+						>
+							{/* Header */}
+							<div className="p-6 py-3 border-b border-border">
+								<div className="flex items-center gap-3 mb-2">
+									<div className="p-2 rounded-lg bg-primary/10">
+										<FiLayers className="w-5 h-5 text-primary" />
+									</div>
+									<h2 className="text-xl font-bold text-foreground">Expand Area</h2>
+								</div>
+							</div>
+						</motion.div>
+					</>
+				)}
+			</AnimatePresence>
+		</motion.div>
+	);
 }
 
 /**
@@ -104,35 +106,35 @@ export default function FlowExpandedArea() {
  * @returns A JSX element representing the draggable node card
  */
 function AvailableNode({ type, values }: { type: string; values: NodeValues }) {
-    const Icon = FiZap;
+	const Icon = FiZap;
 
-    /**
-     * Initialize a drag operation by attaching the node type to the drag data for React Flow.
-     *
-     * Sets the drag data key `application/reactflow` to the node `type` and marks the allowed effect as `move`.
-     *
-     * @param e - The drag event whose dataTransfer is populated for the drag-and-drop operation
-     */
-    function onStartDrag(e: React.DragEvent<HTMLDivElement>) {
-        e.dataTransfer.setData('application/reactflow', type);
-        e.dataTransfer.effectAllowed = 'move';
-    }
+	/**
+	 * Initialize a drag operation by attaching the node type to the drag data for React Flow.
+	 *
+	 * Sets the drag data key `application/reactflow` to the node `type` and marks the allowed effect as `move`.
+	 *
+	 * @param e - The drag event whose dataTransfer is populated for the drag-and-drop operation
+	 */
+	function onStartDrag(e: React.DragEvent<HTMLDivElement>) {
+		e.dataTransfer.setData('application/reactflow', type);
+		e.dataTransfer.effectAllowed = 'move';
+	}
 
-    return (
-        <div
-            draggable
-            onDragStart={onStartDrag}
-            className="p-3 rounded-lg bg-card/50 hover:bg-card border border-border hover:border-primary/50 cursor-grab transition-all duration-200 backdrop-blur-sm"
-        >
-            <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/10">
-                    <Icon className="w-4 h-4 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                    <div className="font-medium text-foreground text-sm truncate">{values.defaultTitle}</div>
-                    <div className="text-xs text-muted-foreground truncate">{values.defaultDescription}</div>
-                </div>
-            </div>
-        </div>
-    );
+	return (
+		<div
+			draggable
+			onDragStart={onStartDrag}
+			className="p-3 rounded-lg bg-card/50 hover:bg-card border border-border hover:border-primary/50 cursor-grab transition-all duration-200 backdrop-blur-sm"
+		>
+			<div className="flex items-center gap-3">
+				<div className="p-2 rounded-lg bg-primary/10">
+					<Icon className="w-4 h-4 text-primary" />
+				</div>
+				<div className="flex-1 min-w-0">
+					<div className="font-medium text-foreground text-sm truncate">{values.defaultTitle}</div>
+					<div className="text-xs text-muted-foreground truncate">{values.defaultDescription}</div>
+				</div>
+			</div>
+		</div>
+	);
 }

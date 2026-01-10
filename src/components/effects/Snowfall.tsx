@@ -96,7 +96,7 @@ export default function Snowfall() {
 				ctx.beginPath();
 				ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
 				ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
-				
+
 				// Added a subtle glow to larger flakes
 				if (this.size > 2.5) {
 					ctx.shadowBlur = 4;
@@ -104,7 +104,7 @@ export default function Snowfall() {
 				} else {
 					ctx.shadowBlur = 0;
 				}
-				
+
 				ctx.fill();
 			}
 		}
@@ -155,7 +155,7 @@ export default function Snowfall() {
 				height: '100%',
 				pointerEvents: 'none',
 				zIndex: 50, // Slightly lower than before but above content
-				opacity: 0.8,
+				opacity: 0.8
 			}}
 			aria-hidden="true"
 		/>

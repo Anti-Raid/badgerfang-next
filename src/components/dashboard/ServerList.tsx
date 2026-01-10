@@ -48,7 +48,9 @@ export const ServerList: React.FC<{
 						onChange={(e) => setSearchTerm(e.target.value)}
 					/>
 					<div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex items-center gap-1 text-xs text-muted-foreground">
-						<kbd className="px-2 py-1 bg-accent/50 rounded border border-border/50 font-mono">/</kbd>
+						<kbd className="px-2 py-1 bg-accent/50 rounded border border-border/50 font-mono">
+							/
+						</kbd>
 						<span className="hidden sm:inline">to search</span>
 					</div>
 				</div>
