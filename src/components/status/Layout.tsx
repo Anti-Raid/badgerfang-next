@@ -38,7 +38,6 @@ import {
 	Cpu,
 	Zap,
 	Database,
-	User,
 	Wifi,
 	RefreshCcw,
 	HelpCircle,
@@ -292,7 +291,6 @@ export default function StatusPage() {
 	const metrics = useMemo(() => {
 		if (!data) return null;
 		const shards = Object.values(data.shard_conns).map((s) => s!);
-		const totalUsers = data.total_users;
 		const totalServers = data.total_guilds;
 		const avgLatency = Math.round(shards.reduce((a, b) => a + b.real_latency, 0) / shards.length);
 		const onlineShards = shards.filter(
@@ -301,7 +299,6 @@ export default function StatusPage() {
 		const health = Math.round((onlineShards / shards.length) * 100);
 
 		return {
-			totalUsers,
 			totalServers,
 			avgLatency,
 			onlineShards,
@@ -411,7 +408,6 @@ export default function StatusPage() {
 								/>
 								<div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(var(--primary),0.2)] transition-all duration-500">
 									<Zap size={24} className="animate-pulse" />
-									<p></p>
 								</div>
 								<div>
 									<p className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground/20 group-hover:text-foreground/40 transition-colors">
