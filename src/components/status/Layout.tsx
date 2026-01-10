@@ -389,13 +389,7 @@ export default function StatusPage() {
 							value={`${metrics?.totalServers.toLocaleString()} Guilds`}
 							color="primary"
 						/>
-						{
-						<MetricsBadge
-							icon={User}
-							label="Total Users"
-							value={`${metrics?.totalUsers} users`}
-							color="primary"
-						/>}
+						
 						<MetricsBadge
 							icon={Activity}
 							label="Core Ping"
