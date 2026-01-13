@@ -149,7 +149,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps & { variant?: 'dropdown' | 'she
 					setTheme(themeOption.id);
 					setIsOpen(false);
 				}}
-				className={`relative h-20 rounded-2xl overflow-hidden transition-all duration-300 group shadow-sm
+				className={`relative h-20 rounded-2xl overflow-hidden transition-all duration-300 group shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
 				${isActive ? 'ring-2 ring-primary ring-offset-2 ring-offset-background scale-[0.98]' : 'hover:scale-[1.02] hover:shadow-md'}
 				`}
 			>
@@ -239,8 +239,16 @@ const ThemeSelector: React.FC<ThemeSelectorProps & { variant?: 'dropdown' | 'she
 							>
 								{/* Drag Handle Area */}
 								<div
-									className="w-full flex justify-center py-4 cursor-grab active:cursor-grabbing hover:bg-white/5 transition-colors"
+									className="w-full flex justify-center py-4 cursor-grab active:cursor-grabbing hover:bg-white/5 transition-colors touch-none"
 									onClick={() => setIsOpen(false)}
+									role="button"
+									tabIndex={0}
+									aria-label="Close theme gallery"
+									onKeyDown={(e) => {
+										if (e.key === 'Enter' || e.key === ' ') {
+											setIsOpen(false);
+										}
+									}}
 								>
 									<div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full" />
 								</div>
@@ -256,6 +264,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps & { variant?: 'dropdown' | 'she
 									<button
 										onClick={() => setIsOpen(false)}
 										className="p-2 bg-muted/50 rounded-full hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+										aria-label="Close"
 									>
 										<X size={20} />
 									</button>

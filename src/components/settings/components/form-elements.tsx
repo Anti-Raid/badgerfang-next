@@ -1,10 +1,10 @@
 'use client';
 
-import type React from 'react';
+import React, { Fragment, useState, useId } from 'react';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff } from 'lucide-react';
 import type { Icon } from 'lucide-react';
-import { Fragment, useState } from 'react';
+import { CustomSelect } from './CustomSelect';
 
 interface BaseLabelAndDescriptionProps {
 	label?: string;
@@ -104,28 +104,20 @@ export const InputField: React.FC<InputFieldProps> = ({
 				)}
 
 				{type === 'select' ? (
-					<select
+					<CustomSelect
 						id={inputId}
-						value={value}
-						aria-placeholder={placeholder}
-						onChange={(e) => {
-							if (disabled) return;
-							if (onChange) onChange(e);
-						}}
+						label={label}
+						value={value || ''}
+						options={options || []}
+						placeholder={placeholder}
 						disabled={disabled}
-						className={`w-full bg-background border-2 border-border hover:border-primary/50 transition-colors duration-200 rounded-md p-3 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 appearance-none ${
-							IconComponent ? 'pl-10' : ''
-						} ${error ? 'border-destructive' : ''} ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
-						aria-labelledby={`${inputId}-label`}
-						aria-describedby={description ? `${inputId}-desc` : undefined}
-					>
-						<option value="">Select an option</option>
-						{options?.map((option) => (
-							<option key={option.value} value={option.value}>
-								{option.label}
-							</option>
-						))}
-					</select>
+						onChange={(val) => {
+							if (disabled) return;
+							if (onChange) {
+								onChange({ target: { value: val } } as any);
+							}
+						}}
+					/>
 				) : type === 'password' ? (
 					<div className="relative">
 						<input
@@ -244,10 +236,6 @@ export const RadioOption: React.FC<RadioOptionProps> = ({
 							? 'border-primary bg-primary/10 outline outline-2 outline-primary'
 							: 'border-muted-foreground group-hover:border-primary/50'
 					} flex items-center justify-center`}
-					role="radio"
-					aria-checked={checked}
-					tabIndex={0}
-					aria-label={label}
 				>
 					{checked && (
 						<motion.div
@@ -355,6 +343,8 @@ export const Toggle: React.FC<ToggleProps> = ({
 	disabled = false,
 	marginClass = 'mb-5'
 }) => {
+	const descriptionId = React.useId();
+
 	return (
 		<div className={marginClass}>
 			<div className="flex items-center">
@@ -371,6 +361,7 @@ export const Toggle: React.FC<ToggleProps> = ({
 						if (onChange) onChange();
 					}}
 					aria-label={label}
+					aria-describedby={description ? descriptionId : undefined}
 					tabIndex={0}
 				>
 					<motion.span
@@ -387,7 +378,11 @@ export const Toggle: React.FC<ToggleProps> = ({
 				</button>
 				<span className="ml-3 font-medium text-foreground">{label}</span>
 			</div>
-			{description && <p className="text-sm text-muted-foreground mt-1 ml-14">{description}</p>}
+			{description && (
+				<p id={descriptionId} className="text-sm text-muted-foreground mt-1 ml-14">
+					{description}
+				</p>
+			)}
 		</div>
 	);
 };
