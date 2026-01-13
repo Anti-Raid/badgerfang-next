@@ -369,7 +369,6 @@ export default function CommandInterface() {
 									))}
 								</div>
 							</div>
-
 						</div>
 					</aside>
 
@@ -430,7 +429,9 @@ export default function CommandInterface() {
 									className="flex flex-col items-center justify-center py-40 border-2 border-dashed border-white/5 rounded-[4rem]"
 								>
 									<ShieldAlert size={64} className="text-primary/20 mb-8" />
-									<p className="text-sm text-foreground/40 mt-4 uppercase tracking-[0.1em]">No commands found for your query</p>
+									<p className="text-sm text-foreground/40 mt-4 uppercase tracking-[0.1em]">
+										No commands found for your query
+									</p>
 								</motion.div>
 							)}
 						</AnimatePresence>
@@ -464,7 +465,9 @@ const HolographicCard = ({ command, view, index }: any) => {
 				}
 			`}
 		>
-			<div className={`p-8 ${view === 'list' ? 'flex flex-col md:flex-row md:items-center gap-8' : ''}`}>
+			<div
+				className={`p-8 ${view === 'list' ? 'flex flex-col md:flex-row md:items-center gap-8' : ''}`}
+			>
 				{/* Top  Line */}
 				<div className="absolute top-0 right-12 w-16 h-[2px] bg-primary/20 group-hover:w-24 group-hover:bg-primary/60 transition-all" />
 
