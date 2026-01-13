@@ -453,7 +453,7 @@ export default function StatusPage() {
 								<button
 									key={item.id}
 									onClick={() => setTab(item.id as any)}
-									className={`group relative flex items-center gap-4 px-8 py-4 rounded-2xl transition-all duration-500 ${
+									className={`group relative flex items-center gap-4 px-8 py-4 rounded-2xl transition-all duration-500 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
 										tab === item.id
 											? 'bg-primary text-white shadow-[0_10px_30px_rgba(var(--primary),0.3)]'
 											: 'bg-white/[0.03] text-foreground/40 border border-white/5 hover:border-white/10 hover:bg-white/[0.05]'
@@ -505,7 +505,8 @@ export default function StatusPage() {
 										</div>
 										<button
 											onClick={() => fetchData()}
-											className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-primary hover:bg-primary/20 transition-all hover:rotate-180 duration-500"
+											className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-primary hover:bg-primary/20 transition-all hover:rotate-180 duration-500 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+											aria-label="Refresh system metrics"
 										>
 											<RefreshCcw size={20} />
 										</button>

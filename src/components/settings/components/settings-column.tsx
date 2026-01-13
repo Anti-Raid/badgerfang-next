@@ -41,6 +41,7 @@ export const SettingsColumnList: React.FC<SettingsColumnListProps> = ({
 		<div className="space-y-4">
 			{columns
 				.filter((c) => !c.hidden || !c.hidden.includes(operation))
+				.filter((c) => c.name !== 'Last Updated At' && c.name !== 'Created At')
 				.map((column) => (
 					<SettingsColumn
 						key={column.id}

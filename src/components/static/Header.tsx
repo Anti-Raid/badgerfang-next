@@ -341,7 +341,7 @@ const NavBar: React.FC = () => {
 								<ThemeSelector
 									isOpen={isThemeOpen}
 									onOpenChange={setIsThemeOpen}
-									variant="dropdown"
+									variant="sheet"
 								/>
 							</div>
 						</div>

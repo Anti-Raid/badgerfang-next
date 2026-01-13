@@ -21,6 +21,8 @@ export const Section: React.FC<SectionProps> = ({
 }) => {
 	const [isOpen, setIsOpen] = useState(defaultOpen);
 
+	const contentId = React.useId();
+
 	return (
 		<motion.div
 			className="mb-8"
@@ -40,10 +42,12 @@ export const Section: React.FC<SectionProps> = ({
 			</div>
 
 			<div className="bg-card rounded-xl border border-border hover:border-primary/20 transition-colors duration-300 overflow-hidden shadow-sm">
-				<motion.div
-					className="p-4 flex items-center cursor-pointer transition-colors duration-200 hover:bg-accent/50"
+				<motion.button
+					className="w-full text-left p-4 flex items-center cursor-pointer transition-colors duration-200 hover:bg-accent/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-inset"
 					onClick={() => setIsOpen(!isOpen)}
 					whileHover={{ backgroundColor: 'rgba(var(--accent), 0.2)' }}
+					aria-expanded={isOpen}
+					aria-controls={contentId}
 				>
 					<div className="mr-3 flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary">
 						<Plus className="w-4 h-4" />
@@ -56,7 +60,7 @@ export const Section: React.FC<SectionProps> = ({
 					>
 						<ChevronDown className="w-5 h-5 text-muted-foreground" />
 					</motion.div>
-				</motion.div>
+				</motion.button>
 
 				<AnimatePresence>
 					{isOpen && (
@@ -65,6 +69,7 @@ export const Section: React.FC<SectionProps> = ({
 							animate={{ height: 'auto', opacity: 1 }}
 							exit={{ height: 0, opacity: 0 }}
 							transition={{ duration: 0.3 }}
+							id={contentId}
 						>
 							<div className="border-t border-border p-5 bg-card/50">{children}</div>
 						</motion.div>

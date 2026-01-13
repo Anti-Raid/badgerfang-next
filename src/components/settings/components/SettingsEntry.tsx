@@ -33,16 +33,16 @@ export const SettingsEntry: React.FC<SettingsEntryProps> = ({
 				<span className="font-medium text-foreground">{entry?.title || `Entry ${index + 1}`}</span>
 				<div className="ml-auto flex items-center gap-2">
 					<button
-						className="p-1 rounded-md hover:bg-accent/50 transition-colors"
+						className="p-1 rounded-md hover:bg-accent/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
 						onClick={() => onEdit(structuredClone(entry))}
-						aria-label="Edit entry"
+						aria-label={`Edit ${entry?.title || 'entry'}`}
 					>
 						<Edit className="w-4 h-4 text-muted-foreground" />
 					</button>
 					<button
-						className="p-1 rounded-md hover:bg-accent/50 transition-colors"
+						className="p-1 rounded-md hover:bg-accent/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
 						onClick={() => onDelete(entry)}
-						aria-label="Delete entry"
+						aria-label={`Delete ${entry?.title || 'entry'}`}
 					>
 						<Trash2 className="w-4 h-4 text-muted-foreground" />
 					</button>
