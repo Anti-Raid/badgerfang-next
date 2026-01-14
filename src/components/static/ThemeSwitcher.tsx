@@ -235,7 +235,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps & { variant?: 'dropdown' | 'she
 								animate={{ y: 0 }}
 								exit={{ y: '100%' }}
 								transition={{ type: 'spring', damping: 25, stiffness: 250 }}
-								className="fixed bottom-0 left-0 right-0 z-[9999] bg-background/95 backdrop-blur-3xl rounded-t-[32px] overflow-hidden border-t border-white/10 shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.5)] max-h-[80vh] flex flex-col"
+								className="fixed bottom-0 left-0 right-0 z-[9999] bg-background/98 backdrop-blur-3xl rounded-t-[32px] overflow-hidden border-t border-white/10 shadow-[0_-10px_40px_-5px_rgba(0,0,0,0.6)] max-h-[80vh] flex flex-col"
 							>
 								{/* Drag Handle Area */}
 								<div
@@ -292,7 +292,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps & { variant?: 'dropdown' | 'she
 							animate={{ opacity: 1, scale: 1, y: 0, filter: 'blur(0px)' }}
 							exit={{ opacity: 0, scale: 0.95, y: 10, filter: 'blur(10px)' }}
 							transition={{ duration: 0.2, type: 'spring' }}
-							className="absolute right-0 mt-4 p-1 rounded-[2rem] shadow-2xl bg-background/80 backdrop-blur-2xl border border-white/10 w-[360px] z-[100] overflow-hidden ring-1 ring-black/5 origin-top-right"
+							className="absolute right-0 mt-4 p-1 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] bg-background/95 backdrop-blur-3xl border border-white/10 w-[360px] z-[100] overflow-hidden ring-1 ring-black/5 origin-top-right"
 						>
 							<div className="p-5 border-b border-white/5 bg-gradient-to-br from-white/5 to-transparent">
 								<div className="flex items-center gap-3">

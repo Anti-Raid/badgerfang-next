@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Plus } from 'lucide-react';
 import { SettingsColumnList } from './settings-column';
 import { Primary } from '../../ui/Buttons';
 import { Column } from '@/types/api/bindings/Column';
@@ -30,26 +31,52 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({
 }) => {
 	return (
 		<motion.div
-			initial={{ opacity: 0, y: -10 }}
-			animate={{ opacity: 1, y: 0 }}
-			className="bg-background border border-primary border-opacity-20 rounded-md p-4 mb-4"
+			initial={{ opacity: 0, scale: 0.98 }}
+			animate={{ opacity: 1, scale: 1 }}
+			className="mb-10"
 		>
-			<SettingsColumnList
-				columns={columns}
-				values={values}
-				onChange={onChange}
-				operation={operation}
-				guildData={guildData}
-			/>
+			<div className="bg-card border border-border/50 rounded-3xl p-8 lg:p-10 shadow-2xl">
+				<div className="flex items-center justify-between mb-8">
+					<div>
+						<h3 className="text-xl font-bold tracking-tight text-foreground">
+							{operation === 'Create' ? `Add ${settingName}` : `Edit ${settingName}`}
+						</h3>
+						<p className="text-xs text-muted-foreground mt-1 font-medium">Please fill in the details below</p>
+					</div>
+					<button 
+						onClick={onCancel}
+						className="w-10 h-10 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-center text-primary hover:bg-primary/10 transition-all focus:outline-none focus:ring-4 focus:ring-primary/5"
+						aria-label="Cancel"
+					>
+						<Plus size={20} className={operation === 'Update' ? 'rotate-45' : ''} />
+					</button>
+				</div>
 
-			<div className="flex gap-2 mt-4">
-				<Primary Title={operation === 'Create' ? `Add ${settingName}` : 'Save'} onClick={onSave} />
-				<button
-					className="px-4 py-2 border border-primary border-opacity-20 rounded-md text-foreground hover:bg-accent/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-					onClick={onCancel}
-				>
-					Cancel
-				</button>
+				<div>
+					<SettingsColumnList
+						columns={columns}
+						values={values}
+						onChange={onChange}
+						operation={operation}
+						guildData={guildData}
+					/>
+				</div>
+
+				<div className="flex flex-col sm:flex-row gap-3 mt-10 pt-8 border-t border-border/50">
+					<div className="flex-1">
+						<Primary 
+							Title={operation === 'Create' ? `Create ${settingName}` : 'Save Changes'} 
+							onClick={onSave}
+							className="w-full !py-3 !rounded-xl !text-sm !font-bold shadow-lg shadow-primary/10"
+						/>
+					</div>
+					<button
+						className="px-8 py-3 rounded-xl bg-accent/50 text-foreground font-bold text-sm hover:bg-accent transition-all focus:outline-none focus:ring-4 focus:ring-accent/10 border border-border/50"
+						onClick={onCancel}
+					>
+						Cancel
+					</button>
+				</div>
 			</div>
 		</motion.div>
 	);
