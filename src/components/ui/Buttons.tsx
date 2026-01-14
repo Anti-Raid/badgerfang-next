@@ -13,7 +13,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 const baseClass =
-	'px-6 py-3 w-fit min-w-[140px] rounded-full font-bold text-sm transition-all duration-300 inline-flex justify-center items-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary shadow-lg overflow-hidden relative group';
+	'px-6 py-3 w-fit min-w-[140px] rounded-full font-bold text-sm transition-all duration-300 inline-flex justify-center items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-white shadow-lg overflow-hidden relative group';
 
 export const Primary: React.FC<ButtonProps> = ({
 	Title,

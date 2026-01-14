@@ -73,6 +73,21 @@ export const SettingsColumn: React.FC<SettingsColumnProps> = ({
 	guildData,
 	onChange
 }) => {
+	const [pendingFocusId, setPendingFocusId] = React.useState<string | null>(null);
+
+	React.useEffect(() => {
+		if (pendingFocusId) {
+			const element = document.getElementById(pendingFocusId);
+			if (element) {
+				element.focus();
+				if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
+					element.select();
+				}
+			}
+			setPendingFocusId(null);
+		}
+	}, [value, pendingFocusId]);
+
 	return (
 		<>
 			{column.column_type.type === 'Scalar' ? (
@@ -120,9 +135,11 @@ export const SettingsColumn: React.FC<SettingsColumnProps> = ({
 													newElement = false;
 												}
 
-												const newArray = value.toSpliced(1, 0, newElement);
+												const newArray = [newElement];
+												setPendingFocusId(`${column.id}-0`);
 												onChange(newArray);
 											}}
+											aria-label={`Add element to ${column.name}`}
 										/>
 									</span>
 								</>
@@ -165,8 +182,10 @@ export const SettingsColumn: React.FC<SettingsColumnProps> = ({
 														}
 
 														const newArray = value.toSpliced(index, 0, newElement);
+														setPendingFocusId(`${column.id}-${index}`);
 														onChange(newArray);
 													}}
+													aria-label={`Add element above index ${index + 1}`}
 												/>
 											</span>
 											<span className="mr-2">
@@ -183,26 +202,20 @@ export const SettingsColumn: React.FC<SettingsColumnProps> = ({
 														}
 
 														const newArray = value.toSpliced(index + 1, 0, newElement);
+														setPendingFocusId(`${column.id}-${index + 1}`);
 														onChange(newArray);
 													}}
+													aria-label={`Add element below index ${index + 1}`}
 												/>
 											</span>
 											<span className="mr-2">
 												<Secondary
 													Title="Delete"
 													onClick={() => {
-														let ict = assertInnerColumnTypeUnion(column.column_type.inner);
-
-														let newElement: any = '';
-														if (ict.type === 'Integer' || ict.type === 'Float') {
-															newElement = 0;
-														} else if (ict.type === 'Boolean') {
-															newElement = false;
-														}
-
 														const newArray = value.filter((_, idx) => idx !== index);
 														onChange(newArray);
 													}}
+													aria-label={`Delete element at index ${index + 1}`}
 												/>
 											</span>
 										</>
@@ -658,16 +671,29 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 									{['string', 'json', 'number'].map((type) => (
 										<button
 											key={type}
+											type="button"
 											disabled={disabled}
 											onClick={() => setValueType(type)}
-											className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
+											className={`px-3 py-1.5 rounded-md text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20 ${
 												valueType === type
-													? 'bg-primary text-primary-foreground outline outline-2 outline-primary'
+													? 'bg-primary text-primary-foreground'
 													: 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
 											} ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
 											role="radio"
 											aria-checked={valueType === type}
-											tabIndex={0}
+											tabIndex={valueType === type ? 0 : -1}
+											onKeyDown={(e) => {
+												if (disabled) return;
+												const types = ['string', 'json', 'number'];
+												const currentIdx = types.indexOf(valueType);
+												if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+													e.preventDefault();
+													setValueType(types[(currentIdx + 1) % types.length]);
+												} else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+													e.preventDefault();
+													setValueType(types[(currentIdx - 1 + types.length) % types.length]);
+												}
+											}}
 											aria-label={type.charAt(0).toUpperCase() + type.slice(1)}
 										>
 											{type.charAt(0).toUpperCase() + type.slice(1)}

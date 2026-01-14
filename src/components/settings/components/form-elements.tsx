@@ -125,7 +125,7 @@ export const InputField: React.FC<InputFieldProps> = ({
 						className={`
 							w-full px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200
 							bg-background border border-border/50 placeholder:text-muted-foreground/40
-							focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/50
+							focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-background
 							disabled:opacity-50 disabled:cursor-not-allowed min-h-[120px] resize-y
 							${error ? 'border-destructive/50 ring-destructive/5' : ''}
 							${IconComponent ? 'pl-11' : ''}
@@ -146,7 +146,7 @@ export const InputField: React.FC<InputFieldProps> = ({
 							className={`
 								w-full px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200
 								bg-background border border-border/50 placeholder:text-muted-foreground/40
-								focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/50
+								focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-background
 								disabled:opacity-50 disabled:cursor-not-allowed
 								${error ? 'border-destructive/50 ring-destructive/5' : ''}
 								${isPassword ? 'pr-12' : ''}
@@ -163,9 +163,9 @@ export const InputField: React.FC<InputFieldProps> = ({
 						{isPassword && (
 							<button
 								type="button"
-								className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg text-muted-foreground/50 hover:text-primary hover:bg-primary/5 transition-all"
+								className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg text-muted-foreground/50 hover:text-primary hover:bg-primary/5 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
 								onClick={togglePasswordVisibility}
-								tabIndex={-1}
+								aria-label={showPassword ? 'Hide password' : 'Show password'}
 							>
 								{showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
 							</button>
@@ -212,7 +212,7 @@ export const RadioOption: React.FC<RadioOptionProps> = ({
 				<input
 					type="radio"
 					name={name}
-					className="sr-only"
+					className="sr-only focus-visible:not-sr-only focus-visible:absolute focus-visible:opacity-0"
 					disabled={disabled}
 					checked={checked}
 					onChange={() => {
@@ -221,14 +221,14 @@ export const RadioOption: React.FC<RadioOptionProps> = ({
 					}}
 					aria-checked={checked}
 					aria-label={label}
-					tabIndex={0}
 				/>
 				<div
 					className={`w-5 h-5 rounded-full border-2 transition-all duration-200 flex items-center justify-center
 					${checked
 						? 'border-primary bg-primary/10'
 						: 'border-border bg-background group-hover/radio:border-primary/30'
-					}`}
+					}
+					group-focus-within/radio:ring-4 group-focus-within/radio:ring-primary/10 group-focus-within/radio:border-primary/50`}
 				>
 					<AnimatePresence>
 						{checked && (
@@ -241,7 +241,7 @@ export const RadioOption: React.FC<RadioOptionProps> = ({
 						)}
 					</AnimatePresence>
 				</div>
-				<span className={`ml-3 text-sm font-bold transition-colors ${checked ? 'text-foreground' : 'text-muted-foreground'}`}>
+				<span className={`ml-3 text-sm font-bold transition-colors ${checked ? 'text-foreground' : 'text-muted-foreground'} group-focus-within/radio:text-primary`}>
 					{label}
 				</span>
 			</div>
@@ -336,7 +336,7 @@ export const Toggle: React.FC<ToggleProps> = ({
 					role="switch"
 					aria-checked={checked}
 					disabled={disabled}
-					className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-4 focus:ring-primary/10 ${
+					className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
 						checked ? 'bg-primary' : 'bg-muted'
 					} ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
 					onClick={() => {

@@ -28,10 +28,19 @@ export const ScriptModal: React.FC<ScriptModalProps> = ({
 }) => {
 	const [localContent, setLocalContent] = useState<Record<string, string>>(content);
 
-	// Update local content when the content prop changes
 	useEffect(() => {
-		setLocalContent(content);
-	}, [content]);
+		const handleEsc = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') onClose();
+		};
+		if (isOpen) {
+			window.addEventListener('keydown', handleEsc);
+			document.body.style.overflow = 'hidden';
+		}
+		return () => {
+			window.removeEventListener('keydown', handleEsc);
+			document.body.style.overflow = 'unset';
+		};
+	}, [isOpen, onClose]);
 
 	if (!isOpen) return null;
 
@@ -74,21 +83,27 @@ export const ScriptModal: React.FC<ScriptModalProps> = ({
 					initial={{ opacity: 0 }}
 					animate={{ opacity: 1 }}
 					exit={{ opacity: 0 }}
+					role="dialog"
+					aria-modal="true"
+					aria-labelledby="modal-title"
 				>
 					<motion.div
-						className="bg-background rounded-lg shadow-xl w-11/12 max-w-6xl max-h-[90vh] flex flex-col"
+						className="bg-background rounded-lg shadow-xl w-11/12 max-w-6xl max-h-[90vh] flex flex-col focus:outline-none"
 						initial={{ scale: 0.9, y: 20 }}
 						animate={{ scale: 1, y: 0 }}
 						exit={{ scale: 0.9, y: 20 }}
 						transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+						tabIndex={-1}
+						autoFocus
 					>
 						<div className="flex justify-between items-center p-4 border-b border-border">
-							<h3 className="text-lg font-semibold">{modalTitle}</h3>
+							<h3 id="modal-title" className="text-lg font-semibold">{modalTitle}</h3>
 							<motion.button
 								onClick={onClose}
-								className="text-muted-foreground hover:text-foreground p-1 rounded-full hover:bg-accent/50 transition-colors"
+								className="text-muted-foreground hover:text-foreground p-1 rounded-full hover:bg-accent/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20"
 								whileHover={{ scale: 1.1 }}
 								whileTap={{ scale: 0.9 }}
+								aria-label="Close modal"
 							>
 								<X className="h-5 w-5" />
 							</motion.button>
