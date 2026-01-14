@@ -1,6 +1,6 @@
 'use client';
 
-import { Shield, User, Code, Database, FileCode, Lock, Bell } from 'lucide-react';
+import { Shield, User, Code, Database, FileCode, Lock, Bell, LayoutDashboard, Zap } from 'lucide-react';
 import { Section } from './components/section';
 import { Fragment, useEffect, useState } from 'react';
 import { baseGuildUserInfo, executeSettings, getSettings } from '@/lib/api';
@@ -86,7 +86,6 @@ export default function Settings({ guildId }: { guildId: string }) {
 				const data = await baseGuildUserInfo(guildId);
 				let settings = await getSettings(guildId);
 
-				// Ensure builtin settings are the first thing in the object
 				const builtins = settings['$builtins'];
 				if (builtins) {
 					delete settings['$builtins'];
@@ -118,25 +117,23 @@ export default function Settings({ guildId }: { guildId: string }) {
 		fetchData();
 	}, [guildId]);
 
-	/**
-	 * Determines whether the provided error object is likely an Axios error.
-	 *
-	 * This type guard checks if the error is non-null and contains a response property,
-	 * which is characteristic of errors produced by Axios HTTP requests.
-	 *
-	 * @param error - The error object to evaluate.
-	 * @returns True if the error object has a response property; otherwise, false.
-	 */
 	function isAxiosError(error: any): error is { response?: { data?: { message?: string } } } {
 		return error && error.response;
 	}
 
 	if (loading) {
 		return (
-			<div className="min-h-screen bg-background flex items-center justify-center">
-				<div className="text-center">
-					<div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-					<p className="text-foreground">Loading guild data...</p>
+			<div className="min-h-screen bg-background flex items-center justify-center relative overflow-hidden">
+				<div className="absolute inset-0 bg-primary/5 blur-[120px] rounded-full animate-pulse" />
+				<div className="text-center relative z-10 flex flex-col items-center">
+					<motion.div 
+						animate={{ rotate: 360 }}
+						transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+						className="w-12 h-12 border-2 border-primary/20 border-t-primary rounded-full mb-6"
+					/>
+					<p className="text-sm font-bold text-foreground/40 tracking-widest uppercase">
+						Loading Settings
+					</p>
 				</div>
 			</div>
 		);
@@ -144,30 +141,16 @@ export default function Settings({ guildId }: { guildId: string }) {
 
 	if (error) {
 		return (
-			<div className="min-h-screen bg-background flex items-center justify-center">
-				<div className="bg-card p-6 rounded-xl border border-destructive max-w-md w-full">
-					<div className="text-destructive mb-3">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="24"
-							height="24"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							strokeWidth="2"
-							strokeLinecap="round"
-							strokeLinejoin="round"
-						>
-							<circle cx="12" cy="12" r="10"></circle>
-							<line x1="12" y1="8" x2="12" y2="12"></line>
-							<line x1="12" y1="16" x2="12.01" y2="16"></line>
-						</svg>
+			<div className="min-h-screen bg-background flex items-center justify-center p-6">
+				<div className="bg-card p-8 rounded-3xl border border-destructive/20 max-w-md w-full text-center shadow-2xl">
+					<div className="w-16 h-16 bg-destructive/10 rounded-2xl flex items-center justify-center text-destructive mx-auto mb-6">
+						<Shield size={32} />
 					</div>
-					<h3 className="text-lg font-bold mb-2">Error</h3>
-					<p className="text-muted-foreground">{error}</p>
+					<h3 className="text-2xl font-bold text-foreground mb-4">Connection Error</h3>
+					<p className="text-foreground/60 mb-8 leading-relaxed">{error}</p>
 					<button
 						onClick={() => window.location.reload()}
-						className="mt-4 bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors"
+						className="w-full bg-primary text-primary-foreground font-bold px-6 py-4 rounded-xl hover:opacity-90 transition-all active:scale-98"
 					>
 						Try Again
 					</button>
@@ -177,127 +160,125 @@ export default function Settings({ guildId }: { guildId: string }) {
 	}
 
 	return (
-		<div className="min-h-screen bg-background text-foreground">
+		<div className="min-h-screen bg-background text-foreground font-inter selection:bg-primary/30 selection:text-primary relative overflow-hidden pb-40">
+			{/* Subtle Background elements */}
+			<div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 blur-[150px] rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+			
 			<ToastContainer theme="dark" />
-			<div className="sticky top-20 z-10 bg-background/80 backdrop-blur-sm border-b border-border">
+
+			{/* Sub-Header */}
+			<div className="sticky top-16 z-40 bg-background/60 backdrop-blur-xl border-b border-border/50">
 				<div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-					<div className="flex items-center gap-3">
+					<div className="flex items-center gap-4">
 						{guildData.icon ? (
 							<img
 								src={guildData.icon || '/logo.webp'}
 								alt={guildData.name}
-								className="w-10 h-10 rounded-full border-2 border-primary/20"
+								className="w-10 h-10 rounded-xl border border-border shadow-sm object-cover"
 							/>
 						) : (
-							<div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
+							<div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold">
 								{guildData.name.charAt(0)}
 							</div>
 						)}
-						<h1 className="text-xl font-bold">{guildData.name}</h1>
+						<div>
+							<h1 className="text-base font-bold tracking-tight">
+								{guildData.name}
+							</h1>
+							<p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Dashboard Settings</p>
+						</div>
 					</div>
 				</div>
 			</div>
 
-			<div className="max-w-6xl mx-auto px-6 py-8">
+			<div className="max-w-6xl mx-auto px-6 mt-16">
+				{/* Header Section */}
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.5 }}
-					className="mb-10"
+					className="mb-16"
 				>
-					<h1 className="text-3xl font-bold mb-3 bg-gradient-to-r from-primary to-extra bg-clip-text text-transparent">
-						Welcome to your Dashboard
+					<h1 className="text-4xl font-bold tracking-tight mb-4">
+						Settings
 					</h1>
-					<p className="text-muted-foreground text-lg">
-						Control all aspects of AntiRaid and its operation on your server
+					<p className="text-lg text-muted-foreground max-w-2xl">
+						Configure and manage how your server interacts with AntiRaid. 
+						Customize roles, detection levels, and automated responses.
 					</p>
 
-					<div className="mt-6 p-5 bg-accent rounded-xl border-2 border-primary/20 relative overflow-hidden">
-						<div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-extra/5 opacity-50"></div>
-						<div className="relative z-10">
-							<h3 className="text-lg font-bold mb-2 flex items-center gap-2">
-								<Code className="w-5 h-5 text-primary" />
-								Pro Tip
-							</h3>
-							<p className="text-foreground">
-								Want something beyond the core commands? Check out{' '}
-								<span className="text-primary font-semibold">Templating</span>, the official way to
-								extend AntiRaid to meet your needs!
-							</p>
+					<div className="mt-8 p-6 bg-accent/30 rounded-2xl border border-border/50 flex items-center gap-4">
+						<div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary shrink-0">
+							<Code size={18} />
 						</div>
+						<p className="text-sm font-medium leading-relaxed">
+							Check out <span className="text-primary font-bold">Templating</span> for advanced custom logic and script extensions.
+						</p>
 					</div>
 				</motion.div>
 
-				<div className="space-y-8">
+				<div className="space-y-12">
 					{guildSettings && guildData && (
 						<>
 							{Object.keys(guildSettings)
 								.filter((s) => guildSettings[s].type !== 'Ok')
-								.map((setting, idx) => {
-									return (
-										<SettingsErrorDisplay
-											key={idx}
-											loadErrors={{ [setting]: guildSettings[setting].data }}
-										/>
-									);
-								})}
+								.map((setting, idx) => (
+									<SettingsErrorDisplay
+										key={idx}
+										loadErrors={{ [setting]: guildSettings[setting].data }}
+									/>
+								))}
 
 							{Object.keys(guildSettings)
 								.filter((s) => guildSettings[s].type === 'Ok')
-								.map((s) => {
-									return { s, setting: guildSettings[s].data as Setting[] };
-								})
-								.map((setting, _idx) => {
-									console.log(`Rendering setting`, setting);
-									return (
-										<Fragment key={setting.s}>
-											{setting.s !== '$builtins' && (
-												<>
-													<h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-primary to-extra bg-clip-text text-transparent">
-														Template {setting.s}
-													</h2>
-													<p className="text-muted-foreground mb-6">
-														Manage settings from template {setting.s} here.
-													</p>
-												</>
-											)}
-											{setting.setting.map((setting, idx) => (
+								.map((s) => ({ s, setting: guildSettings[s].data as Setting[] }))
+								.map((setting) => (
+									<Fragment key={setting.s}>
+										{setting.s !== '$builtins' && (
+											<div className="mb-8 pt-8 border-t border-border/50">
+												<h2 className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground mb-6">
+													Template: {setting.s}
+												</h2>
+											</div>
+										)}
+										
+										<div className="grid grid-cols-1 gap-6">
+											{setting.setting.map((s_item, idx) => (
 												<Section
 													key={idx}
-													title={setting.name}
-													description={setting.description}
+													title={s_item.name}
+													description={s_item.description}
 													icon={
-														setting.icon == 'Bell' ? (
+														s_item.icon == 'Bell' ? (
 															<Bell />
-														) : setting.icon == 'Shield' ? (
+														) : s_item.icon == 'Shield' ? (
 															<Shield />
-														) : setting.icon == 'User' ? (
+														) : s_item.icon == 'User' ? (
 															<User />
-														) : setting.icon == 'Code' ? (
+														) : s_item.icon == 'Code' ? (
 															<Code />
-														) : setting.icon == 'Database' ? (
+														) : s_item.icon == 'Database' ? (
 															<Database />
-														) : setting.icon == 'FileCode' ? (
+														) : s_item.icon == 'FileCode' ? (
 															<FileCode />
-														) : setting.icon == 'Lock' ? (
+														) : s_item.icon == 'Lock' ? (
 															<Lock />
 														) : (
 															<Shield />
 														)
 													}
-													defaultOpen={idx == 0} // Open the first section by default
+													defaultOpen={idx === 0 && setting.s === '$builtins'}
 												>
 													<SettingComponent
 														guildId={guildId}
-														setting={setting}
+														setting={s_item}
 														guildData={guildData}
 														fetcher={fetcher}
 													/>
 												</Section>
 											))}
-										</Fragment>
-									);
-								})}
+										</div>
+									</Fragment>
+								))}
 						</>
 					)}
 				</div>

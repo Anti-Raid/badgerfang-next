@@ -222,6 +222,7 @@ const Hero = () => {
 										Title="Invite now"
 										onClick={() => (window.location.href = '/invite')}
 										icon={GoArrowUpRight}
+										className="!px-8 !py-4 !text-base shadow-primary/40 hover:shadow-primary/60"
 									/>
 								</motion.div>
 								<motion.div
@@ -233,6 +234,7 @@ const Hero = () => {
 										Title="Learn more"
 										onClick={() => (window.location.href = '/about')}
 										icon={GoArrowUpRight}
+										className="!px-8 !py-4 !text-base"
 									/>
 								</motion.div>
 							</motion.div>

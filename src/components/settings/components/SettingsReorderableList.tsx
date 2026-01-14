@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Reorder } from 'framer-motion';
+import { Reorder, motion } from 'framer-motion';
 import { GripVertical, Edit, Trash2 } from 'lucide-react';
 import { Primary } from '../../ui/Buttons';
 
@@ -25,35 +25,45 @@ export const SettingsReorderableList: React.FC<SettingsReorderableListProps> = (
 	indexBy
 }) => {
 	return (
-		<>
-			<div className="bg-background border border-primary border-opacity-20 rounded-md overflow-hidden">
+		<div className="space-y-4">
+			<div className="bg-accent/30 border border-border/50 rounded-2xl overflow-hidden p-3">
 				<Reorder.Group
 					axis="y"
 					values={entries}
 					onReorder={onReorder}
-					className="divide-y divide-primary divide-opacity-10"
+					className="space-y-2"
 				>
 					{entries.map((entry, index) => (
-						<Reorder.Item key={entry[indexBy || ''] || index} value={entry} className="p-3">
-							<div className="flex items-center gap-3">
-								<GripVertical className="w-5 h-5 text-muted-foreground cursor-grab active:cursor-grabbing" />
-								<span className="font-medium text-foreground">
-									{entry?.title || `Entry ${index + 1}`}
-								</span>
-								<div className="ml-auto flex items-center gap-2">
+						<Reorder.Item 
+							key={entry[indexBy || ''] || index} 
+							value={entry} 
+							className="group/reorder relative bg-card border border-border/50 hover:border-primary/30 rounded-xl p-4 transition-all duration-200 shadow-sm"
+						>
+							<div className="flex items-center gap-4">
+								<div className="text-muted-foreground/30 group-hover/reorder:text-primary transition-colors cursor-grab active:cursor-grabbing">
+									<GripVertical size={20} />
+								</div>
+								
+								<div className="flex-1">
+									<span className="text-sm font-bold text-foreground transition-colors group-hover/reorder:text-primary">
+										{entry?.title || `Entry ${index + 1}`}
+									</span>
+								</div>
+
+								<div className="flex items-center gap-1 opacity-0 group-hover/reorder:opacity-100 transition-opacity">
 									<button
-										className="p-1 rounded-md hover:bg-accent/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+										className="p-2 rounded-lg text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all focus:outline-none focus:ring-2 focus:ring-primary/20"
 										onClick={() => onEdit(structuredClone(entry))}
 										aria-label={`Edit ${entry?.title || 'entry'}`}
 									>
-										<Edit className="w-4 h-4 text-muted-foreground" />
+										<Edit size={16} />
 									</button>
 									<button
-										className="p-1 rounded-md hover:bg-accent/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+										className="p-2 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all focus:outline-none focus:ring-2 focus:ring-destructive/20"
 										onClick={() => onDelete(entry)}
 										aria-label={`Delete ${entry?.title || 'entry'}`}
 									>
-										<Trash2 className="w-4 h-4 text-muted-foreground" />
+										<Trash2 size={16} />
 									</button>
 								</div>
 							</div>
@@ -63,10 +73,18 @@ export const SettingsReorderableList: React.FC<SettingsReorderableListProps> = (
 			</div>
 
 			{isReordered && (
-				<div className="flex justify-end mt-4">
-					<Primary Title="Save Order" onClick={onSaveOrder} />
-				</div>
+				<motion.div 
+					initial={{ opacity: 0, y: 10 }}
+					animate={{ opacity: 1, y: 0 }}
+					className="flex justify-end pt-2"
+				>
+					<Primary 
+						Title="Save New Order" 
+						onClick={onSaveOrder} 
+						className="!px-6 !py-2.5 !rounded-xl !text-sm shadow-lg shadow-primary/10"
+					/>
+				</motion.div>
 			)}
-		</>
+		</div>
 	);
 };

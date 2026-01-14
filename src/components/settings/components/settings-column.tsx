@@ -422,7 +422,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 							placeholder={parentColumn.placeholder || 'Select a role'}
 							value={value}
 							disabled={disabled}
-							onChange={(e) => onChange(e.target.value)}
+							onChange={onChange}
 							id={id}
 							aria-required="false"
 							type={'select'}
@@ -436,7 +436,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 							placeholder={parentColumn.placeholder || 'Select a channel'}
 							value={value}
 							disabled={disabled}
-							onChange={(e) => onChange(e.target.value)}
+							onChange={onChange}
 							id={id}
 							aria-required="false"
 							type={'select'}
@@ -450,7 +450,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 							placeholder={parentColumn.placeholder || 'Enter a value'}
 							value={value}
 							disabled={disabled}
-							onChange={(e) => onChange(e.target.value)}
+							onChange={onChange}
 							id={id}
 							aria-required="true"
 							type={
@@ -475,7 +475,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 									placeholder={parentColumn.placeholder || 'Select a suggestion'}
 									value={value}
 									disabled={disabled}
-									onChange={(e) => onChange(e.target.value)}
+									onChange={onChange}
 									id={id}
 									aria-required="false"
 									type={'select'}
@@ -494,8 +494,8 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 					placeholder={parentColumn.placeholder || 'Enter a number'}
 					value={value}
 					disabled={disabled}
-					onChange={(e) => {
-						let number = parseFloat(e.target.value);
+					onChange={(val) => {
+						let number = parseFloat(val);
 						if (isNaN(number)) {
 							number = 0; // Default to 0 if not a valid number
 						}
@@ -514,8 +514,8 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 					placeholder={parentColumn.placeholder || 'Enter a number'}
 					value={value}
 					disabled={disabled}
-					onChange={(e) => {
-						let number = parseFloat(e.target.value);
+					onChange={(val) => {
+						let number = parseFloat(val);
 						if (isNaN(number)) {
 							number = 0.0; // Default to 0.0 if not a valid number
 						}
@@ -615,13 +615,13 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 								placeholder={parentColumn.placeholder || 'Enter JSON value'}
 								value={jsonValue}
 								disabled={disabled}
-								onChange={(e) => {
-									setJsonValue(e.target.value);
+								onChange={(val) => {
+									setJsonValue(val);
 
 									// Dispatch onChange if the json is parseable for specified type
 									if (valueType === 'json') {
 										try {
-											const jsonValue = JSON.parse(e.target.value);
+											const jsonValue = JSON.parse(val);
 											setJsonOk(true);
 											onChange(jsonValue);
 										} catch (error) {
@@ -629,7 +629,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 											return;
 										}
 									} else if (valueType === 'number') {
-										const numberValue = parseFloat(e.target.value);
+										const numberValue = parseFloat(val);
 										if (isNaN(numberValue)) {
 											setJsonOk(false);
 											return;
@@ -639,7 +639,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 									} else {
 										// For string type, just pass the value as is
 										setJsonOk(true);
-										onChange(e.target.value);
+										onChange(val);
 									}
 								}}
 								id={id}
@@ -708,7 +708,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 						placeholder={parentColumn.placeholder || 'Enter a value'}
 						value={value}
 						disabled={disabled}
-						onChange={(e) => onChange(e.target.value)}
+						onChange={(val) => onChange(val)}
 						id={id}
 						aria-required="true"
 						marginClass={marginClass}

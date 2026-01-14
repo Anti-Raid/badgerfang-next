@@ -68,6 +68,9 @@ const NavBar: React.FC = () => {
 
 	useEffect(() => {
 		setCurrentPath(pathname || '/');
+		setIsProfileOpen(false);
+		setIsMobileMenuOpen(false);
+		setIsThemeOpen(false);
 	}, [pathname]);
 
 	// Handle scroll effect for glassmorphism intensity
@@ -135,19 +138,21 @@ const NavBar: React.FC = () => {
 
 	const handleLogout = async () => {
 		await logoutUser();
+		setIsProfileOpen(false);
+		setIsMobileMenuOpen(false);
 		router.push('/');
 		setUserData(null);
 	};
 
 	const ProfileMenu = () => (
 		<AnimatePresence>
-			{(isProfileOpen || isMobileMenuOpen) && (
+			{isProfileOpen && (
 				<motion.div
 					initial={{ opacity: 0, y: 10, scale: 0.95 }}
 					animate={{ opacity: 1, y: 0, scale: 1 }}
 					exit={{ opacity: 0, y: 10, scale: 0.95 }}
 					transition={{ duration: 0.2 }}
-					className="absolute right-0 top-full mt-4 w-60 bg-background/80 backdrop-blur-2xl rounded-2xl border border-white/10 shadow-2xl z-50 overflow-hidden"
+					className="absolute right-0 top-full mt-4 w-60 bg-background/95 backdrop-blur-3xl rounded-2xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-50 overflow-hidden"
 					ref={profileRef}
 				>
 					<div className="p-2 space-y-1">
@@ -331,7 +336,7 @@ const NavBar: React.FC = () => {
 						initial={{ opacity: 0, y: -20, scale: 0.95 }}
 						animate={{ opacity: 1, y: 0, scale: 1 }}
 						exit={{ opacity: 0, y: -20, scale: 0.95 }}
-						className="absolute top-24 inset-x-4 p-4 bg-background/90 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-2xl z-40 md:hidden flex flex-col gap-2"
+						className="absolute top-24 inset-x-4 p-4 bg-background/98 backdrop-blur-3xl rounded-3xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-40 md:hidden flex flex-col gap-2"
 					>
 						<div className="flex items-center justify-between mb-4 px-2">
 							<span className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
@@ -359,6 +364,56 @@ const NavBar: React.FC = () => {
 								{item.name}
 							</Link>
 						))}
+						<div className="h-px bg-white/5 my-2" />
+						
+						{userData ? (
+							<div className="flex flex-col gap-1">
+								<div className="px-3 py-2 flex items-center gap-3">
+									<img src={getAvatarUrl(userData)} className="w-8 h-8 rounded-full" alt="" />
+									<div className="flex flex-col">
+										<span className="text-sm font-bold">{userData.username}</span>
+										<span className="text-[10px] text-muted-foreground uppercase tracking-widest">Account</span>
+									</div>
+								</div>
+								{[
+									{ name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+									{ name: 'Developer', href: '/dashboard/developers', icon: Terminal },
+									{ name: 'Logout', onClick: handleLogout, icon: LogOut, danger: true }
+								].map((item) => (
+									item.href ? (
+										<Link
+											key={item.name}
+											href={item.href}
+											onClick={() => setIsMobileMenuOpen(false)}
+											className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 text-muted-foreground hover:text-foreground transition-all"
+										>
+											<item.icon className="w-5 h-5" />
+											{item.name}
+										</Link>
+									) : (
+										<button
+											key={item.name}
+											onClick={item.onClick}
+											className={`flex items-center gap-3 p-3 rounded-xl transition-all text-left ${item.danger ? 'text-red-400 hover:bg-red-500/10' : 'text-muted-foreground hover:text-foreground hover:bg-white/5'}`}
+										>
+											<item.icon className="w-5 h-5" />
+											{item.name}
+										</button>
+									)
+								))}
+							</div>
+						) : (
+							<button
+								onClick={() => {
+									loginUser();
+									setIsMobileMenuOpen(false);
+								}}
+								className="flex items-center gap-3 p-3 rounded-xl bg-primary text-primary-foreground font-bold"
+							>
+								<LogIn className="w-5 h-5" />
+								Login
+							</button>
+						)}
 					</motion.div>
 				)}
 			</AnimatePresence>
