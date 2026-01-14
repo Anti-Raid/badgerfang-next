@@ -150,7 +150,7 @@ export default function Settings({ guildId }: { guildId: string }) {
 					<p className="text-foreground/60 mb-8 leading-relaxed">{error}</p>
 					<button
 						onClick={() => window.location.reload()}
-						className="w-full bg-primary text-primary-foreground font-bold px-6 py-4 rounded-xl hover:opacity-90 transition-all active:scale-98"
+						className="w-full bg-primary text-primary-foreground font-bold px-6 py-4 rounded-xl hover:opacity-90 transition-all active:scale-98 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-background"
 					>
 						Try Again
 					</button>
@@ -182,9 +182,9 @@ export default function Settings({ guildId }: { guildId: string }) {
 							</div>
 						)}
 						<div>
-							<h1 className="text-base font-bold tracking-tight">
+							<span className="text-base font-bold tracking-tight block">
 								{guildData.name}
-							</h1>
+							</span>
 							<p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Dashboard Settings</p>
 						</div>
 					</div>

@@ -50,16 +50,18 @@ export const SettingsReorderableList: React.FC<SettingsReorderableListProps> = (
 									</span>
 								</div>
 
-								<div className="flex items-center gap-1 opacity-0 group-hover/reorder:opacity-100 transition-opacity">
+								<div className="flex items-center gap-1 opacity-0 group-hover/reorder:opacity-100 group-focus-within/reorder:opacity-100 transition-opacity">
 									<button
-										className="p-2 rounded-lg text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all focus:outline-none focus:ring-2 focus:ring-primary/20"
+										type="button"
+										className="p-2 rounded-lg text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
 										onClick={() => onEdit(structuredClone(entry))}
 										aria-label={`Edit ${entry?.title || 'entry'}`}
 									>
 										<Edit size={16} />
 									</button>
 									<button
-										className="p-2 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all focus:outline-none focus:ring-2 focus:ring-destructive/20"
+										type="button"
+										className="p-2 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
 										onClick={() => onDelete(entry)}
 										aria-label={`Delete ${entry?.title || 'entry'}`}
 									>

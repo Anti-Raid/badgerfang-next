@@ -29,6 +29,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 	label
 }) => {
 	const [isOpen, setIsOpen] = useState(false);
+	const [activeIdx, setActiveIdx] = useState(-1);
 	const containerRef = useRef<HTMLDivElement>(null);
 
 	const selectedOption = options.find((opt) => opt.value === value);
@@ -44,8 +45,69 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 		return () => document.removeEventListener('mousedown', handleClickOutside);
 	}, []);
 
+	const handleKeyDown = (e: React.KeyboardEvent) => {
+		if (disabled) return;
+
+		switch (e.key) {
+			case 'ArrowDown':
+				e.preventDefault();
+				if (!isOpen) {
+					// Toggle to next option without opening
+					const currentIdx = options.findIndex(o => o.value === value);
+					const nextIdx = currentIdx < options.length - 1 ? currentIdx + 1 : currentIdx;
+					if (nextIdx !== currentIdx) onChange(options[nextIdx].value);
+				} else {
+					setActiveIdx((prev) => (prev < options.length - 1 ? prev + 1 : prev));
+				}
+				break;
+			case 'ArrowUp':
+				e.preventDefault();
+				if (!isOpen) {
+					// Toggle to prev option without opening
+					const currentIdx = options.findIndex(o => o.value === value);
+					const prevIdx = currentIdx > 0 ? currentIdx - 1 : currentIdx;
+					if (prevIdx !== currentIdx) onChange(options[prevIdx].value);
+				} else {
+					setActiveIdx((prev) => (prev > 0 ? prev - 1 : prev));
+				}
+				break;
+			case 'Enter':
+			case ' ':
+				e.preventDefault();
+				if (!isOpen) {
+					setIsOpen(true);
+					const currentIdx = options.findIndex(o => o.value === value);
+					setActiveIdx(currentIdx !== -1 ? currentIdx : 0);
+				} else if (activeIdx >= 0) {
+					onChange(options[activeIdx].value);
+					setIsOpen(false);
+				}
+				break;
+			case 'Escape':
+				if (isOpen) {
+					e.preventDefault();
+					setIsOpen(false);
+				}
+				break;
+			case 'Tab':
+				if (isOpen) {
+					setIsOpen(false);
+				}
+				break;
+		}
+	};
+
+	useEffect(() => {
+		if (isOpen) {
+			const currentIdx = options.findIndex(o => o.value === value);
+			setActiveIdx(currentIdx !== -1 ? currentIdx : 0);
+		} else {
+			setActiveIdx(-1);
+		}
+	}, [isOpen, options, value]);
+
 	return (
-		<div className="relative w-full" ref={containerRef}>
+		<div className="relative w-full" ref={containerRef} onKeyDown={handleKeyDown}>
 			<button
 				type="button"
 				id={id}
@@ -54,7 +116,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 				className={`
 					w-full flex items-center justify-between
 					bg-background border border-border/50 rounded-xl px-4 py-3 text-sm font-medium
-					transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/40
+					transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-background
 					${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
 					${isOpen ? 'border-primary/50 ring-4 ring-primary/5 shadow-sm' : 'hover:border-primary/30'}
 				`}
@@ -83,9 +145,11 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 						transition={{ duration: 0.15 }}
 						className="absolute z-[100] w-full mt-2 py-1.5 bg-card border border-border/50 rounded-xl shadow-2xl max-h-60 overflow-y-auto soft-scrollbar"
 						role="listbox"
+						aria-label={label}
 					>
-						{options.map((option) => {
+						{options.map((option, idx) => {
 							const isSelected = option.value === value;
+							const isActive = idx === activeIdx;
 							return (
 								<div
 									key={option.value}
@@ -94,6 +158,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 										${isSelected 
 											? 'bg-primary/10 text-primary' 
 											: 'text-foreground/70 hover:bg-accent hover:text-foreground'}
+										${isActive ? 'bg-accent text-foreground' : ''}
 									`}
 									role="option"
 									aria-selected={isSelected}
@@ -101,6 +166,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 										onChange(option.value);
 										setIsOpen(false);
 									}}
+									onMouseEnter={() => setActiveIdx(idx)}
 								>
 									<span>{option.label}</span>
 									{isSelected && (

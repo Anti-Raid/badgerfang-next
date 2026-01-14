@@ -620,6 +620,11 @@
 	.table tr td {
 		@apply max-sm:max-w-52 max-sm:break-all max-sm:overflow-scroll;
 	}
+
+	/* Global High-Visibility Focus State (A11y/WCAG) */
+	*:focus-visible {
+		@apply outline-none ring-2 ring-white ring-offset-2 ring-offset-background !important;
+	}
 }
 
 @keyframes theme-fade {
