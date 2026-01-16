@@ -223,29 +223,71 @@ impl LuaUserData for ContextObj {
     fn add_methods<M: LuaUserDataMethods<Self>>(methods: &mut M) {
         methods.add_method("call", |lua, this, (func_name, args): (String, LuaMultiValue)| {
             let vals = parse_lua_args(lua, args);
-            let vals_ref: Vec<&emscripten_val::Val> = vals.iter().collect();
+            let val_real = if vals.len() == 1 {
+                vals
+            } else {
+                let arr = emscripten_val::Val::array();
+                for val in vals {
+                    arr.call("push", &[&val]);
+                }
+                vec![arr]
+            };
+            let vals_ref: Vec<&emscripten_val::Val> = val_real.iter().collect();
             this.ctx.call(&func_name, &vals_ref);
             Ok(())
         });
     }
 }
 
-fn parse_lua_args(_lua: &Lua, args: LuaMultiValue) -> Vec<emscripten_val::Val> {
+fn parse_lua_args(lua: &Lua, args: LuaMultiValue) -> Vec<emscripten_val::Val> {
     let mut result = Vec::new();
     for arg in args.into_iter() {
-        match arg {
-            LuaValue::Nil => result.push(emscripten_val::Val::null()),
-            LuaValue::Boolean(b) => result.push(b.into()),
-            LuaValue::Integer(i) => result.push((i as f64).into()),
-            LuaValue::Number(n) => result.push(n.into()),
-            LuaValue::String(s) => {
-                let str_val = s.to_str().expect("Failed to convert Lua string to Rust string");
-                result.push((str_val.to_string()).into());
-            },
-            _ => {
-                panic!("Unsupported Lua argument type");
-            }
-        }
+        let parsed_vals = parse_lua_arg(lua, arg);
+        result.push(parsed_vals);
     }
     result
+}
+
+fn parse_lua_arg(lua: &Lua, arg: LuaValue) -> emscripten_val::Val {
+    match arg {
+        LuaValue::Nil => emscripten_val::Val::null(),
+        LuaValue::Boolean(b) => b.into(),
+        LuaValue::Integer(i) => (i as f64).into(),
+        LuaValue::Number(n) => n.into(),
+        LuaValue::String(s) => {
+            let str_val = s.to_str().expect("Failed to convert Lua string to Rust string");
+            (str_val.to_string()).into()
+        },
+        LuaValue::Table(tab) => {
+            if tab.metatable() == Some(lua.array_metatable()) {
+                let arr = emscripten_val::Val::array();
+                for pair in tab.sequence_values::<LuaValue>() {
+                    if let Ok(value) = pair {
+                        let parsed_val = parse_lua_arg(lua, value);
+                        arr.call("push", &[&parsed_val]);
+                    }
+                }
+                return arr;
+            } else {
+                let obj = emscripten_val::Val::object();
+                for pair in tab.pairs::<LuaValue, LuaValue>() {
+                    if let Ok((key, value)) = pair {
+                        let key_str = match key {
+                            LuaValue::String(s) => s.to_str().expect("Failed to convert Lua string to Rust string").to_string(),
+                            LuaValue::Integer(i) => i.to_string(),
+                            LuaValue::Number(n) => n.to_string(),
+                            LuaValue::Boolean(b) => b.to_string(),
+                            _ => panic!("Unsupported Lua table key type"),
+                        };
+                        let parsed_val = parse_lua_arg(lua, value);
+                        obj.set(&key_str, &parsed_val);
+                    }
+                }
+                return obj;
+            }
+        }
+        _ => {
+            panic!("Unsupported Lua argument type");
+        }
+    }
 }
