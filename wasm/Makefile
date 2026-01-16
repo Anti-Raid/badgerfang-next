@@ -5,8 +5,9 @@ release:
 	cargo build --release --target=wasm32-unknown-emscripten
 	emcc \
      -s EXPORT_ALL=1 \
-	 -s EXPORTED_FUNCTIONS=_test_wasm,_luau_template,_wasm_free_string \
+	 -s EXPORTED_FUNCTIONS=_test_wasm,_luau_template_v2,_setup_luau_vm,_free_js_handle,_drop_luau_vm \
      -s EXPORTED_RUNTIME_METHODS=ccall,cwrap,stackSave,stackRestore,UTF8ToString \
+     --bind \
      -s MODULARIZE=1 \
      -s EXPORT_ES6=1 \
      -s ASSERTIONS \
@@ -18,6 +19,7 @@ release:
      -fexceptions \
      -flto \
      -Oz --no-entry \
+     --post-js=post.js \
      -L target/wasm32-unknown-emscripten/release \
      -lwasm \
      -o wasm.js

@@ -8,10 +8,12 @@ crate-type = ["staticlib"]
 
 [dependencies]
 mluau = { git = "https://github.com/mluau/mluau", features = ["luau", "vendored", "serialize"] }
+mluau-require = { git = "https://github.com/mluau/mluau-require" }
 serde_json = "1"
 rand = "0.9"
 chrono = "0.4"
 chrono-tz = "0.10"
+emscripten-val = "0.2"
 
 [profile.release]
 opt-level = "s"
