@@ -1,5 +1,6 @@
 mod plugins;
 mod proxyglobals;
+mod lazy;
 
 use mluau::prelude::*;
 use mluau_require::AssetRequirer;
