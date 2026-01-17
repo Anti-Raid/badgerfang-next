@@ -44,11 +44,15 @@ pub extern "C" fn luau_template_v2(vm_id: i32, ctx: emscripten_val::EM_VAL) -> e
             let vm_map = &refs_borrow.0;
             vm_map.get(&vm_id).cloned().expect("invalid vm_id")
         };
-        call_luau(vm_data, ctx);
+        call_luau(vm_data, ctx)
     });
 
     match res {
-        Ok(_) => emscripten_val::Val::object().release_ownership(),
+        Ok(s) => {
+            let mut v = emscripten_val::Val::object();
+            v.set(&"returnJson".to_string(), &s);
+            v.release_ownership()
+        },
         Err(e) => {
             // Return error to JS as object with "error" property
             let mut obj = emscripten_val::Val::object();
@@ -207,12 +211,24 @@ pub fn setup_luau(vfs: HashMap<String, String>) -> VmData {
 }
 
 /// Internal API to call Luau code with given VFS and ctx object
-pub fn call_luau(vm_data: VmData, ctx: emscripten_val::Val) -> LuaMultiValue {
+pub fn call_luau(vm_data: VmData, ctx: emscripten_val::Val) -> String {
     let init = vm_data.proxy_require.call::<LuaFunction>("./client")
         .expect("Failed to require ./client module");
     
-    init.call(ContextObj { ctx })
-    .expect("Failed to call ./client init function")
+    let value = init.call::<LuaMultiValue>(ContextObj { ctx })
+    .expect("Failed to call ./client init function");
+
+    let value_single = if value.len() == 0 {
+        LuaValue::Nil
+    } else if value.len() == 1 {
+        value.into_iter().next().unwrap()
+    } else {
+        // only take out the first return value
+        value.into_iter().next().unwrap()
+    };
+
+    vm_data.vm.from_value(value_single)
+        .expect("Failed to convert return value to string")
 }
 
 pub struct ContextObj {
