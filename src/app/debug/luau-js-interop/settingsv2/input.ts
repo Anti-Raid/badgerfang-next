@@ -2,77 +2,85 @@ import { z } from "zod";
 
 const TextInputSchema = z.object({
     type: z.literal("text"),
+    id: z.string(),
     label: z.string(),
+    description: z.string().optional(),
+    value: z.string(),
+    readonly: z.boolean().optional(),
     placeholder: z.string().optional(),
-    defaultValue: z.string().optional(),
+    minLength: z.number().optional(),
     maxLength: z.number().optional(),
     suggestions: z.array(z.string()).optional(),
 });
 
 const NumberInputSchema = z.object({
     type: z.literal("number"),
+    id: z.string(),
     label: z.string(),
+    description: z.string().optional(),
+    value: z.number(),
+    readonly: z.boolean().optional(),
     placeholder: z.string().optional(),
-    defaultValue: z.number().optional(),
     min: z.number().optional(),
     max: z.number().optional(),
 });
 
 const SelectInputSchema = z.object({
     type: z.literal("select"),
+    id: z.string(),
     label: z.string(),
+    description: z.string().optional(),
+    value: z.string(),
+    readonly: z.boolean().optional(),
     options: z.array(z.string()),
-    defaultValue: z.string().optional(),
 });
 
 const CheckboxInputSchema = z.object({
     type: z.literal("checkbox"),
+    id: z.string(),
     label: z.string(),
-    defaultValue: z.boolean().optional(),
+    description: z.string().optional(),
+    value: z.boolean(),
+    readonly: z.boolean().optional(),
 });
-
-type BaseInput = z.infer<typeof TextInputSchema> | z.infer<typeof NumberInputSchema> | z.infer<typeof SelectInputSchema> | z.infer<typeof CheckboxInputSchema>;
 
 const InputArraySchema = z.object({
     type: z.literal("array"),
+    id: z.string(),
     label: z.string(),
+    description: z.string().optional(),
     // The children field will be added later using z.lazy()
 });
 
-type InputSchema = BaseInput | {
-    type: "array";
-    label: string;
+type BaseInput = z.infer<typeof TextInputSchema> | z.infer<typeof NumberInputSchema> | z.infer<typeof SelectInputSchema> | z.infer<typeof CheckboxInputSchema> | z.infer<typeof InputArraySchema> | (z.infer<typeof InputArraySchema> & {
     children: Input[];
-};
+});
 
-// 3. Create the main schema for a FileSystemItem using z.lazy()
-export const InputSchema: z.ZodType<InputSchema> = z.lazy(() =>
+export const InputSchema: z.ZodType<BaseInput> = z.lazy(() =>
   z.discriminatedUnion("type", [
     TextInputSchema,
     NumberInputSchema,
     SelectInputSchema,
     CheckboxInputSchema,
-    // Extend the BaseFolderSchema with the recursive 'children' field
     InputArraySchema.extend({
       children: z.array(InputSchema), // Reference the lazy schema
     }),
   ])
 );
 
-// Optional: Infer the final TypeScript type
 export type Input = z.infer<typeof InputSchema>;
 
-/**
 const testInput: Input = {
     type: "array",
+    id: "",
     label: "Root",
     children: [
         {
             type: "text",
+            id: "username",
             label: "Username",
-            placeholder: "Enter your username"
+            placeholder: "Enter your username",
+            value: ""
         }
     ]
 }
-
- */
