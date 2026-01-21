@@ -164,6 +164,7 @@ const SettingsForm = memo(({ data, values, onChange, onEdit, onCancel }: Setting
 						<Primary
 							Title={data.submitButton ? data.submitButton.label : 'Save Changes'}
 							type="submit"
+                            onChange={handleSubmit}
 							className="w-full !py-3 !rounded-xl !text-sm !font-bold shadow-lg shadow-primary/10"
 						/>
 					</div>
@@ -230,7 +231,7 @@ export const SettingsFormWrapper: React.FC<SettingFormWrapperProps> = memo(
 						{data.delete && (
 							<button
 								type="button"
-								className="p-2 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+								className="p-2 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
 								onClick={handleDelete}
 								aria-label={`Delete ${data.delete.ariaLabel || 'entry'}`}
 							>
@@ -244,11 +245,64 @@ export const SettingsFormWrapper: React.FC<SettingFormWrapperProps> = memo(
 	}
 );
 
+interface ReorderableItemProps {
+    entry: DrawCmdForm;
+    onEdit: (id: string) => void;
+    onDelete: (id: string) => void;
+}
+
+/**
+ * Contains the logic for a reorderable form item.
+ * 
+ * This is needed to avoid rerendering the whole list on every drag update.
+ */
+export const ReorderableItem = memo(({ entry, onEdit, onDelete }: ReorderableItemProps) => {
+    return (
+        <Reorder.Item
+            key={entry.id}
+            value={entry}
+            className="group/reorder relative bg-card border border-border/50 hover:border-primary/30 rounded-xl p-4 transition-all duration-200 shadow-sm"
+        >
+            <div className="flex items-center gap-4">
+                <div className="text-muted-foreground/30 group-hover/reorder:text-primary transition-colors cursor-grab active:cursor-grabbing">
+                    <GripVertical size={20} />
+                </div>
+
+                <div className="flex-1">
+                    <span className="text-sm font-bold text-foreground transition-colors group-hover/reorder:text-primary">
+                        {entry.label || `Entry ${entry.id}`}
+                    </span>
+                </div>
+
+                <div className="flex items-center gap-1 opacity-0 group-hover/reorder:opacity-100 group-focus-within/reorder:opacity-100 transition-opacity">
+                    <button
+                        type="button"
+                        className="p-2 rounded-lg text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                        onClick={() => onEdit(entry.id)}
+                        aria-label={`Edit ${entry.label || 'entry'}`}
+                    >
+                        <Edit size={16} />
+                    </button>
+                    {entry.delete && (
+                        <button
+                            type="button"
+                            className="p-2 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                            onClick={() => onDelete(entry.id)}
+                            aria-label={`Delete ${entry.label || 'entry'}`}
+                        >
+                            <Trash2 size={16} />
+                        </button>
+                    )}
+                </div>
+            </div>
+        </Reorder.Item>
+    )
+})
+
 interface SettingsReorderableListProps {
 	forms: DrawCmdForm[];
 	onEdit: (formId: string) => void;
 	onDelete: (formId: string) => void;
-	onReorder: (forms: DrawCmdForm[]) => void;
 	onSaveOrder: (forms: DrawCmdForm[]) => void;
 }
 
@@ -259,60 +313,35 @@ interface SettingsReorderableListProps {
  * the individual form.
  */
 export const ReorderableSettingsFormWrapper: React.FC<SettingsReorderableListProps> = memo(
-	({ forms, onEdit, onDelete, onReorder, onSaveOrder }) => {
-		const isReordered = useMemo(
-			() => JSON.stringify(forms.map((i) => i.id)) !== JSON.stringify(forms.map((i) => i.id)),
-			[forms]
-		);
+	({ forms, onEdit, onDelete, onSaveOrder }) => {
+        const [items, setItems] = useState(forms);
+
+        useEffect(() => {
+            setItems(forms);
+        }, [forms]);
+
+        const isReordered = useMemo(() => {
+            const orig = forms.map(i => i.id).join(',');
+            const curr = items.map(i => i.id).join(',');
+            return orig != curr;
+        }, [items, forms]);
 
 		const handleSave = () => {
 			// Send the new list of forms up to the parent
-			onSaveOrder(forms);
+			onSaveOrder(items);
 		};
 
 		return (
 			<div className="space-y-4">
 				<div className="bg-accent/30 border border-border/50 rounded-2xl overflow-hidden p-3">
-					<Reorder.Group axis="y" values={forms} onReorder={onReorder} className="space-y-2">
-						{forms.map((entry, index) => (
-							<Reorder.Item
-								key={entry.id}
-								value={entry}
-								className="group/reorder relative bg-card border border-border/50 hover:border-primary/30 rounded-xl p-4 transition-all duration-200 shadow-sm"
-							>
-								<div className="flex items-center gap-4">
-									<div className="text-muted-foreground/30 group-hover/reorder:text-primary transition-colors cursor-grab active:cursor-grabbing">
-										<GripVertical size={20} />
-									</div>
-
-									<div className="flex-1">
-										<span className="text-sm font-bold text-foreground transition-colors group-hover/reorder:text-primary">
-											{entry.label || `Entry ${index + 1}`}
-										</span>
-									</div>
-
-									<div className="flex items-center gap-1 opacity-0 group-hover/reorder:opacity-100 group-focus-within/reorder:opacity-100 transition-opacity">
-										<button
-											type="button"
-											className="p-2 rounded-lg text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-											onClick={() => onEdit(entry.id)}
-											aria-label={`Edit ${entry.label || 'entry'}`}
-										>
-											<Edit size={16} />
-										</button>
-										{entry.delete && (
-											<button
-												type="button"
-												className="p-2 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-												onClick={() => onDelete(entry.id)}
-												aria-label={`Delete ${entry.label || 'entry'}`}
-											>
-												<Trash2 size={16} />
-											</button>
-										)}
-									</div>
-								</div>
-							</Reorder.Item>
+					<Reorder.Group axis="y" values={items} onReorder={setItems} className="space-y-2">
+						{items.map((entry) => (
+                            <ReorderableItem
+                                key={entry.id}
+                                entry={entry}
+                                onEdit={onEdit}
+                                onDelete={onDelete}
+                            />
 						))}
 					</Reorder.Group>
 				</div>
@@ -468,30 +497,17 @@ export const BaseSettingsFormList = memo(
                     </>
                 )}
 
-				{activeForm && (
-					<SettingsForm
-						key={activeForm.id}
-						data={activeForm}
-						values={activeValues}
-						onChange={handleFieldChange}
-						onCancel={onCancel}
-						onEdit={handleEdit}
-					/>
-				)}
-
 				{/* Render the inner forms */}
 				{data.reorderable ? (
 					<ReorderableSettingsFormWrapper
 						forms={forms}
 						onEdit={setEditingId}
 						onDelete={handleDelete}
-						onSaveOrder={setForms}
-						onReorder={handleReorder}
+						onSaveOrder={handleReorder}
 					/>
 				) : (
 					<>
 						{forms.map((form) => {
-							if (form.id === editingId) return null;
 							return (
 								<SettingsFormWrapper
 									key={form.id}
