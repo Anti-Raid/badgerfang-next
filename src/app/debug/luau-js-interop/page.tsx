@@ -11,7 +11,41 @@ import { SettingsCanvas } from './settingsv2/Canvas';
 import { CreateFormList } from './settingsv2/CreateUi';
 
 const SettingsV2 = () => {
-    const [text, setText] = useState<string>('');
+    const [text, setText] = useState<string>(`
+[{
+  "type": "formlist",
+   "reorderable": true,
+  "id": "example",
+  "title": "Example Form List",
+  "forms": [
+    {
+      "id": "form1",
+      "label": "Form 1",
+      "commands": []
+    },
+    {
+      "id": "form2",
+      "label": "Form 2",
+      "commands": []
+    },
+    {
+      "id": "form3",
+      "label": "Form 3",
+      "commands": [
+        {
+          "type": "input",
+          "input": {
+            "type": "text",
+            "id": "input1",
+            "label": "Input 1",
+            "value": ""
+          }
+        }
+      ]
+    }
+  ]
+}]    
+    `);
     const [stdout, setStdout] = useState<string>('');
     const data = useMemo(() => {
         let obj: any = {}
