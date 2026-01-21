@@ -1,9 +1,92 @@
 'use client';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Primary } from '@/components/ui/Buttons';
 import { motion } from 'framer-motion';
 import { InputField } from '@/components/settings/components/form-elements';
 import { setupLuauVm, luauTemplate } from '@/lib/wasm/wasm';
+import { DrawCmdFormList, DrawCmdList } from './settingsv2/drawcmd';
+import { SettingsErrorDisplay } from '@/components/settings/components/ErrorDisplay';
+import z from 'zod';
+import { SettingsCanvas } from './settingsv2/Canvas';
+import { CreateFormList } from './settingsv2/CreateUi';
+
+const SettingsV2 = () => {
+    const [text, setText] = useState<string>('');
+    const [stdout, setStdout] = useState<string>('');
+    const data = useMemo(() => {
+        let obj: any = {}
+        try {
+            obj = JSON.parse(text);
+        } catch (e) {
+            obj.msgerror = `Invalid JSON: ${(e as Error).message}`;
+        }
+
+        return DrawCmdList.safeParse(obj)
+    }, [text]);
+
+    return (
+        <>
+             <div className="bg-gray-700 text-white p-2 rounded-md mb-4">
+                <InputField 
+                    type="textarea"
+                    id="settings-drawcmds"
+                    label="Settings Draw Commands (JSON)"
+                    value={text}
+                    onChange={(e) => setText(e)}
+                />
+             </div>
+
+            {!data.success ? (
+                <SettingsErrorDisplay loadErrors={{"default": z.prettifyError(data.error)}} />
+            ) : (
+                <SettingsCanvas 
+                    drawcmds={data.data} 
+                    execAdd={(newData) => {
+                        setStdout((prev) => prev + `Executed add with data: ${JSON.stringify(newData)}\n`);
+                    }}
+                    execEdit={(formId, data) => {
+                        setStdout((prev) => prev + `Executed edit on form ${formId} with data: ${JSON.stringify(data)}\n`);
+                    }}
+                    execReorder={(data) => {
+                        setStdout((prev) => prev + `Executed reorder with data: ${JSON.stringify(data)}\n`);
+                    }}
+                    execDelete={(formId) => {
+                        setStdout((prev) => prev + `Executed delete on form ${formId}\n`);
+                    }}
+                />
+            )}
+
+            {stdout && (
+                <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="mt-4"
+                >
+                    <code className="whitespace-pre-wrap break-words bg-green-100 text-black">
+                        {stdout}
+                    </code>
+                </motion.div>
+            )}
+        </>
+    )
+}
+
+const SettingsV2CreateUI = () => {
+    const [ui, setUi] = useState<DrawCmdFormList>({type: "formlist", id: "example", title: "Example Form List", forms: []});
+
+    return (
+        <>
+            <div className="bg-gray-700 text-white p-2 rounded-md mb-4">
+                <CreateFormList data={ui} setData={setUi} />
+            </div>
+
+            <pre className="bg-gray-100 text-black p-4 rounded-md mb-4">
+                {JSON.stringify(ui, null, 2)}
+            </pre>
+        </>
+    )
+}
 
 /**
  * Renders a luau text input menu for debugging JS-Luau interop on Badgerfang
@@ -148,6 +231,12 @@ end`
 					</motion.div>
 				</>
 			)}
+
+            <SettingsV2CreateUI />
+
+            <div className="p-16"></div>
+
+            <SettingsV2 />
 		</>
 	);
 }

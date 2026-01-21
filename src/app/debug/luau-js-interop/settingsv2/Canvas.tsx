@@ -20,21 +20,21 @@ import { Primary } from '@/components/ui/Buttons';
 
 export type FormData = { [key: string]: Record<string, any> };
 
+const takeInputValue = (input: DrawCmdInput): any => {
+    if (input.input.type == 'array') {
+        let arr: any[] = [];
+        for (const cild of input.input.children) {
+            arr.push(takeInputValue({ type: 'input', input: cild }));
+        }
+    } else {
+        return input.input.value;
+    }
+};
+
 /**
  * Takes the form data out of the draw commands.
  */
 const takeFormValues = (formlist: DrawCmdFormList): FormData => {
-	const takeInputValue = (input: DrawCmdInput): any => {
-		if (input.input.type == 'array') {
-			let arr: any[] = [];
-			for (const cild of input.input.children) {
-				arr.push(takeInputValue({ type: 'input', input: cild }));
-			}
-		} else {
-			return input.input.value;
-		}
-	};
-
 	let data: FormData = {};
 	for (const form of formlist.forms) {
 		data[form.id] = {};
@@ -44,6 +44,19 @@ const takeFormValues = (formlist: DrawCmdFormList): FormData => {
 			}
 		}
 	}
+	return data;
+};
+
+/**
+ * Takes the form data out of the draw commands.
+ */
+const takeSingleFormValues = (form: DrawCmdForm): Record<string, any> => {
+	let data: FormData = {};
+    for (const cmd of form.commands) {
+        if (cmd.type === 'input') {
+            data[cmd.input.id] = takeInputValue(cmd);
+        }
+    }
 	return data;
 };
 
@@ -63,7 +76,7 @@ const SettingsInput = memo(({ data, value, onChange }: SettingsInputProps) => {
 					label={data.input.label}
 					description={data.input.description}
 					type="text"
-					value={data.input.value}
+					value={value === undefined ? '' : value}
 					onChange={onChange}
 					disabled={data.input.readonly}
 					placeholder={data.input.placeholder}
@@ -337,10 +350,15 @@ interface SettingsFormListProps {
  * The base form list component, without the open/close logic.
  */
 export const BaseSettingsFormList = memo(
-	({ data, initialFormData, execEdit, execDelete, execReorder }: SettingsFormListProps) => {
+	({ data, initialFormData, execAdd, execEdit, execDelete, execReorder }: SettingsFormListProps) => {
 		const [forms, setForms] = useState<DrawCmdForm[]>(data.forms); // forms on this formlist
 		const [formData, setFormData] = useState<FormData>(initialFormData);
 		const [editingId, setEditingId] = useState<string | null>(null);
+
+        // Add data
+        const [addForm, setAddForm] = useState<DrawCmdForm | null>(null);
+        const [addData, setAddData] = useState<Record<string, any>>({});
+
 		const activeForm = forms.find((f) => f.id === editingId);
 		const activeValues = editingId ? formData[editingId] || {} : {};
 
@@ -371,8 +389,9 @@ export const BaseSettingsFormList = memo(
 			if (data.createForm) {
 				let createForm = structuredClone(data.createForm);
 				createForm.id = `add${Math.random().toString(36).substring(2, 9)}`; // generate a random id
-				setFormData((prev) => ({ ...prev, [createForm.id]: {} }));
-				setForms((prev) => [...prev, createForm]);
+                let createFormVals = takeSingleFormValues(createForm);
+                setAddData(createFormVals);
+				setAddForm(createForm);
 			}
 		}, [data.id]);
 
@@ -409,9 +428,45 @@ export const BaseSettingsFormList = memo(
 				<SettingsHeader label={data.title} onAddNew={onAddNew} />
 
 				<div className="border-b pb-2">
-					<h2 className="text-2xl font-bold">{data.title}</h2>
 					{data.description && <p className="text-gray-500 mt-1">{data.description}</p>}
 				</div>
+
+                {addForm ? (
+                    <>
+                        <SettingsForm
+                            key={addForm.id}
+                            data={addForm}
+                            values={addData}
+                            onChange={(_, fieldId, value) => {
+                                setAddData((prev) => ({
+                                    ...prev,
+                                    [fieldId]: value
+                                }));
+                            }}
+                            onCancel={() => {
+                                setAddForm(null);
+                                setAddData({});
+                            }}
+                            onEdit={(_) => {
+                                let data = addData;
+                                execAdd(data);
+                                setAddForm(null);
+                                setAddData({});
+                            }}
+                        />
+                    </>
+                ) : activeForm && (
+                    <>
+                        <SettingsForm
+                            key={activeForm.id}
+                            data={activeForm}
+                            values={activeValues}
+                            onChange={handleFieldChange}
+                            onCancel={onCancel}
+                            onEdit={handleEdit}
+                        />
+                    </>
+                )}
 
 				{activeForm && (
 					<SettingsForm

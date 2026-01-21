@@ -53,11 +53,13 @@ const DrawCmdFormListSchema = z.object({
 });
 
 export const DrawCmd = z.discriminatedUnion('type', [
-	//DrawCmdFormSchema,
+	//DrawCmdFormSchema, (TODO: Decide if we want a single form command)
 	DrawCmdFormListSchema,
 	DrawCmdHeaderSchema,
 	DrawCmdParagraphSchema
 ]);
+
+export const DrawCmdList = z.array(DrawCmd);
 
 export type DrawCmd = z.infer<typeof DrawCmd>;
 export type DrawCmdInput = z.infer<typeof DrawCmdInputSchema>;
