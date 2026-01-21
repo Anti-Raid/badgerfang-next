@@ -52,7 +52,7 @@ const InputArraySchema = z.object({
     // The children field will be added later using z.lazy()
 });
 
-type BaseInput = z.infer<typeof TextInputSchema> | z.infer<typeof NumberInputSchema> | z.infer<typeof SelectInputSchema> | z.infer<typeof CheckboxInputSchema> | z.infer<typeof InputArraySchema> | (z.infer<typeof InputArraySchema> & {
+type BaseInput = z.infer<typeof TextInputSchema> | z.infer<typeof NumberInputSchema> | z.infer<typeof SelectInputSchema> | z.infer<typeof CheckboxInputSchema> | (z.infer<typeof InputArraySchema> & {
     children: Input[];
 });
 

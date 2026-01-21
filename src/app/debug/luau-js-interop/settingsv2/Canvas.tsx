@@ -1,6 +1,6 @@
 import { InputField } from "@/components/settings/components/form-elements";
 import { DrawCmd, DrawCmdForm, DrawCmdFormList, DrawCmdInput } from "./drawcmd";
-import { memo, useCallback, useEffect, useId, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, Reorder } from "framer-motion";
 import { Bell, Code, Database, Edit, FileCode, Plus, Shield, Trash2, User, Lock, ChevronDown, GripVertical } from "lucide-react";
 import { Primary } from "@/components/ui/Buttons";
@@ -10,8 +10,28 @@ export type FormData = {[key: string]: Record<string, any>}
 /**
  * Takes the form data out of the draw commands.
  */
-const takeFormValues = (drawcmds: DrawCmd[]): FormData => {
-    throw new Error("Not implemented yet");
+const takeFormValues = (formlist: DrawCmdFormList): FormData => {
+    const takeInputValue = (input: DrawCmdInput): any => {
+        if (input.input.type == "array") {
+            let arr: any[] = [];
+            for (const cild of input.input.children) {
+                arr.push(takeInputValue({type: "input", input: cild}));
+            }
+        } else {
+            return input.input.value;
+        }
+    }
+
+    let data: FormData = {};
+    for(const form of formlist.forms) {
+        data[form.id] = {};
+        for(const cmd of form.commands) {
+            if (cmd.type === "input") {
+                data[form.id][cmd.input.id] = takeInputValue(cmd);
+            }
+        }
+    }
+    return data;
 }
 
 interface SettingsInputProps {
@@ -43,12 +63,13 @@ const SettingsInput = memo(({ data, value, onChange }: SettingsInputProps) => {
 interface SettingsFormProps {
     data: DrawCmdForm;
     values: Record<string, any>; // this forms values
-    onCancel: () => void;
+    onCancel?: () => void;
     onChange: (formId: string, fieldId: string, value: any) => void;
+    onEdit: (formId: string) => void;
 }
 
 // Only re-render if 'values' (this specific form's data) changes
-const SettingsForm = memo(({ data, values, onChange, onCancel }: SettingsFormProps) => {
+const SettingsForm = memo(({ data, values, onChange, onEdit, onCancel }: SettingsFormProps) => {
 	const formRef = useRef<HTMLFormElement>(null);
 
 	useEffect(() => {
@@ -61,6 +82,7 @@ const SettingsForm = memo(({ data, values, onChange, onCancel }: SettingsFormPro
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
+        onEdit(data.id);
 	};
 
 	return (
@@ -81,14 +103,16 @@ const SettingsForm = memo(({ data, values, onChange, onCancel }: SettingsFormPro
 						</h3>
 						<p className="text-xs text-muted-foreground mt-1 font-medium">Please fill in the details below</p>
 					</div>
-					<button 
-						type="button"
-						onClick={onCancel}
-						className="w-10 h-10 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-center text-primary hover:bg-primary/10 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-						aria-label="Cancel"
-					>
-						<Plus size={20} className={'rotate-45'} />
-					</button>
+                    {onCancel && (
+                        <button 
+                            type="button"
+                            onClick={onCancel}
+                            className="w-10 h-10 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-center text-primary hover:bg-primary/10 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                            aria-label="Cancel"
+                        >
+                            <Plus size={20} className={'rotate-45'} />
+                        </button>
+                    )}
 				</div>
 
 				<div>
@@ -115,13 +139,15 @@ const SettingsForm = memo(({ data, values, onChange, onCancel }: SettingsFormPro
 							className="w-full !py-3 !rounded-xl !text-sm !font-bold shadow-lg shadow-primary/10"
 						/>
 					</div>
-					<button
-						type="button"
-						className="px-8 py-3 rounded-xl bg-accent/50 text-foreground font-bold text-sm hover:bg-accent transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white border border-border/50"
-						onClick={onCancel}
-					>
-						{data.cancelButton ? data.cancelButton.label : "Cancel"}
-					</button>
+                    {onCancel && (
+                        <button
+                            type="button"
+                            className="px-8 py-3 rounded-xl bg-accent/50 text-foreground font-bold text-sm hover:bg-accent transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white border border-border/50"
+                            onClick={onCancel}
+                        >
+                            {data.cancelButton ? data.cancelButton.label : "Cancel"}
+                        </button>
+                    )}
 				</div>
 			</form>
 		</motion.div>
@@ -195,13 +221,11 @@ export const SettingsFormWrapper: React.FC<SettingFormWrapperProps> = memo(({
 });
 
 interface SettingsReorderableListProps {
-	data: DrawCmdFormList;
-    values: FormData;
-	onReorder: (forms: DrawCmdForm[]) => void;
+	forms: DrawCmdForm[];
 	onEdit: (formId: string) => void;
 	onDelete: (formId: string) => void;
-	onSaveOrder: () => void;
-	isReordered: boolean;
+	onReorder: (forms: DrawCmdForm[]) => void;
+    onSaveOrder: (forms: DrawCmdForm[]) => void;
 }
 
 /**
@@ -211,24 +235,29 @@ interface SettingsReorderableListProps {
  * the individual form.
  */
 export const ReorderableSettingsFormWrapper: React.FC<SettingsReorderableListProps> = memo(({
-	data,
-    values,
-	onReorder,
+	forms,
 	onEdit,
 	onDelete,
-	onSaveOrder,
-	isReordered,
+	onReorder,
+    onSaveOrder
 }) => {
+    const isReordered = useMemo(() => JSON.stringify(forms.map(i => i.id)) !== JSON.stringify(forms.map(i => i.id)), [forms]);
+
+    const handleSave = () => {
+        // Send the new list of forms up to the parent
+        onSaveOrder(forms); 
+    };
+
 	return (
 		<div className="space-y-4">
 			<div className="bg-accent/30 border border-border/50 rounded-2xl overflow-hidden p-3">
 				<Reorder.Group
 					axis="y"
-					values={data.forms}
+					values={forms}
 					onReorder={onReorder}
 					className="space-y-2"
 				>
-					{data.forms.map((entry, index) => (
+					{forms.map((entry, index) => (
 						<Reorder.Item 
 							key={entry.id} 
 							value={entry} 
@@ -241,7 +270,7 @@ export const ReorderableSettingsFormWrapper: React.FC<SettingsReorderableListPro
 								
 								<div className="flex-1">
 									<span className="text-sm font-bold text-foreground transition-colors group-hover/reorder:text-primary">
-										{data.title || `Entry ${index + 1}`}
+										{entry.label || `Entry ${index + 1}`}
 									</span>
 								</div>
 
@@ -279,7 +308,7 @@ export const ReorderableSettingsFormWrapper: React.FC<SettingsReorderableListPro
 				>
 					<Primary 
 						Title="Save New Order" 
-						onClick={onSaveOrder} 
+						onClick={handleSave} 
 						className="!px-6 !py-2.5 !rounded-xl !text-sm shadow-lg shadow-primary/10"
 					/>
 				</motion.div>
@@ -290,39 +319,74 @@ export const ReorderableSettingsFormWrapper: React.FC<SettingsReorderableListPro
 
 interface SettingsFormListProps {
     data: DrawCmdFormList; // The layout config
-    formData: FormData;    // The full state (needed to slice for children)
-    onChange: (formId: string, fieldId: string, value: any) => void;
-    onReorder: (forms: DrawCmdForm[]) => void;
-    onSaveOrder: () => void;
-    onDelete: (formId: string) => void;
-    isReordered: boolean;
+    initialFormData: FormData;    // The full state (needed to slice for children)
+
+    // Actions performed by the FormList
+    execAdd: (newData: Record<string, any>) => void;
+    execEdit: (formId: string, data: Record<string, any>) => void;
+    execReorder: (data: Record<string, any>[]) => void;
+    execDelete: (formId: string) => void;
 }
 
 /**
  * The base form list component, without the open/close logic.
  */
-export const BaseSettingsFormList = memo(({ data, formData, onChange, onReorder, onDelete, onSaveOrder, isReordered }: SettingsFormListProps) => {
+export const BaseSettingsFormList = memo(({ data, initialFormData, execEdit, execDelete, execReorder }: SettingsFormListProps) => {
+    const [forms, setForms] = useState<DrawCmdForm[]>(data.forms); // forms on this formlist
+    const [formData, setFormData] = useState<FormData>(initialFormData);
     const [editingId, setEditingId] = useState<string | null>(null);
-    const activeForm = data.forms.find(f => f.id === editingId);
+    const activeForm = forms.find(f => f.id === editingId);
     const activeValues = editingId ? (formData[editingId] || {}) : {};
+
+    useEffect(() => {
+        setForms(data.forms);
+    }, [data.forms]);
+
+    useEffect(() => {
+        setFormData(initialFormData);
+    }, [initialFormData]);
 
     const onCancel = useCallback(() => {
         setEditingId(null);
     }, [])
 
-    const onEdit = useCallback((formId: string) => {
-        setEditingId(formId);
+    const handleFieldChange = useCallback((formId: string, fieldId: string, value: any) => {
+        setFormData(prev => ({
+            ...prev,
+            [formId]: {
+                ...prev[formId],
+                [fieldId]: value
+            }
+        }));
     }, []);
 
+    // Add a new form entry (not a finalized save, just adds to the list)
     const onAddNew = useCallback(() => {
-        // For now, just log the addition
-        console.log(`Add new form to list with id: ${data.id}`);
+        if (data.createForm) {
+            let createForm = structuredClone(data.createForm);
+            createForm.id = `add${Math.random().toString(36).substring(2, 9)}`; // generate a random id
+            setFormData(prev => ({...prev, [createForm.id]: {}}));
+            setForms(prev => [...prev, createForm]);
+        }
     }, [data.id]);
+
+    const handleEdit = useCallback((formId: string) => {
+        let data = formData[formId] || {};
+        execEdit(formId, data);
+    }, [formData])
 
     const handleDelete = useCallback((formId: string) => {
         if (editingId === formId) setEditingId(null);
-        onDelete(formId);
-    }, [editingId, onDelete]);
+        execDelete(formId);
+    }, [editingId, execDelete]);
+
+    const handleReorder = useCallback((newForms: DrawCmdForm[]) => {
+        let newFormData: Record<string, any>[] = [];
+        for(const form of newForms) {
+            newFormData.push(formData[form.id] || {});
+        }
+        execReorder(newForms);
+    }, [formData, execReorder]);
 
     return (
         <div className="space-y-8 mb-10">
@@ -341,31 +405,30 @@ export const BaseSettingsFormList = memo(({ data, formData, onChange, onReorder,
                     key={activeForm.id}
                     data={activeForm}
                     values={activeValues} 
-                    onChange={onChange}
+                    onChange={handleFieldChange}
                     onCancel={onCancel}
+                    onEdit={handleEdit}
                 />
             )}
 
             {/* Render the inner forms */}
             {data.reorderable ? (
                 <ReorderableSettingsFormWrapper
-                    data={data}
-                    values={formData}
-                    onReorder={onReorder}
-                    onEdit={onEdit}
+                    forms={forms}
+                    onEdit={setEditingId}
                     onDelete={handleDelete}
-                    onSaveOrder={onSaveOrder}
-                    isReordered={isReordered}
+                    onSaveOrder={setForms}
+                    onReorder={handleReorder}
                 />
             ) : (
                 <>
-                {data.forms.map((form) => {
+                {forms.map((form) => {
                     if (form.id === editingId) return null;
                     return (
                         <SettingsFormWrapper
                             key={form.id}
                             data={form}
-                            onEdit={onEdit}
+                            onEdit={setEditingId}
                             onDelete={handleDelete}
                         />
                     );
@@ -403,8 +466,8 @@ export const SettingsHeader: React.FC<SettingsHeaderProps> = memo(({ label, onAd
  * A wrapper around BaseSettingsFormList that a full description and enables the whole 
  * FormList to be collapsible.
  */
-export const SettingsFormList = memo(({ data, formData, onChange, onReorder, onDelete, onSaveOrder, isReordered }: SettingsFormListProps) => {
-	const [isOpen, setIsOpen] = useState(data.defaultOpen || false);
+export const SettingsFormList = memo((props: SettingsFormListProps) => {
+	const [isOpen, setIsOpen] = useState(props.data.defaultOpen || false);
 	const contentId = useId();
 
 	return (
@@ -427,19 +490,19 @@ export const SettingsFormList = memo(({ data, formData, onChange, onReorder, onD
 						<div className="flex items-center gap-4">
 							<div className="w-12 h-12 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-center text-primary transition-colors duration-300 group-hover/section:bg-primary/10 group-header:border-primary/30">
                                 {
-                                    data.icon == 'Bell' ? (
+                                    props.data.icon == 'Bell' ? (
                                         <Bell size={20} />
-                                    ) : data.icon == 'Shield' ? (
+                                    ) : props.data.icon == 'Shield' ? (
                                         <Shield size={20} />
-                                    ) : data.icon == 'User' ? (
+                                    ) : props.data.icon == 'User' ? (
                                         <User size={20} />
-                                    ) : data.icon == 'Code' ? (
+                                    ) : props.data.icon == 'Code' ? (
                                         <Code size={20} />
-                                    ) : data.icon == 'Database' ? (
+                                    ) : props.data.icon == 'Database' ? (
                                         <Database size={20} />
-                                    ) : data.icon == 'FileCode' ? (
+                                    ) : props.data.icon == 'FileCode' ? (
                                         <FileCode size={20} />
-                                    ) : data.icon == 'Lock' ? (
+                                    ) : props.data.icon == 'Lock' ? (
                                         <Lock size={20} />
                                     ) : (
                                         <Shield size={20} />
@@ -448,11 +511,11 @@ export const SettingsFormList = memo(({ data, formData, onChange, onReorder, onD
     							</div>
 							<div>
 								<h2 className="text-lg font-bold tracking-tight text-foreground transition-colors group-header:text-primary">
-									{data.title}
+									{props.data.title}
 								</h2>
-								{data.description && (
+								{props.data.description && (
 									<p className="text-sm text-muted-foreground line-clamp-1 mt-0.5">
-										{data.description}
+										{props.data.description}
 									</p>
 								)}
 							</div>
@@ -492,13 +555,7 @@ export const SettingsFormList = memo(({ data, formData, onChange, onReorder, onD
 									transition={{ duration: 0.2 }}
 								>
                                     <BaseSettingsFormList
-                                        data={data}
-                                        formData={formData}
-                                        onChange={onChange}
-                                        onReorder={onReorder}
-                                        onDelete={onDelete}
-                                        onSaveOrder={onSaveOrder}
-                                        isReordered={isReordered}
+                                        {...props}
                                     />
 								</motion.div>
 							</div>
@@ -508,4 +565,42 @@ export const SettingsFormList = memo(({ data, formData, onChange, onReorder, onD
 			</div>
 		</motion.div>
 	);
+});
+
+/**
+ * The main canvas drawer
+ */
+interface SettingsCanvasProps {
+    drawcmds: DrawCmd[];
+    execAdd: (newData: Record<string, any>) => void;
+    execEdit: (formId: string, data: Record<string, any>) => void;
+    execReorder: (data: Record<string, any>[]) => void;
+    execDelete: (formId: string) => void;
+}
+
+/**
+ * The main settings canvas that holds all draw commands.
+ */
+export const SettingsCanvas = memo(({ drawcmds, execAdd, execEdit, execReorder, execDelete }: SettingsCanvasProps) => {
+    return (
+        <div className="max-w-3xl mx-auto p-4">
+            {drawcmds.map((cmd, i) => {
+                if (cmd.type === "formlist") {
+                    const initialData = takeFormValues(cmd);
+                    return (
+                        <SettingsFormList
+                            key={cmd.id}
+                            data={cmd}
+                            initialFormData={initialData}
+                            execAdd={execAdd}
+                            execEdit={execEdit}
+                            execReorder={execReorder}
+                            execDelete={execDelete}
+                        />
+                    )
+                }
+                return null;
+            })}
+        </div>
+    );
 });
