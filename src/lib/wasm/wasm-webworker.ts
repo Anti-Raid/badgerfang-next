@@ -2,11 +2,7 @@ import { LuauTemplateResultCode } from './wasm-types';
 
 // Web worker for wasm execution
 interface WasmExports {
-	cwrap: (
-		fn: string,
-		returnType: string,
-		argTypes: string[]
-	) => (...args: any) => number;
+	cwrap: (fn: string, returnType: string, argTypes: string[]) => (...args: any) => number;
 	stackSave: () => number;
 	stackRestore: (ptr: number) => void;
 	_free: (ptr: number) => void;
@@ -14,7 +10,7 @@ interface WasmExports {
 	Emval: {
 		toHandle: (val: any) => number;
 		toValue: (handle: number) => any;
-	}
+	};
 }
 
 interface Module {
@@ -27,10 +23,7 @@ interface Module {
 	dropLuauVm: (vm_id: number) => number;
 
 	// The cwrapped function for executing luau code
-	luauTemplateV2: (
-		vm_id: number,
-		ctx: any,
-	) => number;
+	luauTemplateV2: (vm_id: number, ctx: any) => number;
 
 	// free_js_handle: (internal API to free emval handles)
 	_freeJsHandle: (handle: number) => void;
@@ -51,19 +44,10 @@ const getModule = async () => {
 		const wasmModule = (await wasm_js.default()) as WasmExports;
 		module = {
 			module: wasmModule,
-			setupLuauVm: wasmModule.cwrap('setup_luau_vm', 'number', [
-				'string',
-			]),
-			dropLuauVm: wasmModule.cwrap('drop_luau_vm', 'number', [
-				'number',
-			]),
-			luauTemplateV2: wasmModule.cwrap('luau_template_v2', 'number', [
-				'number',
-				'number',
-			]),
-			_freeJsHandle: wasmModule.cwrap('free_js_handle', 'void', [
-				'number',
-			]),
+			setupLuauVm: wasmModule.cwrap('setup_luau_vm', 'number', ['string']),
+			dropLuauVm: wasmModule.cwrap('drop_luau_vm', 'number', ['number']),
+			luauTemplateV2: wasmModule.cwrap('luau_template_v2', 'number', ['number', 'number']),
+			_freeJsHandle: wasmModule.cwrap('free_js_handle', 'void', ['number'])
 		};
 		return module;
 	} catch (error) {
@@ -88,18 +72,15 @@ const markModuleAsBroken = () => {
  * @param code The code to run
  * @param args The args, which must be serializable to JSON to call with.
  */
-const luauTemplate = async (
-	vm_id: number,
-	ctx: any,
-): Promise<any> => {
+const luauTemplate = async (vm_id: number, ctx: any): Promise<any> => {
 	let { module, luauTemplateV2, _freeJsHandle } = await getModule();
 
 	const ctxHandle = module.Emval.toHandle(ctx); // auto-transferred first thing in wasm side
-	let resultHandle: number | null = null
+	let resultHandle: number | null = null;
 	try {
 		resultHandle = luauTemplateV2(vm_id, ctxHandle);
 		const responseObj = module.Emval.toValue(resultHandle);
-		if(responseObj.error) {
+		if (responseObj.error) {
 			throw new Error(responseObj.error);
 		}
 		return responseObj;
@@ -117,27 +98,24 @@ const luauTemplate = async (
  * Sets up a Luau VM with the given VFS and returns the created vm id.
  * @param vfs The virtual file system to use.
  */
-const setupLuauVm = async (
-	vfs: Record<string, string>
-): Promise<number> => {
+const setupLuauVm = async (vfs: Record<string, string>): Promise<number> => {
 	let vfsJson = JSON.stringify(vfs);
 
 	let { module, setupLuauVm, _freeJsHandle } = await getModule();
 
 	let sp = module.stackSave(); // Save the stack pointer before calling the function
-	let respHandle = null
+	let respHandle = null;
 	try {
 		let handleId = setupLuauVm(vfsJson);
 		const respHandle = module.Emval.toValue(handleId);
-		if(respHandle.error) {
+		if (respHandle.error) {
 			throw new Error(respHandle.error);
 		}
 		return respHandle.vm_id;
-
 	} catch (error) {
 		module.stackRestore(sp); // Restore the stack pointer to prevent memory leaks
 		markModuleAsBroken();
-		throw error
+		throw error;
 	} finally {
 		if (respHandle !== null) {
 			_freeJsHandle(respHandle); // Free the emval handle to prevent memory leaks
@@ -156,16 +134,14 @@ const setupLuauVm = async (
  * @param code The code to run
  * @param args The args, which must be serializable to JSON to call with.
  */
-const dropLuauVm = async (
-	vm_id: number,
-): Promise<any> => {
+const dropLuauVm = async (vm_id: number): Promise<any> => {
 	let { module, dropLuauVm, _freeJsHandle } = await getModule();
 
-	let resultHandle: number | null = null
+	let resultHandle: number | null = null;
 	try {
 		resultHandle = dropLuauVm(vm_id);
 		const responseObj = module.Emval.toValue(resultHandle);
-		if(responseObj.error) {
+		if (responseObj.error) {
 			throw new Error(responseObj.error);
 		}
 		return responseObj;
@@ -180,7 +156,7 @@ const dropLuauVm = async (
 };
 
 const callCode = async (event: MessageEvent<any>): Promise<unknown> => {
-	console.log("WASM worker received message:", event.data);
+	console.log('WASM worker received message:', event.data);
 	switch (event.data.type) {
 		case 'setup': {
 			const { id, vfs } = event.data;
@@ -188,15 +164,15 @@ const callCode = async (event: MessageEvent<any>): Promise<unknown> => {
 				return {
 					id,
 					data: { code: LuauTemplateResultCode.Error, message: 'VFS is required' }
-				}
+				};
 			}
-			
+
 			try {
 				const vm_id = await setupLuauVm(vfs);
 				return {
 					id,
 					data: { code: LuauTemplateResultCode.Success, result: vm_id }
-				}
+				};
 			} catch (error) {
 				return {
 					id,
@@ -208,13 +184,13 @@ const callCode = async (event: MessageEvent<any>): Promise<unknown> => {
 			}
 			return;
 		}
-	case 'luauTemplate':
-		const { id, vmid, runid, ctx, funcs } = event.data;
+		case 'luauTemplate':
+			const { id, vmid, runid, ctx, funcs } = event.data;
 
-		// Restore functions into ctx
-		//
-		// Note on return value support, the following may be needed:
-		/*
+			// Restore functions into ctx
+			//
+			// Note on return value support, the following may be needed:
+			/*
             return Asyncify.handleSleep((wakeUp: (result: any) => void) => {
                 const callId = nextCallId++;
                 pendingCallbacks.set(callId, wakeUp);
@@ -227,82 +203,82 @@ const callCode = async (event: MessageEvent<any>): Promise<unknown> => {
                 });
             });
 		*/
-		if (funcs && funcs.length > 0) {
-			for(let funcName of funcs) {
-				//console.log("Restoring function in WASM worker:", funcName);
-				ctx[funcName] = (...args: any) => {
-					//console.log("Calling function from WASM worker:", funcName, args);
-					self.postMessage({control: "cb", runid, funcName, args});
-					return {} // todo: return value support
+			if (funcs && funcs.length > 0) {
+				for (let funcName of funcs) {
+					//console.log("Restoring function in WASM worker:", funcName);
+					ctx[funcName] = (...args: any) => {
+						//console.log("Calling function from WASM worker:", funcName, args);
+						self.postMessage({ control: 'cb', runid, funcName, args });
+						return {}; // todo: return value support
+					};
 				}
 			}
-		}
 
-		//console.log("WASM worker luauTemplate call with vmid:", vmid, "ctx:", ctx, "funcs:", funcs);
+			//console.log("WASM worker luauTemplate call with vmid:", vmid, "ctx:", ctx, "funcs:", funcs);
 
-		if (vmid === undefined || !ctx || !id) {
+			if (vmid === undefined || !ctx || !id) {
+				return {
+					id,
+					data: { code: LuauTemplateResultCode.Error, message: 'VM ID and context are required' }
+				};
+			}
+
+			try {
+				const result = await luauTemplate(vmid, ctx);
+				return {
+					id,
+					data: { code: LuauTemplateResultCode.Success, result }
+				};
+			} catch (error) {
+				console.log((error as Error).stack);
+				return {
+					id,
+					data: {
+						status: LuauTemplateResultCode.Error,
+						message: error?.toString() || 'Unknown error'
+					}
+				};
+			}
+			return;
+		case 'dropLuauVm':
+			const { id: dropId, vmid: dropVmid } = event.data;
+			if (dropVmid === undefined || !dropId) {
+				return {
+					id: dropId,
+					data: { code: LuauTemplateResultCode.Error, message: 'VM ID is required' }
+				};
+			}
+
+			try {
+				const result = await dropLuauVm(dropVmid);
+				return {
+					id: dropId,
+					data: {
+						code: LuauTemplateResultCode.Success,
+						result
+					}
+				};
+			} catch (error) {
+				return {
+					id: dropId,
+					data: {
+						status: LuauTemplateResultCode.Error,
+						message: error?.toString() || 'Unknown error'
+					}
+				};
+			}
+			return;
+		default:
 			return {
-				id,
-				data: { code: LuauTemplateResultCode.Error, message: 'VM ID and context are required' }
+				id: event.data.id,
+				data: { code: LuauTemplateResultCode.Error, message: 'Unknown command type' }
 			};
-		}
-
-		try {
-			const result = await luauTemplate(vmid, ctx);
-			return {
-				id,
-				data: { code: LuauTemplateResultCode.Success, result }
-			}
-		} catch (error) {
-			console.log((error as Error).stack);
-			return {
-				id,
-				data: {
-					status: LuauTemplateResultCode.Error,
-					message: error?.toString() || 'Unknown error'
-				}
-			}
-		}
-		return;
-	case 'dropLuauVm':
-		const { id: dropId, vmid: dropVmid } = event.data;
-		if (dropVmid === undefined || !dropId) {
-			return {
-				id: dropId,
-				data: { code: LuauTemplateResultCode.Error, message: 'VM ID is required' }
-			}
-		}
-
-		try {
-			const result = await dropLuauVm(dropVmid);
-			return {
-				id: dropId,
-				data: { 
-					code: LuauTemplateResultCode.Success,
-					result
-				}
-			}
-		} catch (error) {
-			return {
-				id: dropId,
-				data: {
-					status: LuauTemplateResultCode.Error,
-					message: error?.toString() || 'Unknown error'
-				}
-			}
-		}
-		return;
-	default:
-		return {
-			id: event.data.id,
-			data: { code: LuauTemplateResultCode.Error, message: 'Unknown command type'	}
-		}
 	}
-}
+};
 
 // onmessage event handler for the web worker
 self.onmessage = async (event) => {
-	console.log("WASM worker received message:", event.data);
+	console.log('WASM worker received message:', event.data);
 	let resp = await callCode(event);
 	self.postMessage(resp);
 };

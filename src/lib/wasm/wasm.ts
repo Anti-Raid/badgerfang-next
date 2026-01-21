@@ -20,11 +20,11 @@ let msgId = 0;
  * @param env The environment to run the code in.
  */
 export const setupLuauVm = async (vfs: Record<string, string>): Promise<number> => {
-	return await wasmCall({
+	return (await wasmCall({
 		type: 'setup',
-		vfs,
-	}) as Promise<number>;
-}
+		vfs
+	})) as Promise<number>;
+};
 
 const ctxFuncs: Map<number, Record<string, Function>> = new Map();
 
@@ -49,20 +49,20 @@ export const luauTemplate = async (vm_id: number, ctx: Record<string, any>): Pro
 	}
 
 	try {
-		return await wasmCall({
+		return (await wasmCall({
 			type: 'luauTemplate',
 			vmid: vm_id,
 			runid,
 			ctx,
 			funcs: Object.keys(funcs)
-		}) as Promise<any>;
+		})) as Promise<any>;
 	} finally {
 		// Clean up stored functions
 		if (Object.keys(funcs).length > 0) {
 			ctxFuncs.delete(runid);
 		}
 	}
-}
+};
 
 const wasmCall = async (eventData: any): Promise<unknown> => {
 	if (typeof window === 'undefined') {
@@ -75,7 +75,7 @@ const wasmCall = async (eventData: any): Promise<unknown> => {
 			//console.log("WASM worker sent message:", event.data);
 			if (event.data && event.data.control) {
 				switch (event.data.control) {
-					case "cb": {
+					case 'cb': {
 						//console.log("WASM worker requested callback:", event.data);
 						const { runid, funcName, args } = event.data;
 						const funcs = ctxFuncs.get(runid);
@@ -86,7 +86,7 @@ const wasmCall = async (eventData: any): Promise<unknown> => {
 						}
 					}
 				}
-				return
+				return;
 			}
 			const { id, data } = event.data as { id: number; data: any };
 			const cb = callbacks.get(id);

@@ -97,7 +97,9 @@ export const ScriptModal: React.FC<ScriptModalProps> = ({
 						autoFocus
 					>
 						<div className="flex justify-between items-center p-4 border-b border-border">
-							<h3 id="modal-title" className="text-lg font-semibold">{modalTitle}</h3>
+							<h3 id="modal-title" className="text-lg font-semibold">
+								{modalTitle}
+							</h3>
 							<motion.button
 								onClick={onClose}
 								className="text-muted-foreground hover:text-foreground p-1 rounded-full hover:bg-accent/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20"

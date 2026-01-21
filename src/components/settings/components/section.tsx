@@ -51,24 +51,21 @@ export const Section: React.FC<SectionProps> = ({
 									{title}
 								</h2>
 								{description && (
-									<p className="text-sm text-muted-foreground line-clamp-1 mt-0.5">
-										{description}
-									</p>
+									<p className="text-sm text-muted-foreground line-clamp-1 mt-0.5">{description}</p>
 								)}
 							</div>
 						</div>
-						
+
 						<div
 							className={`flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300
-								${isOpen 
-									? 'bg-primary text-primary-foreground' 
-									: 'bg-accent/50 text-foreground/70 group-hover/header:bg-accent group-hover/header:text-foreground'}
+								${
+									isOpen
+										? 'bg-primary text-primary-foreground'
+										: 'bg-accent/50 text-foreground/70 group-hover/header:bg-accent group-hover/header:text-foreground'
+								}
 							`}
 						>
-							<motion.div
-								animate={{ rotate: isOpen ? 180 : 0 }}
-								transition={{ duration: 0.3 }}
-							>
+							<motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.3 }}>
 								<ChevronDown size={16} />
 							</motion.div>
 							<span>{isOpen ? 'Close' : 'Configure'}</span>

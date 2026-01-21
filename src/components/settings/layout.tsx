@@ -1,6 +1,16 @@
 'use client';
 
-import { Shield, User, Code, Database, FileCode, Lock, Bell, LayoutDashboard, Zap } from 'lucide-react';
+import {
+	Shield,
+	User,
+	Code,
+	Database,
+	FileCode,
+	Lock,
+	Bell,
+	LayoutDashboard,
+	Zap
+} from 'lucide-react';
 import { Section } from './components/section';
 import { Fragment, useEffect, useState } from 'react';
 import { baseGuildUserInfo, executeSettings, getSettings } from '@/lib/api';
@@ -126,9 +136,9 @@ export default function Settings({ guildId }: { guildId: string }) {
 			<div className="min-h-screen bg-background flex items-center justify-center relative overflow-hidden">
 				<div className="absolute inset-0 bg-primary/5 blur-[120px] rounded-full animate-pulse" />
 				<div className="text-center relative z-10 flex flex-col items-center">
-					<motion.div 
+					<motion.div
 						animate={{ rotate: 360 }}
-						transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+						transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
 						className="w-12 h-12 border-2 border-primary/20 border-t-primary rounded-full mb-6"
 					/>
 					<p className="text-sm font-bold text-foreground/40 tracking-widest uppercase">
@@ -163,7 +173,7 @@ export default function Settings({ guildId }: { guildId: string }) {
 		<div className="min-h-screen bg-background text-foreground font-inter selection:bg-primary/30 selection:text-primary relative overflow-hidden pb-40">
 			{/* Subtle Background elements */}
 			<div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 blur-[150px] rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-			
+
 			<ToastContainer theme="dark" />
 
 			{/* Sub-Header */}
@@ -182,10 +192,10 @@ export default function Settings({ guildId }: { guildId: string }) {
 							</div>
 						)}
 						<div>
-							<span className="text-base font-bold tracking-tight block">
-								{guildData.name}
-							</span>
-							<p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Dashboard Settings</p>
+							<span className="text-base font-bold tracking-tight block">{guildData.name}</span>
+							<p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+								Dashboard Settings
+							</p>
 						</div>
 					</div>
 				</div>
@@ -198,12 +208,10 @@ export default function Settings({ guildId }: { guildId: string }) {
 					animate={{ opacity: 1, y: 0 }}
 					className="mb-16"
 				>
-					<h1 className="text-4xl font-bold tracking-tight mb-4">
-						Settings
-					</h1>
+					<h1 className="text-4xl font-bold tracking-tight mb-4">Settings</h1>
 					<p className="text-lg text-muted-foreground max-w-2xl">
-						Configure and manage how your server interacts with AntiRaid. 
-						Customize roles, detection levels, and automated responses.
+						Configure and manage how your server interacts with AntiRaid. Customize roles, detection
+						levels, and automated responses.
 					</p>
 
 					<div className="mt-8 p-6 bg-accent/30 rounded-2xl border border-border/50 flex items-center gap-4">
@@ -211,7 +219,8 @@ export default function Settings({ guildId }: { guildId: string }) {
 							<Code size={18} />
 						</div>
 						<p className="text-sm font-medium leading-relaxed">
-							Check out <span className="text-primary font-bold">Templating</span> for advanced custom logic and script extensions.
+							Check out <span className="text-primary font-bold">Templating</span> for advanced
+							custom logic and script extensions.
 						</p>
 					</div>
 				</motion.div>
@@ -240,7 +249,7 @@ export default function Settings({ guildId }: { guildId: string }) {
 												</h2>
 											</div>
 										)}
-										
+
 										<div className="grid grid-cols-1 gap-6">
 											{setting.setting.map((s_item, idx) => (
 												<Section
