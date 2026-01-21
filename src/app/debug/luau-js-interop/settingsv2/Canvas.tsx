@@ -261,7 +261,7 @@ export const ReorderableItem = memo(({ entry, onEdit, onDelete }: ReorderableIte
         <Reorder.Item
             key={entry.id}
             value={entry}
-            className="group/reorder relative bg-card border border-border/50 hover:border-primary/30 rounded-xl p-4 transition-all duration-200 shadow-sm"
+            className="group/reorder relative bg-card border border-border/50 hover:border-primary/30 rounded-xl p-4 transition-colors duration-200 shadow-sm"
         >
             <div className="flex items-center gap-4">
                 <div className="text-muted-foreground/30 group-hover/reorder:text-primary transition-colors cursor-grab active:cursor-grabbing">
@@ -277,7 +277,7 @@ export const ReorderableItem = memo(({ entry, onEdit, onDelete }: ReorderableIte
                 <div className="flex items-center gap-1 opacity-0 group-hover/reorder:opacity-100 group-focus-within/reorder:opacity-100 transition-opacity">
                     <button
                         type="button"
-                        className="p-2 rounded-lg text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                        className="p-2 rounded-lg text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
                         onClick={() => onEdit(entry.id)}
                         aria-label={`Edit ${entry.label || 'entry'}`}
                     >
@@ -286,7 +286,7 @@ export const ReorderableItem = memo(({ entry, onEdit, onDelete }: ReorderableIte
                     {entry.delete && (
                         <button
                             type="button"
-                            className="p-2 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                            className="p-2 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
                             onClick={() => onDelete(entry.id)}
                             aria-label={`Delete ${entry.label || 'entry'}`}
                         >
