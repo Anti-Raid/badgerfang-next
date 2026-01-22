@@ -1,6 +1,6 @@
 {
 	"name": "badgerfang-next",
-	"version": "7.0.0",
+	"version": "8.0.0",
 	"private": true,
 	"type": "module",
 	"author": "Purrquinox Devs",
@@ -12,6 +12,7 @@
 		"dev": "vite dev",
 		"build": "vite build",
 		"start": "node .output/server/index.mjs",
+		"lint": "eslint .",
 		"format": "prettier --write .",
 		"testflow": "jest"
 	},
