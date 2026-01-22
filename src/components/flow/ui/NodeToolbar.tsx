@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from '@/components/ui/motion';
 import { FiLayers, FiChevronLeft, FiChevronRight, FiZap } from 'react-icons/fi';
 import clsx from 'clsx';
 import { NodeValues, nodeTypes } from '@/lib/flow/nodes';

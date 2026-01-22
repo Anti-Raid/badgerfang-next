@@ -3,7 +3,7 @@
 import type React from 'react';
 import { useEffect, useState, useMemo } from 'react';
 import { RefreshCw } from 'lucide-react';
-import { toast } from 'react-toastify';
+import { toast } from 'sonner';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { userServersOptions } from '@/lib/api';
 import logger from '@/lib/logger';

@@ -2,7 +2,7 @@
 
 import type React from 'react';
 import { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from '@/components/ui/motion';
 import {
 	KeyRound,
 	Trash2,
@@ -15,8 +15,7 @@ import {
 	RefreshCw,
 	Check
 } from 'lucide-react';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { userSessionsOptions, revokeSession, createSession } from '@/lib/api';
 import { UserSession } from '@/types/api/bindings/UserSession';

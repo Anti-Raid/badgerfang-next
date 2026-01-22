@@ -2,7 +2,7 @@
 import { NodeProps } from '@/lib/flow/data';
 import { ReactNode } from 'react';
 import { FiZap } from 'react-icons/fi';
-import { motion } from 'framer-motion';
+import { motion } from '@/components/ui/motion';
 import { useNodeValues } from '@/lib/flow/nodes';
 
 interface Props extends NodeProps {

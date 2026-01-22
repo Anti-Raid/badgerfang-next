@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from '@/components/ui/motion';
 import { FaDiscord, FaQuoteLeft, FaQuoteRight } from 'react-icons/fa';
 import { Image } from '@unpic/react';
 

@@ -2,7 +2,7 @@
 
 import type React from 'react';
 import { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from '@/components/ui/motion';
 import { X } from 'lucide-react';
 import { ScriptIDE } from '@/components/ide/ide';
 import { Primary } from '@/components/ui/Buttons';

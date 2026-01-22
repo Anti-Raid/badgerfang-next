@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { Archive, Zap, Shield, User } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion } from '@/components/ui/motion';
 import { Link } from '@tanstack/react-router';
 import { HistoryTimeline } from '@/components/about/history-timeline';
 import { FeatureCard } from '@/components/about/FeatureCard';

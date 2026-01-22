@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion } from '@/components/ui/motion';
 import useSWR from 'swr';
 import { Image } from '@unpic/react';
 

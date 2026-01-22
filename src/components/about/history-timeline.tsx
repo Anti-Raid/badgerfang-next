@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform } from '@/components/ui/motion';
 import { Milestone, Zap, Users, Code, ChevronDown } from 'lucide-react';
 import { FaBullhorn } from 'react-icons/fa';
 

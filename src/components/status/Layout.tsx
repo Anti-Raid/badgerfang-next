@@ -57,7 +57,7 @@ import {
 	useTransform,
 	useSpring,
 	useMotionValue
-} from 'framer-motion';
+} from '@/components/ui/motion';
 
 // --- Types & Constants ---
 

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { Fragment, useState, useId } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from '@/components/ui/motion';
 import { Eye, EyeOff } from 'lucide-react';
 import type { Icon } from 'lucide-react';
 import { CustomSelect } from './CustomSelect';

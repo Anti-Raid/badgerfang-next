@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from '@/components/ui/motion';
 import { FiLayers, FiZap, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import { NodeValues } from '@/lib/flow/nodes';
 import { useFlowHPane } from '../management/FlowHPaneProvider';

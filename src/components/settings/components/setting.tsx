@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { toast } from 'react-toastify';
+import { toast } from 'sonner';
 import { luauTemplate } from '@/lib/wasm/wasm';
 import logger from '@/lib/logger';
 

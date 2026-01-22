@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion } from '@/components/ui/motion';
 import { Eye, EyeOff, Icon } from 'lucide-react';
 import { useState } from 'react';
 

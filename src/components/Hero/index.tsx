@@ -7,7 +7,7 @@ import { GoArrowUpRight } from 'react-icons/go';
 import { ReviewsCarousel } from './reviewCarosel';
 import { useQuery } from '@tanstack/react-query';
 import { botStatsOptions } from '@/lib/api';
-import { motion, Variants } from 'framer-motion';
+import { motion, Variants } from '@/components/ui/motion';
 import { GetStatusResponse } from '@/types/api/bindings/GetStatusResponse';
 import { Archive, Zap, Shield, User } from 'lucide-react';
 import { FeatureCard } from '@/components/about/FeatureCard';

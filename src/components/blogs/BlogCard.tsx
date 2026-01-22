@@ -3,7 +3,7 @@
 import type React from 'react';
 import { useState, useRef } from 'react';
 import { useRouter, useSearch, Link } from '@tanstack/react-router';
-import { motion, useMotionValue, useTransform } from 'framer-motion';
+import { motion, useMotionValue, useTransform } from '@/components/ui/motion';
 import { Calendar, ArrowRight, Tag, Clock, User, BookOpen } from 'lucide-react';
 import { format } from 'date-fns';
 import type { Blog } from '@/types/blogs/index';

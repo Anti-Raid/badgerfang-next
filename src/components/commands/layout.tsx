@@ -39,7 +39,7 @@ import {
 	useInView,
 	useSpring,
 	useMotionValue
-} from 'framer-motion';
+} from '@/components/ui/motion';
 import { useQuery } from '@tanstack/react-query';
 import { botStateOptions } from '@/lib/api';
 import { ApiCreateCommandOption } from '@/types/api/bindings/ApiCreateCommandOption';

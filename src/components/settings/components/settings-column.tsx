@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from '@/components/ui/motion';
 import { AlertCircle, Code } from 'lucide-react';
 import { Primary, Secondary } from '../../ui/Buttons';
 import { BaseLabelAndDescription, GroupedRadioOption, InputField, Toggle } from './form-elements';

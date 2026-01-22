@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Reorder, motion } from 'framer-motion';
+import { Reorder, motion } from '@/components/ui/motion';
 import { GripVertical, Edit, Trash2 } from 'lucide-react';
 import { Primary } from '../../ui/Buttons';
 

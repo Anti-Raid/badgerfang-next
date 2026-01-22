@@ -15,9 +15,8 @@ import { Section } from './components/section';
 import { Fragment, useMemo, useEffect } from 'react';
 import { baseGuildUserInfoOptions, executeSettings, settingsOptions } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { motion } from '@/components/ui/motion';
+import { toast } from 'sonner';
 import { noOpFetcher, SettingComponent, SettingDataFetcher } from './components/setting';
 import { SettingsErrorDisplay } from './components/ErrorDisplay';
 import { ApiDispatchResult } from '@/types/api/bindings/ApiDispatchResult';
@@ -72,7 +71,7 @@ export default function Settings({ guildId }: { guildId: string }) {
 				error instanceof Error
 					? error.message
 					: 'Failed to fetch guild data. Please try again later.';
-			toast.error(errorMessage, { position: 'top-left' });
+			toast.error(errorMessage);
 		}
 	}, [error]);
 
@@ -177,7 +176,6 @@ export default function Settings({ guildId }: { guildId: string }) {
 			{/* Subtle Background elements */}
 			<div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 blur-[150px] rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
-			<ToastContainer theme="dark" />
 
 			{/* Sub-Header */}
 			<div className="sticky top-16 z-40 bg-background/60 backdrop-blur-xl border-b border-border/50">

@@ -1,7 +1,7 @@
 import { NodeProps } from '@/lib/flow/data';
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from '@/components/ui/motion';
 import { useFFlags } from '@/components/ui/FFlagProvider';
 import { FFlag } from '@/lib/fflags/fflags';
 import { useFlowHPane } from './FlowHPaneProvider';

@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import { FlowData } from '@/lib/flow/data';
-import { motion } from 'framer-motion';
+import { motion } from '@/components/ui/motion';
 import { CodeGenASTGenerator } from '@/lib/flow/codegen/blocklayer/block2ast';
 import FlowList from '@/components/flow/ui/FlowList';
 import { Primary } from '@/components/ui/Buttons';

@@ -2,7 +2,7 @@ import React from 'react';
 import { Partner } from '@/types/other/Partner';
 import { Globe } from 'lucide-react';
 import { FaDiscord } from 'react-icons/fa';
-import { motion } from 'framer-motion';
+import { motion } from '@/components/ui/motion';
 import { Image } from '@unpic/react';
 
 // Partners Component

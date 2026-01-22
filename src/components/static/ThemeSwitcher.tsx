@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from '@/components/ui/motion';
 import { useTheme } from 'next-themes';
 import { PaletteIcon, Check, Sparkles, X } from 'lucide-react';
 

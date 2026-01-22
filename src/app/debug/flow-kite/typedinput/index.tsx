@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import { TypedInput, TypedInputEnum } from '@/lib/flow/data';
 import { TypedInputField } from '@/components/flow/ui/TypedInput';
-import { motion } from 'framer-motion';
+import { motion } from '@/components/ui/motion';
 import logger from '@/lib/logger';
 
 export const Route = createFileRoute('/debug/flow-kite/typedinput/')({

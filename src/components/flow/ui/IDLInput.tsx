@@ -1,6 +1,6 @@
 import { GripVertical, Icon, Trash2 } from 'lucide-react';
 import { BaseLabelAndDescription, InputField, Toggle } from './Inputs';
-import { motion, Reorder } from 'framer-motion';
+import { motion, Reorder } from '@/components/ui/motion';
 import { Primary } from '@/components/ui/Buttons';
 import logger from '@/lib/logger';
 import { Fragment } from 'react';

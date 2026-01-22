@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from '@/components/ui/motion';
 import { FaDiscord } from 'react-icons/fa';
 
 export const Route = createFileRoute('/discord/')({
