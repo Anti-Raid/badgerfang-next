@@ -176,7 +176,6 @@ export default function Settings({ guildId }: { guildId: string }) {
 			{/* Subtle Background elements */}
 			<div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 blur-[150px] rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
-
 			{/* Sub-Header */}
 			<div className="sticky top-16 z-40 bg-background/60 backdrop-blur-xl border-b border-border/50">
 				<div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
