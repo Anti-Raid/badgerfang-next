@@ -11,9 +11,11 @@ export const ServerList: React.FC<{
 	isLoading: boolean;
 }> = ({ servers, searchTerm, setSearchTerm, showViewButton, isLoading }) => {
 	const searchInputRef = useRef<HTMLInputElement>(null);
-	const filteredServers = servers.filter((server) =>
-		server.name.toLowerCase().includes(searchTerm.toLowerCase())
-	);
+	const filteredServers = servers.filter((server) => {
+		const searchLower = typeof searchTerm === 'string' ? searchTerm.toLowerCase() : '';
+		const serverName = typeof server.name === 'string' ? server.name.toLowerCase() : '';
+		return serverName.includes(searchLower);
+	});
 
 	// Keyboard shortcut: Press "/" to focus search
 	useEffect(() => {
@@ -44,7 +46,7 @@ export const ServerList: React.FC<{
 						type="text"
 						placeholder="Search for a server"
 						className="w-full bg-transparent text-foreground pl-12 pr-24 py-4 focus:outline-none placeholder-muted-foreground transition-all"
-						value={searchTerm}
+						value={typeof searchTerm === 'string' ? searchTerm : ''}
 						onChange={(e) => setSearchTerm(e.target.value)}
 					/>
 					<div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex items-center gap-1 text-xs text-muted-foreground">

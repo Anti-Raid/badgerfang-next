@@ -39,15 +39,14 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug, initialPost }) =>
 
 	const scaleX = useSpring(scrollYProgress, {
 		stiffness: 100,
-		damping: 30,
-		restDelta: 0.001
+		damping: 30
 	});
 
 	// Use initialPost if provided, otherwise fetch
 	const blog = initialPost || null;
 
 	// Fetch all blogs for related posts
-	const { data: allBlogsResponse } = useQuery({
+	const { data: allBlogsResponse, isLoading } = useQuery({
 		...strapiBlogsOptions,
 		enabled: !!initialPost && !!initialPost.tags && initialPost.tags.length > 0
 	});
@@ -153,7 +152,7 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug, initialPost }) =>
 			{/* Reading Progress Bar */}
 			<motion.div
 				className="fixed top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary via-purple-500 to-accent z-50 origin-left"
-				style={{ scaleX }}
+				style={{ transform: `scaleX(${scaleX})` }}
 			/>
 
 			{/* Sticky Header Actions for Mobile */}
@@ -423,7 +422,7 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug, initialPost }) =>
 						</div>
 
 						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-							{relatedBlogs.map((relatedBlog, index) => (
+							{relatedBlogs.map((relatedBlog: Blog, index: number) => (
 								<motion.div
 									key={relatedBlog.slug}
 									initial={{ opacity: 0, y: 20 }}

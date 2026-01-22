@@ -2,7 +2,7 @@
 'use client';
 
 import type React from 'react';
-import { useMemo, useState, useRef } from 'react';
+import { useMemo, useState, useRef, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { botStatsOptions } from '@/lib/api';
 import type { GetStatusResponse } from '@/types/api/bindings/GetStatusResponse';
@@ -54,9 +54,7 @@ import {
 	motion,
 	AnimatePresence,
 	useScroll,
-	useTransform,
-	useSpring,
-	useMotionValue
+	useSpring
 } from '@/components/ui/motion';
 
 // --- Types & Constants ---
@@ -78,22 +76,6 @@ const GLOW_VARIANTS: Record<string, string> = {
 };
 
 // --- Utilities & Hooks ---
-
-const useMousePosition = () => {
-	const mouseX = useMotionValue(0);
-	const mouseY = useMotionValue(0);
-
-	useEffect(() => {
-		const handleMouseMove = (e: MouseEvent) => {
-			mouseX.set(e.clientX);
-			mouseY.set(e.clientY);
-		};
-		window.addEventListener('mousemove', handleMouseMove);
-		return () => window.removeEventListener('mousemove', handleMouseMove);
-	}, [mouseX, mouseY]);
-
-	return { mouseX, mouseY };
-};
 
 const formatUptime = (seconds: number): string => {
 	const d = Math.floor(seconds / 86400);
@@ -241,9 +223,18 @@ const ShardNode = ({
 						{[1, 2, 3, 4].map((i) => (
 							<motion.div
 								key={i}
-								animate={{ height: [4, 12, 6, 10, 4], opacity: [0.3, 1, 0.3] }}
-								transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
-								className="w-1 bg-primary/40 rounded-full"
+								animate={{ 
+									scale: 1.2,
+									opacity: 0.8
+								}}
+								transition={{ 
+									duration: 1.5, 
+									repeat: Infinity, 
+									repeatType: 'reverse',
+									delay: i * 0.2,
+									ease: 'easeInOut'
+								}}
+								className="w-1 h-3 bg-primary/40 rounded-full"
 							/>
 						))}
 					</div>
@@ -258,21 +249,31 @@ const ShardNode = ({
 export default function StatusPage() {
 	const [tab, setTab] = useState<'overview' | 'shards'>('overview');
 
-	const { mouseX, mouseY } = useMousePosition();
 	const containerRef = useRef<HTMLDivElement>(null);
 	const { scrollYProgress } = useScroll();
 	const smoothProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
+	
+	// Mouse position for spotlight effect
+	const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+	
+	useEffect(() => {
+		const handleMouseMove = (e: MouseEvent) => {
+			setMousePosition({ x: e.clientX, y: e.clientY });
+		};
+		window.addEventListener('mousemove', handleMouseMove);
+		return () => window.removeEventListener('mousemove', handleMouseMove);
+	}, []);
 
-	const spotlightBackground = useTransform(
-		[mouseX, mouseY],
-		([x, y]) =>
-			`radial-gradient(600px circle at ${x}px ${y}px, rgba(var(--primary), 0.08), transparent 40%)`
+	const spotlightBackground = useMemo(
+		() => `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(var(--primary), 0.08), transparent 40%)`,
+		[mousePosition.x, mousePosition.y]
 	);
 
 	const {
 		data,
 		isLoading: loading,
-		error
+		error,
+		refetch
 	} = useQuery({
 		...botStatsOptions,
 		refetchInterval: 15000, // Poll every 15 seconds for real-time feel
@@ -315,17 +316,17 @@ export default function StatusPage() {
 	if (loading) {
 		return (
 			<div className="min-h-screen flex items-center justify-center">
-				<div className="relative w-32 h-32">
-					<motion.div
-						animate={{ rotate: 360, scale: [1, 1.1, 1] }}
-						transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
-						className="absolute inset-0 rounded-full border-t-2 border-primary border-r-transparent border-b-transparent border-l-transparent"
-					/>
-					<motion.div
-						animate={{ rotate: -360, opacity: [0.3, 0.6, 0.3] }}
-						transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
-						className="absolute inset-4 rounded-full border-b-2 border-accent/50 border-t-transparent border-r-transparent border-l-transparent"
-					/>
+					<div className="relative w-32 h-32">
+						<motion.div
+							animate={{ rotate: 360, scale: 1.05 }}
+							transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+							className="absolute inset-0 rounded-full border-t-2 border-primary border-r-transparent border-b-transparent border-l-transparent"
+						/>
+						<motion.div
+							animate={{ rotate: -360, opacity: 0.5 }}
+							transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+							className="absolute inset-4 rounded-full border-b-2 border-accent/50 border-t-transparent border-r-transparent border-l-transparent"
+						/>
 					<div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
 						<Terminal className="text-primary animate-pulse" size={24} />
 						<span className="text-[8px] font-black uppercase tracking-[0.3em] text-primary/60">
@@ -496,7 +497,7 @@ export default function StatusPage() {
 											</p>
 										</div>
 										<button
-											onClick={() => fetchData()}
+											onClick={() => refetch()}
 											className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-primary hover:bg-primary/20 transition-all hover:rotate-180 duration-500"
 										>
 											<RefreshCcw size={20} />

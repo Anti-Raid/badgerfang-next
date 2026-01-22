@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useEffect, useState, useRef, ReactNode, useCallback, useMemo } from 'react';
+import React, { useEffect, useLayoutEffect, useState, useRef, ReactNode, useCallback, useMemo } from 'react';
 
 // Performance optimizations: Use CSS animations where possible, batch DOM updates, minimize re-renders
 interface MotionProps {
 	children?: ReactNode;
 	initial?:
 		| boolean
+		| string
 		| {
 				opacity?: number;
 				y?: number;
@@ -18,6 +19,7 @@ interface MotionProps {
 		  };
 	animate?:
 		| boolean
+		| string
 		| {
 				opacity?: number;
 				y?: number;
@@ -27,16 +29,19 @@ interface MotionProps {
 				width?: number | string;
 				boxShadow?: string | string[];
 		  };
-	exit?: {
-		opacity?: number;
-		y?: number;
-		x?: number;
-		scale?: number;
-		rotate?: number;
-		width?: number | string;
-		boxShadow?: string | string[];
-	};
+	exit?:
+		| string
+		| {
+			opacity?: number;
+			y?: number;
+			x?: number;
+			scale?: number;
+			rotate?: number;
+			width?: number | string;
+			boxShadow?: string | string[];
+		};
 	variants?: Variants;
+	custom?: any;
 	transition?: {
 		duration?: number;
 		delay?: number;
@@ -278,13 +283,20 @@ const createMotionComponent = <T extends keyof JSX.IntrinsicElements>(
 		// Resolve variants
 		const resolvedInitial = useMemo(() => {
 			if (typeof initial === 'boolean') return initial ? variants?.initial : false;
+			if (typeof initial === 'string') return variants?.[initial];
 			return initial || variants?.initial;
 		}, [initial, variants]);
 
 		const resolvedAnimate = useMemo(() => {
 			if (typeof animate === 'boolean') return animate ? variants?.animate : false;
+			if (typeof animate === 'string') return variants?.[animate];
 			return animate || variants?.animate;
 		}, [animate, variants]);
+
+		const resolvedExit = useMemo(() => {
+			if (typeof exit === 'string') return variants?.[exit];
+			return exit;
+		}, [exit, variants]);
 
 		const resolvedWhileInView = useMemo(() => {
 			if (!whileInView) return undefined;
@@ -335,8 +347,8 @@ const createMotionComponent = <T extends keyof JSX.IntrinsicElements>(
 			return hasRepeat && isLinear && hasSingleProperty;
 		}, [resolvedAnimate, transition]);
 
-		// Generate CSS keyframes for infinite animations
-		useEffect(() => {
+		// Generate CSS keyframes for infinite animations - use useLayoutEffect for immediate injection
+		useLayoutEffect(() => {
 			if (!useCSSAnimation || !resolvedAnimate) return;
 
 			const prop = Object.keys(resolvedAnimate)[0] as keyof typeof resolvedAnimate;
@@ -348,7 +360,21 @@ const createMotionComponent = <T extends keyof JSX.IntrinsicElements>(
 						from { transform: rotate(0deg); }
 						to { transform: rotate(${value}deg); }
 					}`;
+				// Inject immediately and ensure it's ready
 				injectKeyframes(name, keyframes);
+				// Double-check injection completed
+				requestAnimationFrame(() => {
+					if (typeof document !== 'undefined') {
+						const styleId = `motion-keyframes-${name}`;
+						if (!document.getElementById(styleId) && keyframeCache.has(name)) {
+							// Retry injection if it failed
+							const style = document.createElement('style');
+							style.id = styleId;
+							style.textContent = keyframeCache.get(name)!;
+							document.head.appendChild(style);
+						}
+					}
+				});
 			}
 		}, [useCSSAnimation, resolvedAnimate, transition]);
 
@@ -357,29 +383,58 @@ const createMotionComponent = <T extends keyof JSX.IntrinsicElements>(
 			if (!resolvedWhileInView || !elementRef.current) return;
 
 			const element = elementRef.current;
-			const observer = new IntersectionObserver(
-				([entry]) => {
-					if (entry.isIntersecting) {
-						setInViewState(true);
-						if (viewport?.once) {
-							observer.disconnect();
-						}
-					} else if (!viewport?.once) {
-						setInViewState(false);
+			
+			// Check initial intersection state immediately to prevent race conditions
+			const checkInitialIntersection = () => {
+				const rect = element.getBoundingClientRect();
+				const isIntersecting = 
+					rect.top < window.innerHeight &&
+					rect.bottom > 0 &&
+					rect.left < window.innerWidth &&
+					rect.right > 0;
+				
+				if (isIntersecting) {
+					setInViewState(true);
+					if (viewport?.once) {
+						return true; // Don't set up observer if already in view and once is true
 					}
-				},
-				{
-					threshold: viewport?.amount || 0.1,
-					rootMargin: viewport?.margin || '0px'
 				}
-			);
+				return false;
+			};
 
-			observer.observe(element);
-			return () => observer.disconnect();
+			// Use requestAnimationFrame to ensure DOM is fully laid out
+			requestAnimationFrame(() => {
+				if (!elementRef.current) return;
+				
+				// Check if already in view before setting up observer
+				if (checkInitialIntersection() && viewport?.once) {
+					return; // Already in view and once is true, no need for observer
+				}
+
+				const observer = new IntersectionObserver(
+					([entry]) => {
+						if (entry.isIntersecting) {
+							setInViewState(true);
+							if (viewport?.once) {
+								observer.disconnect();
+							}
+						} else if (!viewport?.once) {
+							setInViewState(false);
+						}
+					},
+					{
+						threshold: viewport?.amount || 0.1,
+						rootMargin: viewport?.margin || '0px'
+					}
+				);
+
+				observer.observe(element);
+				return () => observer.disconnect();
+			});
 		}, [resolvedWhileInView, viewport]);
 
-		// Initialize animation state
-		useEffect(() => {
+		// Initialize animation state - use useLayoutEffect to prevent flash
+		useLayoutEffect(() => {
 			if (resolvedInitial && typeof resolvedInitial === 'object') {
 				animationStateRef.current = {
 					opacity: {
@@ -401,12 +456,16 @@ const createMotionComponent = <T extends keyof JSX.IntrinsicElements>(
 					}
 				};
 			}
+			// Set visible immediately to prevent animation delays
 			setIsVisible(true);
-			onAnimationStart?.();
+			// Use requestAnimationFrame to ensure DOM is ready before calling callbacks
+			requestAnimationFrame(() => {
+				onAnimationStart?.();
+			});
 			return () => {
 				if (timeoutRef.current) clearTimeout(timeoutRef.current);
 			};
-		}, []);
+		}, [resolvedInitial, onAnimationStart]);
 
 		// Performance: Optimized spring animation loop using shared scheduler
 		const animationCallbackRef = useRef<(() => void) | null>(null);
@@ -511,13 +570,13 @@ const createMotionComponent = <T extends keyof JSX.IntrinsicElements>(
 
 		// Handle exit animation
 		useEffect(() => {
-			if (exit && isExiting) {
+			if (resolvedExit && isExiting) {
 				const duration = transition.duration || 0.3;
 				timeoutRef.current = setTimeout(() => {
 					onAnimationComplete?.();
 				}, duration * 1000);
 			}
-		}, [isExiting, exit, transition.duration, onAnimationComplete]);
+		}, [isExiting, resolvedExit, transition.duration, onAnimationComplete]);
 
 		// Drag handling - optimized with pointer events
 		useEffect(() => {
@@ -701,13 +760,13 @@ const createMotionComponent = <T extends keyof JSX.IntrinsicElements>(
 			}
 
 			// Exit state
-			if (isExiting && exit) {
+			if (isExiting && resolvedExit && typeof resolvedExit === 'object') {
 				const duration = transition.duration || 0.3;
 				const ease = typeof transition.ease === 'string' ? transition.ease : 'ease-in-out';
 				return {
 					...baseStyle,
-					opacity: exit.opacity !== undefined ? exit.opacity : baseStyle.opacity,
-					transform: `translate3d(${exit.x || 0}px, ${exit.y || 0}px, 0) scale(${exit.scale || 1}) rotate(${exit.rotate || 0}deg)`,
+					opacity: resolvedExit.opacity !== undefined ? resolvedExit.opacity : baseStyle.opacity,
+					transform: `translate3d(${resolvedExit.x || 0}px, ${resolvedExit.y || 0}px, 0) scale(${resolvedExit.scale || 1}) rotate(${resolvedExit.rotate || 0}deg)`,
 					transition: `all ${duration}s ${ease}`
 				};
 			}
@@ -868,7 +927,7 @@ const createMotionComponent = <T extends keyof JSX.IntrinsicElements>(
 			isExiting,
 			resolvedInitial,
 			resolvedAnimate,
-			exit,
+			resolvedExit,
 			inViewState,
 			resolvedWhileInView,
 			hoverState,

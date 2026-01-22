@@ -14,8 +14,8 @@ export const TemplateShop = ({ data }: { data: any[] }) => {
 	const [isSearchFocused, setIsSearchFocused] = useState(false);
 	const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 	const searchRef = useRef<HTMLInputElement>(null);
-	const headerRef = useRef(null);
-	const isInView = useInView(headerRef, { once: true, margin: '-100px' });
+	const headerRef = useRef<HTMLDivElement>(null);
+	const isInView = useInView(headerRef as React.RefObject<HTMLElement>, { threshold: 0.1, rootMargin: '-100px' });
 
 	// Use debounced search for filtering - improves performance
 	const filteredData = useMemo(() => {
@@ -249,7 +249,6 @@ export const TemplateShop = ({ data }: { data: any[] }) => {
 								<motion.div
 									key={template.id}
 									variants={itemVariants}
-									custom={index}
 									whileHover={{ y: -5, transition: { duration: 0.2 } }}
 									className={viewMode === 'list' ? 'max-w-4xl mx-auto w-full' : ''}
 								>
