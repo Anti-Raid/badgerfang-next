@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@tanstack/react-router';
 import { motion } from 'framer-motion';
 import { FaGithub, FaDiscord } from 'react-icons/fa';
 import { RiTwitterXFill, RiTeamFill, RiShieldCheckFill } from 'react-icons/ri';
@@ -125,7 +125,7 @@ const Footer = () => {
 					{/* Brand Section */}
 					<div className="lg:col-span-5 space-y-6">
 						<Link
-							href="/"
+							to="/"
 							className="inline-flex items-center gap-3 group"
 							aria-label="AntiRaid Home"
 						>
@@ -149,18 +149,29 @@ const Footer = () => {
 						</p>
 
 						<div className="flex items-center gap-3">
-							{socials.map((social) => (
-								<Link
-									key={social.name}
-									href={social.href}
-									target="_blank"
-									rel="noopener noreferrer"
-									className={`p-2 rounded-lg bg-white/5 border border-white/5 transition-all duration-300 transform hover:scale-110 hover:border-white/10 ${social.color}`}
-									aria-label={social.name}
-								>
-									{social.icon}
-								</Link>
-							))}
+							{socials.map((social) =>
+								social.href.startsWith('http') ? (
+									<a
+										key={social.name}
+										href={social.href}
+										target="_blank"
+										rel="noopener noreferrer"
+										className={`p-2 rounded-lg bg-white/5 border border-white/5 transition-all duration-300 transform hover:scale-110 hover:border-white/10 ${social.color}`}
+										aria-label={social.name}
+									>
+										{social.icon}
+									</a>
+								) : (
+									<Link
+										key={social.name}
+										to={social.href}
+										className={`p-2 rounded-lg bg-white/5 border border-white/5 transition-all duration-300 transform hover:scale-110 hover:border-white/10 ${social.color}`}
+										aria-label={social.name}
+									>
+										{social.icon}
+									</Link>
+								)
+							)}
 						</div>
 					</div>
 
@@ -175,15 +186,27 @@ const Footer = () => {
 								<ul className="space-y-2">
 									{category.items.map((item) => (
 										<li key={item.name}>
-											<Link
-												href={item.href}
-												target={item.external ? '_blank' : undefined}
-												aria-label={`Navigate to ${item.name}`}
-												className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1 group whitespace-nowrap"
-											>
-												<span className="w-0 overflow-hidden group-hover:w-2 transition-all duration-300 h-[1px] bg-primary mr-0 group-hover:mr-2" />
-												{item.name}
-											</Link>
+											{item.external ? (
+												<a
+													href={item.href}
+													target="_blank"
+													rel="noopener noreferrer"
+													aria-label={`Navigate to ${item.name}`}
+													className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1 group whitespace-nowrap"
+												>
+													<span className="w-0 overflow-hidden group-hover:w-2 transition-all duration-300 h-[1px] bg-primary mr-0 group-hover:mr-2" />
+													{item.name}
+												</a>
+											) : (
+												<Link
+													to={item.href}
+													aria-label={`Navigate to ${item.name}`}
+													className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1 group whitespace-nowrap"
+												>
+													<span className="w-0 overflow-hidden group-hover:w-2 transition-all duration-300 h-[1px] bg-primary mr-0 group-hover:mr-2" />
+													{item.name}
+												</Link>
+											)}
 										</li>
 									))}
 								</ul>
@@ -199,7 +222,7 @@ const Footer = () => {
 					</p>
 
 					<div className="flex items-center gap-6 text-sm text-muted-foreground">
-						<Link
+						<a
 							href="https://status.purrquinox.com"
 							target="_blank"
 							rel="noopener noreferrer"
@@ -209,7 +232,7 @@ const Footer = () => {
 								className={`w-2 h-2 rounded-full ${status.color} animate-pulse group-hover/status:scale-125 transition-transform`}
 							/>
 							{status.label}
-						</Link>
+						</a>
 						<span className="text-white/10">|</span>
 						<p className="flex items-center gap-1">
 							Made with{' '}

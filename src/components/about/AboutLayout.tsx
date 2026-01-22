@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Archive, Zap, Shield, User } from 'lucide-react';
 import { motion } from 'framer-motion';
-import Link from 'next/link';
+import { Link } from '@tanstack/react-router';
 import { HistoryTimeline } from '@/components/about/history-timeline';
 import { FeatureCard } from '@/components/about/FeatureCard';
 import { Partners } from '@/components/about/Partners';
@@ -40,16 +40,16 @@ const AboutLayout = () => {
 						</p>
 
 						<div className="mt-10 flex flex-wrap gap-4">
-							<Link href="#about">
+							<a href="#about">
 								<button className="px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-md font-semibold transition-all shadow-[0_0_15px_rgba(var(--primary)/30%)] hover:shadow-[0_0_25px_rgba(var(--primary)/40%)]">
 									Get Started
 								</button>
-							</Link>
-							<Link href="#timeline">
+							</a>
+							<a href="#timeline">
 								<button className="px-6 py-3 bg-background/30 backdrop-blur-sm border border-primary/30 hover:border-primary/50 text-foreground rounded-md font-semibold transition-all">
 									Learn More
 								</button>
-							</Link>
+							</a>
 						</div>
 					</motion.div>
 				</div>
@@ -141,12 +141,12 @@ const AboutLayout = () => {
 						<h2 className="text-3xl md:text-4xl font-monster font-bold mb-3">Meet the Team</h2>
 						<p className="text-lg text-foreground/70">
 							Interested in joining our team? Join our{' '}
-							<a
-								href="/discord"
+							<Link
+								to="/discord"
 								className="text-primary font-bold hover:text-extra transition-colors"
 							>
 								Discord Server
-							</a>
+							</Link>
 						</p>
 						<div className="w-20 h-1 bg-primary mx-auto mt-6"></div>
 					</div>

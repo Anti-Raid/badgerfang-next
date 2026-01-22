@@ -14,7 +14,7 @@
 
 ## 🚀 Overview
 
-**Badgerfang** is the official rewrite of the [AntiRaid Website](https://github.com/Anti-Raid/website), rebuilt from the ground up using **Next.js 16** and **React 19**. It provides a sleek, modern, and lightning-fast experience for managing your Discord server's security and automation.
+**Badgerfang** is the official rewrite of the [AntiRaid Website](https://github.com/Anti-Raid/website), rebuilt from the ground up using **Tanstack Start** and **React 19**. It provides a sleek, modern, and lightning-fast experience for managing your Discord server's security and automation.
 
 ## ✨ Key Features
 
@@ -27,7 +27,7 @@
 
 ## 🛠️ Tech Stack
 
-- **Framework**: [Next.js 16 (Canary)](https://nextjs.org/)
+- **Framework**: [Tanstack Start)](https://tanstack.com/start/latest)
 - **Library**: [React 19](https://react.dev/)
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/) & [Framer Motion](https://www.framer.com/motion/)
 - **Runtime**: [Bun](https://bun.sh/)

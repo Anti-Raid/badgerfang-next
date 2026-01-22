@@ -1,29 +1,18 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from '@tanstack/react-router';
 import { useAuthCheck } from '@/lib/auth/checkAuthCreds';
 
-/**
- * Conditionally renders its children based on the user's authorization status.
- *
- * This component retrieves authentication credentials and evaluates the user's access rights. While the authorization
- * check is in progress, a loading indicator is displayed. If an error occurs during the check, an error message is shown.
- * When the user is not authorized (and no error is present), the component displays a not-authorized message and triggers
- * a redirect to an unauthorized page. If the user is authorized, the given children are rendered.
- *
- * @param children - The content to render for authorized users.
- */
-
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
-	const router = useRouter();
+	const navigate = useNavigate();
 	const { isAuthorized, isError, isLoading } = useAuthCheck();
 
 	useEffect(() => {
 		if (!isAuthorized && !isError && !isLoading) {
-			router.replace('/unauthorized');
+			navigate({ to: '/authorize', replace: true });
 		}
-	}, [isAuthorized, isError, isLoading, router]);
+	}, [isAuthorized, isError, isLoading, navigate]);
 
 	if (isLoading) {
 		return <div>Loading authorization data...</div>;

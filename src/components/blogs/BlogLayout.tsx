@@ -1,43 +1,30 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useRef, useState, useEffect, useMemo } from 'react'; // Added generic React hooks if needed
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import { Search, BookOpen, Sparkles, Tag, TrendingUp, Clock, Eye } from 'lucide-react';
 import BlogCard from '@/components/blogs/BlogCard';
 import type { Blog } from '@/types/blogs/index';
-import { fetchStrapiBlogs } from '@/lib/api';
+import { useDebouncedSearch } from '@/lib/pacer';
 
-/**
- * Render the blog listing page with an animated header, search, tag filtering, and newsletter subscription.
- *
- * Fetches blog data on mount, maintains search and tag filter state, and displays loading skeletons, filtered blog cards, or an empty state as appropriate.
- *
- * @returns A React element representing the blog listing page.
- */
-export default function BlogLayout() {
-	const [blogs, setBlogs] = useState<Blog[]>([]);
-	const [filteredBlogs, setFilteredBlogs] = useState<Blog[]>([]);
-	const [isLoading, setIsLoading] = useState(true);
+interface BlogLayoutProps {
+    blogs: Blog[];
+}
+
+export default function BlogLayout({ blogs }: BlogLayoutProps) {
+	// const [blogs, setBlogs] = useState<Blog[]>([]); // Derived from props now
+	const [filteredBlogs, setFilteredBlogs] = useState<Blog[]>(blogs);
+	// const [isLoading, setIsLoading] = useState(true); // Handled by Suspense
 	const [searchTerm, setSearchTerm] = useState('');
+	const debouncedSearchTerm = useDebouncedSearch(searchTerm, 300);
 	const [selectedTag, setSelectedTag] = useState<string | null>(null);
 	const [allTags, setAllTags] = useState<string[]>([]);
 
-	const headerRef = useRef<HTMLDivElement>(null);
-	const isHeaderInView = useInView(headerRef, { once: false, amount: 0.5 });
-
-	const { scrollY } = useScroll();
-	const headerY = useTransform(scrollY, [0, 300], [0, -50]);
-	const headerOpacity = useTransform(scrollY, [0, 300], [1, 0.7]);
-
-	useEffect(() => {
-		const fetchBlogs = async () => {
-			try {
-				const data = await fetchStrapiBlogs();
-				setBlogs(data.data);
-				setFilteredBlogs(data.data);
-
-				// Extract all unique tags
-				const tags = data.data.reduce((acc: string[], blog: Blog) => {
+    // Initialize tags
+    useEffect(() => {
+        if(blogs) {
+            setFilteredBlogs(blogs);
+             const tags = blogs.reduce((acc: string[], blog: Blog) => {
 					if (blog.tags) {
 						blog.tags.forEach((tag) => {
 							if (!acc.includes(tag)) {
@@ -47,28 +34,31 @@ export default function BlogLayout() {
 					}
 					return acc;
 				}, []);
+            setAllTags(tags);
+        }
+    }, [blogs]);
 
-				setAllTags(tags);
-			} catch (error) {
-				console.error('Error fetching blogs:', error);
-			} finally {
-				setIsLoading(false);
-			}
-		};
+	const headerRef = useRef<HTMLDivElement>(null);
+	const isHeaderInView = useInView(headerRef, { once: false, amount: 0.5 });
 
-		fetchBlogs();
-	}, []);
+	const { scrollY } = useScroll();
+	const headerY = useTransform(scrollY, [0, 300], [0, -50]);
+	const headerOpacity = useTransform(scrollY, [0, 300], [1, 0.7]);
+    
+    // Removed fetchBlogs useEffect
 
+
+	// Use debounced search term for filtering - improves performance
 	useEffect(() => {
 		let result = blogs;
 
-		// Filter by search term
-		if (searchTerm) {
+		// Filter by debounced search term
+		if (debouncedSearchTerm) {
 			result = result.filter(
 				(blog) =>
-					(blog.title?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-					(blog.description?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-					(blog.content?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+					(blog.title?.toLowerCase() || '').includes(debouncedSearchTerm.toLowerCase()) ||
+					(blog.description?.toLowerCase() || '').includes(debouncedSearchTerm.toLowerCase()) ||
+					(blog.content?.toLowerCase() || '').includes(debouncedSearchTerm.toLowerCase())
 			);
 		}
 
@@ -78,7 +68,7 @@ export default function BlogLayout() {
 		}
 
 		setFilteredBlogs(result);
-	}, [searchTerm, selectedTag, blogs]);
+	}, [debouncedSearchTerm, selectedTag, blogs]);
 
 	const handleTagClick = (tag: string) => {
 		setSelectedTag(selectedTag === tag ? null : tag);
@@ -227,7 +217,7 @@ export default function BlogLayout() {
 			)}
 
 			{/* Featured Blog */}
-			{!isLoading && !searchTerm && !selectedTag && featuredBlog && (
+			{!searchTerm && !selectedTag && featuredBlog && (
 				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
 					<motion.div
 						initial={{ opacity: 0, y: 30 }}
@@ -246,31 +236,14 @@ export default function BlogLayout() {
 
 			{/* Blog Cards Section */}
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
-				{!isLoading && filteredBlogs.length > 1 && !searchTerm && !selectedTag && (
+				{filteredBlogs.length > 1 && !searchTerm && !selectedTag && (
 					<div className="flex items-center gap-3 mb-8">
 						<Clock className="text-accent" size={24} />
 						<h2 className="text-3xl font-bold font-monster">Recent Articles</h2>
 					</div>
 				)}
 
-				{isLoading ? (
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-						{[1, 2, 3, 4, 5, 6].map((i) => (
-							<div
-								key={i}
-								className="h-[400px] rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 animate-pulse overflow-hidden"
-							>
-								<div className="h-48 bg-muted/50" />
-								<div className="p-6 space-y-4">
-									<div className="w-1/3 h-4 bg-muted/50 rounded-full" />
-									<div className="w-full h-6 bg-muted/50 rounded-full" />
-									<div className="w-full h-4 bg-muted/50 rounded-full" />
-									<div className="w-2/3 h-4 bg-muted/50 rounded-full" />
-								</div>
-							</div>
-						))}
-					</div>
-				) : filteredBlogs.length > 0 ? (
+				{filteredBlogs.length > 0 ? (
 					<motion.div
 						className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
 						initial="hidden"

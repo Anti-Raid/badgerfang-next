@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { useThrottledCallback } from '@tanstack/react-pacer';
 
 /**
  * Optimised Snowfall Effect
@@ -14,6 +15,11 @@ import { useEffect, useRef } from 'react';
 export default function Snowfall() {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const mouseRef = useRef({ x: -1000, y: -1000 });
+
+	// Use throttled mouse move for better performance (~60fps)
+	const handleMouseMove = useThrottledCallback((e: MouseEvent) => {
+		mouseRef.current = { x: e.clientX, y: e.clientY };
+	}, 16);
 
 	useEffect(() => {
 		const canvas = canvasRef.current;
@@ -124,10 +130,6 @@ export default function Snowfall() {
 				p.draw();
 			});
 			animationFrameId = requestAnimationFrame(animate);
-		};
-
-		const handleMouseMove = (e: MouseEvent) => {
-			mouseRef.current = { x: e.clientX, y: e.clientY };
 		};
 
 		window.addEventListener('resize', resize);

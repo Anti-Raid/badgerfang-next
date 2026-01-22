@@ -1,7 +1,6 @@
 'use client';
-import Link from 'next/link';
+import { Link, useRouter } from '@tanstack/react-router';
 import { Partner } from '../types/other/Partner';
-import { useRouter } from 'next/navigation';
 import { MdOpenInNew } from 'react-icons/md';
 
 const ImageLoadError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
@@ -16,7 +15,7 @@ const PartnerCard: React.FC<PartnerCardProps> = ({ partner }) => {
 	const router = useRouter();
 
 	const handleViewMoreClick = () => {
-		router.push(`/partners/view/${partner.name.replace(/\s+/g, '%20')}`);
+		window.location.href = `/partners/view/${partner.name}`;
 	};
 
 	return (
@@ -35,7 +34,7 @@ const PartnerCard: React.FC<PartnerCardProps> = ({ partner }) => {
 						<p className="ml-2 mt-1 mb-1 font-bold font-monster">{partner.name}</p>
 					</h2>
 					<div className="flex items-center mt-2">
-						<Link
+						<a
 							className="p-2 flex items-center justify-center bg-white bg-opacity-5 rounded-sm"
 							href={partner.owner_website || '#'}
 						>
@@ -48,7 +47,7 @@ const PartnerCard: React.FC<PartnerCardProps> = ({ partner }) => {
 								onError={ImageLoadError}
 							/>
 							<p className="ml-2 font-bold text-md font-cabin hover:underline">{partner.owner}</p>
-						</Link>
+						</a>
 					</div>
 				</div>
 

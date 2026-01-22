@@ -1,35 +1,34 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence, useInView, Variants } from 'framer-motion';
 import { FiSearch, FiFilter, FiX, FiPackage, FiZap, FiGrid, FiList } from 'react-icons/fi';
 import { CommonCard } from './ScriptCard';
 import React from 'react';
+import { useDebouncedSearch } from '@/lib/pacer';
 
 export const TemplateShop = ({ data }: { data: any[] }) => {
 	// FIXME: Update type once shop is updated
 	const [searchTerm, setSearchTerm] = useState('');
-	const [filteredData, setFilteredData] = useState<any[]>([]); // FIXME: Update type once shop is updated
+	const debouncedSearchTerm = useDebouncedSearch(searchTerm, 300);
 	const [isSearchFocused, setIsSearchFocused] = useState(false);
 	const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 	const searchRef = useRef<HTMLInputElement>(null);
 	const headerRef = useRef(null);
 	const isInView = useInView(headerRef, { once: true, margin: '-100px' });
 
-	useEffect(() => {
-		if (Array.isArray(data)) {
-			setFilteredData(
-				data.filter(
-					(template) =>
-						template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-						template.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-						template.owner_guild.toLowerCase().includes(searchTerm.toLowerCase())
-				)
-			);
-		} else {
-			setFilteredData([]);
-		}
-	}, [searchTerm, data]);
+	// Use debounced search for filtering - improves performance
+	const filteredData = useMemo(() => {
+		if (!Array.isArray(data)) return [];
+		if (!debouncedSearchTerm) return data;
+		
+		return data.filter(
+			(template) =>
+				template.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+				template.description.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+				template.owner_guild.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+		);
+	}, [debouncedSearchTerm, data]);
 
 	const clearSearch = () => {
 		setSearchTerm('');

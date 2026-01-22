@@ -1,4 +1,4 @@
-import { Metadata, Viewport } from 'next';
+
 import {
 	title as siteTitle,
 	description_short,
@@ -11,199 +11,153 @@ import {
 	website_url
 } from '@/components/common';
 
-/**
- * Parameters for generating common page metadata.
- *
- * @interface MainMetaDataParam
- * @property {string} [title] - Custom title for the page. Will be combined with site title.
- * @property {string} [description] - Custom description for the page. Defaults to short site description.
- * @property {string} [image] - URL of the image to use for OpenGraph and Twitter cards.
- * @property {string[]} [keywords] - Array of keywords for SEO. Falls back to site default if empty.
- * @property {string} [Url] - Canonical URL for the page.
- * @property {string} [metadata] - Base URL override for metadata (e.g., `process.env.NEXT_PUBLIC_APP_URL`).
- */
 interface MainMetaDataParam {
 	title?: string;
 	description?: string;
 	image?: string;
 	keywords?: string[];
-	Url?: string;
-	metadata?: string;
+	Url?: string; // Canonical
+	metadata?: string; // Base URL override
 }
 
-/**
- * Parameters specific to generating blog post metadata.
- *
- * @interface GenerateMetadataParams
- * @property {string} [title] - Title of the blog post.
- * @property {string} [description] - Description or excerpt of the blog post.
- * @property {string} [imageUrl] - URL of the feature image for social cards.
- * @property {string[]} [keywords] - Array of blog-specific keywords.
- * @property {string} [canonicalUrl] - Canonical URL for the blog post.
- */
 interface GenerateMetadataParams {
 	title?: string;
 	description?: string;
 	imageUrl?: string;
 	keywords?: string[];
 	canonicalUrl?: string;
+	// LLMO optimizations
+	robots?: 'index, follow' | 'noindex, nofollow' | 'index, nofollow' | 'noindex, follow';
+	ogType?: 'website' | 'article' | 'profile';
+	articleAuthor?: string;
+	articlePublishedTime?: string;
+	articleTags?: string[];
+	structuredData?: Record<string, unknown>;
 }
 
-/**
- * Creates a Next.js Metadata object for a page by combining site-wide defaults with optional overrides.
- *
- * Merges provided and default values to set the page's title, description, keywords, icons, Open Graph, and Twitter card metadata. Adds a canonical URL if specified and determines the metadata base URL from parameters, environment variables, or site defaults.
- *
- * @param params - Optional overrides for the page's metadata, such as title, description, image, keywords, canonical URL, or base URL.
- * @returns The constructed Metadata object for Next.js page configuration.
- */
-
-/**
- * Standard Viewport configuration for the application.
- * Defines theme colors for light/dark modes and scaling behavior.
- */
-export const siteViewport: Viewport = {
-	themeColor: [
-		{ media: '(prefers-color-scheme: light)', color: '#8c45f4' }, // Brand Purple (Light)
-		{ media: '(prefers-color-scheme: dark)', color: '#0f0f12' } // Dark Background
-	],
-	width: 'device-width',
-	initialScale: 1,
-	maximumScale: 5,
-	colorScheme: 'dark light'
+export const siteViewport = {
+    // This is handled in __root.tsx usually, but we can export constants if needed.
+    // TanStack Start handles viewport in meta tags.
 };
 
-/**
- * Creates a Next.js Metadata object for a page by combining site-wide defaults with optional overrides.
- *
- * Merges provided and default values to set the page's title, description, keywords, icons, Open Graph, and Twitter card metadata. Adds a canonical URL if specified and determines the metadata base URL from parameters, environment variables, or site defaults.
- *
- * @param params - Optional overrides for the page's metadata, such as title, description, image, keywords, canonical URL, or base URL.
- * @returns The constructed Metadata object for Next.js page configuration.
- */
-export function generateMetadata(params: MainMetaDataParam): Metadata {
-	const { title, description, image, keywords = [], Url, metadata } = params;
+export function generateMetadata(params: MainMetaDataParam & { 
+	robots?: 'index, follow' | 'noindex, nofollow' | 'index, nofollow' | 'noindex, follow';
+	ogType?: 'website' | 'article' | 'profile';
+	articleAuthor?: string;
+	articlePublishedTime?: string;
+	articleTags?: string[];
+}) {
+	const { 
+		title, 
+		description, 
+		image, 
+		keywords = [], 
+		Url, 
+		metadata,
+		robots = 'index, follow',
+		ogType = 'website',
+		articleAuthor,
+		articlePublishedTime,
+		articleTags = []
+	} = params;
 
 	const fullTitle = title ? `${title} | ${siteTitle}` : `${siteTitle} - ${description_short}`;
-	// Use provided description or fallback to site-wide description
 	const desc = description ?? siteDescription;
 	const previewImage = image ?? defaultImage;
 	const canonicalBase = metadata ?? process.env.NEXT_PUBLIC_APP_URL ?? website_url;
 
-	// Merge page-specific keywords with site-wide keywords, ensuring 'AntiRaid' and 'Discord Bot' are always present first
 	const metaKeywords = [
 		...new Set([...keywords, 'AntiRaid', 'Discord Bot', 'Security', ...siteKeywords])
-	];
+	].join(', ');
 
-	const meta: Metadata = {
-		metadataBase: new URL(canonicalBase),
-		title: fullTitle,
-		description: desc,
-		applicationName: siteTitle,
-		authors: [{ name: owner, url: website_url }],
-		creator: owner,
-		publisher: owner,
-		category: 'Technology',
-		keywords: metaKeywords,
-		manifest: '/manifest.json',
-		referrer: 'origin-when-cross-origin',
-		formatDetection: {
-			email: false,
-			address: false,
-			telephone: false
-		},
-		appleWebApp: {
-			capable: true,
-			title: siteTitle,
-			statusBarStyle: 'black-translucent'
-		},
-		robots: {
-			index: true,
-			follow: true,
-			nocache: false,
-			googleBot: {
-				index: true,
-				follow: true,
-				noimageindex: false,
-				'max-video-preview': -1,
-				'max-image-preview': 'large',
-				'max-snippet': -1
-			}
-		},
-		verification: {
-			// Add verification codes here (google, yandex, etc.)
-		},
-		icons: {
-			icon: logo ?? '/logo.webp',
-			shortcut: logo ?? '/logo.webp',
-			apple: logo ?? '/logo.webp'
-		},
-		openGraph: {
-			title: fullTitle,
-			description: desc,
-			siteName: siteTitle,
-			url: Url ?? canonicalBase,
-			images: [
-				{
-					url: previewImage,
-					width: 1200,
-					height: 630,
-					alt: fullTitle
-				}
-			],
-			locale: 'en_US',
-			type: 'website'
-		},
-		twitter: {
-			card: 'summary_large_image',
-			title: fullTitle,
-			description: desc,
-			images: [previewImage],
-			creator: twitter || undefined,
-			site: twitter || undefined
+    const meta: Array<{ title?: string; name?: string; property?: string; content: string }> = [
+        { title: fullTitle },
+        { name: 'description', content: desc },
+        { name: 'application-name', content: siteTitle },
+        { name: 'author', content: owner },
+        { name: 'keywords', content: metaKeywords },
+        { name: 'referrer', content: 'origin-when-cross-origin' },
+        { name: 'apple-mobile-web-app-capable', content: 'yes' },
+        { name: 'apple-mobile-web-app-title', content: siteTitle },
+        { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
+        // Robots - LLMO optimized
+        { name: 'robots', content: robots },
+        
+        // Open Graph - LLMO optimized
+        { property: 'og:title', content: fullTitle },
+        { property: 'og:description', content: desc },
+        { property: 'og:site_name', content: siteTitle },
+        { property: 'og:url', content: Url ?? canonicalBase },
+        { property: 'og:image', content: previewImage },
+        { property: 'og:locale', content: 'en_US' },
+        { property: 'og:type', content: ogType },
+
+        // Twitter
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: fullTitle },
+        { name: 'twitter:description', content: desc },
+        { name: 'twitter:image', content: previewImage },
+        { name: 'twitter:creator', content: twitter },
+        { name: 'twitter:site', content: twitter }
+    ];
+
+	// Add article-specific meta tags for LLMO
+	if (ogType === 'article') {
+		if (articleAuthor) {
+			meta.push({ property: 'article:author', content: articleAuthor });
 		}
-	};
-
-	if (Url) {
-		meta.alternates = {
-			canonical: Url,
-			languages: {
-				'en-US': Url
-			}
-		};
+		if (articlePublishedTime) {
+			meta.push({ property: 'article:published_time', content: articlePublishedTime });
+		}
+		if (articleTags.length > 0) {
+			articleTags.forEach(tag => {
+				meta.push({ property: 'article:tag', content: tag });
+			});
+		}
 	}
 
-	return meta;
+    const links: Array<{ rel: string; href: string }> = [];
+    if (Url) {
+        links.push({ rel: 'canonical', href: Url });
+    }
+    // Icons
+    links.push({ rel: 'icon', href: logo ?? '/logo.webp' });
+    links.push({ rel: 'shortcut icon', href: logo ?? '/logo.webp' });
+    links.push({ rel: 'apple-touch-icon', href: logo ?? '/logo.webp' });
+
+	return { meta, links };
 }
 
-/**
- * Generates metadata for a blog post page using blog-specific defaults and optional overrides.
- *
- * Sets the title to "Blog" if not provided, applies a default blog description, and ensures "Blog" is included in the keywords. Uses the provided image and canonical URL if available.
- *
- * @returns A Next.js Metadata object for a blog post page.
- */
-export function generateBlogMetadata(params: GenerateMetadataParams): Metadata {
-	const { title, description, imageUrl, keywords = [], canonicalUrl } = params;
+export function generateBlogMetadata(params: GenerateMetadataParams) {
+	const { 
+		title, 
+		description, 
+		imageUrl, 
+		keywords = [], 
+		canonicalUrl,
+		robots = 'index, follow',
+		articleAuthor,
+		articlePublishedTime,
+		articleTags = []
+	} = params;
 
 	const blogDefaults = {
 		title: title || 'Blog',
 		description: description || 'Read the latest news and updates.',
 		image: imageUrl,
 		keywords: ['Blog', ...keywords],
-		Url: canonicalUrl
+		Url: canonicalUrl,
+		robots,
+		ogType: 'article' as const,
+		articleAuthor,
+		articlePublishedTime,
+		articleTags: articleTags.length > 0 ? articleTags : keywords
 	};
 
 	return generateMetadata(blogDefaults);
 }
 
-/**
- * Generates a Metadata object for the About page with default or overridden title, description, image, keywords, and canonical URL.
- *
- * @param params - Optional overrides for title, description, imageUrl, keywords, and canonicalUrl.
- * @returns Metadata configured for the About page.
- */
-export function generateAboutMetadata(params: GenerateMetadataParams = {}): Metadata {
+export function generateAboutMetadata(params: GenerateMetadataParams = {}) {
 	return generateMetadata({
 		title: 'About',
 		description: 'Learn more about us.',
@@ -213,29 +167,19 @@ export function generateAboutMetadata(params: GenerateMetadataParams = {}): Meta
 	});
 }
 
-/**
- * Generates a Metadata object for the Status page with default title, description, image, and keywords.
- *
- * Applies Status page-specific defaults, allowing optional overrides for image, keywords, and canonical URL.
- *
- * @returns Metadata for the Status page.
- */
-export function generateStatusMetadata(params: GenerateMetadataParams = {}): Metadata {
+export function generateStatusMetadata(params: GenerateMetadataParams = {}) {
 	return generateMetadata({
 		title: 'Status',
-		description: 'Check the status of our services.',
+		description: 'Check the status of our services and monitor uptime in real-time.',
 		image: params.imageUrl ?? defaultImage,
-		keywords: params.keywords?.length ? params.keywords : ['Status', 'Uptime', 'Service'],
-		Url: params.canonicalUrl
+		keywords: params.keywords?.length ? params.keywords : ['Status', 'Uptime', 'Service', 'Monitoring', 'System Health'],
+		Url: params.canonicalUrl,
+		robots: params.robots ?? 'index, follow',
+		ogType: 'website'
 	});
 }
 
-/**
- * Generates a Metadata object for the Privacy Policy page, applying default or overridden title, description, image, keywords, and canonical URL.
- *
- * @returns Metadata for the Privacy Policy page.
- */
-export function generatePrivacyMetadata(params: GenerateMetadataParams = {}): Metadata {
+export function generatePrivacyMetadata(params: GenerateMetadataParams = {}) {
 	return generateMetadata({
 		title: 'Privacy Policy | Legal',
 		description: 'Learn about our privacy practices.',
@@ -245,12 +189,7 @@ export function generatePrivacyMetadata(params: GenerateMetadataParams = {}): Me
 	});
 }
 
-/**
- * Generates a Metadata object for the Terms of Service page, applying default values for title, description, image, and keywords, with optional overrides.
- *
- * @returns Metadata for the Terms of Service page.
- */
-export function generateTermsMetadata(params: GenerateMetadataParams = {}): Metadata {
+export function generateTermsMetadata(params: GenerateMetadataParams = {}) {
 	return generateMetadata({
 		title: 'Terms of Service | Legal',
 		description: 'Read our terms and conditions.',
@@ -260,64 +199,45 @@ export function generateTermsMetadata(params: GenerateMetadataParams = {}): Meta
 	});
 }
 
-/**
- * Generates a Metadata object for the Scripts Shop page, applying default titles, descriptions, images, and keywords, with optional overrides.
- *
- * @param params - Optional overrides for the page title, description, image URL, keywords, or canonical URL.
- * @returns A Metadata object configured for the Scripts Shop section.
- */
-export function generateScriptMetadata(params: GenerateMetadataParams = {}): Metadata {
+export function generateScriptMetadata(params: GenerateMetadataParams = {}) {
 	return generateMetadata({
 		title: 'Scripts Shop',
-		description: 'Explore our collection of scripts.',
+		description: 'Explore our collection of powerful scripts and templates for AntiRaid bot customization.',
 		image: params.imageUrl ?? defaultImage,
 		keywords: params.keywords?.length
 			? params.keywords
-			: ['Scripts', 'Code', 'luau', 'templating', 'Tools'],
-		Url: params.canonicalUrl
+			: ['Scripts', 'Code', 'luau', 'templating', 'Tools', 'Customization', 'Discord Bot'],
+		Url: params.canonicalUrl,
+		robots: params.robots ?? 'index, follow',
+		ogType: 'website'
 	});
 }
 
-/**
- * Generates a Metadata object for the Commands page with default or overridden values.
- *
- * Applies a default title, description, image, and keywords for the Commands section, allowing optional overrides via {@link params}.
- *
- * @param params - Optional overrides for title, description, image, keywords, or canonical URL.
- * @returns A Metadata object configured for the Commands page.
- */
-export function generateCommandMetadata(params: GenerateMetadataParams = {}): Metadata {
+export function generateCommandMetadata(params: GenerateMetadataParams = {}) {
 	return generateMetadata({
 		title: 'Commands',
-		description: 'Browse all available commands',
+		description: 'Browse and explore all available AntiRaid bot commands with detailed documentation and examples.',
 		image: params.imageUrl ?? defaultImage,
-		keywords: params.keywords?.length ? params.keywords : ['Commands', 'Code', 'luau'],
-		Url: params.canonicalUrl
+		keywords: params.keywords?.length ? params.keywords : ['Commands', 'Code', 'luau', 'Discord Bot', 'API', 'Documentation'],
+		Url: params.canonicalUrl,
+		robots: params.robots ?? 'index, follow',
+		ogType: 'website'
 	});
 }
 
-/**
- * Generates a Metadata object for the Blogs page, applying default title, description, image, and keywords, with support for optional overrides.
- *
- * @param params - Optional overrides for the image, keywords, or canonical URL.
- * @returns A Metadata object configured for the Blogs section.
- */
-export function generateBlogsMetadata(params: GenerateMetadataParams = {}): Metadata {
+export function generateBlogsMetadata(params: GenerateMetadataParams = {}) {
 	return generateMetadata({
 		title: 'Blogs',
-		description: 'Read the latest news and updates.',
+		description: 'Read the latest news, updates, and insights from the AntiRaid team.',
 		image: params.imageUrl ?? defaultImage,
-		keywords: params.keywords?.length ? params.keywords : ['Blogs', 'News', 'Updates'],
-		Url: params.canonicalUrl
+		keywords: params.keywords?.length ? params.keywords : ['Blogs', 'News', 'Updates', 'Discord', 'Security', 'AntiRaid'],
+		Url: params.canonicalUrl,
+		robots: params.robots ?? 'index, follow',
+		ogType: 'website'
 	});
 }
 
-/**
- * Generates metadata for the Developer Dashboard page with optional custom title, description, image, keywords, and canonical URL.
- *
- * @returns A Metadata object tailored for the Developer Dashboard section.
- */
-export function generateDeveloperDashboardMetadata(params: GenerateMetadataParams = {}): Metadata {
+export function generateDeveloperDashboardMetadata(params: GenerateMetadataParams = {}) {
 	return generateMetadata({
 		title: 'Developer Dashboard',
 		description: 'Manage your Sessions and API Keys',
@@ -327,19 +247,117 @@ export function generateDeveloperDashboardMetadata(params: GenerateMetadataParam
 	});
 }
 
-/**
- * Generates Next.js metadata for the home page with default values and optional overrides.
- *
- * Applies default title, description, image, and keywords for the home page, allowing customization through the provided parameters.
- *
- * @returns A Metadata object for the home page.
- */
-export function generateHomeMetadata(params: GenerateMetadataParams = {}): Metadata {
+export function generateHomeMetadata(params: GenerateMetadataParams = {}) {
 	return generateMetadata({
 		title: 'Home',
-		description: 'Welcome to Antiraids Homepage!',
+		description: 'AntiRaid - Advanced Discord bot protection and moderation. Secure your server with powerful anti-raid features, automated moderation, and comprehensive security tools.',
 		image: params.imageUrl ?? defaultImage,
-		keywords: params.keywords?.length ? params.keywords : ['Home', 'Antiraid'],
-		Url: params.canonicalUrl
+		keywords: params.keywords?.length ? params.keywords : ['Home', 'AntiRaid', 'Discord Bot', 'Security', 'Moderation', 'Protection'],
+		Url: params.canonicalUrl,
+		robots: params.robots ?? 'index, follow',
+		ogType: 'website'
 	});
+}
+
+// Structured Data (JSON-LD) helpers for LLMO
+export interface ArticleStructuredData {
+	title: string;
+	description: string;
+	image?: string;
+	author?: {
+		name: string;
+		url?: string;
+		avatar?: string;
+	};
+	publisher?: {
+		name: string;
+		logo?: string;
+	};
+	datePublished?: string;
+	dateModified?: string;
+	url?: string;
+	tags?: string[];
+}
+
+export function generateArticleStructuredData(data: ArticleStructuredData) {
+	const appUrl = process.env.NEXT_PUBLIC_APP_URL || website_url;
+	
+	return {
+		'@context': 'https://schema.org',
+		'@type': 'Article',
+		headline: data.title,
+		description: data.description,
+		image: data.image ? (data.image.startsWith('http') ? data.image : `${appUrl}${data.image}`) : `${appUrl}${defaultImage}`,
+		author: data.author ? {
+			'@type': 'Person',
+			name: data.author.name,
+			...(data.author.url && { url: data.author.url }),
+			...(data.author.avatar && { image: data.author.avatar })
+		} : {
+			'@type': 'Person',
+			name: owner
+		},
+		publisher: {
+			'@type': 'Organization',
+			name: data.publisher?.name || title,
+			logo: {
+				'@type': 'ImageObject',
+				url: data.publisher?.logo ? (data.publisher.logo.startsWith('http') ? data.publisher.logo : `${appUrl}${data.publisher.logo}`) : `${appUrl}${logo || '/logo.webp'}`
+			}
+		},
+		...(data.datePublished && { datePublished: data.datePublished }),
+		...(data.dateModified && { dateModified: data.dateModified }),
+		...(data.url && { mainEntityOfPage: { '@type': 'WebPage', '@id': data.url } }),
+		...(data.tags && data.tags.length > 0 && { keywords: data.tags.join(', ') })
+	};
+}
+
+export interface OrganizationStructuredData {
+	name: string;
+	url: string;
+	logo?: string;
+	sameAs?: string[];
+	description?: string;
+}
+
+export function generateOrganizationStructuredData(data: OrganizationStructuredData) {
+	return {
+		'@context': 'https://schema.org',
+		'@type': 'Organization',
+		name: data.name,
+		url: data.url,
+		...(data.logo && {
+			logo: {
+				'@type': 'ImageObject',
+				url: data.logo.startsWith('http') ? data.logo : `${data.url}${data.logo}`
+			}
+		}),
+		...(data.sameAs && data.sameAs.length > 0 && { sameAs: data.sameAs }),
+		...(data.description && { description: data.description })
+	};
+}
+
+export interface WebSiteStructuredData {
+	name: string;
+	url: string;
+	publisher?: OrganizationStructuredData;
+	potentialAction?: {
+		'@type': 'SearchAction';
+		target: {
+			'@type': 'EntryPoint';
+			urlTemplate: string;
+		};
+		'query-input': string;
+	};
+}
+
+export function generateWebSiteStructuredData(data: WebSiteStructuredData) {
+	return {
+		'@context': 'https://schema.org',
+		'@type': 'WebSite',
+		name: data.name,
+		url: data.url,
+		...(data.publisher && { publisher: generateOrganizationStructuredData(data.publisher) }),
+		...(data.potentialAction && { potentialAction: data.potentialAction })
+	};
 }

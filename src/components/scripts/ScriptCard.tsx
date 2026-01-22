@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FiPackage, FiClock, FiGitBranch, FiServer, FiEye, FiZap, FiUser } from 'react-icons/fi';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@tanstack/react-router';
 import { format, isValid } from 'date-fns';
 
 interface CommonCardProps {
@@ -215,7 +215,12 @@ export const CommonCard = ({ template }: CommonCardProps) => {
 						<motion.button
 							whileHover={{ scale: 1.02, boxShadow: '0 0 20px rgba(var(--primary), 0.3)' }}
 							whileTap={{ scale: 0.98 }}
-							onClick={() => router.push(`/script/${template.id}`)}
+							onClick={() =>
+								router.navigate({
+									to: '/script/$name',
+									params: { name: template.id }
+								})
+							}
 							className="relative flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-white px-4 py-3 rounded-xl font-medium transition-all duration-300 overflow-hidden group"
 						>
 							<div className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-gradient-x"></div>

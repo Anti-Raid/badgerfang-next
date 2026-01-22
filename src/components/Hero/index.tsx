@@ -5,7 +5,8 @@ import { TemplateCarousel } from './scriptCarosel';
 import { Primary, Secondary } from '../ui/Buttons';
 import { GoArrowUpRight } from 'react-icons/go';
 import { ReviewsCarousel } from './reviewCarosel';
-import { getBotStats } from '@/lib/api';
+import { useQuery } from '@tanstack/react-query';
+import { botStatsOptions } from '@/lib/api';
 import { motion, Variants } from 'framer-motion';
 import { GetStatusResponse } from '@/types/api/bindings/GetStatusResponse';
 import { Archive, Zap, Shield, User } from 'lucide-react';
@@ -68,22 +69,13 @@ const ServerIcons = () => {
 const Hero = () => {
 	const [serverCount, setServerCount] = useState(0);
 	const [userCount, setUserCount] = useState(0);
-	const [stats, setStats] = useState<GetStatusResponse | null>(null);
 	const [isVisible, setIsVisible] = useState(false);
 	const heroRef = useRef<HTMLDivElement>(null);
 
+	const { data: stats } = useQuery(botStatsOptions);
+
 	useEffect(() => {
 		setIsVisible(true);
-		const fetchStats = async () => {
-			try {
-				const botState = await getBotStats();
-				const data = botState;
-				setStats(data);
-			} catch (error) {
-				console.error('Error fetching stats:', error);
-			}
-		};
-		fetchStats();
 	}, []);
 
 	const updateServerCount = useCallback((targetCount: number, increment: number) => {

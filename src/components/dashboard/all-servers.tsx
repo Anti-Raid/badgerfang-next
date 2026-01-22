@@ -1,27 +1,40 @@
 'use client';
 
 import type React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { getUserServers } from '@/lib/api';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { userServersOptions } from '@/lib/api';
 import logger from '@/lib/logger';
 import { getAvatarUrl } from '@/lib/auth/getAvatarUrl';
 import { PartialUser } from '@/types/api/bindings/PartialUser';
 import { DashboardGuild } from '@/types/api/bindings/DashboardGuild';
-import Image from 'next/image';
+import { Image } from '@unpic/react';
 import { ServerList } from '@/components/dashboard/ServerList';
+import { useDebouncedSearch } from '@/lib/pacer';
 
 const AllServers: React.FC = () => {
 	const [userData, setUserData] = useState<PartialUser | null>(null);
-	const [servers, setServers] = useState<DashboardGuild[]>([]);
-	const [managedServers, setManagedServers] = useState<DashboardGuild[]>([]);
-	const [yourServers, setYourServers] = useState<DashboardGuild[]>([]);
 	const [managedSearchTerm, setManagedSearchTerm] = useState('');
+	const debouncedManagedSearch = useDebouncedSearch(managedSearchTerm, 300);
 	const [yourSearchTerm, setYourSearchTerm] = useState('');
-	const [isLoading, setIsLoading] = useState(true);
+	const debouncedYourSearch = useDebouncedSearch(yourSearchTerm, 300);
 	const [activeTab, setActiveTab] = useState('managed');
 	const [refreshing, setRefreshing] = useState(false);
+	const queryClient = useQueryClient();
+
+	const { data: response, isLoading, refetch, isRefetching } = useQuery(userServersOptions);
+
+	const servers = useMemo(() => response?.guilds || [], [response?.guilds]);
+	const managedServers = useMemo(() => {
+		if (!response) return [];
+		return servers.filter((server) => response.bot_in_guilds.includes(server.id));
+	}, [servers, response?.bot_in_guilds]);
+	const yourServers = useMemo(() => {
+		if (!response) return [];
+		return servers.filter((server) => !response.bot_in_guilds.includes(server.id));
+	}, [servers, response?.bot_in_guilds]);
 
 	useEffect(() => {
 		const authUser = localStorage.getItem('authUser');
@@ -35,38 +48,23 @@ const AllServers: React.FC = () => {
 		}
 	}, []);
 
-	const fetchServers = async (refetch = false) => {
-		setIsLoading(true);
-		if (refetch) setRefreshing(true);
-
+	const handleRefresh = async () => {
+		setRefreshing(true);
 		try {
-			const response = await getUserServers(refetch);
-			const { guilds, bot_in_guilds } = response;
-			setServers(guilds);
-
-			const managed = guilds.filter((server) => bot_in_guilds.includes(server.id));
-			const yours = guilds.filter((server) => !bot_in_guilds.includes(server.id));
-
-			setManagedServers(managed);
-			setYourServers(yours);
-
-			if (refetch) {
-				toast.success('Servers refreshed successfully');
-			}
+			// Invalidate and refetch with refresh flag
+			await queryClient.invalidateQueries({ queryKey: ['userServers'] });
+			// Manually call getUserServers with refresh=true
+			const { getUserServers } = await import('@/lib/api');
+			const refreshed = await getUserServers(true);
+			queryClient.setQueryData(['userServers'], refreshed);
+			toast.success('Servers refreshed successfully');
 		} catch (error) {
 			console.error('Failed to fetch servers:', error);
 			toast.error('Failed to fetch servers');
 		} finally {
-			setIsLoading(false);
-			if (refetch) {
-				setTimeout(() => setRefreshing(false), 500);
-			}
+			setTimeout(() => setRefreshing(false), 500);
 		}
 	};
-
-	useEffect(() => {
-		fetchServers();
-	}, []);
 
 	if (!userData && isLoading) {
 		return (
@@ -100,8 +98,8 @@ const AllServers: React.FC = () => {
 					</div>
 					<button
 						className="flex items-center gap-2 bg-accent hover:bg-accent/80 text-accent-foreground px-5 py-2.5 rounded-lg transition-all duration-300 ml-auto transform hover:scale-105 hover:shadow-lg"
-						onClick={() => fetchServers(true)}
-						disabled={refreshing}
+						onClick={handleRefresh}
+						disabled={refreshing || isRefetching}
 					>
 						<RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
 						<span className="hidden sm:inline font-medium">
@@ -150,7 +148,7 @@ const AllServers: React.FC = () => {
 					<div className="animate-[theme-fade_0.3s_ease-in-out]">
 						<ServerList
 							servers={managedServers}
-							searchTerm={managedSearchTerm}
+							searchTerm={debouncedManagedSearch}
 							setSearchTerm={setManagedSearchTerm}
 							showViewButton={true}
 							isLoading={isLoading}
@@ -160,7 +158,7 @@ const AllServers: React.FC = () => {
 					<div className="animate-[theme-fade_0.3s_ease-in-out]">
 						<ServerList
 							servers={yourServers}
-							searchTerm={yourSearchTerm}
+							searchTerm={debouncedYourSearch}
 							setSearchTerm={setYourSearchTerm}
 							showViewButton={false}
 							isLoading={isLoading}

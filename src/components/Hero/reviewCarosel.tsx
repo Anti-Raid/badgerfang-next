@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaDiscord, FaQuoteLeft, FaQuoteRight } from 'react-icons/fa';
-import Image from 'next/image';
+import { Image } from '@unpic/react';
 
 export interface ReviewData {
 	content: string;
@@ -195,8 +195,8 @@ export const ReviewsCarousel = () => {
 												<Image
 													src={authorData.avatar || '/logo.webp'}
 													alt={authorData.name || 'User Avatar'}
-													fill
-													className="object-cover"
+													layout="fullWidth"
+													className="absolute inset-0 w-full h-full object-cover"
 												/>
 											</div>
 											<div>

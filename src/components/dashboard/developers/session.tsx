@@ -1,7 +1,7 @@
 'use client';
 
 import type React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
 	KeyRound,
@@ -17,7 +17,8 @@ import {
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { getUserSessions, revokeSession, createSession } from '@/lib/api';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { userSessionsOptions, revokeSession, createSession } from '@/lib/api';
 import { UserSession } from '@/types/api/bindings/UserSession';
 import { CreateUserSession } from '@/types/api/bindings/CreateUserSession';
 
@@ -152,35 +153,37 @@ const SessionCard: React.FC<{
 };
 
 const CreateSessionForm: React.FC<{ onSessionCreated: () => void }> = ({ onSessionCreated }) => {
+	const queryClient = useQueryClient();
 	const [sessionData, setSessionData] = useState<CreateUserSession>({
 		name: '',
 		type: 'api',
 		expiry: 3600
 	});
 	const [createdToken, setCreatedToken] = useState<string | null>(null);
-	const [isLoading, setIsLoading] = useState(false);
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-		setIsLoading(true);
-
-		if (!sessionData.name || !sessionData.type || sessionData.expiry === null) {
-			toast.error('Session data is incomplete');
-			setIsLoading(false);
-			return;
-		}
-
-		try {
-			const newSession = await createSession(sessionData);
+	const createSessionMutation = useMutation({
+		mutationFn: createSession,
+		onSuccess: (newSession) => {
 			toast.success('Session created successfully!');
 			setCreatedToken(newSession.token);
 			onSessionCreated();
 			setSessionData({ name: '', type: 'api', expiry: 3600 });
-		} catch (error) {
+			queryClient.invalidateQueries({ queryKey: ['userSessions'] });
+		},
+		onError: () => {
 			toast.error('Failed to create session');
-		} finally {
-			setIsLoading(false);
 		}
+	});
+
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+
+		if (!sessionData.name || !sessionData.type || sessionData.expiry === null) {
+			toast.error('Session data is incomplete');
+			return;
+		}
+
+		createSessionMutation.mutate(sessionData);
 	};
 
 	return (
@@ -215,7 +218,7 @@ const CreateSessionForm: React.FC<{ onSessionCreated: () => void }> = ({ onSessi
 						className="w-full px-4 py-3 rounded-xl border border-border bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground"
 						placeholder="Enter a descriptive name"
 						required
-						disabled={isLoading}
+						disabled={createSessionMutation.isPending}
 					/>
 				</div>
 
@@ -228,7 +231,7 @@ const CreateSessionForm: React.FC<{ onSessionCreated: () => void }> = ({ onSessi
 						value={sessionData.type}
 						onChange={(e) => setSessionData({ ...sessionData, type: e.target.value as 'api' })}
 						className="w-full px-4 py-3 rounded-xl border border-border bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-foreground"
-						disabled={isLoading}
+						disabled={createSessionMutation.isPending}
 					>
 						<option value="api">API Token</option>
 					</select>
@@ -248,7 +251,7 @@ const CreateSessionForm: React.FC<{ onSessionCreated: () => void }> = ({ onSessi
 						min={3600}
 						className="w-full px-4 py-3 rounded-xl border border-border bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-foreground"
 						placeholder="Minimum 3600 seconds"
-						disabled={isLoading}
+						disabled={createSessionMutation.isPending}
 					/>
 					<p className="text-xs text-muted-foreground mt-1">
 						{sessionData.expiry >= 3600 && (
@@ -300,7 +303,7 @@ const CreateSessionForm: React.FC<{ onSessionCreated: () => void }> = ({ onSessi
 					className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-3 rounded-xl transition-all flex items-center justify-center gap-2 font-medium"
 					disabled={isLoading}
 				>
-					{isLoading ? (
+					{createSessionMutation.isPending ? (
 						<>
 							<RefreshCw className="h-4 w-4 animate-spin" />
 							Creating...
@@ -318,43 +321,32 @@ const CreateSessionForm: React.FC<{ onSessionCreated: () => void }> = ({ onSessi
 };
 
 const Dashboard: React.FC = () => {
-	const [sessions, setSessions] = useState<{
-		loginSessions: UserSession[];
-		apiSessions: UserSession[];
-	}>({
-		loginSessions: [],
-		apiSessions: []
-	});
-	const [isLoading, setIsLoading] = useState(true);
+	const queryClient = useQueryClient();
+	const { data: sessionData, isLoading, refetch } = useQuery(userSessionsOptions);
 
-	const fetchSessions = async () => {
-		setIsLoading(true);
-		try {
-			const sessionData = await getUserSessions();
-			setSessions({
-				loginSessions:
-					sessionData.sessions.filter((s): s is UserSession => s?.type === 'login') ?? [],
-				apiSessions: sessionData.sessions.filter((s): s is UserSession => s?.type !== 'login') ?? []
-			});
-		} catch (error) {
-			toast.error('Failed to fetch sessions');
-		} finally {
-			setIsLoading(false);
+	const sessions = useMemo(() => {
+		if (!sessionData) {
+			return { loginSessions: [], apiSessions: [] };
 		}
-	};
+		return {
+			loginSessions: sessionData.sessions.filter((s): s is UserSession => s?.type === 'login') ?? [],
+			apiSessions: sessionData.sessions.filter((s): s is UserSession => s?.type !== 'login') ?? []
+		};
+	}, [sessionData]);
 
-	useEffect(() => {
-		fetchSessions();
-	}, []);
-
-	const handleRevokeSession = async (sessionId: string) => {
-		try {
-			await revokeSession(sessionId);
+	const revokeSessionMutation = useMutation({
+		mutationFn: revokeSession,
+		onSuccess: () => {
 			toast.success('Session revoked successfully!');
-			fetchSessions();
-		} catch (error) {
+			queryClient.invalidateQueries({ queryKey: ['userSessions'] });
+		},
+		onError: () => {
 			toast.error('Failed to revoke session');
 		}
+	});
+
+	const handleRevokeSession = (sessionId: string) => {
+		revokeSessionMutation.mutate(sessionId);
 	};
 
 	return (
@@ -382,7 +374,7 @@ const Dashboard: React.FC = () => {
 
 						<div className="flex items-center gap-3">
 							<button
-								onClick={fetchSessions}
+								onClick={() => refetch()}
 								className="px-4 py-2.5 rounded-xl bg-muted hover:bg-muted/80 text-foreground flex items-center gap-2 transition-colors"
 							>
 								<RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />

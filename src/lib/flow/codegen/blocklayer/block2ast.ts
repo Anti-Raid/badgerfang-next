@@ -28,7 +28,6 @@ import {
 	ReprEnum
 } from '../astlayer/finalrepr';
 import { baseCommandNodeSchema } from '../../validation';
-import z from 'zod';
 import { startNodeTypes } from '../../startnode';
 import {
 	LiteralEnum,
@@ -297,9 +296,10 @@ export class CodeGenASTGenerator {
 		}
 
 		// Visit start node data and set the start node type in the AST
-		let res = baseCommandNodeSchema.safeParse(node.data.data); // Validate the command node data
-		if (res.error) {
-			this.pushError(node.currentAst, z.prettifyError(res.error));
+		try {
+			baseCommandNodeSchema(node.data.data); // Validate the command node data
+		} catch (error) {
+			this.pushError(node.currentAst, error instanceof Error ? error.message : String(error));
 		}
 
 		node.currentAst.prelude = {
@@ -953,10 +953,10 @@ export class CodeGenASTGenerator {
 		currentAst: CodeGenAST,
 		arg: CommandArgumentNode
 	): ICommandArgument {
-		let res = baseCommandNodeSchema.safeParse(arg.data); // Validate the argument structure
-
-		if (res.error) {
-			this.pushError(currentAst, z.prettifyError(res.error));
+		try {
+			baseCommandNodeSchema(arg.data); // Validate the argument structure
+		} catch (error) {
+			this.pushError(currentAst, error instanceof Error ? error.message : String(error));
 		}
 
 		const cmdArgTypeMap = {

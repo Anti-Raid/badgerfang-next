@@ -1,7 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { Link, useNavigate, useRouterState } from '@tanstack/react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import {
@@ -56,8 +55,9 @@ const NavBar: React.FC = () => {
 	const [userData, setUserData] = useState<PartialUser | null>(null);
 	const [scrolled, setScrolled] = useState(false);
 	const { theme } = useTheme();
-	const pathname = usePathname();
-	const router = useRouter();
+	const navigate = useNavigate();
+	const { location } = useRouterState();
+	const pathname = location.pathname;
 
 	const themeRef = useRef<HTMLDivElement>(null);
 	const desktopThemeRef = useRef<HTMLDivElement>(null);
@@ -118,7 +118,7 @@ const NavBar: React.FC = () => {
 			}
 		};
 		fetchUserData();
-	}, [authData, pathname, router]);
+	}, [authData, pathname, navigate]);
 
 	const getLogoPath = () => {
 		if (theme === 'dark-red-theme') return '/AR_Logo_Red.webp';
@@ -140,7 +140,7 @@ const NavBar: React.FC = () => {
 		await logoutUser();
 		setIsProfileOpen(false);
 		setIsMobileMenuOpen(false);
-		router.push('/');
+		navigate({ to: '/' });
 		setUserData(null);
 	};
 
@@ -164,7 +164,7 @@ const NavBar: React.FC = () => {
 							item.href ? (
 								<Link
 									key={item.name}
-									href={item.href}
+									to={item.href}
 									className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-white/5 rounded-xl transition-all group"
 									onClick={() => {
 										setIsProfileOpen(false);
@@ -210,7 +210,7 @@ const NavBar: React.FC = () => {
 				>
 					{/* Logo */}
 					<div className="flex-1 flex items-center pl-2 lg:pl-4">
-						<Link href="/" className="flex items-center gap-2 group relative">
+						<Link to="/" className="flex items-center gap-2 group relative">
 							<div className="relative">
 								<div className="absolute inset-0 bg-primary/20 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 								<motion.img
@@ -236,7 +236,7 @@ const NavBar: React.FC = () => {
 									return (
 										<Link
 											key={item.name}
-											href={item.href}
+											to={item.href}
 											className={`
                                             relative px-4 lg:px-6 py-2.5 rounded-full text-xs lg:text-sm font-bold transition-all duration-300
                                             flex items-center gap-2 lg:gap-2.5 whitespace-nowrap group/nav
@@ -302,7 +302,7 @@ const NavBar: React.FC = () => {
 									whileTap={{ scale: 0.95 }}
 									onClick={() => {
 										loginUser();
-										router.push('/dashboard');
+										navigate({ to: '/dashboard' });
 									}}
 									className="group relative px-5 py-2 rounded-full overflow-hidden bg-primary"
 								>
@@ -353,7 +353,7 @@ const NavBar: React.FC = () => {
 						{NavItems.map((item) => (
 							<Link
 								key={item.name}
-								href={item.href}
+								to={item.href}
 								onClick={() => setIsMobileMenuOpen(false)}
 								className={`
                                     flex items-center gap-3 p-3 rounded-xl transition-all
@@ -383,7 +383,7 @@ const NavBar: React.FC = () => {
 									item.href ? (
 										<Link
 											key={item.name}
-											href={item.href}
+											to={item.href}
 											onClick={() => setIsMobileMenuOpen(false)}
 											className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 text-muted-foreground hover:text-foreground transition-all"
 										>

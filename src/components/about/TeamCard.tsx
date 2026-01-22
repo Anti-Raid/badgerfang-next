@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import useSWR from 'swr';
-import Image from 'next/image';
+import { Image } from '@unpic/react';
 
 export const TeamMembers = ({ isLoaded }: { isLoaded: boolean }) => {
 	const userIds = [

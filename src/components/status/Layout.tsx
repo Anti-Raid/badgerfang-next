@@ -2,8 +2,9 @@
 'use client';
 
 import type React from 'react';
-import { useEffect, useMemo, useState, useRef } from 'react';
-import { getBotStats } from '@/lib/api';
+import { useMemo, useState, useRef } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { botStatsOptions } from '@/lib/api';
 import type { GetStatusResponse } from '@/types/api/bindings/GetStatusResponse';
 import type { ShardConn } from '@/types/api/bindings/ShardConn';
 import {
@@ -255,10 +256,7 @@ const ShardNode = ({
 // --- Main Layout ---
 
 export default function StatusPage() {
-	const [data, setData] = useState<GetStatusResponse | null>(null);
-	const [err, setErr] = useState<string | null>(null);
 	const [tab, setTab] = useState<'overview' | 'shards'>('overview');
-	const [loading, setLoading] = useState(true);
 
 	const { mouseX, mouseY } = useMousePosition();
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -271,23 +269,13 @@ export default function StatusPage() {
 			`radial-gradient(600px circle at ${x}px ${y}px, rgba(var(--primary), 0.08), transparent 40%)`
 	);
 
-	const fetchData = async () => {
-		try {
-			const res = await getBotStats();
-			setData(res);
-			setErr(null);
-			setLoading(false);
-		} catch (e: any) {
-			setErr(e?.message ?? 'Failed to synchronize system metrics');
-			setLoading(false);
-		}
-	};
+	const { data, isLoading: loading, error } = useQuery({
+		...botStatsOptions,
+		refetchInterval: 15000, // Poll every 15 seconds for real-time feel
+		refetchIntervalInBackground: true,
+	});
 
-	useEffect(() => {
-		fetchData();
-		const id = setInterval(fetchData, 15000); // Faster updates for real-time feel
-		return () => clearInterval(id);
-	}, []);
+	const err = error instanceof Error ? error.message : error ? String(error) : null;
 
 	const metrics = useMemo(() => {
 		if (!data) return null;

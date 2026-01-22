@@ -1,5 +1,5 @@
-import type { ImageResponseOptions } from 'next/dist/compiled/@vercel/og/types';
-import { ImageResponse } from 'next/og';
+import { ImageResponse } from '@vercel/og';
+import type { ImageResponseOptions } from '@vercel/og';
 import type { ReactElement, ReactNode } from 'react';
 
 const title = 'AntiRaid';

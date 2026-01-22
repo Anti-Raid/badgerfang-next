@@ -1,9 +1,6 @@
-import useSWR from 'swr';
-import axios from 'axios';
-import { SWRResponse } from 'swr';
-import { API_BASE_URL, getAuthorizedSession } from '../api';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { authorizedSessionOptions, getAuthorizedSession } from '../api';
 import { AuthorizedSession } from '@/types/api/bindings/AuthorizedSession';
-import { CreateUserSessionResponse } from '@/types/api/bindings/CreateUserSessionResponse';
 
 export interface UseAuthCheckResponse {
 	authData: AuthorizedSession | undefined;
@@ -13,57 +10,32 @@ export interface UseAuthCheckResponse {
 	mutateAuth: () => Promise<AuthorizedSession | undefined>;
 }
 
-export const useAuthCheck = () => {
-	const { data, error, mutate }: SWRResponse<AuthorizedSession | false, any> = useSWR(
-		['@authCheck', API_BASE_URL],
-		async (_) => {
-			let res = await getAuthorizedSession();
-			if (!res) {
-				return false; // Not authorized
-			}
+export const useAuthCheck = (): UseAuthCheckResponse => {
+	const queryClient = useQueryClient();
+	
+	const { data, isLoading, error } = useQuery({
+		...authorizedSessionOptions,
+		refetchOnWindowFocus: false,
+		staleTime: 300000, // 5 minutes
+		gcTime: 300000, // 5 minutes (formerly cacheTime)
+	});
 
-			return res;
-		},
-		{
-			revalidateOnFocus: false,
-			dedupingInterval: 300000 // 5 minutes
-		}
-	);
-
-	if (!data) {
-		return {
-			authData: undefined,
-			isLoading: data === undefined && !error,
-			isError: error,
-			isAuthorized: data === false,
-			mutateAuth: mutate
-		};
-	}
+	const mutateAuth = async (): Promise<AuthorizedSession | undefined> => {
+		await queryClient.invalidateQueries({ queryKey: ['session', 'me'] });
+		const data = queryClient.getQueryData<AuthorizedSession | undefined>(['session', 'me']);
+		return data;
+	};
 
 	return {
 		authData: data,
-		isLoading: !error && !data,
+		isLoading,
 		isError: error,
-		isAuthorized: true,
-		mutateAuth: mutate
+		isAuthorized: data !== undefined,
+		mutateAuth
 	};
 };
 
 // Non-hook version for server components or outside React
-export const checkAuthCreds = async (
-	data: CreateUserSessionResponse
-): Promise<AuthorizedSession | undefined> => {
-	const resp = await axios.get('/sessions/@me', {
-		validateStatus: (status) => status === 200 || status === 401 || status == 403
-	});
-
-	if (resp.status === 401 || resp.status === 403) {
-		return undefined; // Unauthorized or forbidden
-	}
-
-	if (resp.status !== 200) {
-		throw new Error(`Failed to fetch authorized session: ${resp.statusText}`);
-	}
-
-	return resp.data;
+export const checkAuthCreds = async (): Promise<AuthorizedSession | undefined> => {
+	return getAuthorizedSession();
 };

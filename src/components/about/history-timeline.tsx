@@ -45,7 +45,7 @@ export const HistoryTimeline = () => {
 				<>
 					AntiRaid was acquired by{' '}
 					<a
-						href="https://purrquinox.com"
+						to="https://purrquinox.com"
 						target="_blank"
 						rel="noopener noreferrer"
 						className="underline bg-primary hover:bg-primary/80 hover:underline-offset-2 transition-all duration-200"

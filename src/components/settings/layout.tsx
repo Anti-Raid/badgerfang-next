@@ -2,8 +2,9 @@
 
 import { Shield, User, Code, Database, FileCode, Lock, Bell, LayoutDashboard, Zap } from 'lucide-react';
 import { Section } from './components/section';
-import { Fragment, useEffect, useState } from 'react';
-import { baseGuildUserInfo, executeSettings, getSettings } from '@/lib/api';
+import { Fragment, useMemo, useEffect } from 'react';
+import { baseGuildUserInfoOptions, executeSettings, settingsOptions } from '@/lib/api';
+import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -24,12 +25,45 @@ import { Setting } from '@/types/api/bindings/Setting';
  * @returns A JSX element representing the settings dashboard.
  */
 export default function Settings({ guildId }: { guildId: string }) {
-	const [guildData, setGuildData] = useState<any>(null);
-	const [guildSettings, setGuildSettings] = useState<{
-		[key: string]: ApiDispatchResult<any>;
-	} | null>(null);
-	const [loading, setLoading] = useState<boolean>(true);
-	const [error, setError] = useState<string | null>(null);
+	const {
+		data: guildData,
+		isLoading: isLoadingGuildData,
+		error: guildDataError
+	} = useQuery(baseGuildUserInfoOptions(guildId));
+
+	const {
+		data: rawSettings,
+		isLoading: isLoadingSettings,
+		error: settingsError
+	} = useQuery(settingsOptions(guildId));
+
+	// Process settings to move $builtins to the front
+	const guildSettings = useMemo(() => {
+		if (!rawSettings) return null;
+		
+		const builtins = rawSettings['$builtins'];
+		if (builtins) {
+			const { $builtins, ...rest } = rawSettings;
+			return {
+				$builtins: builtins,
+				...rest
+			};
+		}
+		return rawSettings;
+	}, [rawSettings]);
+
+	const loading = isLoadingGuildData || isLoadingSettings;
+	const error = guildDataError || settingsError;
+
+	// Show toast on error
+	useEffect(() => {
+		if (error) {
+			const errorMessage = error instanceof Error 
+				? error.message 
+				: 'Failed to fetch guild data. Please try again later.';
+			toast.error(errorMessage, { position: 'top-left' });
+		}
+	}, [error]);
 
 	const fetcher: SettingDataFetcher = {
 		...noOpFetcher,
@@ -80,47 +114,6 @@ export default function Settings({ guildId }: { guildId: string }) {
 		}
 	};
 
-	useEffect(() => {
-		const fetchData = async () => {
-			try {
-				const data = await baseGuildUserInfo(guildId);
-				let settings = await getSettings(guildId);
-
-				const builtins = settings['$builtins'];
-				if (builtins) {
-					delete settings['$builtins'];
-					settings = {
-						$builtins: builtins,
-						...settings
-					};
-				}
-
-				setGuildData(data);
-				setGuildSettings(settings);
-			} catch (error) {
-				if (isAxiosError(error)) {
-					const errorMessage =
-						error.response?.data?.message || 'Failed to fetch guild data. Please try again later.';
-					setError(errorMessage);
-					toast.error(errorMessage, { position: 'top-left' });
-				} else {
-					setError(`An unexpected error occurred. Please try again later: ${error}`);
-					toast.error('An unexpected error occurred. Please try again later.', {
-						position: 'top-left'
-					});
-				}
-			} finally {
-				setLoading(false);
-			}
-		};
-
-		fetchData();
-	}, [guildId]);
-
-	function isAxiosError(error: any): error is { response?: { data?: { message?: string } } } {
-		return error && error.response;
-	}
-
 	if (loading) {
 		return (
 			<div className="min-h-screen bg-background flex items-center justify-center relative overflow-hidden">
@@ -140,6 +133,10 @@ export default function Settings({ guildId }: { guildId: string }) {
 	}
 
 	if (error) {
+		const errorMessage = error instanceof Error 
+			? error.message 
+			: 'Failed to fetch guild data. Please try again later.';
+		
 		return (
 			<div className="min-h-screen bg-background flex items-center justify-center p-6">
 				<div className="bg-card p-8 rounded-3xl border border-destructive/20 max-w-md w-full text-center shadow-2xl">
@@ -147,7 +144,7 @@ export default function Settings({ guildId }: { guildId: string }) {
 						<Shield size={32} />
 					</div>
 					<h3 className="text-2xl font-bold text-foreground mb-4">Connection Error</h3>
-					<p className="text-foreground/60 mb-8 leading-relaxed">{error}</p>
+					<p className="text-foreground/60 mb-8 leading-relaxed">{errorMessage}</p>
 					<button
 						onClick={() => window.location.reload()}
 						className="w-full bg-primary text-primary-foreground font-bold px-6 py-4 rounded-xl hover:opacity-90 transition-all active:scale-98 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-background"
@@ -157,6 +154,10 @@ export default function Settings({ guildId }: { guildId: string }) {
 				</div>
 			</div>
 		);
+	}
+
+	if (!guildData || !guildSettings) {
+		return null;
 	}
 
 	return (
@@ -221,12 +222,18 @@ export default function Settings({ guildId }: { guildId: string }) {
 						<>
 							{Object.keys(guildSettings)
 								.filter((s) => guildSettings[s].type !== 'Ok')
-								.map((setting, idx) => (
-									<SettingsErrorDisplay
-										key={idx}
-										loadErrors={{ [setting]: guildSettings[setting].data }}
-									/>
-								))}
+								.map((setting, idx) => {
+									const errorData = guildSettings[setting].data;
+									const errorMessage = typeof errorData === 'string' 
+										? errorData 
+										: JSON.stringify(errorData);
+									return (
+										<SettingsErrorDisplay
+											key={idx}
+											loadErrors={{ [setting]: errorMessage }}
+										/>
+									);
+								})}
 
 							{Object.keys(guildSettings)
 								.filter((s) => guildSettings[s].type === 'Ok')

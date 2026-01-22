@@ -1,4 +1,4 @@
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@tanstack/react-router';
 import { DashboardGuild } from '@/types/api/bindings/DashboardGuild';
 import { supportConfig } from '@/lib/data/support';
 import logger from '@/lib/logger';
@@ -6,7 +6,7 @@ import { getIconUrl } from '@/lib/auth/getIconUrl';
 import { FaDiscord } from 'react-icons/fa';
 import { Shield } from 'lucide-react';
 import { Eye } from 'lucide-react';
-import Image from 'next/image';
+import { Image } from '@unpic/react';
 import React from 'react';
 
 const DISCORD_PERMISSIONS = {
@@ -50,7 +50,7 @@ export const ServerCard: React.FC<{ server: DashboardGuild; showViewButton: bool
 	const isAdministrator = permissionNames.includes('Administrator');
 
 	const handleViewClick = () => {
-		router.push(`/dashboard/guilds/?id=${server.id}`);
+		router.navigate({ to: '/dashboard/guilds', search: { id: server.id } });
 	};
 
 	const handleInviteClick = () => {

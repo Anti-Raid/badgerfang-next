@@ -2,13 +2,12 @@
 
 import type React from 'react';
 import { useState, useRef } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearch, Link } from '@tanstack/react-router';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { Calendar, ArrowRight, Tag, Clock, User, BookOpen } from 'lucide-react';
-import Link from 'next/link';
 import { format } from 'date-fns';
 import type { Blog } from '@/types/blogs/index';
-import Image from 'next/image';
+import { Image } from '@unpic/react';
 
 interface BlogCardProps {
 	blog: Blog;
@@ -31,7 +30,7 @@ export default function BlogCard({ blog, index, isFeatured = false }: BlogCardPr
 	const cardRef = useRef<HTMLDivElement>(null);
 
 	const router = useRouter();
-	const searchParams = useSearchParams();
+	const searchParams = useSearch({ strict: false });
 
 	const rotateX = useTransform(mouseY, [-100, 100], [5, -5]);
 	const rotateY = useTransform(mouseX, [-100, 100], [-5, 5]);
@@ -55,9 +54,9 @@ export default function BlogCard({ blog, index, isFeatured = false }: BlogCardPr
 	const handleTagClick = (e: React.MouseEvent, tag: string) => {
 		e.preventDefault();
 		e.stopPropagation();
-		const params = new URLSearchParams(searchParams.toString());
-		params.set('sortBy', tag);
-		router.push(`?${params.toString()}`);
+		router.navigate({
+			search: (prev: any) => ({ ...prev, sortBy: tag })
+		} as any);
 	};
 
 	return (
@@ -84,7 +83,7 @@ export default function BlogCard({ blog, index, isFeatured = false }: BlogCardPr
 			}}
 			className="group relative h-full flex flex-col"
 		>
-			<Link href={`/blogs/${blog.slug}`} className="flex flex-col h-full">
+			<Link to="/blogs/$slug" params={{ slug: blog.slug }} className="flex flex-col h-full">
 				<div className="relative h-full flex flex-col overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md border border-white/5 group-hover:border-primary/30 transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-primary/10 shadow-lg">
 					{/* Glow Effect */}
 					<div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -98,8 +97,8 @@ export default function BlogCard({ blog, index, isFeatured = false }: BlogCardPr
 								<Image
 									src={`/api/get/og-image?slug=${blog.slug}`}
 									alt={blog.title}
-									fill
-									className="object-cover transition-transform duration-700 group-hover:scale-110"
+									layout="fullWidth"
+									className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
 								/>
 							) : (
 								<div className="w-full h-full bg-secondary/50 flex items-center justify-center">
@@ -150,8 +149,8 @@ export default function BlogCard({ blog, index, isFeatured = false }: BlogCardPr
 											<Image
 												src={`https://strapi.purrquinox.com${blog.author.avatar.url}`}
 												alt={blog.author.name}
-												fill
-												className="object-cover"
+												layout="fullWidth"
+												className="absolute inset-0 w-full h-full object-cover"
 											/>
 										</div>
 									) : (

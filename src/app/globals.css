@@ -1,4 +1,4 @@
-@import 'animate.css';
+@import './animate.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -97,7 +97,7 @@
 }
 
 .dark {
-	--background: 263, 92%, 5%;
+	--background: 263 92% 5%;
 	--foreground: 0 0% 98%;
 
 	--card: 300 6% 7%;
@@ -112,7 +112,7 @@
 	--secondary: 270 5% 15%;
 	--secondary-foreground: 0 0% 98%;
 
-	--extra: 244, 84%, 61%;
+	--extra: 244 84% 61%;
 	--extra-foreground: 0 0% 5%;
 
 	--muted: 280 5% 22%;
@@ -597,7 +597,8 @@
 
 @layer base {
 	* {
-		@apply border-border;
+		/* @apply border-border; */
+		border-color: hsl(var(--border));
 	}
 
 	body {
@@ -617,13 +618,17 @@
 		@apply text-foreground font-cabin;
 	}
 
-	.table tr td {
-		@apply max-sm:max-w-52 max-sm:break-all max-sm:overflow-scroll;
+	@media (max-width: 640px) {
+		.table tr td {
+			max-width: 13rem;
+			word-break: break-all;
+			overflow: scroll;
+		}
 	}
 
 	/* Global High-Visibility Focus State (A11y/WCAG) */
 	*:focus-visible {
-		@apply outline-none ring-2 ring-white ring-offset-2 ring-offset-background !important;
+		@apply !outline-none !ring-2 !ring-[#ffffff] !ring-offset-2 !ring-offset-background;
 	}
 }
 
@@ -769,6 +774,7 @@
 }
 
 @keyframes pulse-glow {
+
 	0%,
 	100% {
 		opacity: 0.5;

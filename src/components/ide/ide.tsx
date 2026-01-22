@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/cjs/styles/prism';
@@ -16,14 +16,14 @@ import {
 	FiSettings
 } from 'react-icons/fi';
 import { SiLua } from 'react-icons/si';
-import dynamic from 'next/dynamic';
-import * as monaco from 'monaco-editor';
+import type * as monaco from 'monaco-editor';
+const EditorComponent = React.lazy(() => import('@monaco-editor/react'));
 
-// Dynamically import the Monaco Editor with SSR disabled
-const Editor = dynamic(() => import('@monaco-editor/react'), {
-	ssr: false,
-	loading: () => <div>Loading Editor...</div>
-});
+const Editor = (props: any) => (
+	<React.Suspense fallback={<div>Loading Editor...</div>}>
+		<EditorComponent {...props} />
+	</React.Suspense>
+);
 
 interface FileStructure {
 	name: string;

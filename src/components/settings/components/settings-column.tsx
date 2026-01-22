@@ -3,19 +3,12 @@ import { motion } from 'framer-motion';
 import { AlertCircle, Code } from 'lucide-react';
 import { Primary, Secondary } from '../../ui/Buttons';
 import { BaseLabelAndDescription, GroupedRadioOption, InputField, Toggle } from './form-elements';
-import dynamic from 'next/dynamic';
+
 import { BaseGuildUserInfo } from '@/types/api/bindings/BaseGuildUserInfo';
 import { Column } from '@/types/api/bindings/Column';
 import { InnerColumnType } from '@/types/api/bindings/InnerColumnType';
 
-const ScriptModal = dynamic(() => import('./ScriptModal').then((mod) => mod.ScriptModal), {
-	ssr: false,
-	loading: () => (
-		<div className="flex items-center justify-center h-full">
-			<p className="text-muted-foreground">Loading Script IDE...</p>
-		</div>
-	)
-});
+const ScriptModal = React.lazy(() => import('./ScriptModal').then((mod) => ({ default: mod.ScriptModal })));
 
 interface SettingsColumnListProps {
 	columns: Column[];
@@ -605,19 +598,21 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 							</div>
 
 							{isEditingNewScriptContent && (
-								<ScriptModal
-									isOpen={isEditingNewScriptContent}
-									onClose={() => setIsEditingNewScriptContent(false)}
-									content={value}
-									scriptName="New Script"
-									isEditMode={!disabled}
-									onContentChange={setTemplateContent}
-									onSave={() => {
-										// Save the template content to value onSave
-										onChange(templateContent);
-										setIsEditingNewScriptContent(false);
-									}}
-								/>
+								<React.Suspense fallback={<div>Loading...</div>}>
+									<ScriptModal
+										isOpen={isEditingNewScriptContent}
+										onClose={() => setIsEditingNewScriptContent(false)}
+										content={value}
+										scriptName="New Script"
+										isEditMode={!disabled}
+										onContentChange={setTemplateContent}
+										onSave={() => {
+											// Save the template content to value onSave
+											onChange(templateContent);
+											setIsEditingNewScriptContent(false);
+										}}
+									/>
+								</React.Suspense>
 							)}
 						</>
 					) : (

@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRef, useState, useMemo } from 'react';
 import { motion, useScroll, useSpring } from 'framer-motion';
 import {
 	Calendar,
@@ -14,8 +13,7 @@ import {
 	Heart,
 	MessageCircle
 } from 'lucide-react';
-import Link from 'next/link';
-import Image from 'next/image';
+import { Link } from '@tanstack/react-router';
 import { format } from 'date-fns';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomOneDark } from 'react-syntax-highlighter/dist/esm/styles/hljs';
@@ -24,17 +22,15 @@ import rehypeRaw from 'rehype-raw';
 import ReactMarkdown from 'react-markdown';
 import type { Blog } from '@/types/blogs/index';
 import { FaTwitter, FaFacebook, FaLinkedin, FaInstagram, FaLink, FaDiscord } from 'react-icons/fa';
-import { fetchStrapiBlogs, fetchStrapiBlogBySlug } from '@/lib/api';
+import { useQuery } from '@tanstack/react-query';
+import { strapiBlogsOptions } from '@/lib/api';
 
 interface BlogSlugLayoutProps {
 	slug: string;
+    initialPost?: Blog | null;
 }
 
-const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
-	const router = useRouter();
-	const [blog, setBlog] = useState<Blog | null>(null);
-	const [isLoading, setIsLoading] = useState(true);
-	const [relatedBlogs, setRelatedBlogs] = useState<Blog[]>([]);
+const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug, initialPost }) => {
 	const [copied, setCopied] = useState(false);
 	const articleRef = useRef<HTMLElement>(null);
 
@@ -47,37 +43,27 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 		restDelta: 0.001
 	});
 
-	useEffect(() => {
-		const loadData = async () => {
-			try {
-				const mainBlog = await fetchStrapiBlogBySlug(slug);
+	// Use initialPost if provided, otherwise fetch
+	const blog = initialPost || null;
 
-				if (mainBlog) {
-					setBlog(mainBlog);
+	// Fetch all blogs for related posts
+	const { data: allBlogsResponse } = useQuery({
+		...strapiBlogsOptions,
+		enabled: !!initialPost && !!initialPost.tags && initialPost.tags.length > 0,
+	});
 
-					// Fetch all blogs to find related ones (we need tags)
-					const allBlogsResponse = await fetchStrapiBlogs();
-					const allBlogs = allBlogsResponse.data;
+	const relatedBlogs = useMemo(() => {
+		if (!initialPost?.tags || !allBlogsResponse?.data) return [];
+		const allBlogs = allBlogsResponse.data;
+		return allBlogs
+			.filter(
+				(b: Blog) => b.slug !== slug && b.tags?.some((tag) => initialPost.tags?.includes(tag))
+			)
+			.slice(0, 3);
+	}, [initialPost, allBlogsResponse, slug]);
 
-					if (mainBlog.tags && mainBlog.tags.length > 0) {
-						const related = allBlogs
-							.filter(
-								(b: Blog) => b.slug !== slug && b.tags?.some((tag) => mainBlog.tags?.includes(tag))
-							)
-							.slice(0, 3);
-						setRelatedBlogs(related);
-					}
-				}
-			} catch (error) {
-				console.error('Error loading blog data:', error);
-			} finally {
-				setIsLoading(false);
-			}
-		};
-
-		if (slug) loadData();
-	}, [slug]);
-
+    // Removed standalone loadData useEffect
+    
 	const calculateReadingTime = (content: string): string => {
 		if (!content) return '1 min read';
 		const wordsPerMinute = 200;
@@ -151,7 +137,7 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 						The article you're seeking has vanished into the void.
 					</p>
 					<Link
-						href="/blogs"
+						to="/blogs"
 						className="inline-flex items-center px-8 py-4 bg-primary text-white rounded-full font-bold hover:shadow-lg hover:shadow-primary/30 transition-all"
 					>
 						<ArrowLeft size={18} className="mr-2" />
@@ -190,7 +176,7 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 					className="w-full max-w-4xl mb-12"
 				>
 					<Link
-						href="/blogs"
+						to="/blogs"
 						className="inline-flex items-center text-muted-foreground hover:text-primary transition-all group font-medium"
 					>
 						<div className="p-2 rounded-full group-hover:bg-primary/10 transition-colors mr-2">
@@ -239,11 +225,10 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 							<div className="flex items-center">
 								{blog.author.avatar && (
 									<div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20 mr-3">
-										<Image
+										<img
 											src={`https://strapi.purrquinox.com${blog.author.avatar.url}`}
 											alt={blog.author.name}
-											fill
-											className="object-cover"
+											className="object-cover w-full h-full"
 										/>
 									</div>
 								)}
@@ -289,12 +274,10 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 							transition={{ duration: 0.7 }}
 							className="relative w-full aspect-[21/9] rounded-[2rem] overflow-hidden mb-16 shadow-2xl shadow-primary/10 border border-white/5"
 						>
-							<Image
+							<img
 								src={`/api/get/og-image?slug=${blog.slug}`}
 								alt={blog.title}
-								fill
-								className="object-cover"
-								priority
+								className="object-cover w-full h-full"
 							/>
 							<div className="absolute inset-0 bg-gradient-to-t from-background/40 via-transparent to-transparent" />
 						</motion.div>
@@ -385,11 +368,10 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 							<div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
 								{blog.author.avatar && (
 									<div className="relative w-32 h-32 rounded-3xl overflow-hidden border-2 border-border/50 shadow-xl shrink-0">
-										<Image
+										<img
 											src={`https://strapi.purrquinox.com${blog.author.avatar.url}`}
 											alt={blog.author.name}
-											fill
-											className="object-cover"
+											className="object-cover w-full h-full"
 										/>
 									</div>
 								)}
@@ -433,7 +415,7 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 								<p className="text-muted-foreground">More insights hand-picked for you</p>
 							</div>
 							<Link
-								href="/blogs"
+								to="/blogs"
 								className="px-6 py-3 bg-white/5 hover:bg-white/10 rounded-full border border-white/5 text-sm font-bold transition-all"
 							>
 								View All Articles
@@ -449,13 +431,12 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 									viewport={{ once: true }}
 									transition={{ delay: index * 0.1 }}
 								>
-									<Link href={`/blogs/${relatedBlog.slug}`} className="group block h-full">
+									<Link to="/blogs/$slug" params={{ slug: relatedBlog.slug }} className="group block h-full">
 										<div className="relative aspect-video rounded-3xl overflow-hidden mb-6 border border-white/5 group-hover:border-primary/50 transition-all duration-500">
-											<Image
+											<img
 												src={`/api/get/og-image?slug=${relatedBlog.slug}`}
 												alt={relatedBlog.title}
-												fill
-												className="object-cover transition-transform duration-700 group-hover:scale-110"
+												className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
 											/>
 											<div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 										</div>

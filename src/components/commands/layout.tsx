@@ -40,23 +40,21 @@ import {
 	useSpring,
 	useMotionValue
 } from 'framer-motion';
-import { getBotState } from '@/lib/api';
+import { useQuery } from '@tanstack/react-query';
+import { botStateOptions } from '@/lib/api';
 import { ApiCreateCommandOption } from '@/types/api/bindings/ApiCreateCommandOption';
 import { TwState } from '@/types/api/bindings/TwState';
 import { ApiCreateCommand } from '@/types/api/bindings/ApiCreateCommand';
+import { useDebouncedSearch, useThrottledMouseMove } from '@/lib/pacer';
 
 const useMousePosition = () => {
 	const mouseX = useMotionValue(0);
 	const mouseY = useMotionValue(0);
 
-	useEffect(() => {
-		const handleMouseMove = (e: MouseEvent) => {
-			mouseX.set(e.clientX);
-			mouseY.set(e.clientY);
-		};
-		window.addEventListener('mousemove', handleMouseMove);
-		return () => window.removeEventListener('mousemove', handleMouseMove);
-	}, [mouseX, mouseY]);
+	useThrottledMouseMove((e: MouseEvent) => {
+		mouseX.set(e.clientX);
+		mouseY.set(e.clientY);
+	}, 16); // ~60fps throttling
 
 	return { mouseX, mouseY };
 };
@@ -136,28 +134,18 @@ const ModuleIcon = ({ name, size = 18 }: { name: string; size?: number }) => {
 };
 
 export default function CommandInterface() {
-	const [botState, setBotState] = useState<TwState | null>(null);
 	const [selectedModule, setSelectedModule] = useState<string>('all');
 	const [searchQuery, setSearchQuery] = useState('');
-	const [isLoading, setIsLoading] = useState(true);
+	const debouncedSearchQuery = useDebouncedSearch(searchQuery, 300);
 	const [activeView, setActiveView] = useState<'grid' | 'list'>('grid');
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 	const [isMounted, setIsMounted] = useState(false);
 	const { mouseX, mouseY } = useMousePosition();
 
+	const { data: botState, isLoading } = useQuery(botStateOptions);
+
 	useEffect(() => {
 		setIsMounted(true);
-		const fetchBotState = async () => {
-			try {
-				const data = await getBotState();
-				setBotState(data);
-				setIsLoading(false);
-			} catch (err) {
-				console.error('Error fetching bot state:', err);
-				setIsLoading(false);
-			}
-		};
-		fetchBotState();
 
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if (e.key === 'Escape') {
@@ -215,12 +203,12 @@ export default function CommandInterface() {
 	const filteredCommands = useMemo(() => {
 		return allCommands.filter((cmd: any) => {
 			const matchesSearch =
-				(cmd.name?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false) ||
-				(cmd.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
+				(cmd.name?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ?? false) ||
+				(cmd.description?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ?? false);
 			const matchesModule = selectedModule === 'all' || cmd.moduleName === selectedModule;
 			return matchesSearch && matchesModule;
 		});
-	}, [allCommands, searchQuery, selectedModule]);
+	}, [allCommands, debouncedSearchQuery, selectedModule]);
 
 	const modules = useMemo(() => {
 		if (!botState) return [];
