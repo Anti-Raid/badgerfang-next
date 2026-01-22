@@ -8,7 +8,7 @@ import type { QueryClient } from '@tanstack/react-query';
 import { website_url, title, logo, twitter, owner } from '@/components/common';
 
 interface RouterContext {
-    queryClient: QueryClient;
+	queryClient: QueryClient;
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
@@ -20,8 +20,8 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 				content: 'width=device-width, initial-scale=1, maximum-scale=5'
 			},
 			{ title: 'AntiRaid' },
-            { name: 'theme-color', content: '#8c45f4', media: '(prefers-color-scheme: light)' },
-            { name: 'theme-color', content: '#0f0f12', media: '(prefers-color-scheme: dark)' }
+			{ name: 'theme-color', content: '#8c45f4', media: '(prefers-color-scheme: light)' },
+			{ name: 'theme-color', content: '#0f0f12', media: '(prefers-color-scheme: dark)' }
 		],
 		links: [
 			{ rel: 'stylesheet', href: appCss },
@@ -69,15 +69,15 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 });
 
 function RootComponent() {
-    const { queryClient } = Route.useRouteContext();
+	const { queryClient } = Route.useRouteContext();
 	return (
 		<RootDocument>
-            <QueryClientProvider client={queryClient}>
-			    <ClientLayout>
-				    <Outlet />
-			    </ClientLayout>
-                <ReactQueryDevtools buttonPosition="bottom-right" />
-            </QueryClientProvider>
+			<QueryClientProvider client={queryClient}>
+				<ClientLayout>
+					<Outlet />
+				</ClientLayout>
+				<ReactQueryDevtools buttonPosition="bottom-right" />
+			</QueryClientProvider>
 		</RootDocument>
 	);
 }

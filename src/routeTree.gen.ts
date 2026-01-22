@@ -8,529 +8,527 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './app/__root'
-import { Route as LlmsDottxtRouteImport } from './app/llms[.]txt'
-import { Route as IndexRouteImport } from './app/index'
-import { Route as StatusIndexRouteImport } from './app/status/index'
-import { Route as NotFoundIndexRouteImport } from './app/not-found/index'
-import { Route as InviteIndexRouteImport } from './app/invite/index'
-import { Route as DiscordIndexRouteImport } from './app/discord/index'
-import { Route as DashboardIndexRouteImport } from './app/dashboard/index'
-import { Route as CommandsIndexRouteImport } from './app/commands/index'
-import { Route as BlogsIndexRouteImport } from './app/blogs/index'
-import { Route as AuthorizeIndexRouteImport } from './app/authorize/index'
-import { Route as AboutIndexRouteImport } from './app/about/index'
-import { Route as ScriptShopIndexRouteImport } from './app/script/shop/index'
-import { Route as ScriptNameIndexRouteImport } from './app/script/$name/index'
-import { Route as DebugFlowKiteIndexRouteImport } from './app/debug/flow-kite/index'
-import { Route as DebugFflagIndexRouteImport } from './app/debug/fflag/index'
-import { Route as DashboardGuildsIndexRouteImport } from './app/dashboard/guilds/index'
-import { Route as DashboardDevelopersIndexRouteImport } from './app/dashboard/developers/index'
-import { Route as BlogsSlugIndexRouteImport } from './app/blogs/$slug/index'
-import { Route as ApiSitemapXmlRouteImport } from './app/api/sitemap.xml'
-import { Route as ApiGetStatusRouteImport } from './app/api/get/status'
-import { Route as ApiGetOgImageRouteImport } from './app/api/get/og-image'
-import { Route as ApiGetCultureRouteImport } from './app/api/get/culture'
-import { Route as DebugFlowKiteTypedinputIndexRouteImport } from './app/debug/flow-kite/typedinput/index'
+import { Route as rootRouteImport } from './app/__root';
+import { Route as LlmsDottxtRouteImport } from './app/llms[.]txt';
+import { Route as IndexRouteImport } from './app/index';
+import { Route as StatusIndexRouteImport } from './app/status/index';
+import { Route as NotFoundIndexRouteImport } from './app/not-found/index';
+import { Route as InviteIndexRouteImport } from './app/invite/index';
+import { Route as DiscordIndexRouteImport } from './app/discord/index';
+import { Route as DashboardIndexRouteImport } from './app/dashboard/index';
+import { Route as CommandsIndexRouteImport } from './app/commands/index';
+import { Route as BlogsIndexRouteImport } from './app/blogs/index';
+import { Route as AuthorizeIndexRouteImport } from './app/authorize/index';
+import { Route as AboutIndexRouteImport } from './app/about/index';
+import { Route as ScriptShopIndexRouteImport } from './app/script/shop/index';
+import { Route as ScriptNameIndexRouteImport } from './app/script/$name/index';
+import { Route as DebugFlowKiteIndexRouteImport } from './app/debug/flow-kite/index';
+import { Route as DebugFflagIndexRouteImport } from './app/debug/fflag/index';
+import { Route as DashboardGuildsIndexRouteImport } from './app/dashboard/guilds/index';
+import { Route as DashboardDevelopersIndexRouteImport } from './app/dashboard/developers/index';
+import { Route as BlogsSlugIndexRouteImport } from './app/blogs/$slug/index';
+import { Route as ApiSitemapXmlRouteImport } from './app/api/sitemap.xml';
+import { Route as ApiGetStatusRouteImport } from './app/api/get/status';
+import { Route as ApiGetOgImageRouteImport } from './app/api/get/og-image';
+import { Route as ApiGetCultureRouteImport } from './app/api/get/culture';
+import { Route as DebugFlowKiteTypedinputIndexRouteImport } from './app/debug/flow-kite/typedinput/index';
 
 const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
-  id: '/llms.txt',
-  path: '/llms.txt',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: '/llms.txt',
+	path: '/llms.txt',
+	getParentRoute: () => rootRouteImport
+} as any);
 const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: '/',
+	path: '/',
+	getParentRoute: () => rootRouteImport
+} as any);
 const StatusIndexRoute = StatusIndexRouteImport.update({
-  id: '/status/',
-  path: '/status/',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: '/status/',
+	path: '/status/',
+	getParentRoute: () => rootRouteImport
+} as any);
 const NotFoundIndexRoute = NotFoundIndexRouteImport.update({
-  id: '/not-found/',
-  path: '/not-found/',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: '/not-found/',
+	path: '/not-found/',
+	getParentRoute: () => rootRouteImport
+} as any);
 const InviteIndexRoute = InviteIndexRouteImport.update({
-  id: '/invite/',
-  path: '/invite/',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: '/invite/',
+	path: '/invite/',
+	getParentRoute: () => rootRouteImport
+} as any);
 const DiscordIndexRoute = DiscordIndexRouteImport.update({
-  id: '/discord/',
-  path: '/discord/',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: '/discord/',
+	path: '/discord/',
+	getParentRoute: () => rootRouteImport
+} as any);
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
-  id: '/dashboard/',
-  path: '/dashboard/',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: '/dashboard/',
+	path: '/dashboard/',
+	getParentRoute: () => rootRouteImport
+} as any);
 const CommandsIndexRoute = CommandsIndexRouteImport.update({
-  id: '/commands/',
-  path: '/commands/',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: '/commands/',
+	path: '/commands/',
+	getParentRoute: () => rootRouteImport
+} as any);
 const BlogsIndexRoute = BlogsIndexRouteImport.update({
-  id: '/blogs/',
-  path: '/blogs/',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: '/blogs/',
+	path: '/blogs/',
+	getParentRoute: () => rootRouteImport
+} as any);
 const AuthorizeIndexRoute = AuthorizeIndexRouteImport.update({
-  id: '/authorize/',
-  path: '/authorize/',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: '/authorize/',
+	path: '/authorize/',
+	getParentRoute: () => rootRouteImport
+} as any);
 const AboutIndexRoute = AboutIndexRouteImport.update({
-  id: '/about/',
-  path: '/about/',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: '/about/',
+	path: '/about/',
+	getParentRoute: () => rootRouteImport
+} as any);
 const ScriptShopIndexRoute = ScriptShopIndexRouteImport.update({
-  id: '/script/shop/',
-  path: '/script/shop/',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: '/script/shop/',
+	path: '/script/shop/',
+	getParentRoute: () => rootRouteImport
+} as any);
 const ScriptNameIndexRoute = ScriptNameIndexRouteImport.update({
-  id: '/script/$name/',
-  path: '/script/$name/',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: '/script/$name/',
+	path: '/script/$name/',
+	getParentRoute: () => rootRouteImport
+} as any);
 const DebugFlowKiteIndexRoute = DebugFlowKiteIndexRouteImport.update({
-  id: '/debug/flow-kite/',
-  path: '/debug/flow-kite/',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: '/debug/flow-kite/',
+	path: '/debug/flow-kite/',
+	getParentRoute: () => rootRouteImport
+} as any);
 const DebugFflagIndexRoute = DebugFflagIndexRouteImport.update({
-  id: '/debug/fflag/',
-  path: '/debug/fflag/',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: '/debug/fflag/',
+	path: '/debug/fflag/',
+	getParentRoute: () => rootRouteImport
+} as any);
 const DashboardGuildsIndexRoute = DashboardGuildsIndexRouteImport.update({
-  id: '/dashboard/guilds/',
-  path: '/dashboard/guilds/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardDevelopersIndexRoute =
-  DashboardDevelopersIndexRouteImport.update({
-    id: '/dashboard/developers/',
-    path: '/dashboard/developers/',
-    getParentRoute: () => rootRouteImport,
-  } as any)
+	id: '/dashboard/guilds/',
+	path: '/dashboard/guilds/',
+	getParentRoute: () => rootRouteImport
+} as any);
+const DashboardDevelopersIndexRoute = DashboardDevelopersIndexRouteImport.update({
+	id: '/dashboard/developers/',
+	path: '/dashboard/developers/',
+	getParentRoute: () => rootRouteImport
+} as any);
 const BlogsSlugIndexRoute = BlogsSlugIndexRouteImport.update({
-  id: '/blogs/$slug/',
-  path: '/blogs/$slug/',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: '/blogs/$slug/',
+	path: '/blogs/$slug/',
+	getParentRoute: () => rootRouteImport
+} as any);
 const ApiSitemapXmlRoute = ApiSitemapXmlRouteImport.update({
-  id: '/api/sitemap/xml',
-  path: '/api/sitemap/xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: '/api/sitemap/xml',
+	path: '/api/sitemap/xml',
+	getParentRoute: () => rootRouteImport
+} as any);
 const ApiGetStatusRoute = ApiGetStatusRouteImport.update({
-  id: '/api/get/status',
-  path: '/api/get/status',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: '/api/get/status',
+	path: '/api/get/status',
+	getParentRoute: () => rootRouteImport
+} as any);
 const ApiGetOgImageRoute = ApiGetOgImageRouteImport.update({
-  id: '/api/get/og-image',
-  path: '/api/get/og-image',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: '/api/get/og-image',
+	path: '/api/get/og-image',
+	getParentRoute: () => rootRouteImport
+} as any);
 const ApiGetCultureRoute = ApiGetCultureRouteImport.update({
-  id: '/api/get/culture',
-  path: '/api/get/culture',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DebugFlowKiteTypedinputIndexRoute =
-  DebugFlowKiteTypedinputIndexRouteImport.update({
-    id: '/debug/flow-kite/typedinput/',
-    path: '/debug/flow-kite/typedinput/',
-    getParentRoute: () => rootRouteImport,
-  } as any)
+	id: '/api/get/culture',
+	path: '/api/get/culture',
+	getParentRoute: () => rootRouteImport
+} as any);
+const DebugFlowKiteTypedinputIndexRoute = DebugFlowKiteTypedinputIndexRouteImport.update({
+	id: '/debug/flow-kite/typedinput/',
+	path: '/debug/flow-kite/typedinput/',
+	getParentRoute: () => rootRouteImport
+} as any);
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/llms.txt': typeof LlmsDottxtRoute
-  '/about/': typeof AboutIndexRoute
-  '/authorize/': typeof AuthorizeIndexRoute
-  '/blogs/': typeof BlogsIndexRoute
-  '/commands/': typeof CommandsIndexRoute
-  '/dashboard/': typeof DashboardIndexRoute
-  '/discord/': typeof DiscordIndexRoute
-  '/invite/': typeof InviteIndexRoute
-  '/not-found/': typeof NotFoundIndexRoute
-  '/status/': typeof StatusIndexRoute
-  '/api/get/culture': typeof ApiGetCultureRoute
-  '/api/get/og-image': typeof ApiGetOgImageRoute
-  '/api/get/status': typeof ApiGetStatusRoute
-  '/api/sitemap/xml': typeof ApiSitemapXmlRoute
-  '/blogs/$slug/': typeof BlogsSlugIndexRoute
-  '/dashboard/developers/': typeof DashboardDevelopersIndexRoute
-  '/dashboard/guilds/': typeof DashboardGuildsIndexRoute
-  '/debug/fflag/': typeof DebugFflagIndexRoute
-  '/debug/flow-kite/': typeof DebugFlowKiteIndexRoute
-  '/script/$name/': typeof ScriptNameIndexRoute
-  '/script/shop/': typeof ScriptShopIndexRoute
-  '/debug/flow-kite/typedinput/': typeof DebugFlowKiteTypedinputIndexRoute
+	'/': typeof IndexRoute;
+	'/llms.txt': typeof LlmsDottxtRoute;
+	'/about/': typeof AboutIndexRoute;
+	'/authorize/': typeof AuthorizeIndexRoute;
+	'/blogs/': typeof BlogsIndexRoute;
+	'/commands/': typeof CommandsIndexRoute;
+	'/dashboard/': typeof DashboardIndexRoute;
+	'/discord/': typeof DiscordIndexRoute;
+	'/invite/': typeof InviteIndexRoute;
+	'/not-found/': typeof NotFoundIndexRoute;
+	'/status/': typeof StatusIndexRoute;
+	'/api/get/culture': typeof ApiGetCultureRoute;
+	'/api/get/og-image': typeof ApiGetOgImageRoute;
+	'/api/get/status': typeof ApiGetStatusRoute;
+	'/api/sitemap/xml': typeof ApiSitemapXmlRoute;
+	'/blogs/$slug/': typeof BlogsSlugIndexRoute;
+	'/dashboard/developers/': typeof DashboardDevelopersIndexRoute;
+	'/dashboard/guilds/': typeof DashboardGuildsIndexRoute;
+	'/debug/fflag/': typeof DebugFflagIndexRoute;
+	'/debug/flow-kite/': typeof DebugFlowKiteIndexRoute;
+	'/script/$name/': typeof ScriptNameIndexRoute;
+	'/script/shop/': typeof ScriptShopIndexRoute;
+	'/debug/flow-kite/typedinput/': typeof DebugFlowKiteTypedinputIndexRoute;
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/llms.txt': typeof LlmsDottxtRoute
-  '/about': typeof AboutIndexRoute
-  '/authorize': typeof AuthorizeIndexRoute
-  '/blogs': typeof BlogsIndexRoute
-  '/commands': typeof CommandsIndexRoute
-  '/dashboard': typeof DashboardIndexRoute
-  '/discord': typeof DiscordIndexRoute
-  '/invite': typeof InviteIndexRoute
-  '/not-found': typeof NotFoundIndexRoute
-  '/status': typeof StatusIndexRoute
-  '/api/get/culture': typeof ApiGetCultureRoute
-  '/api/get/og-image': typeof ApiGetOgImageRoute
-  '/api/get/status': typeof ApiGetStatusRoute
-  '/api/sitemap/xml': typeof ApiSitemapXmlRoute
-  '/blogs/$slug': typeof BlogsSlugIndexRoute
-  '/dashboard/developers': typeof DashboardDevelopersIndexRoute
-  '/dashboard/guilds': typeof DashboardGuildsIndexRoute
-  '/debug/fflag': typeof DebugFflagIndexRoute
-  '/debug/flow-kite': typeof DebugFlowKiteIndexRoute
-  '/script/$name': typeof ScriptNameIndexRoute
-  '/script/shop': typeof ScriptShopIndexRoute
-  '/debug/flow-kite/typedinput': typeof DebugFlowKiteTypedinputIndexRoute
+	'/': typeof IndexRoute;
+	'/llms.txt': typeof LlmsDottxtRoute;
+	'/about': typeof AboutIndexRoute;
+	'/authorize': typeof AuthorizeIndexRoute;
+	'/blogs': typeof BlogsIndexRoute;
+	'/commands': typeof CommandsIndexRoute;
+	'/dashboard': typeof DashboardIndexRoute;
+	'/discord': typeof DiscordIndexRoute;
+	'/invite': typeof InviteIndexRoute;
+	'/not-found': typeof NotFoundIndexRoute;
+	'/status': typeof StatusIndexRoute;
+	'/api/get/culture': typeof ApiGetCultureRoute;
+	'/api/get/og-image': typeof ApiGetOgImageRoute;
+	'/api/get/status': typeof ApiGetStatusRoute;
+	'/api/sitemap/xml': typeof ApiSitemapXmlRoute;
+	'/blogs/$slug': typeof BlogsSlugIndexRoute;
+	'/dashboard/developers': typeof DashboardDevelopersIndexRoute;
+	'/dashboard/guilds': typeof DashboardGuildsIndexRoute;
+	'/debug/fflag': typeof DebugFflagIndexRoute;
+	'/debug/flow-kite': typeof DebugFlowKiteIndexRoute;
+	'/script/$name': typeof ScriptNameIndexRoute;
+	'/script/shop': typeof ScriptShopIndexRoute;
+	'/debug/flow-kite/typedinput': typeof DebugFlowKiteTypedinputIndexRoute;
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/llms.txt': typeof LlmsDottxtRoute
-  '/about/': typeof AboutIndexRoute
-  '/authorize/': typeof AuthorizeIndexRoute
-  '/blogs/': typeof BlogsIndexRoute
-  '/commands/': typeof CommandsIndexRoute
-  '/dashboard/': typeof DashboardIndexRoute
-  '/discord/': typeof DiscordIndexRoute
-  '/invite/': typeof InviteIndexRoute
-  '/not-found/': typeof NotFoundIndexRoute
-  '/status/': typeof StatusIndexRoute
-  '/api/get/culture': typeof ApiGetCultureRoute
-  '/api/get/og-image': typeof ApiGetOgImageRoute
-  '/api/get/status': typeof ApiGetStatusRoute
-  '/api/sitemap/xml': typeof ApiSitemapXmlRoute
-  '/blogs/$slug/': typeof BlogsSlugIndexRoute
-  '/dashboard/developers/': typeof DashboardDevelopersIndexRoute
-  '/dashboard/guilds/': typeof DashboardGuildsIndexRoute
-  '/debug/fflag/': typeof DebugFflagIndexRoute
-  '/debug/flow-kite/': typeof DebugFlowKiteIndexRoute
-  '/script/$name/': typeof ScriptNameIndexRoute
-  '/script/shop/': typeof ScriptShopIndexRoute
-  '/debug/flow-kite/typedinput/': typeof DebugFlowKiteTypedinputIndexRoute
+	__root__: typeof rootRouteImport;
+	'/': typeof IndexRoute;
+	'/llms.txt': typeof LlmsDottxtRoute;
+	'/about/': typeof AboutIndexRoute;
+	'/authorize/': typeof AuthorizeIndexRoute;
+	'/blogs/': typeof BlogsIndexRoute;
+	'/commands/': typeof CommandsIndexRoute;
+	'/dashboard/': typeof DashboardIndexRoute;
+	'/discord/': typeof DiscordIndexRoute;
+	'/invite/': typeof InviteIndexRoute;
+	'/not-found/': typeof NotFoundIndexRoute;
+	'/status/': typeof StatusIndexRoute;
+	'/api/get/culture': typeof ApiGetCultureRoute;
+	'/api/get/og-image': typeof ApiGetOgImageRoute;
+	'/api/get/status': typeof ApiGetStatusRoute;
+	'/api/sitemap/xml': typeof ApiSitemapXmlRoute;
+	'/blogs/$slug/': typeof BlogsSlugIndexRoute;
+	'/dashboard/developers/': typeof DashboardDevelopersIndexRoute;
+	'/dashboard/guilds/': typeof DashboardGuildsIndexRoute;
+	'/debug/fflag/': typeof DebugFflagIndexRoute;
+	'/debug/flow-kite/': typeof DebugFlowKiteIndexRoute;
+	'/script/$name/': typeof ScriptNameIndexRoute;
+	'/script/shop/': typeof ScriptShopIndexRoute;
+	'/debug/flow-kite/typedinput/': typeof DebugFlowKiteTypedinputIndexRoute;
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/llms.txt'
-    | '/about/'
-    | '/authorize/'
-    | '/blogs/'
-    | '/commands/'
-    | '/dashboard/'
-    | '/discord/'
-    | '/invite/'
-    | '/not-found/'
-    | '/status/'
-    | '/api/get/culture'
-    | '/api/get/og-image'
-    | '/api/get/status'
-    | '/api/sitemap/xml'
-    | '/blogs/$slug/'
-    | '/dashboard/developers/'
-    | '/dashboard/guilds/'
-    | '/debug/fflag/'
-    | '/debug/flow-kite/'
-    | '/script/$name/'
-    | '/script/shop/'
-    | '/debug/flow-kite/typedinput/'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/llms.txt'
-    | '/about'
-    | '/authorize'
-    | '/blogs'
-    | '/commands'
-    | '/dashboard'
-    | '/discord'
-    | '/invite'
-    | '/not-found'
-    | '/status'
-    | '/api/get/culture'
-    | '/api/get/og-image'
-    | '/api/get/status'
-    | '/api/sitemap/xml'
-    | '/blogs/$slug'
-    | '/dashboard/developers'
-    | '/dashboard/guilds'
-    | '/debug/fflag'
-    | '/debug/flow-kite'
-    | '/script/$name'
-    | '/script/shop'
-    | '/debug/flow-kite/typedinput'
-  id:
-    | '__root__'
-    | '/'
-    | '/llms.txt'
-    | '/about/'
-    | '/authorize/'
-    | '/blogs/'
-    | '/commands/'
-    | '/dashboard/'
-    | '/discord/'
-    | '/invite/'
-    | '/not-found/'
-    | '/status/'
-    | '/api/get/culture'
-    | '/api/get/og-image'
-    | '/api/get/status'
-    | '/api/sitemap/xml'
-    | '/blogs/$slug/'
-    | '/dashboard/developers/'
-    | '/dashboard/guilds/'
-    | '/debug/fflag/'
-    | '/debug/flow-kite/'
-    | '/script/$name/'
-    | '/script/shop/'
-    | '/debug/flow-kite/typedinput/'
-  fileRoutesById: FileRoutesById
+	fileRoutesByFullPath: FileRoutesByFullPath;
+	fullPaths:
+		| '/'
+		| '/llms.txt'
+		| '/about/'
+		| '/authorize/'
+		| '/blogs/'
+		| '/commands/'
+		| '/dashboard/'
+		| '/discord/'
+		| '/invite/'
+		| '/not-found/'
+		| '/status/'
+		| '/api/get/culture'
+		| '/api/get/og-image'
+		| '/api/get/status'
+		| '/api/sitemap/xml'
+		| '/blogs/$slug/'
+		| '/dashboard/developers/'
+		| '/dashboard/guilds/'
+		| '/debug/fflag/'
+		| '/debug/flow-kite/'
+		| '/script/$name/'
+		| '/script/shop/'
+		| '/debug/flow-kite/typedinput/';
+	fileRoutesByTo: FileRoutesByTo;
+	to:
+		| '/'
+		| '/llms.txt'
+		| '/about'
+		| '/authorize'
+		| '/blogs'
+		| '/commands'
+		| '/dashboard'
+		| '/discord'
+		| '/invite'
+		| '/not-found'
+		| '/status'
+		| '/api/get/culture'
+		| '/api/get/og-image'
+		| '/api/get/status'
+		| '/api/sitemap/xml'
+		| '/blogs/$slug'
+		| '/dashboard/developers'
+		| '/dashboard/guilds'
+		| '/debug/fflag'
+		| '/debug/flow-kite'
+		| '/script/$name'
+		| '/script/shop'
+		| '/debug/flow-kite/typedinput';
+	id:
+		| '__root__'
+		| '/'
+		| '/llms.txt'
+		| '/about/'
+		| '/authorize/'
+		| '/blogs/'
+		| '/commands/'
+		| '/dashboard/'
+		| '/discord/'
+		| '/invite/'
+		| '/not-found/'
+		| '/status/'
+		| '/api/get/culture'
+		| '/api/get/og-image'
+		| '/api/get/status'
+		| '/api/sitemap/xml'
+		| '/blogs/$slug/'
+		| '/dashboard/developers/'
+		| '/dashboard/guilds/'
+		| '/debug/fflag/'
+		| '/debug/flow-kite/'
+		| '/script/$name/'
+		| '/script/shop/'
+		| '/debug/flow-kite/typedinput/';
+	fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  LlmsDottxtRoute: typeof LlmsDottxtRoute
-  AboutIndexRoute: typeof AboutIndexRoute
-  AuthorizeIndexRoute: typeof AuthorizeIndexRoute
-  BlogsIndexRoute: typeof BlogsIndexRoute
-  CommandsIndexRoute: typeof CommandsIndexRoute
-  DashboardIndexRoute: typeof DashboardIndexRoute
-  DiscordIndexRoute: typeof DiscordIndexRoute
-  InviteIndexRoute: typeof InviteIndexRoute
-  NotFoundIndexRoute: typeof NotFoundIndexRoute
-  StatusIndexRoute: typeof StatusIndexRoute
-  ApiGetCultureRoute: typeof ApiGetCultureRoute
-  ApiGetOgImageRoute: typeof ApiGetOgImageRoute
-  ApiGetStatusRoute: typeof ApiGetStatusRoute
-  ApiSitemapXmlRoute: typeof ApiSitemapXmlRoute
-  BlogsSlugIndexRoute: typeof BlogsSlugIndexRoute
-  DashboardDevelopersIndexRoute: typeof DashboardDevelopersIndexRoute
-  DashboardGuildsIndexRoute: typeof DashboardGuildsIndexRoute
-  DebugFflagIndexRoute: typeof DebugFflagIndexRoute
-  DebugFlowKiteIndexRoute: typeof DebugFlowKiteIndexRoute
-  ScriptNameIndexRoute: typeof ScriptNameIndexRoute
-  ScriptShopIndexRoute: typeof ScriptShopIndexRoute
-  DebugFlowKiteTypedinputIndexRoute: typeof DebugFlowKiteTypedinputIndexRoute
+	IndexRoute: typeof IndexRoute;
+	LlmsDottxtRoute: typeof LlmsDottxtRoute;
+	AboutIndexRoute: typeof AboutIndexRoute;
+	AuthorizeIndexRoute: typeof AuthorizeIndexRoute;
+	BlogsIndexRoute: typeof BlogsIndexRoute;
+	CommandsIndexRoute: typeof CommandsIndexRoute;
+	DashboardIndexRoute: typeof DashboardIndexRoute;
+	DiscordIndexRoute: typeof DiscordIndexRoute;
+	InviteIndexRoute: typeof InviteIndexRoute;
+	NotFoundIndexRoute: typeof NotFoundIndexRoute;
+	StatusIndexRoute: typeof StatusIndexRoute;
+	ApiGetCultureRoute: typeof ApiGetCultureRoute;
+	ApiGetOgImageRoute: typeof ApiGetOgImageRoute;
+	ApiGetStatusRoute: typeof ApiGetStatusRoute;
+	ApiSitemapXmlRoute: typeof ApiSitemapXmlRoute;
+	BlogsSlugIndexRoute: typeof BlogsSlugIndexRoute;
+	DashboardDevelopersIndexRoute: typeof DashboardDevelopersIndexRoute;
+	DashboardGuildsIndexRoute: typeof DashboardGuildsIndexRoute;
+	DebugFflagIndexRoute: typeof DebugFflagIndexRoute;
+	DebugFlowKiteIndexRoute: typeof DebugFlowKiteIndexRoute;
+	ScriptNameIndexRoute: typeof ScriptNameIndexRoute;
+	ScriptShopIndexRoute: typeof ScriptShopIndexRoute;
+	DebugFlowKiteTypedinputIndexRoute: typeof DebugFlowKiteTypedinputIndexRoute;
 }
 
 declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/llms.txt': {
-      id: '/llms.txt'
-      path: '/llms.txt'
-      fullPath: '/llms.txt'
-      preLoaderRoute: typeof LlmsDottxtRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/status/': {
-      id: '/status/'
-      path: '/status'
-      fullPath: '/status/'
-      preLoaderRoute: typeof StatusIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/not-found/': {
-      id: '/not-found/'
-      path: '/not-found'
-      fullPath: '/not-found/'
-      preLoaderRoute: typeof NotFoundIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/invite/': {
-      id: '/invite/'
-      path: '/invite'
-      fullPath: '/invite/'
-      preLoaderRoute: typeof InviteIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/discord/': {
-      id: '/discord/'
-      path: '/discord'
-      fullPath: '/discord/'
-      preLoaderRoute: typeof DiscordIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard/': {
-      id: '/dashboard/'
-      path: '/dashboard'
-      fullPath: '/dashboard/'
-      preLoaderRoute: typeof DashboardIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/commands/': {
-      id: '/commands/'
-      path: '/commands'
-      fullPath: '/commands/'
-      preLoaderRoute: typeof CommandsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/blogs/': {
-      id: '/blogs/'
-      path: '/blogs'
-      fullPath: '/blogs/'
-      preLoaderRoute: typeof BlogsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/authorize/': {
-      id: '/authorize/'
-      path: '/authorize'
-      fullPath: '/authorize/'
-      preLoaderRoute: typeof AuthorizeIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/about/': {
-      id: '/about/'
-      path: '/about'
-      fullPath: '/about/'
-      preLoaderRoute: typeof AboutIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/script/shop/': {
-      id: '/script/shop/'
-      path: '/script/shop'
-      fullPath: '/script/shop/'
-      preLoaderRoute: typeof ScriptShopIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/script/$name/': {
-      id: '/script/$name/'
-      path: '/script/$name'
-      fullPath: '/script/$name/'
-      preLoaderRoute: typeof ScriptNameIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/debug/flow-kite/': {
-      id: '/debug/flow-kite/'
-      path: '/debug/flow-kite'
-      fullPath: '/debug/flow-kite/'
-      preLoaderRoute: typeof DebugFlowKiteIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/debug/fflag/': {
-      id: '/debug/fflag/'
-      path: '/debug/fflag'
-      fullPath: '/debug/fflag/'
-      preLoaderRoute: typeof DebugFflagIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard/guilds/': {
-      id: '/dashboard/guilds/'
-      path: '/dashboard/guilds'
-      fullPath: '/dashboard/guilds/'
-      preLoaderRoute: typeof DashboardGuildsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard/developers/': {
-      id: '/dashboard/developers/'
-      path: '/dashboard/developers'
-      fullPath: '/dashboard/developers/'
-      preLoaderRoute: typeof DashboardDevelopersIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/blogs/$slug/': {
-      id: '/blogs/$slug/'
-      path: '/blogs/$slug'
-      fullPath: '/blogs/$slug/'
-      preLoaderRoute: typeof BlogsSlugIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/sitemap/xml': {
-      id: '/api/sitemap/xml'
-      path: '/api/sitemap/xml'
-      fullPath: '/api/sitemap/xml'
-      preLoaderRoute: typeof ApiSitemapXmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/get/status': {
-      id: '/api/get/status'
-      path: '/api/get/status'
-      fullPath: '/api/get/status'
-      preLoaderRoute: typeof ApiGetStatusRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/get/og-image': {
-      id: '/api/get/og-image'
-      path: '/api/get/og-image'
-      fullPath: '/api/get/og-image'
-      preLoaderRoute: typeof ApiGetOgImageRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/get/culture': {
-      id: '/api/get/culture'
-      path: '/api/get/culture'
-      fullPath: '/api/get/culture'
-      preLoaderRoute: typeof ApiGetCultureRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/debug/flow-kite/typedinput/': {
-      id: '/debug/flow-kite/typedinput/'
-      path: '/debug/flow-kite/typedinput'
-      fullPath: '/debug/flow-kite/typedinput/'
-      preLoaderRoute: typeof DebugFlowKiteTypedinputIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-  }
+	interface FileRoutesByPath {
+		'/llms.txt': {
+			id: '/llms.txt';
+			path: '/llms.txt';
+			fullPath: '/llms.txt';
+			preLoaderRoute: typeof LlmsDottxtRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		'/': {
+			id: '/';
+			path: '/';
+			fullPath: '/';
+			preLoaderRoute: typeof IndexRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		'/status/': {
+			id: '/status/';
+			path: '/status';
+			fullPath: '/status/';
+			preLoaderRoute: typeof StatusIndexRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		'/not-found/': {
+			id: '/not-found/';
+			path: '/not-found';
+			fullPath: '/not-found/';
+			preLoaderRoute: typeof NotFoundIndexRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		'/invite/': {
+			id: '/invite/';
+			path: '/invite';
+			fullPath: '/invite/';
+			preLoaderRoute: typeof InviteIndexRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		'/discord/': {
+			id: '/discord/';
+			path: '/discord';
+			fullPath: '/discord/';
+			preLoaderRoute: typeof DiscordIndexRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		'/dashboard/': {
+			id: '/dashboard/';
+			path: '/dashboard';
+			fullPath: '/dashboard/';
+			preLoaderRoute: typeof DashboardIndexRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		'/commands/': {
+			id: '/commands/';
+			path: '/commands';
+			fullPath: '/commands/';
+			preLoaderRoute: typeof CommandsIndexRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		'/blogs/': {
+			id: '/blogs/';
+			path: '/blogs';
+			fullPath: '/blogs/';
+			preLoaderRoute: typeof BlogsIndexRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		'/authorize/': {
+			id: '/authorize/';
+			path: '/authorize';
+			fullPath: '/authorize/';
+			preLoaderRoute: typeof AuthorizeIndexRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		'/about/': {
+			id: '/about/';
+			path: '/about';
+			fullPath: '/about/';
+			preLoaderRoute: typeof AboutIndexRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		'/script/shop/': {
+			id: '/script/shop/';
+			path: '/script/shop';
+			fullPath: '/script/shop/';
+			preLoaderRoute: typeof ScriptShopIndexRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		'/script/$name/': {
+			id: '/script/$name/';
+			path: '/script/$name';
+			fullPath: '/script/$name/';
+			preLoaderRoute: typeof ScriptNameIndexRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		'/debug/flow-kite/': {
+			id: '/debug/flow-kite/';
+			path: '/debug/flow-kite';
+			fullPath: '/debug/flow-kite/';
+			preLoaderRoute: typeof DebugFlowKiteIndexRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		'/debug/fflag/': {
+			id: '/debug/fflag/';
+			path: '/debug/fflag';
+			fullPath: '/debug/fflag/';
+			preLoaderRoute: typeof DebugFflagIndexRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		'/dashboard/guilds/': {
+			id: '/dashboard/guilds/';
+			path: '/dashboard/guilds';
+			fullPath: '/dashboard/guilds/';
+			preLoaderRoute: typeof DashboardGuildsIndexRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		'/dashboard/developers/': {
+			id: '/dashboard/developers/';
+			path: '/dashboard/developers';
+			fullPath: '/dashboard/developers/';
+			preLoaderRoute: typeof DashboardDevelopersIndexRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		'/blogs/$slug/': {
+			id: '/blogs/$slug/';
+			path: '/blogs/$slug';
+			fullPath: '/blogs/$slug/';
+			preLoaderRoute: typeof BlogsSlugIndexRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		'/api/sitemap/xml': {
+			id: '/api/sitemap/xml';
+			path: '/api/sitemap/xml';
+			fullPath: '/api/sitemap/xml';
+			preLoaderRoute: typeof ApiSitemapXmlRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		'/api/get/status': {
+			id: '/api/get/status';
+			path: '/api/get/status';
+			fullPath: '/api/get/status';
+			preLoaderRoute: typeof ApiGetStatusRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		'/api/get/og-image': {
+			id: '/api/get/og-image';
+			path: '/api/get/og-image';
+			fullPath: '/api/get/og-image';
+			preLoaderRoute: typeof ApiGetOgImageRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		'/api/get/culture': {
+			id: '/api/get/culture';
+			path: '/api/get/culture';
+			fullPath: '/api/get/culture';
+			preLoaderRoute: typeof ApiGetCultureRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		'/debug/flow-kite/typedinput/': {
+			id: '/debug/flow-kite/typedinput/';
+			path: '/debug/flow-kite/typedinput';
+			fullPath: '/debug/flow-kite/typedinput/';
+			preLoaderRoute: typeof DebugFlowKiteTypedinputIndexRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+	}
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  LlmsDottxtRoute: LlmsDottxtRoute,
-  AboutIndexRoute: AboutIndexRoute,
-  AuthorizeIndexRoute: AuthorizeIndexRoute,
-  BlogsIndexRoute: BlogsIndexRoute,
-  CommandsIndexRoute: CommandsIndexRoute,
-  DashboardIndexRoute: DashboardIndexRoute,
-  DiscordIndexRoute: DiscordIndexRoute,
-  InviteIndexRoute: InviteIndexRoute,
-  NotFoundIndexRoute: NotFoundIndexRoute,
-  StatusIndexRoute: StatusIndexRoute,
-  ApiGetCultureRoute: ApiGetCultureRoute,
-  ApiGetOgImageRoute: ApiGetOgImageRoute,
-  ApiGetStatusRoute: ApiGetStatusRoute,
-  ApiSitemapXmlRoute: ApiSitemapXmlRoute,
-  BlogsSlugIndexRoute: BlogsSlugIndexRoute,
-  DashboardDevelopersIndexRoute: DashboardDevelopersIndexRoute,
-  DashboardGuildsIndexRoute: DashboardGuildsIndexRoute,
-  DebugFflagIndexRoute: DebugFflagIndexRoute,
-  DebugFlowKiteIndexRoute: DebugFlowKiteIndexRoute,
-  ScriptNameIndexRoute: ScriptNameIndexRoute,
-  ScriptShopIndexRoute: ScriptShopIndexRoute,
-  DebugFlowKiteTypedinputIndexRoute: DebugFlowKiteTypedinputIndexRoute,
-}
+	IndexRoute: IndexRoute,
+	LlmsDottxtRoute: LlmsDottxtRoute,
+	AboutIndexRoute: AboutIndexRoute,
+	AuthorizeIndexRoute: AuthorizeIndexRoute,
+	BlogsIndexRoute: BlogsIndexRoute,
+	CommandsIndexRoute: CommandsIndexRoute,
+	DashboardIndexRoute: DashboardIndexRoute,
+	DiscordIndexRoute: DiscordIndexRoute,
+	InviteIndexRoute: InviteIndexRoute,
+	NotFoundIndexRoute: NotFoundIndexRoute,
+	StatusIndexRoute: StatusIndexRoute,
+	ApiGetCultureRoute: ApiGetCultureRoute,
+	ApiGetOgImageRoute: ApiGetOgImageRoute,
+	ApiGetStatusRoute: ApiGetStatusRoute,
+	ApiSitemapXmlRoute: ApiSitemapXmlRoute,
+	BlogsSlugIndexRoute: BlogsSlugIndexRoute,
+	DashboardDevelopersIndexRoute: DashboardDevelopersIndexRoute,
+	DashboardGuildsIndexRoute: DashboardGuildsIndexRoute,
+	DebugFflagIndexRoute: DebugFflagIndexRoute,
+	DebugFlowKiteIndexRoute: DebugFlowKiteIndexRoute,
+	ScriptNameIndexRoute: ScriptNameIndexRoute,
+	ScriptShopIndexRoute: ScriptShopIndexRoute,
+	DebugFlowKiteTypedinputIndexRoute: DebugFlowKiteTypedinputIndexRoute
+};
 export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+	._addFileChildren(rootRouteChildren)
+	._addFileTypes<FileRouteTypes>();
 
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
+import type { getRouter } from './router.tsx';
+import type { createStart } from '@tanstack/react-start';
 declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
+	interface Register {
+		ssr: true;
+		router: Awaited<ReturnType<typeof getRouter>>;
+	}
 }

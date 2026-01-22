@@ -8,18 +8,18 @@ export function createRouter() {
 	return createTanStackRouter({
 		routeTree,
 		context: {
-			queryClient,
+			queryClient
 		},
 		defaultPreload: 'intent',
 		defaultPreloadStaleTime: 0,
-		scrollRestoration: true,
+		scrollRestoration: true
 	});
 }
 
 export const getRouter = createRouter;
 
 declare module '@tanstack/react-router' {
-    interface Register {
-        router: ReturnType<typeof createRouter>;
-    }
+	interface Register {
+		router: ReturnType<typeof createRouter>;
+	}
 }

@@ -6,19 +6,17 @@ import { generateBlogsMetadata } from '@/lib/Metadata';
 import { strapiBlogsOptions } from '@/lib/api';
 
 export const Route = createFileRoute('/blogs/')({
-    loader: ({ context: { queryClient } }) => 
-        queryClient.ensureQueryData(strapiBlogsOptions),
+	loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(strapiBlogsOptions),
 	component: BlogsPage,
-    head: () => generateBlogsMetadata({
-        canonicalUrl: `${website_url}/blogs`
-    }),
-    // Enable SSR for better SEO
-    ssr: true
+	head: () =>
+		generateBlogsMetadata({
+			canonicalUrl: `${website_url}/blogs`
+		}),
+	// Enable SSR for better SEO
+	ssr: true
 });
 
 function BlogsPage() {
-    const { data } = useSuspenseQuery(strapiBlogsOptions);
-	return (
-        <BlogLayout blogs={data.data} />
-	)
+	const { data } = useSuspenseQuery(strapiBlogsOptions);
+	return <BlogLayout blogs={data.data} />;
 }

@@ -21,7 +21,7 @@ export const TemplateShop = ({ data }: { data: any[] }) => {
 	const filteredData = useMemo(() => {
 		if (!Array.isArray(data)) return [];
 		if (!debouncedSearchTerm) return data;
-		
+
 		return data.filter(
 			(template) =>
 				template.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||

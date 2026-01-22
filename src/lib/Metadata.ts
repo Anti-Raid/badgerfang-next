@@ -1,4 +1,3 @@
-
 import {
 	title as siteTitle,
 	description_short,
@@ -36,23 +35,25 @@ interface GenerateMetadataParams {
 }
 
 export const siteViewport = {
-    // This is handled in __root.tsx usually, but we can export constants if needed.
-    // TanStack Start handles viewport in meta tags.
+	// This is handled in __root.tsx usually, but we can export constants if needed.
+	// TanStack Start handles viewport in meta tags.
 };
 
-export function generateMetadata(params: MainMetaDataParam & { 
-	robots?: 'index, follow' | 'noindex, nofollow' | 'index, nofollow' | 'noindex, follow';
-	ogType?: 'website' | 'article' | 'profile';
-	articleAuthor?: string;
-	articlePublishedTime?: string;
-	articleTags?: string[];
-}) {
-	const { 
-		title, 
-		description, 
-		image, 
-		keywords = [], 
-		Url, 
+export function generateMetadata(
+	params: MainMetaDataParam & {
+		robots?: 'index, follow' | 'noindex, nofollow' | 'index, nofollow' | 'noindex, follow';
+		ogType?: 'website' | 'article' | 'profile';
+		articleAuthor?: string;
+		articlePublishedTime?: string;
+		articleTags?: string[];
+	}
+) {
+	const {
+		title,
+		description,
+		image,
+		keywords = [],
+		Url,
 		metadata,
 		robots = 'index, follow',
 		ogType = 'website',
@@ -70,36 +71,36 @@ export function generateMetadata(params: MainMetaDataParam & {
 		...new Set([...keywords, 'AntiRaid', 'Discord Bot', 'Security', ...siteKeywords])
 	].join(', ');
 
-    const meta: Array<{ title?: string; name?: string; property?: string; content: string }> = [
-        { title: fullTitle },
-        { name: 'description', content: desc },
-        { name: 'application-name', content: siteTitle },
-        { name: 'author', content: owner },
-        { name: 'keywords', content: metaKeywords },
-        { name: 'referrer', content: 'origin-when-cross-origin' },
-        { name: 'apple-mobile-web-app-capable', content: 'yes' },
-        { name: 'apple-mobile-web-app-title', content: siteTitle },
-        { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
-        // Robots - LLMO optimized
-        { name: 'robots', content: robots },
-        
-        // Open Graph - LLMO optimized
-        { property: 'og:title', content: fullTitle },
-        { property: 'og:description', content: desc },
-        { property: 'og:site_name', content: siteTitle },
-        { property: 'og:url', content: Url ?? canonicalBase },
-        { property: 'og:image', content: previewImage },
-        { property: 'og:locale', content: 'en_US' },
-        { property: 'og:type', content: ogType },
+	const meta: Array<{ title?: string; name?: string; property?: string; content: string }> = [
+		{ title: fullTitle },
+		{ name: 'description', content: desc },
+		{ name: 'application-name', content: siteTitle },
+		{ name: 'author', content: owner },
+		{ name: 'keywords', content: metaKeywords },
+		{ name: 'referrer', content: 'origin-when-cross-origin' },
+		{ name: 'apple-mobile-web-app-capable', content: 'yes' },
+		{ name: 'apple-mobile-web-app-title', content: siteTitle },
+		{ name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
+		// Robots - LLMO optimized
+		{ name: 'robots', content: robots },
 
-        // Twitter
-        { name: 'twitter:card', content: 'summary_large_image' },
-        { name: 'twitter:title', content: fullTitle },
-        { name: 'twitter:description', content: desc },
-        { name: 'twitter:image', content: previewImage },
-        { name: 'twitter:creator', content: twitter },
-        { name: 'twitter:site', content: twitter }
-    ];
+		// Open Graph - LLMO optimized
+		{ property: 'og:title', content: fullTitle },
+		{ property: 'og:description', content: desc },
+		{ property: 'og:site_name', content: siteTitle },
+		{ property: 'og:url', content: Url ?? canonicalBase },
+		{ property: 'og:image', content: previewImage },
+		{ property: 'og:locale', content: 'en_US' },
+		{ property: 'og:type', content: ogType },
+
+		// Twitter
+		{ name: 'twitter:card', content: 'summary_large_image' },
+		{ name: 'twitter:title', content: fullTitle },
+		{ name: 'twitter:description', content: desc },
+		{ name: 'twitter:image', content: previewImage },
+		{ name: 'twitter:creator', content: twitter },
+		{ name: 'twitter:site', content: twitter }
+	];
 
 	// Add article-specific meta tags for LLMO
 	if (ogType === 'article') {
@@ -110,30 +111,30 @@ export function generateMetadata(params: MainMetaDataParam & {
 			meta.push({ property: 'article:published_time', content: articlePublishedTime });
 		}
 		if (articleTags.length > 0) {
-			articleTags.forEach(tag => {
+			articleTags.forEach((tag) => {
 				meta.push({ property: 'article:tag', content: tag });
 			});
 		}
 	}
 
-    const links: Array<{ rel: string; href: string }> = [];
-    if (Url) {
-        links.push({ rel: 'canonical', href: Url });
-    }
-    // Icons
-    links.push({ rel: 'icon', href: logo ?? '/logo.webp' });
-    links.push({ rel: 'shortcut icon', href: logo ?? '/logo.webp' });
-    links.push({ rel: 'apple-touch-icon', href: logo ?? '/logo.webp' });
+	const links: Array<{ rel: string; href: string }> = [];
+	if (Url) {
+		links.push({ rel: 'canonical', href: Url });
+	}
+	// Icons
+	links.push({ rel: 'icon', href: logo ?? '/logo.webp' });
+	links.push({ rel: 'shortcut icon', href: logo ?? '/logo.webp' });
+	links.push({ rel: 'apple-touch-icon', href: logo ?? '/logo.webp' });
 
 	return { meta, links };
 }
 
 export function generateBlogMetadata(params: GenerateMetadataParams) {
-	const { 
-		title, 
-		description, 
-		imageUrl, 
-		keywords = [], 
+	const {
+		title,
+		description,
+		imageUrl,
+		keywords = [],
 		canonicalUrl,
 		robots = 'index, follow',
 		articleAuthor,
@@ -172,7 +173,9 @@ export function generateStatusMetadata(params: GenerateMetadataParams = {}) {
 		title: 'Status',
 		description: 'Check the status of our services and monitor uptime in real-time.',
 		image: params.imageUrl ?? defaultImage,
-		keywords: params.keywords?.length ? params.keywords : ['Status', 'Uptime', 'Service', 'Monitoring', 'System Health'],
+		keywords: params.keywords?.length
+			? params.keywords
+			: ['Status', 'Uptime', 'Service', 'Monitoring', 'System Health'],
 		Url: params.canonicalUrl,
 		robots: params.robots ?? 'index, follow',
 		ogType: 'website'
@@ -202,7 +205,8 @@ export function generateTermsMetadata(params: GenerateMetadataParams = {}) {
 export function generateScriptMetadata(params: GenerateMetadataParams = {}) {
 	return generateMetadata({
 		title: 'Scripts Shop',
-		description: 'Explore our collection of powerful scripts and templates for AntiRaid bot customization.',
+		description:
+			'Explore our collection of powerful scripts and templates for AntiRaid bot customization.',
 		image: params.imageUrl ?? defaultImage,
 		keywords: params.keywords?.length
 			? params.keywords
@@ -216,9 +220,12 @@ export function generateScriptMetadata(params: GenerateMetadataParams = {}) {
 export function generateCommandMetadata(params: GenerateMetadataParams = {}) {
 	return generateMetadata({
 		title: 'Commands',
-		description: 'Browse and explore all available AntiRaid bot commands with detailed documentation and examples.',
+		description:
+			'Browse and explore all available AntiRaid bot commands with detailed documentation and examples.',
 		image: params.imageUrl ?? defaultImage,
-		keywords: params.keywords?.length ? params.keywords : ['Commands', 'Code', 'luau', 'Discord Bot', 'API', 'Documentation'],
+		keywords: params.keywords?.length
+			? params.keywords
+			: ['Commands', 'Code', 'luau', 'Discord Bot', 'API', 'Documentation'],
 		Url: params.canonicalUrl,
 		robots: params.robots ?? 'index, follow',
 		ogType: 'website'
@@ -230,7 +237,9 @@ export function generateBlogsMetadata(params: GenerateMetadataParams = {}) {
 		title: 'Blogs',
 		description: 'Read the latest news, updates, and insights from the AntiRaid team.',
 		image: params.imageUrl ?? defaultImage,
-		keywords: params.keywords?.length ? params.keywords : ['Blogs', 'News', 'Updates', 'Discord', 'Security', 'AntiRaid'],
+		keywords: params.keywords?.length
+			? params.keywords
+			: ['Blogs', 'News', 'Updates', 'Discord', 'Security', 'AntiRaid'],
 		Url: params.canonicalUrl,
 		robots: params.robots ?? 'index, follow',
 		ogType: 'website'
@@ -250,9 +259,12 @@ export function generateDeveloperDashboardMetadata(params: GenerateMetadataParam
 export function generateHomeMetadata(params: GenerateMetadataParams = {}) {
 	return generateMetadata({
 		title: 'Home',
-		description: 'AntiRaid - Advanced Discord bot protection and moderation. Secure your server with powerful anti-raid features, automated moderation, and comprehensive security tools.',
+		description:
+			'AntiRaid - Advanced Discord bot protection and moderation. Secure your server with powerful anti-raid features, automated moderation, and comprehensive security tools.',
 		image: params.imageUrl ?? defaultImage,
-		keywords: params.keywords?.length ? params.keywords : ['Home', 'AntiRaid', 'Discord Bot', 'Security', 'Moderation', 'Protection'],
+		keywords: params.keywords?.length
+			? params.keywords
+			: ['Home', 'AntiRaid', 'Discord Bot', 'Security', 'Moderation', 'Protection'],
 		Url: params.canonicalUrl,
 		robots: params.robots ?? 'index, follow',
 		ogType: 'website'
@@ -281,28 +293,38 @@ export interface ArticleStructuredData {
 
 export function generateArticleStructuredData(data: ArticleStructuredData) {
 	const appUrl = process.env.NEXT_PUBLIC_APP_URL || website_url;
-	
+
 	return {
 		'@context': 'https://schema.org',
 		'@type': 'Article',
 		headline: data.title,
 		description: data.description,
-		image: data.image ? (data.image.startsWith('http') ? data.image : `${appUrl}${data.image}`) : `${appUrl}${defaultImage}`,
-		author: data.author ? {
-			'@type': 'Person',
-			name: data.author.name,
-			...(data.author.url && { url: data.author.url }),
-			...(data.author.avatar && { image: data.author.avatar })
-		} : {
-			'@type': 'Person',
-			name: owner
-		},
+		image: data.image
+			? data.image.startsWith('http')
+				? data.image
+				: `${appUrl}${data.image}`
+			: `${appUrl}${defaultImage}`,
+		author: data.author
+			? {
+					'@type': 'Person',
+					name: data.author.name,
+					...(data.author.url && { url: data.author.url }),
+					...(data.author.avatar && { image: data.author.avatar })
+				}
+			: {
+					'@type': 'Person',
+					name: owner
+				},
 		publisher: {
 			'@type': 'Organization',
 			name: data.publisher?.name || title,
 			logo: {
 				'@type': 'ImageObject',
-				url: data.publisher?.logo ? (data.publisher.logo.startsWith('http') ? data.publisher.logo : `${appUrl}${data.publisher.logo}`) : `${appUrl}${logo || '/logo.webp'}`
+				url: data.publisher?.logo
+					? data.publisher.logo.startsWith('http')
+						? data.publisher.logo
+						: `${appUrl}${data.publisher.logo}`
+					: `${appUrl}${logo || '/logo.webp'}`
 			}
 		},
 		...(data.datePublished && { datePublished: data.datePublished }),

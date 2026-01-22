@@ -3,10 +3,10 @@ import { useState, useEffect } from 'react';
 import { X, ArrowRight, RefreshCcw, AlertOctagon } from 'lucide-react';
 import { Primary, Ghost } from '@/components/ui/Buttons';
 
-// Note: This matches /not-found path specifically. 
+// Note: This matches /not-found path specifically.
 // For default 404, we usually assign a NotFoundComponent to the Root route.
 export const Route = createFileRoute('/not-found/')({
-    component: ErrorPage
+	component: ErrorPage
 });
 
 const ParticlesBackground = () => {
@@ -32,10 +32,10 @@ const ParticlesBackground = () => {
 					speedX: (Math.random() - 0.5) * 0.5,
 					speedY: (Math.random() - 0.5) * 0.5,
 					opacity: Math.random() * 0.5 + 0.1
-				})
+				});
 			}
 			setParticles(newParticles);
-		}
+		};
 
 		createParticles();
 
@@ -57,10 +57,10 @@ const ParticlesBackground = () => {
 						...particle,
 						x: newX,
 						y: newY
-					}
+					};
 				})
-			)
-		}
+			);
+		};
 
 		const interval = setInterval(updateParticles, 50);
 		const resizeHandler = () => createParticles();
@@ -70,7 +70,7 @@ const ParticlesBackground = () => {
 		return () => {
 			clearInterval(interval);
 			window.removeEventListener('resize', resizeHandler);
-		}
+		};
 	}, []);
 
 	return (
@@ -89,7 +89,7 @@ const ParticlesBackground = () => {
 				/>
 			))}
 		</div>
-	)
+	);
 };
 
 // Main error page component
@@ -112,7 +112,7 @@ function ErrorPage() {
 	const primaryAction = {
 		text: 'Return Home',
 		href: '/'
-	}
+	};
 
 	return (
 		<div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-background text-foreground p-4">
@@ -213,5 +213,5 @@ function ErrorPage() {
 				}
 			`}</style>
 		</div>
-	)
+	);
 }

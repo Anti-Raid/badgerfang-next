@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import logger from '@/lib/logger';
 
 export const Route = createFileRoute('/debug/flow-kite/typedinput/')({
-    component: TypedInputDebug
+	component: TypedInputDebug
 });
 
 function TypedInputDebug() {
@@ -22,7 +22,7 @@ function TypedInputDebug() {
 				value={data}
 				onChange={(data) => {
 					logger.debug('TypedInputDebug', 'TypedInput changed:', data);
-					setData(data)
+					setData(data);
 				}}
 			/>
 
@@ -37,5 +37,5 @@ function TypedInputDebug() {
 				</code>
 			</motion.div>
 		</>
-	)
+	);
 }

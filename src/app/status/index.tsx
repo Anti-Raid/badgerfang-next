@@ -6,14 +6,14 @@ import { website_url } from '@/components/common';
 import { botStatsOptions } from '@/lib/api';
 
 export const Route = createFileRoute('/status/')({
-    loader: ({ context: { queryClient } }) => 
-        queryClient.ensureQueryData(botStatsOptions),
-    component: BotStatusPage,
-    head: () => generateStatusMetadata({
-        canonicalUrl: `${website_url}/status`
-    }),
-    // Enable SSR for better SEO and initial load performance
-    ssr: true
+	loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(botStatsOptions),
+	component: BotStatusPage,
+	head: () =>
+		generateStatusMetadata({
+			canonicalUrl: `${website_url}/status`
+		}),
+	// Enable SSR for better SEO and initial load performance
+	ssr: true
 });
 
 function BotStatusPage() {
@@ -23,5 +23,5 @@ function BotStatusPage() {
 		<main>
 			<Status />
 		</main>
-	)
+	);
 }

@@ -32,7 +32,7 @@ export const SettingsEntry: React.FC<SettingsEntryProps> = ({
 						<GripVertical size={20} />
 					</div>
 				)}
-				
+
 				<div className="flex-1">
 					<div className="flex items-center gap-3">
 						<span className="text-sm font-bold text-foreground">

@@ -8,7 +8,7 @@ import { Primary } from '@/components/ui/Buttons';
 import { stringifyParseCommands } from '@/lib/flow/codegen/astlayer/parsecommand';
 
 export const Route = createFileRoute('/debug/flow-kite/')({
-    component: Blockly
+	component: Blockly
 });
 
 const codegenAst = async (data: FlowData) => {
@@ -65,7 +65,7 @@ function Blockly() {
 				<>
 					<div className="mt-2">
 						<Primary
-							Title='Compile Flow'
+							Title="Compile Flow"
 							onClick={async () => {
 								const flowData = data[selectedFlowIndex];
 								const codegennedAst = await codegenAst(flowData);
@@ -93,5 +93,5 @@ function Blockly() {
 				</>
 			)}
 		</>
-	)
+	);
 }

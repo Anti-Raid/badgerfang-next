@@ -2,17 +2,19 @@
  * TanStack Pacer utilities for performance optimization
  * Provides debouncing, throttling, and rate limiting hooks for React
  */
-import { useDebouncedCallback, useThrottledCallback, useDebouncedValue, useThrottledValue } from '@tanstack/react-pacer';
+import {
+	useDebouncedCallback,
+	useThrottledCallback,
+	useDebouncedValue,
+	useThrottledValue
+} from '@tanstack/react-pacer';
 import { useState, useEffect, useMemo } from 'react';
 
 /**
  * Debounced search hook for search inputs
  * Delays execution until user stops typing
  */
-export function useDebouncedSearch<T>(
-	value: T,
-	delay: number = 300
-): T {
+export function useDebouncedSearch<T>(value: T, delay: number = 300): T {
 	return useDebouncedValue(value, delay);
 }
 
@@ -20,10 +22,7 @@ export function useDebouncedSearch<T>(
  * Throttled scroll handler
  * Limits scroll event execution to improve performance
  */
-export function useThrottledScroll(
-	callback: (event: Event) => void,
-	delay: number = 100
-) {
+export function useThrottledScroll(callback: (event: Event) => void, delay: number = 100) {
 	const throttledCallback = useThrottledCallback(callback, delay);
 
 	useEffect(() => {
@@ -69,10 +68,7 @@ export function useThrottledValueHook<T>(value: T, delay: number = 100): T {
  * Throttled resize handler
  * Limits window resize event execution
  */
-export function useThrottledResize(
-	callback: (event: UIEvent) => void,
-	delay: number = 150
-) {
+export function useThrottledResize(callback: (event: UIEvent) => void, delay: number = 150) {
 	const throttledCallback = useThrottledCallback(callback, delay);
 
 	useEffect(() => {

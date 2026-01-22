@@ -5,11 +5,12 @@ import { generateAboutMetadata } from '@/lib/Metadata';
 
 export const Route = createFileRoute('/about/')({
 	component: AboutPage,
-    head: () => generateAboutMetadata({
-        canonicalUrl: `${website_url}/about`
-    }),
-    // Enable SSR for better SEO
-    ssr: true
+	head: () =>
+		generateAboutMetadata({
+			canonicalUrl: `${website_url}/about`
+		}),
+	// Enable SSR for better SEO
+	ssr: true
 });
 
 /**
@@ -20,5 +21,5 @@ function AboutPage() {
 		<main>
 			<AboutLayout />
 		</main>
-	)
+	);
 }

@@ -269,10 +269,14 @@ export default function StatusPage() {
 			`radial-gradient(600px circle at ${x}px ${y}px, rgba(var(--primary), 0.08), transparent 40%)`
 	);
 
-	const { data, isLoading: loading, error } = useQuery({
+	const {
+		data,
+		isLoading: loading,
+		error
+	} = useQuery({
 		...botStatsOptions,
 		refetchInterval: 15000, // Poll every 15 seconds for real-time feel
-		refetchIntervalInBackground: true,
+		refetchIntervalInBackground: true
 	});
 
 	const err = error instanceof Error ? error.message : error ? String(error) : null;

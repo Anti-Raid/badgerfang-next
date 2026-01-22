@@ -8,7 +8,7 @@ import type { Blog } from '@/types/blogs/index';
 import { useDebouncedSearch } from '@/lib/pacer';
 
 interface BlogLayoutProps {
-    blogs: Blog[];
+	blogs: Blog[];
 }
 
 export default function BlogLayout({ blogs }: BlogLayoutProps) {
@@ -20,23 +20,23 @@ export default function BlogLayout({ blogs }: BlogLayoutProps) {
 	const [selectedTag, setSelectedTag] = useState<string | null>(null);
 	const [allTags, setAllTags] = useState<string[]>([]);
 
-    // Initialize tags
-    useEffect(() => {
-        if(blogs) {
-            setFilteredBlogs(blogs);
-             const tags = blogs.reduce((acc: string[], blog: Blog) => {
-					if (blog.tags) {
-						blog.tags.forEach((tag) => {
-							if (!acc.includes(tag)) {
-								acc.push(tag);
-							}
-						});
-					}
-					return acc;
-				}, []);
-            setAllTags(tags);
-        }
-    }, [blogs]);
+	// Initialize tags
+	useEffect(() => {
+		if (blogs) {
+			setFilteredBlogs(blogs);
+			const tags = blogs.reduce((acc: string[], blog: Blog) => {
+				if (blog.tags) {
+					blog.tags.forEach((tag) => {
+						if (!acc.includes(tag)) {
+							acc.push(tag);
+						}
+					});
+				}
+				return acc;
+			}, []);
+			setAllTags(tags);
+		}
+	}, [blogs]);
 
 	const headerRef = useRef<HTMLDivElement>(null);
 	const isHeaderInView = useInView(headerRef, { once: false, amount: 0.5 });
@@ -44,9 +44,8 @@ export default function BlogLayout({ blogs }: BlogLayoutProps) {
 	const { scrollY } = useScroll();
 	const headerY = useTransform(scrollY, [0, 300], [0, -50]);
 	const headerOpacity = useTransform(scrollY, [0, 300], [1, 0.7]);
-    
-    // Removed fetchBlogs useEffect
 
+	// Removed fetchBlogs useEffect
 
 	// Use debounced search term for filtering - improves performance
 	useEffect(() => {

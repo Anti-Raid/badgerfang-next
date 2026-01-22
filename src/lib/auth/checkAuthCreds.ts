@@ -12,12 +12,12 @@ export interface UseAuthCheckResponse {
 
 export const useAuthCheck = (): UseAuthCheckResponse => {
 	const queryClient = useQueryClient();
-	
+
 	const { data, isLoading, error } = useQuery({
 		...authorizedSessionOptions,
 		refetchOnWindowFocus: false,
 		staleTime: 300000, // 5 minutes
-		gcTime: 300000, // 5 minutes (formerly cacheTime)
+		gcTime: 300000 // 5 minutes (formerly cacheTime)
 	});
 
 	const mutateAuth = async (): Promise<AuthorizedSession | undefined> => {

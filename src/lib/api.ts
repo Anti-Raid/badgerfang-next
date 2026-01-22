@@ -35,16 +35,13 @@ interface FetchOptions extends RequestInit {
 	timeout?: number;
 }
 
-const apiRequest = async <T>(
-	endpoint: string,
-	options: FetchOptions = {}
-): Promise<T> => {
+const apiRequest = async <T>(endpoint: string, options: FetchOptions = {}): Promise<T> => {
 	const { validateStatus, timeout, ...fetchOptions } = options;
 	const token = getAuthToken();
 
 	// Build headers object
 	const headers: Record<string, string> = {
-		'Content-Type': 'application/json',
+		'Content-Type': 'application/json'
 	};
 
 	// Merge existing headers if provided
@@ -81,7 +78,7 @@ const apiRequest = async <T>(
 		const response = await fetch(url, {
 			...fetchOptions,
 			headers,
-			signal: controller?.signal,
+			signal: controller?.signal
 		});
 
 		// Clear timeout if request completed
@@ -101,18 +98,14 @@ const apiRequest = async <T>(
 				}
 				// For other invalid statuses, try to get error data
 				const errorData = await response.json().catch(() => ({}));
-				throw new Error(
-					`Request failed: ${response.statusText} - ${JSON.stringify(errorData)}`
-				);
+				throw new Error(`Request failed: ${response.statusText} - ${JSON.stringify(errorData)}`);
 			}
 			// Status is valid according to validateStatus - proceed to parse response
 		} else {
 			// No custom validation - use default behavior (throw on non-2xx)
 			if (!response.ok) {
 				const errorData = await response.json().catch(() => ({}));
-				throw new Error(
-					`Request failed: ${response.statusText} - ${JSON.stringify(errorData)}`
-				);
+				throw new Error(`Request failed: ${response.statusText} - ${JSON.stringify(errorData)}`);
 			}
 		}
 
@@ -155,8 +148,8 @@ export const getApiConfig = async (): Promise<ApiConfig> => {
 };
 
 export const apiConfigOptions = queryOptions({
-    queryKey: ['apiConfig'],
-    queryFn: getApiConfig
+	queryKey: ['apiConfig'],
+	queryFn: getApiConfig
 });
 
 export const getBotState = async (): Promise<TwState> => {
@@ -164,8 +157,8 @@ export const getBotState = async (): Promise<TwState> => {
 };
 
 export const botStateOptions = queryOptions({
-    queryKey: ['botState'],
-    queryFn: getBotState
+	queryKey: ['botState'],
+	queryFn: getBotState
 });
 
 export const getBotStats = async (): Promise<GetStatusResponse> => {
@@ -173,8 +166,8 @@ export const getBotStats = async (): Promise<GetStatusResponse> => {
 };
 
 export const botStatsOptions = queryOptions({
-    queryKey: ['botStats'],
-    queryFn: getBotStats
+	queryKey: ['botStats'],
+	queryFn: getBotStats
 });
 
 export const getUserServers = async (refetch: boolean = false): Promise<DashboardGuildData> => {
@@ -183,8 +176,8 @@ export const getUserServers = async (refetch: boolean = false): Promise<Dashboar
 };
 
 export const userServersOptions = queryOptions({
-    queryKey: ['userServers'],
-    queryFn: () => getUserServers(false)
+	queryKey: ['userServers'],
+	queryFn: () => getUserServers(false)
 });
 
 export const getUserSessions = async (): Promise<UserSessionList> => {
@@ -203,8 +196,8 @@ export const getUserSessions = async (): Promise<UserSessionList> => {
 };
 
 export const userSessionsOptions = queryOptions({
-    queryKey: ['userSessions'],
-    queryFn: getUserSessions
+	queryKey: ['userSessions'],
+	queryFn: getUserSessions
 });
 
 export const revokeSession = async (sessionId: string): Promise<void> => {
@@ -222,7 +215,7 @@ export const createOauth2Session = async (
 	try {
 		return apiRequest<CreateUserSessionResponse>('/oauth2', {
 			method: 'POST',
-			body: JSON.stringify(req),
+			body: JSON.stringify(req)
 		});
 	} catch (error) {
 		console.error('Failed to create OAuth2 session:', error);
@@ -241,9 +234,9 @@ export const getAuthorizedSession = async (): Promise<AuthorizedSession | undefi
 };
 
 export const authorizedSessionOptions = queryOptions({
-    queryKey: ['session', 'me'],
-    queryFn: getAuthorizedSession,
-    retry: false
+	queryKey: ['session', 'me'],
+	queryFn: getAuthorizedSession,
+	retry: false
 });
 
 export const createSession = async (
@@ -252,7 +245,7 @@ export const createSession = async (
 	try {
 		return apiRequest<CreateUserSessionResponse>('/sessions', {
 			method: 'POST',
-			body: JSON.stringify(session),
+			body: JSON.stringify(session)
 		});
 	} catch (error) {
 		console.error('Failed to create session:', error);
@@ -264,10 +257,11 @@ export const baseGuildUserInfo = async (guildId: string): Promise<BaseGuildUserI
 	return apiRequest<BaseGuildUserInfo>(`/users/@me/guilds/${guildId}`);
 };
 
-export const baseGuildUserInfoOptions = (guildId: string) => queryOptions({
-    queryKey: ['guildUserInfo', guildId],
-    queryFn: () => baseGuildUserInfo(guildId)
-});
+export const baseGuildUserInfoOptions = (guildId: string) =>
+	queryOptions({
+		queryKey: ['guildUserInfo', guildId],
+		queryFn: () => baseGuildUserInfo(guildId)
+	});
 
 export const getSettings = async (
 	guildId: string
@@ -277,10 +271,11 @@ export const getSettings = async (
 	);
 };
 
-export const settingsOptions = (guildId: string) => queryOptions({
-    queryKey: ['guildSettings', guildId],
-    queryFn: () => getSettings(guildId)
-});
+export const settingsOptions = (guildId: string) =>
+	queryOptions({
+		queryKey: ['guildSettings', guildId],
+		queryFn: () => getSettings(guildId)
+	});
 
 export const executeSettings = async (
 	guildId: string,
@@ -290,7 +285,7 @@ export const executeSettings = async (
 		`/guilds/${guildId}/settings`,
 		{
 			method: 'POST',
-			body: JSON.stringify(payload),
+			body: JSON.stringify(payload)
 		}
 	);
 };
@@ -300,8 +295,8 @@ export const listTemplateShop = async (): Promise<any> => {
 };
 
 export const templateShopOptions = queryOptions({
-    queryKey: ['templateShop'],
-    queryFn: listTemplateShop
+	queryKey: ['templateShop'],
+	queryFn: listTemplateShop
 });
 
 export const getTemplateShop = async (id: string): Promise<any | null> => {
@@ -312,50 +307,50 @@ export const getTemplateShop = async (id: string): Promise<any | null> => {
 	});
 };
 
-export const templateShopItemOptions = (id: string) => queryOptions({
-    queryKey: ['templateShop', id],
-    queryFn: () => getTemplateShop(id)
-});
+export const templateShopItemOptions = (id: string) =>
+	queryOptions({
+		queryKey: ['templateShop', id],
+		queryFn: () => getTemplateShop(id)
+	});
 
 export const getForumUser = async (tag: string): Promise<forumTypes.users | Error> => {
 	return apiRequest<forumTypes.users | Error>(`${FORUM_API_URL}/users/get?tag=${tag}`);
 };
 
-export const forumUserOptions = (tag: string) => queryOptions({
-    queryKey: ['forumUser', tag],
-    queryFn: () => getForumUser(tag)
-});
+export const forumUserOptions = (tag: string) =>
+	queryOptions({
+		queryKey: ['forumUser', tag],
+		queryFn: () => getForumUser(tag)
+	});
 
 export const listForumPosts = async (): Promise<forumTypes.posts[] | Error> => {
 	return apiRequest<forumTypes.posts[] | Error>(`${FORUM_API_URL}/posts/list`);
 };
 
 export const forumPostsOptions = queryOptions({
-     queryKey: ['forumPosts'],
-     queryFn: listForumPosts
+	queryKey: ['forumPosts'],
+	queryFn: listForumPosts
 });
 
 export const getForumPost = async (postId: string): Promise<forumTypes.posts[] | Error> => {
-	return apiRequest<forumTypes.posts[] | Error>(
-		`${FORUM_API_URL}/posts/get?post_id=${postId}`
-	);
+	return apiRequest<forumTypes.posts[] | Error>(`${FORUM_API_URL}/posts/get?post_id=${postId}`);
 };
 
-export const forumPostOptions = (postId: string) => queryOptions({
-    queryKey: ['forumPost', postId],
-    queryFn: () => getForumPost(postId)
-});
+export const forumPostOptions = (postId: string) =>
+	queryOptions({
+		queryKey: ['forumPost', postId],
+		queryFn: () => getForumPost(postId)
+	});
 
 export const listForumUserPosts = async (tag: string): Promise<forumTypes.posts[] | Error> => {
-	return apiRequest<forumTypes.posts[] | Error>(
-		`${FORUM_API_URL}/users/list_posts?tag=${tag}`
-	);
+	return apiRequest<forumTypes.posts[] | Error>(`${FORUM_API_URL}/users/list_posts?tag=${tag}`);
 };
 
-export const forumUserPostsOptions = (tag: string) => queryOptions({
-    queryKey: ['forumUserPosts', tag],
-    queryFn: () => listForumUserPosts(tag)
-});
+export const forumUserPostsOptions = (tag: string) =>
+	queryOptions({
+		queryKey: ['forumUserPosts', tag],
+		queryFn: () => listForumUserPosts(tag)
+	});
 
 export const fetchStrapiBlogs = async (): Promise<any> => {
 	try {
@@ -387,8 +382,8 @@ export const fetchStrapiBlogs = async (): Promise<any> => {
 };
 
 export const strapiBlogsOptions = queryOptions({
-    queryKey: ['strapiBlogs'],
-    queryFn: fetchStrapiBlogs
+	queryKey: ['strapiBlogs'],
+	queryFn: fetchStrapiBlogs
 });
 
 export const fetchStrapiBlogBySlug = async (slug: string): Promise<any> => {
@@ -423,7 +418,8 @@ export const fetchStrapiBlogBySlug = async (slug: string): Promise<any> => {
 	}
 };
 
-export const strapiBlogBySlugOptions = (slug: string) => queryOptions({
-    queryKey: ['strapiBlog', slug],
-    queryFn: () => fetchStrapiBlogBySlug(slug)
-});
+export const strapiBlogBySlugOptions = (slug: string) =>
+	queryOptions({
+		queryKey: ['strapiBlog', slug],
+		queryFn: () => fetchStrapiBlogBySlug(slug)
+	});

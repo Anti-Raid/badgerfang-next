@@ -8,7 +8,9 @@ import { BaseGuildUserInfo } from '@/types/api/bindings/BaseGuildUserInfo';
 import { Column } from '@/types/api/bindings/Column';
 import { InnerColumnType } from '@/types/api/bindings/InnerColumnType';
 
-const ScriptModal = React.lazy(() => import('./ScriptModal').then((mod) => ({ default: mod.ScriptModal })));
+const ScriptModal = React.lazy(() =>
+	import('./ScriptModal').then((mod) => ({ default: mod.ScriptModal }))
+);
 
 interface SettingsColumnListProps {
 	columns: Column[];

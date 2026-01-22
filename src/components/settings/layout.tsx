@@ -1,6 +1,16 @@
 'use client';
 
-import { Shield, User, Code, Database, FileCode, Lock, Bell, LayoutDashboard, Zap } from 'lucide-react';
+import {
+	Shield,
+	User,
+	Code,
+	Database,
+	FileCode,
+	Lock,
+	Bell,
+	LayoutDashboard,
+	Zap
+} from 'lucide-react';
 import { Section } from './components/section';
 import { Fragment, useMemo, useEffect } from 'react';
 import { baseGuildUserInfoOptions, executeSettings, settingsOptions } from '@/lib/api';
@@ -40,7 +50,7 @@ export default function Settings({ guildId }: { guildId: string }) {
 	// Process settings to move $builtins to the front
 	const guildSettings = useMemo(() => {
 		if (!rawSettings) return null;
-		
+
 		const builtins = rawSettings['$builtins'];
 		if (builtins) {
 			const { $builtins, ...rest } = rawSettings;
@@ -58,9 +68,10 @@ export default function Settings({ guildId }: { guildId: string }) {
 	// Show toast on error
 	useEffect(() => {
 		if (error) {
-			const errorMessage = error instanceof Error 
-				? error.message 
-				: 'Failed to fetch guild data. Please try again later.';
+			const errorMessage =
+				error instanceof Error
+					? error.message
+					: 'Failed to fetch guild data. Please try again later.';
 			toast.error(errorMessage, { position: 'top-left' });
 		}
 	}, [error]);
@@ -119,9 +130,9 @@ export default function Settings({ guildId }: { guildId: string }) {
 			<div className="min-h-screen bg-background flex items-center justify-center relative overflow-hidden">
 				<div className="absolute inset-0 bg-primary/5 blur-[120px] rounded-full animate-pulse" />
 				<div className="text-center relative z-10 flex flex-col items-center">
-					<motion.div 
+					<motion.div
 						animate={{ rotate: 360 }}
-						transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+						transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
 						className="w-12 h-12 border-2 border-primary/20 border-t-primary rounded-full mb-6"
 					/>
 					<p className="text-sm font-bold text-foreground/40 tracking-widest uppercase">
@@ -133,10 +144,11 @@ export default function Settings({ guildId }: { guildId: string }) {
 	}
 
 	if (error) {
-		const errorMessage = error instanceof Error 
-			? error.message 
-			: 'Failed to fetch guild data. Please try again later.';
-		
+		const errorMessage =
+			error instanceof Error
+				? error.message
+				: 'Failed to fetch guild data. Please try again later.';
+
 		return (
 			<div className="min-h-screen bg-background flex items-center justify-center p-6">
 				<div className="bg-card p-8 rounded-3xl border border-destructive/20 max-w-md w-full text-center shadow-2xl">
@@ -164,7 +176,7 @@ export default function Settings({ guildId }: { guildId: string }) {
 		<div className="min-h-screen bg-background text-foreground font-inter selection:bg-primary/30 selection:text-primary relative overflow-hidden pb-40">
 			{/* Subtle Background elements */}
 			<div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 blur-[150px] rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-			
+
 			<ToastContainer theme="dark" />
 
 			{/* Sub-Header */}
@@ -183,10 +195,10 @@ export default function Settings({ guildId }: { guildId: string }) {
 							</div>
 						)}
 						<div>
-							<span className="text-base font-bold tracking-tight block">
-								{guildData.name}
-							</span>
-							<p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Dashboard Settings</p>
+							<span className="text-base font-bold tracking-tight block">{guildData.name}</span>
+							<p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+								Dashboard Settings
+							</p>
 						</div>
 					</div>
 				</div>
@@ -199,12 +211,10 @@ export default function Settings({ guildId }: { guildId: string }) {
 					animate={{ opacity: 1, y: 0 }}
 					className="mb-16"
 				>
-					<h1 className="text-4xl font-bold tracking-tight mb-4">
-						Settings
-					</h1>
+					<h1 className="text-4xl font-bold tracking-tight mb-4">Settings</h1>
 					<p className="text-lg text-muted-foreground max-w-2xl">
-						Configure and manage how your server interacts with AntiRaid. 
-						Customize roles, detection levels, and automated responses.
+						Configure and manage how your server interacts with AntiRaid. Customize roles, detection
+						levels, and automated responses.
 					</p>
 
 					<div className="mt-8 p-6 bg-accent/30 rounded-2xl border border-border/50 flex items-center gap-4">
@@ -212,7 +222,8 @@ export default function Settings({ guildId }: { guildId: string }) {
 							<Code size={18} />
 						</div>
 						<p className="text-sm font-medium leading-relaxed">
-							Check out <span className="text-primary font-bold">Templating</span> for advanced custom logic and script extensions.
+							Check out <span className="text-primary font-bold">Templating</span> for advanced
+							custom logic and script extensions.
 						</p>
 					</div>
 				</motion.div>
@@ -224,14 +235,10 @@ export default function Settings({ guildId }: { guildId: string }) {
 								.filter((s) => guildSettings[s].type !== 'Ok')
 								.map((setting, idx) => {
 									const errorData = guildSettings[setting].data;
-									const errorMessage = typeof errorData === 'string' 
-										? errorData 
-										: JSON.stringify(errorData);
+									const errorMessage =
+										typeof errorData === 'string' ? errorData : JSON.stringify(errorData);
 									return (
-										<SettingsErrorDisplay
-											key={idx}
-											loadErrors={{ [setting]: errorMessage }}
-										/>
+										<SettingsErrorDisplay key={idx} loadErrors={{ [setting]: errorMessage }} />
 									);
 								})}
 
@@ -247,7 +254,7 @@ export default function Settings({ guildId }: { guildId: string }) {
 												</h2>
 											</div>
 										)}
-										
+
 										<div className="grid grid-cols-1 gap-6">
 											{setting.setting.map((s_item, idx) => (
 												<Section

@@ -178,7 +178,9 @@ export const Route = createFileRoute('/api/get/og-image')({
 					// Fetch blog post by slug with timeout protection
 					const post = (await Promise.race([
 						getBlogBySlug(slug),
-						new Promise((_, reject) => setTimeout(() => reject(new Error('Blog fetch timeout')), 10000))
+						new Promise((_, reject) =>
+							setTimeout(() => reject(new Error('Blog fetch timeout')), 10000)
+						)
 					])) as any;
 
 					// If blog post not found, return 404 image

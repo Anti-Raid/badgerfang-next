@@ -5,12 +5,10 @@ import { FaDiscord } from 'react-icons/fa';
 import { supportConfig } from '@/lib/data/support';
 
 export const Route = createFileRoute('/invite/')({
-    component: DiscordRedirect,
-    head: () => ({
-        meta: [
-            { title: 'Redirecting to Discord...' }
-        ]
-    })
+	component: DiscordRedirect,
+	head: () => ({
+		meta: [{ title: 'Redirecting to Discord...' }]
+	})
 });
 
 function DiscordRedirect() {
@@ -24,7 +22,7 @@ function DiscordRedirect() {
 
 	return (
 		<div className="flex flex-col items-center justify-center min-h-screen bg-discord-dark text-white">
-				<style>{`
+			<style>{`
           :root {
             --discord-blue: #5865F2;
             --discord-dark: #36393f;
@@ -90,5 +88,5 @@ function DiscordRedirect() {
 				</motion.div>
 			</div>
 		</div>
-	)
+	);
 }

@@ -329,7 +329,8 @@ const Dashboard: React.FC = () => {
 			return { loginSessions: [], apiSessions: [] };
 		}
 		return {
-			loginSessions: sessionData.sessions.filter((s): s is UserSession => s?.type === 'login') ?? [],
+			loginSessions:
+				sessionData.sessions.filter((s): s is UserSession => s?.type === 'login') ?? [],
 			apiSessions: sessionData.sessions.filter((s): s is UserSession => s?.type !== 'login') ?? []
 		};
 	}, [sessionData]);

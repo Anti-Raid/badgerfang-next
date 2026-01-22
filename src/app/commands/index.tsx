@@ -6,14 +6,14 @@ import { generateCommandMetadata } from '@/lib/Metadata';
 import { botStateOptions } from '@/lib/api';
 
 export const Route = createFileRoute('/commands/')({
-	loader: ({ context: { queryClient } }) => 
-        queryClient.ensureQueryData(botStateOptions),
+	loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(botStateOptions),
 	component: Commands,
-    head: () => generateCommandMetadata({
-        canonicalUrl: `${website_url}/commands`
-    }),
-    // Enable SSR for better SEO
-    ssr: true
+	head: () =>
+		generateCommandMetadata({
+			canonicalUrl: `${website_url}/commands`
+		}),
+	// Enable SSR for better SEO
+	ssr: true
 });
 
 function Commands() {
@@ -23,5 +23,5 @@ function Commands() {
 				<CommandInterface />
 			</main>
 		</>
-	)
+	);
 }

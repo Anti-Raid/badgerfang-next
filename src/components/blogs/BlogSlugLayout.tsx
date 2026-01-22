@@ -27,7 +27,7 @@ import { strapiBlogsOptions } from '@/lib/api';
 
 interface BlogSlugLayoutProps {
 	slug: string;
-    initialPost?: Blog | null;
+	initialPost?: Blog | null;
 }
 
 const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug, initialPost }) => {
@@ -49,7 +49,7 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug, initialPost }) =>
 	// Fetch all blogs for related posts
 	const { data: allBlogsResponse } = useQuery({
 		...strapiBlogsOptions,
-		enabled: !!initialPost && !!initialPost.tags && initialPost.tags.length > 0,
+		enabled: !!initialPost && !!initialPost.tags && initialPost.tags.length > 0
 	});
 
 	const relatedBlogs = useMemo(() => {
@@ -62,8 +62,8 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug, initialPost }) =>
 			.slice(0, 3);
 	}, [initialPost, allBlogsResponse, slug]);
 
-    // Removed standalone loadData useEffect
-    
+	// Removed standalone loadData useEffect
+
 	const calculateReadingTime = (content: string): string => {
 		if (!content) return '1 min read';
 		const wordsPerMinute = 200;
@@ -431,7 +431,11 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug, initialPost }) =>
 									viewport={{ once: true }}
 									transition={{ delay: index * 0.1 }}
 								>
-									<Link to="/blogs/$slug" params={{ slug: relatedBlog.slug }} className="group block h-full">
+									<Link
+										to="/blogs/$slug"
+										params={{ slug: relatedBlog.slug }}
+										className="group block h-full"
+									>
 										<div className="relative aspect-video rounded-3xl overflow-hidden mb-6 border border-white/5 group-hover:border-primary/50 transition-all duration-500">
 											<img
 												src={`/api/get/og-image?slug=${relatedBlog.slug}`}
