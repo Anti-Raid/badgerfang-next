@@ -9,7 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './app/__root'
-import { Route as LlmsDottxtRouteImport } from './app/llms[.]txt'
 import { Route as IndexRouteImport } from './app/index'
 import { Route as StatusIndexRouteImport } from './app/status/index'
 import { Route as NotFoundIndexRouteImport } from './app/not-found/index'
@@ -33,11 +32,6 @@ import { Route as ApiGetOgImageRouteImport } from './app/api/get/og-image'
 import { Route as ApiGetCultureRouteImport } from './app/api/get/culture'
 import { Route as DebugFlowKiteTypedinputIndexRouteImport } from './app/debug/flow-kite/typedinput/index'
 
-const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
-  id: '/llms.txt',
-  path: '/llms.txt',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -153,7 +147,6 @@ const DebugFlowKiteTypedinputIndexRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/llms.txt': typeof LlmsDottxtRoute
   '/about/': typeof AboutIndexRoute
   '/authorize/': typeof AuthorizeIndexRoute
   '/blogs/': typeof BlogsIndexRoute
@@ -178,7 +171,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/llms.txt': typeof LlmsDottxtRoute
   '/about': typeof AboutIndexRoute
   '/authorize': typeof AuthorizeIndexRoute
   '/blogs': typeof BlogsIndexRoute
@@ -204,7 +196,6 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/llms.txt': typeof LlmsDottxtRoute
   '/about/': typeof AboutIndexRoute
   '/authorize/': typeof AuthorizeIndexRoute
   '/blogs/': typeof BlogsIndexRoute
@@ -231,7 +222,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/llms.txt'
     | '/about/'
     | '/authorize/'
     | '/blogs/'
@@ -256,7 +246,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/llms.txt'
     | '/about'
     | '/authorize'
     | '/blogs'
@@ -281,7 +270,6 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/llms.txt'
     | '/about/'
     | '/authorize/'
     | '/blogs/'
@@ -307,7 +295,6 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  LlmsDottxtRoute: typeof LlmsDottxtRoute
   AboutIndexRoute: typeof AboutIndexRoute
   AuthorizeIndexRoute: typeof AuthorizeIndexRoute
   BlogsIndexRoute: typeof BlogsIndexRoute
@@ -333,13 +320,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/llms.txt': {
-      id: '/llms.txt'
-      path: '/llms.txt'
-      fullPath: '/llms.txt'
-      preLoaderRoute: typeof LlmsDottxtRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -499,7 +479,6 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  LlmsDottxtRoute: LlmsDottxtRoute,
   AboutIndexRoute: AboutIndexRoute,
   AuthorizeIndexRoute: AuthorizeIndexRoute,
   BlogsIndexRoute: BlogsIndexRoute,

@@ -8,31 +8,7 @@ import { Shield } from 'lucide-react';
 import { Eye } from 'lucide-react';
 import { Image } from '@unpic/react';
 import React from 'react';
-
-const DISCORD_PERMISSIONS = {
-	ADMINISTRATOR: BigInt(0x8),
-	MANAGE_GUILD: BigInt(0x20),
-	MANAGE_CHANNELS: BigInt(0x10),
-	MANAGE_ROLES: BigInt(0x10000000),
-	MANAGE_MESSAGES: BigInt(0x2000),
-	MANAGE_WEBHOOKS: BigInt(0x80000000)
-};
-
-export const getPermissionNames = (permissions: bigint): string[] => {
-	const permNames: string[] = [];
-
-	if (permissions & DISCORD_PERMISSIONS.ADMINISTRATOR) {
-		return ['Administrator']; // Admin has all permissions
-	}
-
-	if (permissions & DISCORD_PERMISSIONS.MANAGE_GUILD) permNames.push('Manage Server');
-	if (permissions & DISCORD_PERMISSIONS.MANAGE_CHANNELS) permNames.push('Manage Channels');
-	if (permissions & DISCORD_PERMISSIONS.MANAGE_ROLES) permNames.push('Manage Roles');
-	if (permissions & DISCORD_PERMISSIONS.MANAGE_MESSAGES) permNames.push('Manage Messages');
-	if (permissions & DISCORD_PERMISSIONS.MANAGE_WEBHOOKS) permNames.push('Manage Webhooks');
-
-	return permNames.length ? permNames : ['Limited Access'];
-};
+import { getDiscordPermissionNames } from '@/lib/utils';
 
 export const ServerCard: React.FC<{ server: DashboardGuild; showViewButton: boolean }> = ({
 	server,
@@ -46,7 +22,7 @@ export const ServerCard: React.FC<{ server: DashboardGuild; showViewButton: bool
 	}
 
 	const router = useRouter();
-	const permissionNames = getPermissionNames(permBit);
+	const permissionNames = getDiscordPermissionNames(permBit);
 	const isAdministrator = permissionNames.includes('Administrator');
 
 	const handleViewClick = () => {

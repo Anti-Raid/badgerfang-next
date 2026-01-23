@@ -1,13 +1,12 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Link } from '@tanstack/react-router';
-import { X, ArrowRight, RefreshCcw, AlertOctagon, Copy, Check } from 'lucide-react';
-import { Primary, Secondary, Ghost } from '@/components/ui/Buttons';
+import { useState, useEffect } from "react";
+import { Link } from "@tanstack/react-router";
+import { ArrowRight, RefreshCcw, AlertOctagon, Copy, Check } from "lucide-react";
+import { Primary, Ghost } from "@/components/ui/Buttons";
 
 type ErrorPageProps = {
-	error: Error & { digest?: string };
-	reset: () => void;
+	error: Error;
 };
 
 const ParticlesBackground = () => {
@@ -32,7 +31,7 @@ const ParticlesBackground = () => {
 					size: Math.random() * 4 + 1,
 					speedX: (Math.random() - 0.5) * 0.5,
 					speedY: (Math.random() - 0.5) * 0.5,
-					opacity: Math.random() * 0.5 + 0.1
+					opacity: Math.random() * 0.5 + 0.1,
 				});
 			}
 			setParticles(newParticles);
@@ -42,23 +41,14 @@ const ParticlesBackground = () => {
 
 		const updateParticles = () => {
 			setParticles((prev) =>
-				prev.map((particle) => {
-					let newX = particle.x + particle.speedX;
-					let newY = particle.y + particle.speedY;
+				prev.map((p) => {
+					let newX = p.x + p.speedX;
+					let newY = p.y + p.speedY;
 
-					if (newX < 0 || newX > window.innerWidth) {
-						particle.speedX *= -1;
-					}
+					if (newX < 0 || newX > window.innerWidth) p.speedX *= -1;
+					if (newY < 0 || newY > window.innerHeight) p.speedY *= -1;
 
-					if (newY < 0 || newY > window.innerHeight) {
-						particle.speedY *= -1;
-					}
-
-					return {
-						...particle,
-						x: newX,
-						y: newY
-					};
+					return { ...p, x: newX, y: newY };
 				})
 			);
 		};
@@ -66,11 +56,11 @@ const ParticlesBackground = () => {
 		const interval = setInterval(updateParticles, 50);
 		const resizeHandler = () => createParticles();
 
-		window.addEventListener('resize', resizeHandler);
+		window.addEventListener("resize", resizeHandler);
 
 		return () => {
 			clearInterval(interval);
-			window.removeEventListener('resize', resizeHandler);
+			window.removeEventListener("resize", resizeHandler);
 		};
 	}, []);
 
@@ -85,7 +75,7 @@ const ParticlesBackground = () => {
 						top: particle.y,
 						width: particle.size,
 						height: particle.size,
-						opacity: particle.opacity
+						opacity: particle.opacity,
 					}}
 				/>
 			))}
@@ -93,7 +83,7 @@ const ParticlesBackground = () => {
 	);
 };
 
-export default function ErrorPage({ error, reset }: ErrorPageProps) {
+export default function ErrorPage({ error }: ErrorPageProps) {
 	const [isGlitching, setIsGlitching] = useState(false);
 	const [copied, setCopied] = useState(false);
 
@@ -103,14 +93,14 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
 			setTimeout(() => setIsGlitching(false), 200);
 		}, 3000);
 
-		console.error('Global error caught:', error);
+		console.error("Global error caught:", error);
 
 		return () => clearInterval(glitchInterval);
 	}, [error]);
 
 	const statusCode = 500;
-	const title = 'Unexpected Error';
-	const description = error.message || 'Something went wrong on our end.';
+	const title = "Unexpected Error";
+	const description = error.message || "Something went wrong on our end.";
 
 	return (
 		<div className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-background text-foreground p-4">
@@ -118,9 +108,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
 
 			<div className="relative z-10 max-w-3xl w-full">
 				<div className="flex flex-col items-center text-center">
-					<div
-						className={`mb-6 font-mono text-8xl font-bold tracking-tighter ${isGlitching ? 'animate-pulse' : ''}`}
-					>
+					<div className={`mb-6 font-mono text-8xl font-bold tracking-tighter ${isGlitching ? "animate-pulse" : ""}`}>
 						<span className="text-primary">{statusCode}</span>
 					</div>
 
@@ -131,44 +119,33 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
 						</div>
 					</div>
 
-					<h1 className={`text-4xl font-bold mb-4 ${isGlitching ? 'animate-glitch' : ''}`}>
-						{title}
-					</h1>
+					<h1 className={`text-4xl font-bold mb-4 ${isGlitching ? "animate-glitch" : ""}`}>{title}</h1>
 					<p className="text-lg text-muted-foreground mb-8 max-w-md">{description}</p>
 
 					<div className="flex flex-wrap gap-4 justify-center">
 						<Link to="/">
 							<Primary Title="Return Home" icon={ArrowRight} onClick={() => {}} />
 						</Link>
-						<Primary Title="Try Again" icon={RefreshCcw} onClick={reset} />
-						<div className="relative group/copy">
+
+						<Primary Title="Reload Page" icon={RefreshCcw} onClick={() => window.location.reload()} />
+
+						<div className="relative">
 							<Ghost
-								Title={copied ? 'Copied!' : 'Copy Error'}
+								Title={copied ? "Copied!" : "Copy Error"}
 								icon={copied ? Check : Copy}
 								onClick={async () => {
-									const errorData = `Error: ${error.message}\nDigest: ${error.digest || 'N/A'}`;
+									const errorData = `Error: ${error.message}`;
 									try {
-										if (navigator.clipboard && navigator.clipboard.writeText) {
-											await navigator.clipboard.writeText(errorData);
-										} else {
-											const textArea = document.createElement('textarea');
-											textArea.value = errorData;
-											document.body.appendChild(textArea);
-											textArea.select();
-											document.execCommand('copy');
-											document.body.removeChild(textArea);
-										}
+										await navigator.clipboard.writeText(errorData);
 										setCopied(true);
 										setTimeout(() => setCopied(false), 2000);
 									} catch (err) {
-										console.error('Failed to copy error:', err);
+										console.error("Failed to copy error:", err);
 									}
 								}}
 							/>
 						</div>
 					</div>
-
-					<div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-primary/20 opacity-50 rounded-full blur-3xl"></div>
 				</div>
 
 				<div className="hidden md:block absolute -top-20 -left-20 w-40 h-40 bg-primary/5 rounded-full blur-xl"></div>
@@ -179,46 +156,6 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
 			<div className="absolute bottom-8 text-center text-sm text-muted-foreground">
 				<p>If you continue experiencing issues, please contact our support team.</p>
 			</div>
-
-			<style>{`
-				@keyframes spin-slow {
-					from {
-						transform: rotate(0deg);
-					}
-					to {
-						transform: rotate(360deg);
-					}
-				}
-
-				@keyframes glitch {
-					0% {
-						transform: translate(0);
-					}
-					20% {
-						transform: translate(-2px, 2px);
-					}
-					40% {
-						transform: translate(-2px, -2px);
-					}
-					60% {
-						transform: translate(2px, 2px);
-					}
-					80% {
-						transform: translate(2px, -2px);
-					}
-					100% {
-						transform: translate(0);
-					}
-				}
-
-				.animate-spin-slow {
-					animation: spin-slow 6s linear infinite;
-				}
-
-				.animate-glitch {
-					animation: glitch 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
-				}
-			`}</style>
 		</div>
 	);
 }

@@ -291,7 +291,8 @@ export const executeSettings = async (
 };
 
 export const listTemplateShop = async (): Promise<any> => {
-	throw new Error('Currently disabled as the template shop is being rethought');
+	console.log('listTemplateShop');
+	return [];
 };
 
 export const templateShopOptions = queryOptions({
@@ -300,7 +301,8 @@ export const templateShopOptions = queryOptions({
 });
 
 export const getTemplateShop = async (id: string): Promise<any | null> => {
-	throw new Error('Currently disabled as the template shop is being rethought');
+	console.log('getTemplateShop', id);
+	return null;
 
 	return apiRequest<any | null>(`/template-shop/${id}`, {
 		validateStatus: (status) => status === 200 || status === 404 // Allow 404 for not found

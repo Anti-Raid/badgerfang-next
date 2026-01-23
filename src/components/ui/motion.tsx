@@ -105,6 +105,7 @@ interface MotionProps {
 		boxShadow?: string;
 		backgroundColor?: string;
 		translateX?: number | string;
+        cursor?: string;
 		transition?: {
 			duration?: number;
 			delay?: number;
@@ -119,6 +120,8 @@ interface MotionProps {
 		scale?: number; 
 		rotate?: number;
 		translateX?: number | string;
+		backgroundColor?: string;
+        cursor?: string;
 	};
 	whileInView?:
 		| {
@@ -144,7 +147,8 @@ interface MotionProps {
 	drag?: boolean | 'x' | 'y';
 	dragConstraints?:
 		| { left?: number; right?: number; top?: number; bottom?: number }
-		| React.RefObject<HTMLElement>;
+		| React.RefObject<HTMLElement>
+        | { current: HTMLElement | null };
 	dragElastic?: number;
 	dragMomentum?: boolean;
 	onDragStart?: (event: PointerEvent, info: { point: { x: number; y: number } }) => void;
@@ -160,6 +164,7 @@ interface MotionProps {
 		rotate: number;
 		opacity: number;
 	}) => void;
+    onClick?: (event: React.MouseEvent) => void;
 }
 
 export type Variants = Record<
@@ -252,14 +257,6 @@ const injectKeyframes = (name: string, keyframes: string) => {
 	// Prevent duplicate injections with proper synchronization
 	if (keyframeCache.has(name)) return;
 	if (injectingKeyframes.has(name)) {
-		// Wait for the other injection to complete
-		let attempts = 0;
-		const checkInterval = setInterval(() => {
-			attempts++;
-			if (keyframeCache.has(name) || attempts > 50) {
-				clearInterval(checkInterval);
-			}
-		}, 10);
 		return;
 	}
 
@@ -288,7 +285,7 @@ const injectKeyframes = (name: string, keyframes: string) => {
 	}
 };
 
-const createMotionComponent = <T extends keyof JSX.IntrinsicElements>(
+const createMotionComponent = <T extends keyof React.JSX.IntrinsicElements>(
 	element: T
 ): React.ForwardRefExoticComponent<
 	MotionProps &
@@ -324,6 +321,7 @@ const createMotionComponent = <T extends keyof JSX.IntrinsicElements>(
 			onAnimationStart,
 			onAnimationComplete,
 			onUpdate,
+            onClick,
 			...restProps
 		} = props as Props & { children?: ReactNode };
 
@@ -360,7 +358,7 @@ const createMotionComponent = <T extends keyof JSX.IntrinsicElements>(
 		const [focusState, setFocusState] = useState(false);
 		const [isDragging, setIsDragging] = useState(false);
 		const elementRef = useRef<HTMLElement>(null);
-		const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+		const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 		const dragStateRef = useRef({
 			isDragging: false,
 			startX: 0,
@@ -402,26 +400,12 @@ const createMotionComponent = <T extends keyof JSX.IntrinsicElements>(
 			const value = resolvedAnimate[prop];
 			if (prop === 'rotate' && typeof value === 'number') {
 				const name = `rotate-${Math.abs(value)}`;
-				const duration = transition.duration || 2;
 				const keyframes = `@keyframes ${name} {
 						from { transform: rotate(0deg); }
 						to { transform: rotate(${value}deg); }
 					}`;
 				// Inject immediately and ensure it's ready
 				injectKeyframes(name, keyframes);
-				// Double-check injection completed
-				requestAnimationFrame(() => {
-					if (typeof document !== 'undefined') {
-						const styleId = `motion-keyframes-${name}`;
-						if (!document.getElementById(styleId) && keyframeCache.has(name)) {
-							// Retry injection if it failed
-							const style = document.createElement('style');
-							style.id = styleId;
-							style.textContent = keyframeCache.get(name)!;
-							document.head.appendChild(style);
-						}
-					}
-				});
 			}
 		}, [useCSSAnimation, resolvedAnimate, transition]);
 
@@ -507,6 +491,15 @@ const createMotionComponent = <T extends keyof JSX.IntrinsicElements>(
 						velocity: 0
 					}
 				};
+
+                // CRITICAL FIX: Apply initial styles to CSS variables immediately
+                if (elementRef.current) {
+                    elementRef.current.style.setProperty('--motion-opacity', String(animationStateRef.current.opacity.current));
+                    elementRef.current.style.setProperty('--motion-x', `${animationStateRef.current.x.current}px`);
+                    elementRef.current.style.setProperty('--motion-y', `${animationStateRef.current.y.current}px`);
+                    elementRef.current.style.setProperty('--motion-scale', String(animationStateRef.current.scale.current));
+                    elementRef.current.style.setProperty('--motion-rotate', `${animationStateRef.current.rotate.current}deg`);
+                }
 			}
 			// Set visible immediately to prevent animation delays
 			setIsVisible(true);
@@ -694,17 +687,17 @@ const createMotionComponent = <T extends keyof JSX.IntrinsicElements>(
 								newY = Math.max(0, Math.min(newY, maxY));
 							}
 						} else {
-							if (dragConstraints.left !== undefined) newX = Math.max(newX, dragConstraints.left);
-							if (dragConstraints.right !== undefined) newX = Math.min(newX, dragConstraints.right);
-							if (dragConstraints.top !== undefined) newY = Math.max(newY, dragConstraints.top);
-							if (dragConstraints.bottom !== undefined)
-								newY = Math.min(newY, dragConstraints.bottom);
+                            const constraints = dragConstraints as any;
+							if (constraints.left !== undefined) newX = Math.max(newX, constraints.left);
+							if (constraints.right !== undefined) newX = Math.min(newX, constraints.right);
+							if (constraints.top !== undefined) newY = Math.max(newY, constraints.top);
+							if (constraints.bottom !== undefined)
+								newY = Math.min(newY, constraints.bottom);
 						}
 					}
 
 					// Apply elastic bounds
 					if (dragElastic > 0) {
-						const elastic = dragElastic * 50;
 						if (newX < 0) newX = newX * (1 - dragElastic);
 						if (newY < 0) newY = newY * (1 - dragElastic);
 					}
@@ -736,6 +729,8 @@ const createMotionComponent = <T extends keyof JSX.IntrinsicElements>(
 					// Apply momentum if enabled
 					if (dragMomentum && (state.velocityX !== 0 || state.velocityY !== 0)) {
 						const momentumCallback = () => {
+                            if (state.isDragging) return; // Stop if new drag started
+
 							const decay = 0.9;
 							state.velocityX *= decay;
 							state.velocityY *= decay;
@@ -750,13 +745,14 @@ const createMotionComponent = <T extends keyof JSX.IntrinsicElements>(
 									typeof dragConstraints === 'object' &&
 									!('current' in dragConstraints)
 								) {
-									if (dragConstraints.left !== undefined)
-										newX = Math.max(newX, dragConstraints.left);
-									if (dragConstraints.right !== undefined)
-										newX = Math.min(newX, dragConstraints.right);
-									if (dragConstraints.top !== undefined) newY = Math.max(newY, dragConstraints.top);
-									if (dragConstraints.bottom !== undefined)
-										newY = Math.min(newY, dragConstraints.bottom);
+                                    const constraints = dragConstraints as any;
+									if (constraints.left !== undefined)
+										newX = Math.max(newX, constraints.left);
+									if (constraints.right !== undefined)
+										newX = Math.min(newX, constraints.right);
+									if (constraints.top !== undefined) newY = Math.max(newY, constraints.top);
+									if (constraints.bottom !== undefined)
+										newY = Math.min(newY, constraints.bottom);
 								}
 
 								animationStateRef.current.x.current = newX;
@@ -827,7 +823,7 @@ const createMotionComponent = <T extends keyof JSX.IntrinsicElements>(
 			const ease = typeof transition.ease === 'string' ? transition.ease : 'ease-in-out';
 			return {
 				...baseStyle,
-				opacity: getExitOpacity(resolvedExit.opacity) ?? baseStyle.opacity,
+				opacity: getExitOpacity(resolvedExit.opacity) ?? (baseStyle as any).opacity,
 				transform: `translate3d(${resolvedExit.x || 0}px, ${resolvedExit.y || 0}px, 0) scale(${resolvedExit.scale || 1}) rotate(${resolvedExit.rotate || 0}deg)`,
 				transition: `all ${duration}s ${ease}`
 			};
@@ -843,7 +839,7 @@ const createMotionComponent = <T extends keyof JSX.IntrinsicElements>(
 				return (val as string | number) ?? undefined;
 			};
 
-			const style: React.CSSProperties = {
+			const style: any = {
 				...baseStyle,
 				opacity: getOpacityValue(resolvedInitial.opacity),
 				transform: `translate3d(${resolvedInitial.x || 0}px, ${resolvedInitial.y || 0}px, 0) scale(${resolvedInitial.scale || 1}) rotate(${resolvedInitial.rotate || 0}deg)`
@@ -876,6 +872,7 @@ const createMotionComponent = <T extends keyof JSX.IntrinsicElements>(
 					let opacity = getNumericValue(animateObj.opacity, 1);
 					let width = animateObj.width;
 					let boxShadow = animateObj.boxShadow;
+                    let backgroundColor = animateObj.backgroundColor;
 
 					// Apply interaction states
 					let hoverTransition = transition;
@@ -884,6 +881,8 @@ const createMotionComponent = <T extends keyof JSX.IntrinsicElements>(
 						y = whileHover.y !== undefined ? whileHover.y : y;
 						rotate = whileHover.rotate !== undefined ? whileHover.rotate : rotate;
 						opacity = whileHover.opacity !== undefined ? whileHover.opacity : opacity;
+                        if (whileHover.backgroundColor) backgroundColor = whileHover.backgroundColor;
+                        
 						// Use transition from whileHover if provided
 						if (whileHover.transition) {
 							hoverTransition = { ...transition, ...whileHover.transition };
@@ -893,6 +892,7 @@ const createMotionComponent = <T extends keyof JSX.IntrinsicElements>(
 					if (tapState && whileTap) {
 						scale = whileTap.scale !== undefined ? whileTap.scale : scale;
 						rotate = whileTap.rotate !== undefined ? whileTap.rotate : rotate;
+                        if (whileTap.backgroundColor) backgroundColor = whileTap.backgroundColor;
 					}
 
 					if (focusState && whileFocus) {
@@ -936,6 +936,9 @@ const createMotionComponent = <T extends keyof JSX.IntrinsicElements>(
 					if (width !== undefined) {
 						transitions.push(`width ${duration}s ${ease}`);
 					}
+                    if (backgroundColor !== undefined) {
+                        transitions.push(`background-color ${duration}s ${ease}`);
+                    }
 
 					// Build transition string
 					let transitionString = isDragging
@@ -967,10 +970,13 @@ const createMotionComponent = <T extends keyof JSX.IntrinsicElements>(
 						if (boxShadowValue !== undefined) {
 							style.boxShadow = boxShadowValue;
 						}
+                        if (backgroundColor !== undefined) {
+                            style.backgroundColor = backgroundColor;
+                        }
 						return style;
 					}
 
-					const style: React.CSSProperties = {
+					const style: any = {
 						...baseStyle,
 						opacity,
 						transform: `translate3d(${x}px, ${y}px, 0) scale(${scale}) rotate(${rotate}deg)`,
@@ -982,6 +988,9 @@ const createMotionComponent = <T extends keyof JSX.IntrinsicElements>(
 					if (boxShadowValue !== undefined) {
 						style.boxShadow = boxShadowValue;
 					}
+                    if (backgroundColor !== undefined) {
+                        style.backgroundColor = backgroundColor;
+                    }
 					return style;
 				}
 			}
@@ -1041,10 +1050,20 @@ const createMotionComponent = <T extends keyof JSX.IntrinsicElements>(
 		}, [whileFocus]);
 
 		const Element = element as any;
+        
+        // Pass the ref properly
+        const combinedRef = (node: HTMLElement | null) => {
+            (elementRef as React.MutableRefObject<HTMLElement | null>).current = node;
+            if (typeof ref === 'function') {
+                ref(node);
+            } else if (ref) {
+                (ref as React.MutableRefObject<HTMLElement | null>).current = node;
+            }
+        };
 
 		return (
 			<Element
-				ref={ref || elementRef}
+				ref={combinedRef}
 				className={className}
 				style={getStyles()}
 				onMouseEnter={handleMouseEnter}
@@ -1055,6 +1074,7 @@ const createMotionComponent = <T extends keyof JSX.IntrinsicElements>(
 				onTouchEnd={handleTouchEnd}
 				onFocus={handleFocus}
 				onBlur={handleBlur}
+                onClick={onClick}
 				data-layout-id={layoutId}
 				{...restProps}
 			>
@@ -1232,23 +1252,70 @@ export const ReorderGroup: React.FC<ReorderGroupProps> = ({
 			const offset = axis === 'y' ? state.offsetY : state.offsetX;
 			draggedElement.style.transform = `translate${axis === 'y' ? 'Y' : 'X'}(${offset}px)`;
 			draggedElement.style.zIndex = '1000';
-			draggedElement.style.opacity = '0.8';
+			draggedElement.style.opacity = '0.95';
+            draggedElement.style.boxShadow = '0 10px 30px -10px rgba(0,0,0,0.5)';
 			draggedElement.style.pointerEvents = 'none';
 			draggedElement.style.willChange = 'transform';
 		}
 
-		const allItems = Array.from(itemRefsRef.current.entries());
+        // Logic to find closest item based on center distance
+        let closestIndex = state.draggedIndex;
+        let minDistance = Infinity;
+        
+        const pointerVal = axis === 'y' ? state.currentY : state.currentX;
+        const allItems = Array.from(itemRefsRef.current.entries());
+
+        // Find the index that the dragged item is hovering over
+        allItems.forEach(([index, element]) => {
+            if (index === state.draggedIndex) return;
+            const rect = element.getBoundingClientRect();
+            const center = axis === 'y' ? rect.top + rect.height / 2 : rect.left + rect.width / 2;
+            const dist = Math.abs(pointerVal - center);
+            if (dist < minDistance) {
+                minDistance = dist;
+                closestIndex = index;
+            }
+        });
+        
+        // Calculate dynamic shift amount
+        const draggedEl = state.draggedIndex !== null ? itemRefsRef.current.get(state.draggedIndex) : null;
+        const draggedSize = axis === 'y' ? (draggedEl?.offsetHeight || 0) : (draggedEl?.offsetWidth || 0);
+        
+        // Gap estimation: if there's an item 0 and 1, diff their tops vs bottoms
+        // Or assume a constant if checking all is expensive. 
+        // Let's assume 12px gap (standard tailwind space-y-3 is 0.75rem = 12px) + visual fidelity
+        const gap = 12; 
+
 		allItems.forEach(([index, element]) => {
 			if (index === state.draggedIndex) return;
+            
+            let offset = 0;
+            if (state.draggedIndex !== null && closestIndex !== null) {
+                if (state.draggedIndex < closestIndex) {
+                    // Dragging down: Items between draggedIndex and closestIndex (inclusive) shift UP
+                    if (index > state.draggedIndex && index <= closestIndex) {
+                        offset = -draggedSize - gap;
+                    }
+                } else if (state.draggedIndex > closestIndex) {
+                    // Dragging up: Items between closestIndex and draggedIndex shift DOWN
+                    if (index >= closestIndex && index < state.draggedIndex) {
+                        offset = draggedSize + gap;
+                    }
+                }
+            }
 
-			if (index === state.dragOverIndex) {
-				element.style.transform = `translate${axis === 'y' ? 'Y' : 'X'}(${axis === 'y' ? 4 : 4}px)`;
-				element.style.transition = 'transform 0.1s ease-out';
-			} else {
-				element.style.transform = '';
-				element.style.transition = 'transform 0.1s ease-out';
-			}
+            // Apply translation
+            const translateStr = axis === 'y' ? `translate3d(0, ${offset}px, 0)` : `translate3d(${offset}px, 0, 0)`;
+            if (element.style.transform !== translateStr) {
+                element.style.transform = translateStr;
+                element.style.transition = 'transform 0.2s cubic-bezier(0.2, 0, 0, 1)';
+            }
 		});
+
+        if (closestIndex !== state.dragOverIndex) {
+            dragStateRef.current.dragOverIndex = closestIndex;
+            setDragOverIndex(closestIndex);
+        }
 
 		handleAutoScroll();
 		rafRef.current = requestAnimationFrame(updateDragPosition);
@@ -1256,22 +1323,11 @@ export const ReorderGroup: React.FC<ReorderGroupProps> = ({
 
 	const findItemUnderPointer = useCallback(
 		(clientY: number, clientX: number): number | null => {
-			const items = Array.from(itemRefsRef.current.entries());
-			for (const [index, element] of items) {
-				const rect = element.getBoundingClientRect();
-				if (axis === 'y') {
-					if (clientY >= rect.top && clientY <= rect.bottom) {
-						return index;
-					}
-				} else {
-					if (clientX >= rect.left && clientX <= rect.right) {
-						return index;
-					}
-				}
-			}
-			return null;
+			// Instead of just checking bounding box, we reuse the center logic implicitly via updateDragPosition
+            // But for the final drop, we use dragOverIndex which is calculated in updateDragPosition
+            return dragStateRef.current.dragOverIndex;
 		},
-		[axis]
+		[]
 	);
 
 	const handlePointerDown = useCallback(
@@ -1293,7 +1349,7 @@ export const ReorderGroup: React.FC<ReorderGroupProps> = ({
 			dragStateRef.current = {
 				isDragging: true,
 				draggedIndex: index,
-				dragOverIndex: null,
+				dragOverIndex: index, // Initialize to self
 				startY,
 				startX,
 				currentY: startY,
@@ -1323,22 +1379,14 @@ export const ReorderGroup: React.FC<ReorderGroupProps> = ({
 				} else {
 					dragStateRef.current.offsetX = currentOffset;
 				}
-
-				const itemIndex = findItemUnderPointer(e.clientY, e.clientX);
-				if (itemIndex !== null && itemIndex !== dragStateRef.current.draggedIndex) {
-					dragStateRef.current.dragOverIndex = itemIndex;
-					setDragOverIndex(itemIndex);
-				} else {
-					dragStateRef.current.dragOverIndex = null;
-					setDragOverIndex(null);
-				}
+                // dragOverIndex is updated in RAF loop
 			};
 
 			const handlePointerUp = (e: PointerEvent) => {
 				if (!dragStateRef.current.isDragging) return;
 
 				const state = dragStateRef.current;
-				const finalIndex = findItemUnderPointer(e.clientY, e.clientX) ?? state.draggedIndex;
+				const finalIndex = state.dragOverIndex; // Use the calculated target index
 
 				if (
 					state.draggedIndex !== null &&
@@ -1360,6 +1408,7 @@ export const ReorderGroup: React.FC<ReorderGroupProps> = ({
 					el.style.transform = '';
 					el.style.zIndex = '';
 					el.style.opacity = '';
+					el.style.boxShadow = '';
 					el.style.pointerEvents = '';
 					el.style.transition = '';
 					el.style.willChange = '';
@@ -1377,7 +1426,7 @@ export const ReorderGroup: React.FC<ReorderGroupProps> = ({
 			document.addEventListener('pointermove', handlePointerMove, { passive: false });
 			document.addEventListener('pointerup', handlePointerUp, { once: true });
 		},
-		[axis, values, onReorder, findScrollContainer, updateDragPosition, findItemUnderPointer]
+		[axis, values, onReorder, findScrollContainer, updateDragPosition]
 	);
 
 	useEffect(() => {
@@ -1523,20 +1572,6 @@ export const useTransform = (value: any, inputRange: number[], outputRange: numb
 	}, [value, inputRange, outputRange]);
 };
 
-/**
- * Hook for scroll-based fade in/out animations
- * Returns opacity and transform values based on scroll position
- * 
- * @param options Configuration options
- * @param options.fadeInStart Scroll position where fade in starts (default: 0)
- * @param options.fadeInEnd Scroll position where fade in completes (default: 100)
- * @param options.fadeOutStart Scroll position where fade out starts (default: null, no fade out)
- * @param options.fadeOutEnd Scroll position where fade out completes (default: null)
- * @param options.yTransform Y-axis transform range [start, end] (default: [20, 0])
- * @param options.ref Optional ref to track scroll relative to element instead of window
- * 
- * @returns Object with opacity, y, and scrollY values
- */
 export const useScrollFade = (options: {
 	fadeInStart?: number;
 	fadeInEnd?: number;
@@ -1557,55 +1592,17 @@ export const useScrollFade = (options: {
 	const { scrollY, scrollYProgress } = useScroll();
 	
 	const opacity = useMemo(() => {
-		if (ref?.current) {
-			// Element-based scroll tracking would need IntersectionObserver
-			// For now, use window scroll
-			const scroll = scrollY;
-			
-			// Fade in
-			if (scroll >= fadeInStart && scroll <= fadeInEnd) {
-				const progress = (scroll - fadeInStart) / (fadeInEnd - fadeInStart);
-				return Math.min(1, Math.max(0, progress));
-			}
-			
-			// Fade out
-			if (fadeOutStart !== null && fadeOutEnd !== null && scroll >= fadeOutStart && scroll <= fadeOutEnd) {
-				const progress = (scroll - fadeOutStart) / (fadeOutEnd - fadeOutStart);
-				return Math.min(1, Math.max(0, 1 - progress));
-			}
-			
-			// Before fade in
-			if (scroll < fadeInStart) return 0;
-			
-			// After fade out (if configured)
-			if (fadeOutEnd !== null && scroll > fadeOutEnd) return 0;
-			
-			// Between fade in and fade out
-			return 1;
-		}
-		
-		// Window-based scroll
 		const scroll = scrollY;
-		
-		// Fade in
 		if (scroll >= fadeInStart && scroll <= fadeInEnd) {
 			const progress = (scroll - fadeInStart) / (fadeInEnd - fadeInStart);
 			return Math.min(1, Math.max(0, progress));
 		}
-		
-		// Fade out
 		if (fadeOutStart !== null && fadeOutEnd !== null && scroll >= fadeOutStart && scroll <= fadeOutEnd) {
 			const progress = (scroll - fadeOutStart) / (fadeOutEnd - fadeOutStart);
 			return Math.min(1, Math.max(0, 1 - progress));
 		}
-		
-		// Before fade in
 		if (scroll < fadeInStart) return 0;
-		
-		// After fade out (if configured)
 		if (fadeOutEnd !== null && scroll > fadeOutEnd) return 0;
-		
-		// Between fade in and fade out
 		return 1;
 	}, [scrollY, fadeInStart, fadeInEnd, fadeOutStart, fadeOutEnd, ref]);
 	
@@ -1647,8 +1644,8 @@ export const useMotionValue = (initial: number) => {
 		set: (newValue: number) => {
 			valueRef.current = newValue;
 		},
-		on: () => {}, // Stub for compatibility
-		off: () => {} // Stub for compatibility
+		on: () => {}, 
+		off: () => {}
 	};
 };
 

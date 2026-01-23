@@ -1,87 +1,76 @@
 /**
  * TanStack Pacer utilities for performance optimization
- * Provides debouncing, throttling, and rate limiting hooks for React
  */
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { useThrottledCallback } from '@tanstack/react-pacer'
 
 /**
  * Debounced search hook for search inputs
- * Delays execution until user stops typing
  */
 export function useDebouncedSearch<T>(value: T, delay: number = 300): T {
 	const [debouncedValue, setDebouncedValue] = useState<T>(value)
+
 	useEffect(() => {
-		const timer = setTimeout(() => {
-			setDebouncedValue(value)
-		}, delay)
+		const timer = setTimeout(() => setDebouncedValue(value), delay)
 		return () => clearTimeout(timer)
 	}, [value, delay])
+
 	return debouncedValue
 }
 
 /**
  * Throttled scroll handler
- * Limits scroll event execution to improve performance
  */
-export function useThrottledScroll(callback: (event: Event) => void, delay: number = 100) {
+export function useThrottedScroll(callback: (e: Event) => void, delay = 100) {
+	// ❗ hook must be called here, not inside useEffect
+	const throttledCallback = useThrottledCallback(callback, { wait: delay })
+
 	useEffect(() => {
-		const throttledCallback = useThrottledCallback(callback, { wait: delay })
 		window.addEventListener('scroll', throttledCallback, { passive: true })
 		return () => window.removeEventListener('scroll', throttledCallback)
-	}, [callback, delay])
+	}, [throttledCallback])
 }
 
 /**
  * Throttled mouse move handler
- * Limits mouse move event execution for better performance
  */
-export function useThrottledMouseMove(
-	callback: (event: MouseEvent) => void,
-	delay: number = 16 // ~60fps
-) {
+export function useThrottledMouseMove(callback: (e: MouseEvent) => void, delay = 16) {
+	const throttledCallback = useThrottledCallback(callback, { wait: delay })
+
 	useEffect(() => {
-		const throttledCallback = useThrottledCallback(callback, { wait: delay })
 		window.addEventListener('mousemove', throttledCallback, { passive: true })
 		return () => window.removeEventListener('mousemove', throttledCallback)
-	}, [callback, delay])
+	}, [throttledCallback])
 }
 
 /**
- * Debounced input value for form inputs
- * Returns debounced value that updates after user stops typing
+ * Debounced input value
  */
-export function useDebouncedInput(initialValue: string = '', delay: number = 300) {
-	const [debouncedValue, setDebouncedValue] = useState<string>(initialValue)
+export function useDebouncedInput(initialValue = '', delay = 300) {
+	const [debouncedValue, setDebouncedValue] = useState(initialValue)
+
 	useEffect(() => {
-		const timer = setTimeout(() => {
-			setDebouncedValue(initialValue)
-		}, delay)
+		const timer = setTimeout(() => setDebouncedValue(initialValue), delay)
 		return () => clearTimeout(timer)
 	}, [initialValue, delay])
+
 	return debouncedValue
 }
 
 /**
  * Throttled value hook
- * Limits value updates to improve performance
  */
-export function useThrottledValueHook<T>(value: T, delay: number = 100): T {
-	const [throttledValue, setThrottledValue] = useState<T>(value)
-	const throttleTimerRef = useRef<NodeJS.Timeout | null>(null)
+export function useThrottledValueHook<T>(value: T, delay = 100): T {
+	const [throttledValue, setThrottledValue] = useState(value)
+	const timerRef = useRef<NodeJS.Timeout | null>(null)
 
 	useEffect(() => {
-		if (throttleTimerRef.current) {
-			clearTimeout(throttleTimerRef.current)
-		}
-		throttleTimerRef.current = setTimeout(() => {
-			setThrottledValue(value)
-		}, Math.max(delay, 16))
+		if (timerRef.current) clearTimeout(timerRef.current)
+
+		timerRef.current = setTimeout(() => setThrottledValue(value), Math.max(delay, 16))
 
 		return () => {
-			if (throttleTimerRef.current) {
-				clearTimeout(throttleTimerRef.current)
-			}
+			if (timerRef.current) clearTimeout(timerRef.current)
 		}
 	}, [value, delay])
 
@@ -90,12 +79,12 @@ export function useThrottledValueHook<T>(value: T, delay: number = 100): T {
 
 /**
  * Throttled resize handler
- * Limits window resize event execution
  */
-export function useThrottledResize(callback: (event: UIEvent) => void, delay: number = 150) {
+export function useThrottledResize(callback: (e: UIEvent) => void, delay = 150) {
+	const throttledCallback = useThrottledCallback(callback, { wait: delay })
+
 	useEffect(() => {
-		const throttledCallback = useThrottledCallback(callback, { wait: delay })
 		window.addEventListener('resize', throttledCallback, { passive: true })
 		return () => window.removeEventListener('resize', throttledCallback)
-	}, [callback, delay])
+	}, [throttledCallback])
 }

@@ -1,6 +1,6 @@
 import { Outlet, createRootRouteWithContext, HeadContent, Scripts, ErrorComponent } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
-import appCss from './globals.css?url';
+import '@/app/globals.css';
 import ClientLayout from './-clientLayout';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -23,12 +23,11 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 				name: 'viewport',
 				content: 'width=device-width, initial-scale=1, maximum-scale=5'
 			},
-			{ title: 'AntiRaid' },
+			{ title: 'AntiRaid - Automated Defense for a Safer, Thriving Community' },
 			{ name: 'theme-color', content: '#8c45f4', media: '(prefers-color-scheme: light)' },
 			{ name: 'theme-color', content: '#0f0f12', media: '(prefers-color-scheme: dark)' }
 		],
 		links: [
-			{ rel: 'stylesheet', href: appCss },
 			{ rel: 'preconnect', href: 'https://fonts.googleapis.com' },
 			{ rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' },
 			{

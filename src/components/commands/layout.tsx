@@ -201,7 +201,6 @@ export default function CommandInterface() {
 				});
 			});
 		});
-		console.log('[Commands] Loaded', commands.length, 'commands from bot state');
 		return commands;
 	}, [botState]);
 
