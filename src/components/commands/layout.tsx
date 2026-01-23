@@ -142,7 +142,7 @@ export default function CommandInterface() {
 	const [isMounted, setIsMounted] = useState(false);
 	const { mouseX, mouseY } = useMousePosition();
 
-	const { data: botState, isLoading } = useQuery(botStateOptions);
+	const { data: botState, isLoading, error } = useQuery(botStateOptions);
 
 	useEffect(() => {
 		setIsMounted(true);
@@ -161,10 +161,14 @@ export default function CommandInterface() {
 	const smoothProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
 
 	const allCommands = useMemo(() => {
-		if (!botState) return [];
+		const actualBotState = (botState as any)?.data || botState;
+		if (!actualBotState || !actualBotState.commands || !Array.isArray(actualBotState.commands)) {
+			console.warn('[Commands] Bot state invalid:', { actualBotState, botState });
+			return [];
+		}
 		let idCounter = 0;
 		const commands: any[] = [];
-		botState.commands.forEach((cmd: ApiCreateCommand) => {
+		actualBotState.commands.forEach((cmd: ApiCreateCommand) => {
 			const extract = (options: any[] = []) => {
 				const sub: any[] = [];
 				const args: any[] = [];
@@ -197,25 +201,32 @@ export default function CommandInterface() {
 				});
 			});
 		});
+		console.log('[Commands] Loaded', commands.length, 'commands from bot state');
 		return commands;
 	}, [botState]);
 
 	const filteredCommands = useMemo(() => {
+		const searchTerm = typeof debouncedSearchQuery === 'string' ? debouncedSearchQuery.toLowerCase() : String(debouncedSearchQuery || '').toLowerCase();
 		return allCommands.filter((cmd: any) => {
-			const matchesSearch =
-				(cmd.name?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ?? false) ||
-				(cmd.description?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ?? false);
+			const matchesSearch = searchTerm
+				? (cmd.name?.toLowerCase().includes(searchTerm) ?? false) ||
+				  (cmd.description?.toLowerCase().includes(searchTerm) ?? false)
+				: true;
 			const matchesModule = selectedModule === 'all' || cmd.moduleName === selectedModule;
 			return matchesSearch && matchesModule;
 		});
 	}, [allCommands, debouncedSearchQuery, selectedModule]);
 
-	const modules = useMemo(() => {
-		if (!botState) return [];
+	const modules = useMemo((): string[] => {
+		const actualBotState = (botState as any)?.data || botState;
+		if (!actualBotState || !actualBotState.commands || !Array.isArray(actualBotState.commands))
+			return [];
 		return Array.from(
-			new Set(botState.commands.map((c) => c.name).filter((n): n is string => !!n))
+			new Set(actualBotState.commands.map((c: any) => c.name).filter((n: any): n is string => !!n))
 		);
 	}, [botState]);
+
+	const actualBotState = useMemo(() => (botState as any)?.data || botState, [botState]);
 
 	if (isLoading) {
 		return (
@@ -234,6 +245,30 @@ export default function CommandInterface() {
 					<div className="absolute inset-0 flex items-center justify-center">
 						<Terminal className="text-primary animate-pulse" size={24} />
 					</div>
+				</div>
+			</div>
+		);
+	}
+
+	if (error) {
+		return (
+			<div className="min-h-screen flex items-center justify-center">
+				<div className="text-center">
+					<ShieldAlert size={64} className="text-destructive mx-auto mb-4" />
+					<h2 className="text-2xl font-bold mb-2">Failed to load commands</h2>
+					<p className="text-muted-foreground">{error instanceof Error ? error.message : 'Unknown error'}</p>
+				</div>
+			</div>
+		);
+	}
+
+	if (!actualBotState || !actualBotState.commands || actualBotState.commands.length === 0) {
+		return (
+			<div className="min-h-screen flex items-center justify-center">
+				<div className="text-center">
+					<Terminal size={64} className="text-muted-foreground mx-auto mb-4" />
+					<h2 className="text-2xl font-bold mb-2">No commands available</h2>
+					<p className="text-muted-foreground">Commands data is not available at this time.</p>
 				</div>
 			</div>
 		);
@@ -434,8 +469,8 @@ export default function CommandInterface() {
 
 const HolographicCard = ({ command, view, index }: any) => {
 	const [isDetailOpen, setIsDetailOpen] = useState(false);
-	const cardRef = useRef(null);
-	const isInView = useInView(cardRef, { once: true, margin: '-10%' });
+	const cardRef = useRef<HTMLDivElement>(null);
+	const isInView = useInView(cardRef as any, { margin: '-10%' } as any);
 
 	return (
 		<motion.div
@@ -632,7 +667,8 @@ const HolographicCard = ({ command, view, index }: any) => {
 													: ''}
 											</span>
 											<motion.div
-												animate={{ opacity: [0, 1] }}
+												animate={{ opacity: 1 }}
+												initial={{ opacity: 0 }}
 												transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
 												className="w-1.5 h-4 bg-primary/50"
 											/>

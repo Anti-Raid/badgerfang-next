@@ -12,7 +12,31 @@ export function createRouter() {
 		},
 		defaultPreload: 'intent',
 		defaultPreloadStaleTime: 0,
-		scrollRestoration: true
+		scrollRestoration: true,
+		parseSearch: (search) => {
+			const params = new URLSearchParams(search);
+			const result: Record<string, any> = {};
+			params.forEach((value, key) => {
+				try {
+					// Try to parse as JSON first (for complex objects)
+					result[key] = JSON.parse(value);
+				} catch {
+					// If it fails, treat as plain string
+					result[key] = value;
+				}
+			});
+			return result;
+		},
+		stringifySearch: (search) => {
+			const params = new URLSearchParams();
+			Object.entries(search).forEach(([key, value]) => {
+				if (value === undefined || value === null) return;
+				// Always convert to string to avoid JSON stringification that causes encoding issues
+				params.set(key, String(value));
+			});
+			const str = params.toString();
+			return str ? `?${str}` : '';
+		}
 	});
 }
 

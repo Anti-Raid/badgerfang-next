@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useEffect, useMemo } from 'react'; // Added generic React hooks if needed
+import { useRef, useState, useMemo } from 'react';
 import { motion, useScroll, useTransform, useInView } from '@/components/ui/motion';
 import { Search, BookOpen, Sparkles, Tag, TrendingUp, Clock, Eye } from 'lucide-react';
 import BlogCard from '@/components/blogs/BlogCard';
@@ -12,53 +12,49 @@ interface BlogLayoutProps {
 }
 
 export default function BlogLayout({ blogs }: BlogLayoutProps) {
-	// const [blogs, setBlogs] = useState<Blog[]>([]); // Derived from props now
-	const [filteredBlogs, setFilteredBlogs] = useState<Blog[]>(blogs);
-	// const [isLoading, setIsLoading] = useState(true); // Handled by Suspense
 	const [searchTerm, setSearchTerm] = useState('');
 	const debouncedSearchTerm = useDebouncedSearch(searchTerm, 300);
 	const [selectedTag, setSelectedTag] = useState<string | null>(null);
-	const [allTags, setAllTags] = useState<string[]>([]);
 
-	// Initialize tags
-	useEffect(() => {
-		if (blogs) {
-			setFilteredBlogs(blogs);
-			const tags = blogs.reduce((acc: string[], blog: Blog) => {
-				if (blog.tags) {
-					blog.tags.forEach((tag) => {
-						if (!acc.includes(tag)) {
-							acc.push(tag);
-						}
-					});
-				}
-				return acc;
-			}, []);
-			setAllTags(tags);
-		}
+	// Initialize tags - use useMemo to prevent infinite loops
+	const allTags = useMemo(() => {
+		if (!blogs || !Array.isArray(blogs)) return [];
+		const tags = blogs.reduce((acc: string[], blog: Blog) => {
+			if (blog.tags && Array.isArray(blog.tags)) {
+				blog.tags.forEach((tag) => {
+					if (!acc.includes(tag)) {
+						acc.push(tag);
+					}
+				});
+			}
+			return acc;
+		}, []);
+		return tags;
 	}, [blogs]);
 
 	const headerRef = useRef<HTMLDivElement>(null);
-	const isHeaderInView = useInView(headerRef, { once: false, amount: 0.5 });
+	const isHeaderInView = useInView(headerRef as any, { amount: 0.5 } as any);
 
 	const { scrollY } = useScroll();
 	const headerY = useTransform(scrollY, [0, 300], [0, -50]);
 	const headerOpacity = useTransform(scrollY, [0, 300], [1, 0.7]);
 
-	// Removed fetchBlogs useEffect
-
-	// Use debounced search term for filtering - improves performance
-	useEffect(() => {
+	// Use debounced search term for filtering - use useMemo to prevent infinite loops
+	const filteredBlogs = useMemo(() => {
+		if (!blogs || !Array.isArray(blogs)) return [];
 		let result = blogs;
 
 		// Filter by debounced search term
 		if (debouncedSearchTerm) {
-			result = result.filter(
-				(blog) =>
-					(blog.title?.toLowerCase() || '').includes(debouncedSearchTerm.toLowerCase()) ||
-					(blog.description?.toLowerCase() || '').includes(debouncedSearchTerm.toLowerCase()) ||
-					(blog.content?.toLowerCase() || '').includes(debouncedSearchTerm.toLowerCase())
-			);
+			const searchTerm = typeof debouncedSearchTerm === 'string' ? debouncedSearchTerm.toLowerCase() : String(debouncedSearchTerm || '').toLowerCase();
+			if (searchTerm) {
+				result = result.filter(
+					(blog) =>
+						(blog.title?.toLowerCase() || '').includes(searchTerm) ||
+						(blog.description?.toLowerCase() || '').includes(searchTerm) ||
+						(blog.content?.toLowerCase() || '').includes(searchTerm)
+				);
+			}
 		}
 
 		// Filter by selected tag
@@ -66,7 +62,7 @@ export default function BlogLayout({ blogs }: BlogLayoutProps) {
 			result = result.filter((blog) => blog.tags?.includes(selectedTag));
 		}
 
-		setFilteredBlogs(result);
+		return result;
 	}, [debouncedSearchTerm, selectedTag, blogs]);
 
 	const handleTagClick = (tag: string) => {
@@ -124,8 +120,7 @@ export default function BlogLayout({ blogs }: BlogLayoutProps) {
 							className="font-monster text-5xl md:text-6xl lg:text-7xl font-bold mb-6"
 						>
 							<span className="relative inline-block">
-								<span className="absolute -inset-2 blur-2xl bg-gradient-to-r from-primary to-accent opacity-30 rounded-lg" />
-								<span className="relative bg-gradient-to-r from-primary via-purple-500 to-accent bg-clip-text text-transparent">
+								<span className="relative bg-gradient-to-r from-primary via-accent to-accent bg-clip-text text-transparent">
 									AntiRaid Blog
 								</span>
 							</span>
@@ -301,7 +296,7 @@ export default function BlogLayout({ blogs }: BlogLayoutProps) {
 						}}
 						transition={{
 							duration: 8,
-							repeat: Number.POSITIVE_INFINITY,
+							repeat: Infinity,
 							repeatType: 'reverse'
 						}}
 					/>
@@ -313,7 +308,7 @@ export default function BlogLayout({ blogs }: BlogLayoutProps) {
 						}}
 						transition={{
 							duration: 10,
-							repeat: Number.POSITIVE_INFINITY,
+							repeat: Infinity,
 							repeatType: 'reverse',
 							delay: 1
 						}}

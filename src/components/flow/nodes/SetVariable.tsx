@@ -71,7 +71,6 @@ export default function SetVariable(props: NodeProps) {
 					label="Variable Name"
 					value={variableName}
 					onChange={(e) => {
-						console.log('Setting variable name to:', e.target.value);
 						setVariableName(e.target.value);
 					}}
 					placeholder="Enter variable name"
@@ -84,7 +83,6 @@ export default function SetVariable(props: NodeProps) {
 					label="Variable Value"
 					value={variableValue}
 					onChange={(value) => {
-						console.log('Setting variable value to:', value);
 						setVariableValue(value);
 					}}
 					placeholder="Enter variable value"

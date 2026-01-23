@@ -9,10 +9,14 @@ const searchSchema = type({
 });
 
 export const Route = createFileRoute('/dashboard/guilds/')({
-	validateSearch: (search) => {
-		const result = searchSchema(search);
+	validateSearch: (search: Record<string, unknown>) => {
+		const result = searchSchema(search) as { id?: string };
 		if (result instanceof type.errors) {
 			return {} as { id?: string };
+		}
+		// Sanitize ID - remove any quotes or spaces that might have leaked in
+		if (result.id && typeof result.id === 'string') {
+			result.id = result.id.replace(/["']/g, '').trim();
 		}
 		return result;
 	},
@@ -28,14 +32,15 @@ export const Route = createFileRoute('/dashboard/guilds/')({
 			});
 		}
 	},
-	loader: async ({ context: { queryClient }, search }) => {
-		if (!search.id) {
+	loader: async ({ context: { queryClient }, search }: any) => {
+		const searchParams = search as { id?: string };
+		if (!searchParams?.id) {
 			return;
 		}
 		// Pre-load guild data and settings
 		await Promise.all([
-			queryClient.ensureQueryData(baseGuildUserInfoOptions(search.id)),
-			queryClient.ensureQueryData(settingsOptions(search.id))
+			queryClient.ensureQueryData(baseGuildUserInfoOptions(searchParams.id)),
+			queryClient.ensureQueryData(settingsOptions(searchParams.id))
 		]);
 	},
 	component: Guild,

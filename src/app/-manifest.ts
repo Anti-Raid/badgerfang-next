@@ -1,7 +1,24 @@
-import { MetadataRoute } from 'next';
+// Type definition for manifest
+type ManifestIcon = {
+	src: string;
+	sizes: string;
+	type: string;
+};
+
+type Manifest = {
+	name: string;
+	short_name: string;
+	description: string;
+	start_url: string;
+	display: string;
+	background_color: string;
+	theme_color: string;
+	icons: ManifestIcon[];
+};
+
 import { title, description_short } from '@/components/common';
 
-export default function manifest(): MetadataRoute.Manifest {
+export default function manifest(): Manifest {
 	return {
 		name: title,
 		short_name: 'AntiRaid',

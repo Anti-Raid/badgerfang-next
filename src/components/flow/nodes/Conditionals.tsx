@@ -291,15 +291,6 @@ registerValidationSource(
 				return false;
 			}
 
-			console.log('Adding in node:', {
-				nodeId: nodeId,
-				nodeType: node.data.type,
-				node,
-				numContinuationConnections,
-				numEnds,
-				numBlocks
-			});
-
 			if (
 				node.data.type === NodeTypeEnum.ElseIfCondition ||
 				node.data.type === NodeTypeEnum.ElseCondition
@@ -680,15 +671,6 @@ registerValidationSource(
 				// If the node type is not defined, we cannot validate it
 				return false;
 			}
-
-			console.log('Adding in node:', {
-				nodeId: nodeId,
-				nodeType: node.data.type,
-				node,
-				numContinuationConnections,
-				numEnds,
-				numBlocks
-			});
 
 			if (
 				node.data.type === NodeTypeEnum.ElseIfCondition ||

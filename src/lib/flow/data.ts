@@ -55,7 +55,10 @@ export enum TypedInputEnum {
 }
 
 export const stringToTypedInputEnum = (value: string): TypedInputEnum => {
-	switch (value?.toLowerCase()) {
+	if (!value || typeof value !== 'string') {
+		throw new Error(`Invalid TypedInputEnum value: ${value}`);
+	}
+	switch (value.toLowerCase()) {
 		case 'nil':
 			return TypedInputEnum.Nil;
 		case 'string':
@@ -304,7 +307,10 @@ export enum CommandArgumentType {
 }
 
 export const stringToCommandArgumentType = (value: string): CommandArgumentType => {
-	switch (value?.toLowerCase()) {
+	if (!value || typeof value !== 'string') {
+		throw new Error(`Invalid CommandArgumentType value: ${value}`);
+	}
+	switch (value.toLowerCase()) {
 		case 'string':
 			return CommandArgumentType.String;
 		case 'integer':

@@ -218,8 +218,8 @@ export const TemplateCarousel = () => {
 								<motion.button
 									variants={buttonVariants}
 									initial="initial"
-									whileHover="hover"
-									whileTap="tap"
+									whileHover={{ hover: true } as any}
+									whileTap={{ tap: true } as any}
 									onClick={prev}
 									className="p-4 rounded-xl bg-card hover:bg-secondary text-foreground transition-colors duration-300 border border-border shadow-md relative overflow-hidden group"
 									aria-label="Previous"
@@ -230,8 +230,8 @@ export const TemplateCarousel = () => {
 								<motion.button
 									variants={buttonVariants}
 									initial="initial"
-									whileHover="hover"
-									whileTap="tap"
+									whileHover={{ hover: true } as any}
+									whileTap={{ tap: true } as any}
 									onClick={next}
 									className="p-4 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground transition-colors duration-300 shadow-md relative overflow-hidden group"
 									aria-label="Next"

@@ -42,7 +42,7 @@ function DiscordRedirect() {
 					animate={{
 						scale: 1,
 						opacity: 1,
-						rotate: [0, 360]
+						rotate: 360
 					}}
 					transition={{
 						duration: 2,

@@ -160,7 +160,7 @@ const FlowExpandedModal: React.FC<FlowExpandedProps> = ({ nodeProps, children, t
 			opacity: 0,
 			scale: 0.9,
 			rotateX: -15
-		},
+		} as any,
 		visible: {
 			y: 0,
 			opacity: 1,
@@ -172,7 +172,7 @@ const FlowExpandedModal: React.FC<FlowExpandedProps> = ({ nodeProps, children, t
 				damping: 30,
 				mass: 0.8
 			}
-		},
+		} as any,
 		exit: {
 			y: 60,
 			opacity: 0,
@@ -182,7 +182,7 @@ const FlowExpandedModal: React.FC<FlowExpandedProps> = ({ nodeProps, children, t
 				duration: 0.25,
 				ease: [0.4, 0, 0.2, 1]
 			}
-		}
+		} as any
 	};
 
 	const headerVariants: Variants = {

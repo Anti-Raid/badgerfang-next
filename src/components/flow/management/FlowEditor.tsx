@@ -85,7 +85,6 @@ export default function FlowEditor({ initialData, onChange }: Props) {
 	);
 
 	const onNodesDelete = (deletedNodes: Node[]) => {
-		console.log('onNodesDelete', deletedNodes);
 		for (const node of deletedNodes) {
 			setEdges((edges) =>
 				edges.filter((edge) => edge.source !== node.id && edge.target !== node.id)
@@ -117,8 +116,6 @@ export default function FlowEditor({ initialData, onChange }: Props) {
 				},
 				{ snapToGrid: true }
 			);
-			console.log('onDrop', type, position);
-
 			const newNode = createNode(type, position);
 
 			setNodes((nds) => nds.concat(newNode));
@@ -214,7 +211,6 @@ export default function FlowEditor({ initialData, onChange }: Props) {
 
 			let parent = undefined;
 			if (existingNode.length > 0) {
-				console.log('Found existing node', node, ':', existingNode);
 				// Choose the node with smaller area
 				let minArea = Infinity;
 				let closestNode: Node = existingNode[0];

@@ -72,7 +72,7 @@ export function generateMetadata(
 	].join(', ');
 
 	const meta: Array<{ title?: string; name?: string; property?: string; content: string }> = [
-		{ title: fullTitle },
+		{ title: fullTitle, content: fullTitle },
 		{ name: 'description', content: desc },
 		{ name: 'application-name', content: siteTitle },
 		{ name: 'author', content: owner },
@@ -126,7 +126,7 @@ export function generateMetadata(
 	links.push({ rel: 'shortcut icon', href: logo ?? '/logo.webp' });
 	links.push({ rel: 'apple-touch-icon', href: logo ?? '/logo.webp' });
 
-	return { meta, links };
+	return { meta, links, scripts: [] };
 }
 
 export function generateBlogMetadata(params: GenerateMetadataParams) {
@@ -317,7 +317,7 @@ export function generateArticleStructuredData(data: ArticleStructuredData) {
 				},
 		publisher: {
 			'@type': 'Organization',
-			name: data.publisher?.name || title,
+			name: data.publisher?.name || data.title,
 			logo: {
 				'@type': 'ImageObject',
 				url: data.publisher?.logo

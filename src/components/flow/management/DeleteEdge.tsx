@@ -24,7 +24,6 @@ export default function FlowEdgeDeleteButton({
 	});
 
 	const onEdgeClick = () => {
-		console.log('Deleting edge with id:', id);
 		setEdges((edges) => edges.filter((edge) => edge.id !== id));
 	};
 

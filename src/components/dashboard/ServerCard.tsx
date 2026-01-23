@@ -50,7 +50,13 @@ export const ServerCard: React.FC<{ server: DashboardGuild; showViewButton: bool
 	const isAdministrator = permissionNames.includes('Administrator');
 
 	const handleViewClick = () => {
-		router.navigate({ to: '/dashboard/guilds', search: { id: server.id } });
+		// Ensure id is a string without quotes and handle potential double quoting
+		const guildId = String(server.id).replace(/^["']|["']$/g, '').replace(/^["']|["']$/g, '');
+		router.navigate({ 
+			to: '/dashboard/guilds', 
+			search: { id: guildId },
+			params: {}
+		});
 	};
 
 	const handleInviteClick = () => {

@@ -37,7 +37,7 @@ export const BaseSubflow = ({ initialData, onChange, id }: Props) => {
 	// Trigger onChange when nodes change
 	useEffect(() => {
 		onChange();
-	}, [nodes]);
+	}, [nodes, onChange]);
 
 	const [edges, setEdges, onEdgesChange] = useEdgesState(initialData?.edges || []);
 	const { getEdge, getNode, getNodes, getEdges, screenToFlowPosition } = useReactFlow();
@@ -79,7 +79,6 @@ export const BaseSubflow = ({ initialData, onChange, id }: Props) => {
 	);
 
 	const onNodesDelete = (deletedNodes: Node[]) => {
-		console.log('onNodesDelete', deletedNodes);
 		for (const node of deletedNodes) {
 			setEdges((edges) =>
 				edges.filter((edge) => edge.source !== node.id && edge.target !== node.id)
@@ -106,8 +105,6 @@ export const BaseSubflow = ({ initialData, onChange, id }: Props) => {
 				},
 				{ snapToGrid: true }
 			);
-			console.log('onDrop', type, position);
-
 			const newNode = createSNode(type, position);
 
 			setNodes((nds) => nds.concat(newNode));

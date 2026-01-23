@@ -9,36 +9,66 @@ interface MotionProps {
 		| boolean
 		| string
 		| {
-				opacity?: number;
-				y?: number;
-				x?: number;
-				scale?: number;
-				rotate?: number;
-				width?: number | string;
+				opacity?: number | number[];
+				y?: number | number[];
+				x?: number | number[];
+				scale?: number | number[];
+				rotate?: number | number[];
+				rotateX?: number | number[];
+				rotateY?: number | number[];
+				width?: number | string | (number | string)[];
+				height?: number | string | (number | string)[];
+				top?: number | string | (number | string)[];
+				left?: number | string | (number | string)[];
+				right?: number | string | (number | string)[];
+				bottom?: number | string | (number | string)[];
 				boxShadow?: string | string[];
+				backgroundColor?: string;
+				translateX?: number | string | (number | string)[];
+				translateY?: number | string | (number | string)[];
 		  };
 	animate?:
 		| boolean
 		| string
 		| {
-				opacity?: number;
-				y?: number;
-				x?: number;
-				scale?: number;
-				rotate?: number;
-				width?: number | string;
+				opacity?: number | number[];
+				y?: number | number[];
+				x?: number | number[];
+				scale?: number | number[];
+				rotate?: number | number[];
+				rotateX?: number | number[];
+				rotateY?: number | number[];
+				width?: number | string | (number | string)[];
+				height?: number | string | (number | string)[];
+				top?: number | string | (number | string)[];
+				left?: number | string | (number | string)[];
+				right?: number | string | (number | string)[];
+				bottom?: number | string | (number | string)[];
 				boxShadow?: string | string[];
+				backgroundColor?: string;
+				translateX?: number | string | (number | string)[];
+				translateY?: number | string | (number | string)[];
 		  };
 	exit?:
 		| string
 		| {
-			opacity?: number;
-			y?: number;
-			x?: number;
-			scale?: number;
-			rotate?: number;
-			width?: number | string;
+			opacity?: number | number[];
+			y?: number | number[];
+			x?: number | number[];
+			scale?: number | number[];
+			rotate?: number | number[];
+			rotateX?: number | number[];
+			rotateY?: number | number[];
+			width?: number | string | (number | string)[];
+			height?: number | string | (number | string)[];
+			top?: number | string | (number | string)[];
+			left?: number | string | (number | string)[];
+			right?: number | string | (number | string)[];
+			bottom?: number | string | (number | string)[];
 			boxShadow?: string | string[];
+			backgroundColor?: string;
+			translateX?: number | string | (number | string)[];
+			translateY?: number | string | (number | string)[];
 		};
 	variants?: Variants;
 	custom?: any;
@@ -72,6 +102,9 @@ interface MotionProps {
 		y?: number;
 		rotate?: number;
 		opacity?: number;
+		boxShadow?: string;
+		backgroundColor?: string;
+		translateX?: number | string;
 		transition?: {
 			duration?: number;
 			delay?: number;
@@ -82,16 +115,25 @@ interface MotionProps {
 			mass?: number;
 		};
 	};
-	whileTap?: { scale?: number; rotate?: number };
+	whileTap?: { 
+		scale?: number; 
+		rotate?: number;
+		translateX?: number | string;
+	};
 	whileInView?:
 		| {
-				opacity?: number;
-				y?: number;
-				x?: number;
-				scale?: number;
-				rotate?: number;
-				width?: number | string;
+				opacity?: number | number[];
+				y?: number | number[];
+				x?: number | number[];
+				scale?: number | number[];
+				rotate?: number | number[];
+				rotateX?: number | number[];
+				rotateY?: number | number[];
+				width?: number | string | (number | string)[];
 				boxShadow?: string | string[];
+				backgroundColor?: string;
+				translateX?: number | string | (number | string)[];
+				translateY?: number | string | (number | string)[];
 		  }
 		| string;
 	whileFocus?: { scale?: number; opacity?: number };
@@ -123,15 +165,20 @@ interface MotionProps {
 export type Variants = Record<
 	string,
 	{
-		opacity?: number;
-		y?: number;
-		x?: number;
-		scale?: number;
-		rotate?: number;
-		width?: number | string;
+		opacity?: number | number[];
+		y?: number | number[];
+		x?: number | number[];
+		scale?: number | number[];
+		rotate?: number | number[];
+		rotateX?: number | number[];
+		rotateY?: number | number[];
+		width?: number | string | (number | string)[];
 		boxShadow?: string | string[];
+		backgroundColor?: string;
+		translateX?: number | string | (number | string)[];
+		translateY?: number | string | (number | string)[];
 		transition?: MotionProps['transition'];
-	}
+	} | ((props: any) => any)
 >;
 
 // Optimized spring physics with adaptive timestep
@@ -436,22 +483,27 @@ const createMotionComponent = <T extends keyof JSX.IntrinsicElements>(
 		// Initialize animation state - use useLayoutEffect to prevent flash
 		useLayoutEffect(() => {
 			if (resolvedInitial && typeof resolvedInitial === 'object') {
+				const getFirstValue = (val: any): number => {
+					if (Array.isArray(val)) return val[0] as number;
+					return typeof val === 'number' ? val : 0;
+				};
+
 				animationStateRef.current = {
 					opacity: {
-						current: resolvedInitial.opacity ?? 1,
-						target: resolvedInitial.opacity ?? 1,
+						current: getFirstValue(resolvedInitial.opacity) ?? 1,
+						target: getFirstValue(resolvedInitial.opacity) ?? 1,
 						velocity: 0
 					},
-					x: { current: resolvedInitial.x ?? 0, target: resolvedInitial.x ?? 0, velocity: 0 },
-					y: { current: resolvedInitial.y ?? 0, target: resolvedInitial.y ?? 0, velocity: 0 },
+					x: { current: getFirstValue(resolvedInitial.x) ?? 0, target: getFirstValue(resolvedInitial.x) ?? 0, velocity: 0 },
+					y: { current: getFirstValue(resolvedInitial.y) ?? 0, target: getFirstValue(resolvedInitial.y) ?? 0, velocity: 0 },
 					scale: {
-						current: resolvedInitial.scale ?? 1,
-						target: resolvedInitial.scale ?? 1,
+						current: getFirstValue(resolvedInitial.scale) ?? 1,
+						target: getFirstValue(resolvedInitial.scale) ?? 1,
 						velocity: 0
 					},
 					rotate: {
-						current: resolvedInitial.rotate ?? 0,
-						target: resolvedInitial.rotate ?? 0,
+						current: getFirstValue(resolvedInitial.rotate) ?? 0,
+						target: getFirstValue(resolvedInitial.rotate) ?? 0,
 						velocity: 0
 					}
 				};
@@ -557,14 +609,19 @@ const createMotionComponent = <T extends keyof JSX.IntrinsicElements>(
 		// Update animation targets
 		useEffect(() => {
 			if (resolvedAnimate && typeof resolvedAnimate === 'object' && !useCSSAnimation) {
+				const getFirstValue = (val: any): number | undefined => {
+					if (Array.isArray(val)) return (val[val.length - 1] as number) ?? undefined;
+					return typeof val === 'number' ? val : undefined;
+				};
+
 				if (resolvedAnimate.opacity !== undefined)
-					animationStateRef.current.opacity.target = resolvedAnimate.opacity;
-				if (resolvedAnimate.x !== undefined) animationStateRef.current.x.target = resolvedAnimate.x;
-				if (resolvedAnimate.y !== undefined) animationStateRef.current.y.target = resolvedAnimate.y;
+					animationStateRef.current.opacity.target = getFirstValue(resolvedAnimate.opacity) ?? 1;
+				if (resolvedAnimate.x !== undefined) animationStateRef.current.x.target = getFirstValue(resolvedAnimate.x) ?? 0;
+				if (resolvedAnimate.y !== undefined) animationStateRef.current.y.target = getFirstValue(resolvedAnimate.y) ?? 0;
 				if (resolvedAnimate.scale !== undefined)
-					animationStateRef.current.scale.target = resolvedAnimate.scale;
+					animationStateRef.current.scale.target = getFirstValue(resolvedAnimate.scale) ?? 1;
 				if (resolvedAnimate.rotate !== undefined)
-					animationStateRef.current.rotate.target = resolvedAnimate.rotate;
+					animationStateRef.current.rotate.target = getFirstValue(resolvedAnimate.rotate) ?? 0;
 			}
 		}, [resolvedAnimate, useCSSAnimation]);
 
@@ -759,56 +816,64 @@ const createMotionComponent = <T extends keyof JSX.IntrinsicElements>(
 				}
 			}
 
-			// Exit state
-			if (isExiting && resolvedExit && typeof resolvedExit === 'object') {
-				const duration = transition.duration || 0.3;
-				const ease = typeof transition.ease === 'string' ? transition.ease : 'ease-in-out';
-				return {
-					...baseStyle,
-					opacity: resolvedExit.opacity !== undefined ? resolvedExit.opacity : baseStyle.opacity,
-					transform: `translate3d(${resolvedExit.x || 0}px, ${resolvedExit.y || 0}px, 0) scale(${resolvedExit.scale || 1}) rotate(${resolvedExit.rotate || 0}deg)`,
-					transition: `all ${duration}s ${ease}`
-				};
-			}
+		// Exit state
+		if (isExiting && resolvedExit && typeof resolvedExit === 'object') {
+			const getExitOpacity = (val: any): number | undefined => {
+				if (Array.isArray(val)) return (val[val.length - 1] as number) ?? undefined;
+				return typeof val === 'number' ? val : undefined;
+			};
 
-			// Initial state
-			if (!isVisible && resolvedInitial && typeof resolvedInitial === 'object') {
-				const style: React.CSSProperties = {
-					...baseStyle,
-					opacity: resolvedInitial.opacity !== undefined ? resolvedInitial.opacity : 1,
-					transform: `translate3d(${resolvedInitial.x || 0}px, ${resolvedInitial.y || 0}px, 0) scale(${resolvedInitial.scale || 1}) rotate(${resolvedInitial.rotate || 0}deg)`
-				};
-				if (resolvedInitial.width !== undefined) {
-					style.width = resolvedInitial.width;
-				}
-				if (resolvedInitial.boxShadow !== undefined) {
-					style.boxShadow = Array.isArray(resolvedInitial.boxShadow)
-						? resolvedInitial.boxShadow[0]
-						: resolvedInitial.boxShadow;
-				}
-				return style;
-			}
+			const duration = transition.duration || 0.3;
+			const ease = typeof transition.ease === 'string' ? transition.ease : 'ease-in-out';
+			return {
+				...baseStyle,
+				opacity: getExitOpacity(resolvedExit.opacity) ?? baseStyle.opacity,
+				transform: `translate3d(${resolvedExit.x || 0}px, ${resolvedExit.y || 0}px, 0) scale(${resolvedExit.scale || 1}) rotate(${resolvedExit.rotate || 0}deg)`,
+				transition: `all ${duration}s ${ease}`
+			};
+		}			// Initial state
+		if (!isVisible && resolvedInitial && typeof resolvedInitial === 'object') {
+			const getOpacityValue = (val: any): number => {
+				if (Array.isArray(val)) return (val[0] as number) ?? 1;
+				return typeof val === 'number' ? val : 1;
+			};
 
-			// Animated state with interactions
+			const getWidthValue = (val: any): string | number | undefined => {
+				if (Array.isArray(val)) return (val[0] as string | number) ?? undefined;
+				return (val as string | number) ?? undefined;
+			};
+
+			const style: React.CSSProperties = {
+				...baseStyle,
+				opacity: getOpacityValue(resolvedInitial.opacity),
+				transform: `translate3d(${resolvedInitial.x || 0}px, ${resolvedInitial.y || 0}px, 0) scale(${resolvedInitial.scale || 1}) rotate(${resolvedInitial.rotate || 0}deg)`
+			};
+			if (resolvedInitial.width !== undefined) {
+				style.width = getWidthValue(resolvedInitial.width);
+			}
+			if (resolvedInitial.boxShadow !== undefined) {
+				style.boxShadow = Array.isArray(resolvedInitial.boxShadow)
+					? resolvedInitial.boxShadow[0]
+					: resolvedInitial.boxShadow;
+			}
+			return style;
+		}			// Animated state with interactions
 			if (isVisible) {
 				const activeAnimate =
 					inViewState && resolvedWhileInView ? resolvedWhileInView : resolvedAnimate;
 
 				if (activeAnimate && typeof activeAnimate === 'object') {
-					const animateObj = activeAnimate as {
-						opacity?: number;
-						y?: number;
-						x?: number;
-						scale?: number;
-						rotate?: number;
-						width?: number | string;
-						boxShadow?: string | string[];
+					const getNumericValue = (val: any, defaultVal: number): number => {
+						if (Array.isArray(val)) return (val[val.length - 1] as number) ?? defaultVal;
+						return typeof val === 'number' ? val : defaultVal;
 					};
-					let scale = animateObj.scale || 1;
-					let x = animateObj.x || 0;
-					let y = animateObj.y || 0;
-					let rotate = animateObj.rotate || 0;
-					let opacity = animateObj.opacity !== undefined ? animateObj.opacity : 1;
+
+					const animateObj = activeAnimate as any;
+					let scale = getNumericValue(animateObj.scale, 1);
+					let x = getNumericValue(animateObj.x, 0);
+					let y = getNumericValue(animateObj.y, 0);
+					let rotate = getNumericValue(animateObj.rotate, 0);
+					let opacity = getNumericValue(animateObj.opacity, 1);
 					let width = animateObj.width;
 					let boxShadow = animateObj.boxShadow;
 
@@ -1456,6 +1521,97 @@ export const useTransform = (value: any, inputRange: number[], outputRange: numb
 
 		return outputRange[0] || 0;
 	}, [value, inputRange, outputRange]);
+};
+
+/**
+ * Hook for scroll-based fade in/out animations
+ * Returns opacity and transform values based on scroll position
+ * 
+ * @param options Configuration options
+ * @param options.fadeInStart Scroll position where fade in starts (default: 0)
+ * @param options.fadeInEnd Scroll position where fade in completes (default: 100)
+ * @param options.fadeOutStart Scroll position where fade out starts (default: null, no fade out)
+ * @param options.fadeOutEnd Scroll position where fade out completes (default: null)
+ * @param options.yTransform Y-axis transform range [start, end] (default: [20, 0])
+ * @param options.ref Optional ref to track scroll relative to element instead of window
+ * 
+ * @returns Object with opacity, y, and scrollY values
+ */
+export const useScrollFade = (options: {
+	fadeInStart?: number;
+	fadeInEnd?: number;
+	fadeOutStart?: number | null;
+	fadeOutEnd?: number | null;
+	yTransform?: [number, number];
+	ref?: React.RefObject<HTMLElement>;
+} = {}) => {
+	const {
+		fadeInStart = 0,
+		fadeInEnd = 100,
+		fadeOutStart = null,
+		fadeOutEnd = null,
+		yTransform = [20, 0],
+		ref
+	} = options;
+
+	const { scrollY, scrollYProgress } = useScroll();
+	
+	const opacity = useMemo(() => {
+		if (ref?.current) {
+			// Element-based scroll tracking would need IntersectionObserver
+			// For now, use window scroll
+			const scroll = scrollY;
+			
+			// Fade in
+			if (scroll >= fadeInStart && scroll <= fadeInEnd) {
+				const progress = (scroll - fadeInStart) / (fadeInEnd - fadeInStart);
+				return Math.min(1, Math.max(0, progress));
+			}
+			
+			// Fade out
+			if (fadeOutStart !== null && fadeOutEnd !== null && scroll >= fadeOutStart && scroll <= fadeOutEnd) {
+				const progress = (scroll - fadeOutStart) / (fadeOutEnd - fadeOutStart);
+				return Math.min(1, Math.max(0, 1 - progress));
+			}
+			
+			// Before fade in
+			if (scroll < fadeInStart) return 0;
+			
+			// After fade out (if configured)
+			if (fadeOutEnd !== null && scroll > fadeOutEnd) return 0;
+			
+			// Between fade in and fade out
+			return 1;
+		}
+		
+		// Window-based scroll
+		const scroll = scrollY;
+		
+		// Fade in
+		if (scroll >= fadeInStart && scroll <= fadeInEnd) {
+			const progress = (scroll - fadeInStart) / (fadeInEnd - fadeInStart);
+			return Math.min(1, Math.max(0, progress));
+		}
+		
+		// Fade out
+		if (fadeOutStart !== null && fadeOutEnd !== null && scroll >= fadeOutStart && scroll <= fadeOutEnd) {
+			const progress = (scroll - fadeOutStart) / (fadeOutEnd - fadeOutStart);
+			return Math.min(1, Math.max(0, 1 - progress));
+		}
+		
+		// Before fade in
+		if (scroll < fadeInStart) return 0;
+		
+		// After fade out (if configured)
+		if (fadeOutEnd !== null && scroll > fadeOutEnd) return 0;
+		
+		// Between fade in and fade out
+		return 1;
+	}, [scrollY, fadeInStart, fadeInEnd, fadeOutStart, fadeOutEnd, ref]);
+	
+	const y = useTransform(scrollY, [fadeInStart, fadeInEnd], yTransform);
+	
+	return { opacity, y, scrollY };
 };
 
 export const useInView = (

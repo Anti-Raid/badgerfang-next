@@ -79,7 +79,12 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug, initialPost }) =>
 					text: blog?.description || '',
 					url: window.location.href
 				})
-				.catch((error) => console.log('Error sharing', error));
+				.catch((error) => {
+					// Silently handle sharing errors - user may have cancelled
+					if (error?.name !== 'AbortError') {
+						console.error('Error sharing article:', error);
+					}
+				});
 		} else {
 			navigator.clipboard.writeText(window.location.href).then(() => {
 				setCopied(true);

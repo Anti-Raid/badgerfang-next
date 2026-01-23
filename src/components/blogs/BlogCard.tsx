@@ -73,7 +73,7 @@ export default function BlogCard({ blog, index, isFeatured = false }: BlogCardPr
 				rotateX,
 				rotateY,
 				perspective: 1000
-			}}
+			} as any}
 			onMouseMove={handleMouseMove}
 			onMouseEnter={() => setIsHovered(true)}
 			onMouseLeave={() => {

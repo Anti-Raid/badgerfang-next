@@ -241,7 +241,7 @@ export const Toggle: React.FC<ToggleProps> = ({
 						className="inline-block h-4 w-4 transform rounded-full bg-white"
 						animate={{
 							translateX: checked ? '1.5rem' : '0.25rem'
-						}}
+						} as any}
 						transition={{
 							type: 'spring',
 							stiffness: 500,

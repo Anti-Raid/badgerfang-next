@@ -15,12 +15,9 @@ interface TimelineEvent {
 export const HistoryTimeline = () => {
 	const [isLoaded, setIsLoaded] = useState(false);
 	const containerRef = useRef<HTMLDivElement>(null);
-	const { scrollYProgress } = useScroll({
-		target: containerRef,
-		offset: ['start end', 'end start']
-	});
+	const { scrollYProgress } = useScroll();
 
-	const lineHeight = useTransform(scrollYProgress, [0, 1], ['0%', '100%']);
+	const lineHeight = useTransform(scrollYProgress, [0, 1], ['0%', '100%'] as any);
 
 	useEffect(() => {
 		setIsLoaded(true);
@@ -45,7 +42,7 @@ export const HistoryTimeline = () => {
 				<>
 					AntiRaid was acquired by{' '}
 					<a
-						to="https://purrquinox.com"
+						href="https://purrquinox.com"
 						target="_blank"
 						rel="noopener noreferrer"
 						className="underline bg-primary hover:bg-primary/80 hover:underline-offset-2 transition-all duration-200"
@@ -171,13 +168,10 @@ interface TimelineEventProps {
 const TimelineEvent = ({ event, index, isLoaded }: TimelineEventProps) => {
 	const isEven = index % 2 === 0;
 	const containerRef = useRef<HTMLDivElement>(null);
-	const { scrollYProgress } = useScroll({
-		target: containerRef,
-		offset: ['start end', 'center center']
-	});
+	const { scrollYProgress: rawScrollYProgress } = useScroll();
 
-	const opacity = useTransform(scrollYProgress, [0, 0.5], [0, 1]);
-	const x = useTransform(scrollYProgress, [0, 0.5], isEven ? [-50, 0] : [50, 0]);
+	const opacity = useTransform(rawScrollYProgress, [0, 0.5], [0, 1]);
+	const x = useTransform(rawScrollYProgress, [0, 0.5], isEven ? [-50, 0] : [50, 0]);
 
 	return (
 		<motion.div ref={containerRef} style={{ opacity, x }} className="relative">

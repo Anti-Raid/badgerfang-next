@@ -93,7 +93,7 @@ const ParticlesBackground = () => {
 	);
 };
 
-const ErrorPage = ({ error, reset }: ErrorPageProps) => {
+export default function ErrorPage({ error, reset }: ErrorPageProps) {
 	const [isGlitching, setIsGlitching] = useState(false);
 	const [copied, setCopied] = useState(false);
 
@@ -113,7 +113,7 @@ const ErrorPage = ({ error, reset }: ErrorPageProps) => {
 	const description = error.message || 'Something went wrong on our end.';
 
 	return (
-		<div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-background text-foreground p-4">
+		<div className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-background text-foreground p-4">
 			<ParticlesBackground />
 
 			<div className="relative z-10 max-w-3xl w-full">
@@ -221,6 +221,4 @@ const ErrorPage = ({ error, reset }: ErrorPageProps) => {
 			`}</style>
 		</div>
 	);
-};
-
-export default ErrorPage;
+}

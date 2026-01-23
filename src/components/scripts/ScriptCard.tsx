@@ -41,8 +41,8 @@ export const CommonCard = ({ template }: CommonCardProps) => {
 			initial={{ opacity: 0, y: 20 }}
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ duration: 0.3 }}
-			onHoverStart={() => setIsHovered(true)}
-			onHoverEnd={() => setIsHovered(false)}
+			onMouseEnter={() => setIsHovered(true)}
+			onMouseLeave={() => setIsHovered(false)}
 			className="group relative bg-card rounded-2xl overflow-hidden shadow-2xl transition-all duration-500 border border-primary/20 hover:border-primary/40"
 			style={{
 				boxShadow: isHovered
@@ -119,7 +119,7 @@ export const CommonCard = ({ template }: CommonCardProps) => {
 									initial={{ scale: 0.8, opacity: 0 }}
 									animate={{ scale: 1, opacity: 1 }}
 									transition={{ delay: 0.4 + index * 0.1 }}
-									whileHover={{ scale: 1.05, backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
+									whileHover={{ scale: 1.05, backgroundColor: 'rgba(255, 255, 255, 0.2)' } as any}
 									className="px-3 py-1 bg-white/10 text-white/90 text-xs font-monster rounded-full border border-white/10 backdrop-blur-sm shadow-sm"
 								>
 									{tag}
@@ -213,7 +213,7 @@ export const CommonCard = ({ template }: CommonCardProps) => {
 						className="flex gap-3"
 					>
 						<motion.button
-							whileHover={{ scale: 1.02, boxShadow: '0 0 20px rgba(var(--primary), 0.3)' }}
+							whileHover={{ scale: 1.02, boxShadow: '0 0 20px rgba(var(--primary), 0.3)' } as any}
 							whileTap={{ scale: 0.98 }}
 							onClick={() =>
 								router.navigate({
@@ -229,7 +229,7 @@ export const CommonCard = ({ template }: CommonCardProps) => {
 						</motion.button>
 
 						<motion.button
-							whileHover={{ scale: 1.02, boxShadow: '0 0 15px rgba(var(--primary), 0.2)' }}
+							whileHover={{ scale: 1.02, boxShadow: '0 0 15px rgba(var(--primary), 0.2)' } as any}
 							whileTap={{ scale: 0.98 }}
 							className="flex items-center justify-center gap-2 bg-secondary hover:bg-secondary/80 text-secondary-foreground px-4 py-3 rounded-xl font-medium transition-all duration-300 relative overflow-hidden group"
 						>

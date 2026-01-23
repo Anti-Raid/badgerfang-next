@@ -6,7 +6,7 @@ import { Primary, Ghost } from '@/components/ui/Buttons';
 // Note: This matches /not-found path specifically.
 // For default 404, we usually assign a NotFoundComponent to the Root route.
 export const Route = createFileRoute('/not-found/')({
-	component: ErrorPage
+	component: NotFoundPage
 });
 
 const ParticlesBackground = () => {
@@ -93,7 +93,7 @@ const ParticlesBackground = () => {
 };
 
 // Main error page component
-function ErrorPage() {
+export default function NotFoundPage() {
 	const [isGlitching, setIsGlitching] = useState(false);
 
 	useEffect(() => {

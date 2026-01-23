@@ -300,7 +300,7 @@ const CreateSessionForm: React.FC<{ onSessionCreated: () => void }> = ({ onSessi
 					type="submit"
 					form="create-session-form"
 					className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-3 rounded-xl transition-all flex items-center justify-center gap-2 font-medium"
-					disabled={isLoading}
+					disabled={createSessionMutation.isPending}
 				>
 					{createSessionMutation.isPending ? (
 						<>
@@ -421,23 +421,23 @@ const Dashboard: React.FC = () => {
 				</motion.div>
 
 				<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-					<SessionCard
-						title="Logged in Sessions"
-						description="Active browser sessions"
-						icon={<KeyRound className="h-6 w-6" />}
-						sessions={sessions.loginSessions}
-						onRevoke={handleRevokeSession}
-					/>
+				<SessionCard
+					title="Logged in Sessions"
+					description="Active browser sessions"
+					icon={<KeyRound className="h-6 w-6" />}
+					sessions={sessions.loginSessions}
+					onRevoke={handleRevokeSession}
+				/>
 
-					<CreateSessionForm onSessionCreated={fetchSessions} />
+				<CreateSessionForm onSessionCreated={() => queryClient.invalidateQueries({ queryKey: ['userSessions'] })} />
 
-					<SessionCard
-						title="API Tokens"
-						description="Active API access tokens"
-						icon={<Settings className="h-6 w-6" />}
-						sessions={sessions.apiSessions}
-						onRevoke={handleRevokeSession}
-					/>
+				<SessionCard
+					title="API Tokens"
+					description="Active API access tokens"
+					icon={<Settings className="h-6 w-6" />}
+					sessions={sessions.apiSessions}
+					onRevoke={handleRevokeSession}
+				/>
 				</div>
 			</div>
 		</div>

@@ -1,5 +1,8 @@
 import { LuauTemplateResultCode, LuauTemplateResult } from './wasm-types';
 
+// Declare importScripts for web worker
+declare function importScripts(...urls: string[]): void;
+
 // Web worker for wasm execution
 interface WasmExports {
 	cwrap: (
@@ -31,11 +34,11 @@ const getModule = async () => {
 	}
 
 	try {
-		const wasm_js = await import(
-			/* webpackIgnore: true */
-			'/wasm/wasm.js' as string
-		);
-		const wasmModule = (await wasm_js.default()) as WasmExports;
+		// In web worker context, we can import the script directly
+		importScripts('/wasm/wasm.js');
+		
+		// The script initializes Module in the global scope
+		const wasmModule = (await (globalThis as any).Module.default?.()) as WasmExports;
 		module = {
 			module: wasmModule,
 			cwrapped: wasmModule.cwrap('luau_template', 'number', [

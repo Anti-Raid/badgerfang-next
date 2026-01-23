@@ -172,11 +172,11 @@ export const ReviewsCarousel = () => {
 					onMouseEnter={() => setIsPaused(true)}
 					onMouseLeave={() => setIsPaused(false)}
 				>
-					<AnimatePresence initial={false} custom={direction} mode="wait">
+					<AnimatePresence initial={false} mode="wait">
 						<motion.div
 							key={currentIndex}
 							custom={direction}
-							variants={slideVariants}
+							variants={slideVariants as any}
 							initial="enter"
 							animate="center"
 							exit="exit"
@@ -218,7 +218,7 @@ export const ReviewsCarousel = () => {
 											target="_blank"
 											rel="noopener noreferrer"
 											className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 hover:bg-primary/20 transition-all group"
-											whileHover={{ scale: 1.1, boxShadow: '0 0 15px rgba(var(--primary), 0.3)' }}
+											whileHover={{ scale: 1.1, boxShadow: '0 0 15px rgba(var(--primary), 0.3)' } as any}
 											whileTap={{ scale: 0.95 }}
 											aria-label="View review on Discord"
 										>

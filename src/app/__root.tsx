@@ -1,4 +1,4 @@
-import { Outlet, createRootRouteWithContext, HeadContent, Scripts } from '@tanstack/react-router';
+import { Outlet, createRootRouteWithContext, HeadContent, Scripts, ErrorComponent } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import appCss from './globals.css?url';
 import ClientLayout from './-clientLayout';
@@ -6,12 +6,16 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import type { QueryClient } from '@tanstack/react-query';
 import { website_url, title, logo, twitter, owner } from '@/components/common';
+import ErrorPageComponent from './-error';
+import NotFoundPage from './not-found';
 
 interface RouterContext {
 	queryClient: QueryClient;
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
+	errorComponent: ErrorPageComponent,
+	notFoundComponent: NotFoundPage,
 	head: () => ({
 		meta: [
 			{ charSet: 'utf-8' },

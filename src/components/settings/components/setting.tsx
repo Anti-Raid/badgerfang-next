@@ -38,7 +38,6 @@ export const defaultNew = (setting: Setting) => {
 			continue;
 		}
 	}
-	console.log('defaultNew', data);
 	return data;
 };
 

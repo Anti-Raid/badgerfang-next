@@ -22,11 +22,14 @@ export const TemplateShop = ({ data }: { data: any[] }) => {
 		if (!Array.isArray(data)) return [];
 		if (!debouncedSearchTerm) return data;
 
+		const searchTerm = typeof debouncedSearchTerm === 'string' ? debouncedSearchTerm.toLowerCase() : String(debouncedSearchTerm || '').toLowerCase();
+		if (!searchTerm) return data;
+
 		return data.filter(
 			(template) =>
-				template.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-				template.description.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-				template.owner_guild.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+				(template.name?.toLowerCase() || '').includes(searchTerm) ||
+				(template.description?.toLowerCase() || '').includes(searchTerm) ||
+				(template.owner_guild?.toLowerCase() || '').includes(searchTerm)
 		);
 	}, [debouncedSearchTerm, data]);
 

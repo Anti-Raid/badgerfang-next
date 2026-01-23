@@ -2,8 +2,21 @@ import React from 'react';
 import BlogSlugLayout from '@/components/blogs/BlogSlugLayout';
 import type { Blog } from '@/types/blogs';
 import { generateBlogMetadata } from '@/lib/Metadata';
-import type { Metadata } from 'next';
 import { fetchStrapiBlogs } from '@/lib/api';
+
+// Type definition for Metadata
+type Metadata = {
+	title?: string;
+	description?: string;
+	keywords?: string[];
+	openGraph?: {
+		title?: string;
+		description?: string;
+		image?: string;
+		type?: string;
+	};
+	[key: string]: any;
+};
 
 /**
  * Generates metadata for a blog post page based on the provided slug.

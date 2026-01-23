@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useRouterState } from '@tanstack/react-router';
 import { motion, AnimatePresence } from '@/components/ui/motion';
 import { useTheme } from 'next-themes';
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import {
 	Home,
 	Info,
@@ -82,25 +83,7 @@ const NavBar: React.FC = () => {
 		return () => window.removeEventListener('scroll', handleScroll);
 	}, []);
 
-	useEffect(() => {
-		const handleClickOutside = (event: MouseEvent) => {
-			const target = event.target as Node;
-			const isOutsideTheme =
-				(!themeRef.current || !themeRef.current.contains(target)) &&
-				(!desktopThemeRef.current || !desktopThemeRef.current.contains(target));
-			const isOutsideProfile = !profileRef.current || !profileRef.current.contains(target);
-
-			if (isOutsideTheme && isOutsideProfile) {
-				setIsThemeOpen(false);
-				setIsProfileOpen(false);
-			}
-		};
-
-		document.addEventListener('mousedown', handleClickOutside);
-		return () => {
-			document.removeEventListener('mousedown', handleClickOutside);
-		};
-	}, []);
+	// Removed click outside handler - Radix handles this automatically
 
 	useEffect(() => {
 		const fetchUserData = async () => {
@@ -145,27 +128,40 @@ const NavBar: React.FC = () => {
 	};
 
 	const ProfileMenu = () => (
-		<AnimatePresence>
-			{isProfileOpen && (
-				<motion.div
-					initial={{ opacity: 0, y: 10, scale: 0.95 }}
-					animate={{ opacity: 1, y: 0, scale: 1 }}
-					exit={{ opacity: 0, y: 10, scale: 0.95 }}
-					transition={{ duration: 0.2 }}
-					className="absolute right-0 top-full mt-4 w-60 bg-background/95 backdrop-blur-3xl rounded-2xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-50 overflow-hidden"
-					ref={profileRef}
+		<DropdownMenu.Root open={isProfileOpen} onOpenChange={setIsProfileOpen}>
+			<DropdownMenu.Trigger asChild>
+				<motion.button
+					whileHover={{ scale: 1.02 }}
+					whileTap={{ scale: 0.98 }}
+					className="flex items-center gap-2.5 pl-1.5 pr-3 py-1.5 rounded-full bg-secondary/30 hover:bg-secondary/50 border border-white/5 transition-all"
 				>
-					<div className="p-2 space-y-1">
-						{[
-							{ name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-							{ name: 'Developer', href: '/dashboard/developers', icon: Terminal },
-							{ name: 'Logout', onClick: handleLogout, icon: LogOut, danger: true }
-						].map((item) =>
-							item.href ? (
+					<img
+						src={userData ? getAvatarUrl(userData) : getLogoPath()}
+						alt="User"
+						className="h-7 w-7 rounded-full ring-2 ring-primary/20"
+					/>
+					<span className="text-sm font-medium max-w-[80px] truncate hidden md:block">
+						{userData?.username || 'User'}
+					</span>
+					<ChevronDown className="w-3 h-3 text-muted-foreground hidden md:block" />
+				</motion.button>
+			</DropdownMenu.Trigger>
+			<DropdownMenu.Portal>
+				<DropdownMenu.Content
+					className="w-60 bg-background/95 backdrop-blur-3xl rounded-2xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-50 overflow-hidden p-2 space-y-1"
+					sideOffset={16}
+					align="end"
+				>
+					{[
+						{ name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+						{ name: 'Developer', href: '/dashboard/developers', icon: Terminal },
+						{ name: 'Logout', onClick: handleLogout, icon: LogOut, danger: true }
+					].map((item) =>
+						item.href ? (
+							<DropdownMenu.Item key={item.name} asChild>
 								<Link
-									key={item.name}
 									to={item.href}
-									className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-white/5 rounded-xl transition-all group"
+									className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-white/5 rounded-xl transition-all group outline-none cursor-pointer"
 									onClick={() => {
 										setIsProfileOpen(false);
 										setIsMobileMenuOpen(false);
@@ -174,21 +170,21 @@ const NavBar: React.FC = () => {
 									<item.icon className="h-4 w-4 opacity-70 group-hover:opacity-100" />
 									{item.name}
 								</Link>
-							) : (
-								<button
-									key={item.name}
-									onClick={item.onClick}
-									className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all group text-left ${item.danger ? 'text-red-400 hover:bg-red-500/10' : 'text-foreground/80 hover:text-foreground hover:bg-white/5'}`}
-								>
-									<item.icon className="h-4 w-4 opacity-70 group-hover:opacity-100" />
-									{item.name}
-								</button>
-							)
-						)}
-					</div>
-				</motion.div>
-			)}
-		</AnimatePresence>
+							</DropdownMenu.Item>
+						) : (
+							<DropdownMenu.Item
+								key={item.name}
+								onClick={item.onClick}
+								className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all group text-left outline-none cursor-pointer ${item.danger ? 'text-red-400 hover:bg-red-500/10' : 'text-foreground/80 hover:text-foreground hover:bg-white/5'}`}
+							>
+								<item.icon className="h-4 w-4 opacity-70 group-hover:opacity-100" />
+								{item.name}
+							</DropdownMenu.Item>
+						)
+					)}
+				</DropdownMenu.Content>
+			</DropdownMenu.Portal>
+		</DropdownMenu.Root>
 	);
 
 	return (
@@ -280,22 +276,7 @@ const NavBar: React.FC = () => {
 						{/* Profile / Login */}
 						<div className="relative">
 							{userData ? (
-								<motion.button
-									whileHover={{ scale: 1.02 }}
-									whileTap={{ scale: 0.98 }}
-									onClick={() => toggleDropdown('profile')}
-									className="flex items-center gap-2.5 pl-1.5 pr-3 py-1.5 rounded-full bg-secondary/30 hover:bg-secondary/50 border border-white/5 transition-all"
-								>
-									<img
-										src={userData ? getAvatarUrl(userData) : getLogoPath()}
-										alt="User"
-										className="h-7 w-7 rounded-full ring-2 ring-primary/20"
-									/>
-									<span className="text-sm font-medium max-w-[80px] truncate hidden md:block">
-										{userData.username}
-									</span>
-									<ChevronDown className="w-3 h-3 text-muted-foreground hidden md:block" />
-								</motion.button>
+								<ProfileMenu />
 							) : (
 								<motion.button
 									whileHover={{ scale: 1.05 }}
@@ -312,7 +293,6 @@ const NavBar: React.FC = () => {
 									</span>
 								</motion.button>
 							)}
-							<ProfileMenu />
 						</div>
 
 						{/* Mobile Menu Toggle */}

@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from '@/components/ui/motion';
 import { useTheme } from 'next-themes';
 import { PaletteIcon, Check, Sparkles, X } from 'lucide-react';
 
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+
 interface Theme {
 	id: string;
 	label: string;
@@ -32,7 +34,6 @@ const ThemeSelector: React.FC<ThemeSelectorProps & { variant?: 'dropdown' | 'she
 
 	const [mounted, setMounted] = useState(false);
 	const { theme, setTheme } = useTheme();
-	const dropdownRef = useRef<HTMLDivElement>(null);
 
 	const themes: Theme[] = [
 		// Original themes
@@ -115,24 +116,6 @@ const ThemeSelector: React.FC<ThemeSelectorProps & { variant?: 'dropdown' | 'she
 	}, []);
 
 	useEffect(() => {
-		const handleClickOutside = (event: MouseEvent) => {
-			if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-				// Only close on click outside if we NOT in sheet mode (sheet deals with its own backdrop)
-				// Actually, for dropdown logic, we handle it here.
-				// For sheet, we might want a separate backdrop handler or rely on the same logic if the sheet is inside ref.
-				// However, sheet is usually portal-like or fixed.
-				// Let's rely on the backdrop click for sheet.
-				if (variant === 'dropdown' || variant === 'icon') setIsOpen(false);
-			}
-		};
-
-		document.addEventListener('mousedown', handleClickOutside);
-		return () => {
-			document.removeEventListener('mousedown', handleClickOutside);
-		};
-	}, [variant]); // Added variant dep
-
-	useEffect(() => {
 		if (theme && mounted) {
 			document.documentElement.classList.add('theme-transition');
 			setTimeout(() => {
@@ -183,117 +166,84 @@ const ThemeSelector: React.FC<ThemeSelectorProps & { variant?: 'dropdown' | 'she
 	};
 
 	return (
-		<div className="relative" ref={dropdownRef}>
-			{/* Trigger Button */}
-			<button
-				onClick={() => setIsOpen(!isOpen)}
-				className={`
-                    relative group overflow-hidden
-                    flex items-center justify-center
-                    transition-all duration-300
-                    ${
-											variant === 'sheet'
-												? 'p-2 rounded-full hover:bg-muted/50 active:scale-95'
-												: variant === 'icon'
-													? 'p-2 rounded-full hover:bg-white/10'
-													: 'p-2.5 rounded-xl hover:bg-accent/80 ring-1 ring-border/50 hover:ring-primary/50'
-										}
-                `}
-				aria-label="Change theme"
-			>
-				{variant === 'dropdown' && (
-					<div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-				)}
-				<div className="relative z-10">
-					<PaletteIcon
-						className={`
-                            transition-colors duration-300
-                            ${variant === 'sheet' ? 'h-6 w-6 text-foreground' : 'h-5 w-5 text-muted-foreground group-hover:text-primary'}
-                            ${variant === 'icon' ? 'text-white/70 hover:text-white' : ''}
-                        `}
-					/>
-				</div>
-			</button>
+		<DropdownMenu.Root open={isOpen} onOpenChange={setIsOpen}>
+			<DropdownMenu.Trigger asChild>
+				<button
+					className={`
+						relative group overflow-hidden
+						flex items-center justify-center
+						transition-all duration-300 outline-none
+						${
+							variant === 'sheet'
+								? 'p-2 rounded-full hover:bg-muted/50 active:scale-95'
+								: variant === 'icon'
+									? 'p-2 rounded-full hover:bg-white/10'
+									: 'p-2.5 rounded-xl hover:bg-accent/80 ring-1 ring-border/50 hover:ring-primary/50'
+						}
+					`}
+					aria-label="Change theme"
+				>
+					{variant === 'dropdown' && (
+						<div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+					)}
+					<div className="relative z-10">
+						<PaletteIcon
+							className={`
+								transition-colors duration-300
+								${variant === 'sheet' ? 'h-6 w-6 text-foreground' : 'h-5 w-5 text-muted-foreground group-hover:text-primary'}
+								${variant === 'icon' ? 'text-white/70 hover:text-white' : ''}
+							`}
+						/>
+					</div>
+				</button>
+			</DropdownMenu.Trigger>
 
-			<AnimatePresence>
-				{isOpen &&
-					(variant === 'sheet' ? (
-						<>
-							{/* Mobile Backdrop */}
-							<motion.div
-								initial={{ opacity: 0 }}
-								animate={{ opacity: 1 }}
-								exit={{ opacity: 0 }}
-								transition={{ duration: 0.2 }}
-								className="fixed inset-0 bg-black/60 backdrop-blur-[2px] z-[9998]"
-								onClick={() => setIsOpen(false)}
-								style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
-							/>
-							{/* Mobile Sheet */}
-							<motion.div
-								initial={{ y: '100%' }}
-								animate={{ y: 0 }}
-								exit={{ y: '100%' }}
-								transition={{ type: 'spring', damping: 25, stiffness: 250 }}
-								className="fixed bottom-0 left-0 right-0 z-[9999] bg-background/98 backdrop-blur-3xl rounded-t-[32px] overflow-hidden border-t border-white/10 shadow-[0_-10px_40px_-5px_rgba(0,0,0,0.6)] max-h-[80vh] flex flex-col"
-							>
-								{/* Drag Handle Area */}
-								<div
-									className="w-full flex justify-center py-4 cursor-grab active:cursor-grabbing hover:bg-white/5 transition-colors touch-none"
+			<DropdownMenu.Portal>
+				<DropdownMenu.Content
+					className={`
+						z-[100] outline-none
+						${
+							variant === 'sheet'
+								? 'fixed bottom-0 left-0 right-0 w-full bg-background/98 backdrop-blur-3xl rounded-t-[32px] border-t border-white/10 shadow-[0_-10px_40px_-5px_rgba(0,0,0,0.6)] animate-in slide-in-from-bottom duration-300'
+								: 'absolute right-0 mt-4 p-1 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] bg-background/95 backdrop-blur-3xl border border-white/10 w-[360px] overflow-hidden animate-in fade-in zoom-in-95 duration-200'
+						}
+					`}
+					sideOffset={variant === 'sheet' ? 0 : 8}
+					align={variant === 'sheet' ? 'center' : 'end'}
+				>
+					{variant === 'sheet' ? (
+						<div className="flex flex-col max-h-[80vh]">
+							{/* Drag Handle Area */}
+							<div className="w-full flex justify-center py-4 shrink-0">
+								<div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full" />
+							</div>
+
+							{/* Header */}
+							<div className="px-6 pb-4 flex items-center justify-between border-b border-border/30 shrink-0">
+								<div>
+									<h3 className="text-xl font-bold text-foreground tracking-tight">Theme Gallery</h3>
+									<p className="text-sm text-muted-foreground">Select your preferred style</p>
+								</div>
+								<button
 									onClick={() => setIsOpen(false)}
-									role="button"
-									tabIndex={0}
-									aria-label="Close theme gallery"
-									onKeyDown={(e) => {
-										if (e.key === 'Enter' || e.key === ' ') {
-											setIsOpen(false);
-										}
-									}}
+									className="p-2 bg-muted/50 rounded-full hover:bg-muted transition-colors text-muted-foreground hover:text-foreground outline-none"
 								>
-									<div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full" />
-								</div>
+									<X size={20} />
+								</button>
+							</div>
 
-								{/* Header */}
-								<div className="px-6 pb-4 flex items-center justify-between border-b border-border/30">
-									<div>
-										<h3 className="text-xl font-bold text-foreground tracking-tight">
-											Theme Gallery
-										</h3>
-										<p className="text-sm text-muted-foreground">Select your preferred style</p>
-									</div>
-									<button
-										onClick={() => setIsOpen(false)}
-										className="p-2 bg-muted/50 rounded-full hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
-										aria-label="Close"
-									>
-										<X size={20} />
-									</button>
+							{/* Scrollable Content */}
+							<div className="p-4 overflow-y-auto soft-scrollbar">
+								<div className="grid grid-cols-2 gap-3 pb-safe-area-inset-bottom">
+									{themes.map((t) => (
+										<ThemeButton key={t.id} themeOption={t} />
+									))}
 								</div>
-
-								{/* Scrollable Content */}
-								<div
-									className="p-4 overflow-y-auto overflow-x-hidden soft-scrollbar"
-									style={{ maxHeight: '60vh' }}
-								>
-									<div className="grid grid-cols-2 gap-3 pb-safe-area-inset-bottom">
-										{themes.map((t) => (
-											<ThemeButton key={t.id} themeOption={t} />
-										))}
-									</div>
-									{/* Bottom Safe Area Spacer */}
-									<div className="h-8 md:h-0" />
-								</div>
-							</motion.div>
-						</>
+								<div className="h-8 md:h-0" />
+							</div>
+						</div>
 					) : (
-						/* Desktop Dropdown (for 'dropdown' and 'icon' variants) */
-						<motion.div
-							initial={{ opacity: 0, scale: 0.95, y: 10, filter: 'blur(10px)' }}
-							animate={{ opacity: 1, scale: 1, y: 0, filter: 'blur(0px)' }}
-							exit={{ opacity: 0, scale: 0.95, y: 10, filter: 'blur(10px)' }}
-							transition={{ duration: 0.2, type: 'spring' }}
-							className="absolute right-0 mt-4 p-1 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] bg-background/95 backdrop-blur-3xl border border-white/10 w-[360px] z-[100] overflow-hidden ring-1 ring-black/5 origin-top-right"
-						>
+						<div className="flex flex-col">
 							<div className="p-5 border-b border-white/5 bg-gradient-to-br from-white/5 to-transparent">
 								<div className="flex items-center gap-3">
 									<div className="p-2.5 bg-primary/10 rounded-2xl ring-1 ring-primary/20">
@@ -308,17 +258,18 @@ const ThemeSelector: React.FC<ThemeSelectorProps & { variant?: 'dropdown' | 'she
 								</div>
 							</div>
 
-							<div className="p-3 max-h-[450px] overflow-y-auto no-scrollbar bg-grid-pattern">
+							<div className="p-3 max-h-[450px] overflow-y-auto no-scrollbar">
 								<div className="grid grid-cols-2 gap-2.5">
 									{themes.map((t) => (
 										<ThemeButton key={t.id} themeOption={t} />
 									))}
 								</div>
 							</div>
-						</motion.div>
-					))}
-			</AnimatePresence>
-		</div>
+						</div>
+					)}
+				</DropdownMenu.Content>
+			</DropdownMenu.Portal>
+		</DropdownMenu.Root>
 	);
 };
 
