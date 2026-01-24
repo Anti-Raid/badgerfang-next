@@ -1,16 +1,17 @@
 'use client';
 
-import { useEffect, useState, useRef, useCallback } from 'react';
-import { TemplateCarousel } from './scriptCarosel';
-import { Primary, Secondary } from '../ui/Buttons';
-import { GoArrowUpRight } from 'react-icons/go';
-import { ReviewsCarousel } from './reviewCarosel';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { botStatsOptions } from '@/lib/api';
 import { motion, Variants } from '@/components/ui/motion';
 import { GetStatusResponse } from '@/types/api/bindings/GetStatusResponse';
 import { Archive, Zap, Shield, User } from 'lucide-react';
 import { FeatureCard } from '@/components/about/FeatureCard';
+import { Primary, Secondary } from '../ui/Buttons';
+import { GoArrowUpRight } from 'react-icons/go';
+
+const TemplateCarousel = React.lazy(() => import('./scriptCarosel').then(m => ({ default: m.TemplateCarousel })));
+const ReviewsCarousel = React.lazy(() => import('./reviewCarosel').then(m => ({ default: m.ReviewsCarousel })));
 import {
 	MdOutlineSettings,
 	MdSecurity,
@@ -52,7 +53,7 @@ const ServerIcons = () => {
 					className="w-16 h-16 bg-card rounded-2xl flex items-center justify-center border border-primary/20 shadow-lg shadow-primary/10 backdrop-blur-md group relative"
 				>
 					{server.icon ? (
-						<img src={server.icon} alt={server.name} className="w-8 h-8" />
+						<img src={server.icon} alt={server.name} className="w-8 h-8" loading="lazy" />
 					) : (
 						<FallbackSVG />
 					)}
@@ -458,8 +459,12 @@ const Hero = () => {
 					</svg>
 				</div>
 
-				<TemplateCarousel />
-				<ReviewsCarousel />
+				<React.Suspense fallback={<div className="h-64 flex items-center justify-center">Loading Templates...</div>}>
+					<TemplateCarousel />
+				</React.Suspense>
+				<React.Suspense fallback={<div className="h-64 flex items-center justify-center">Loading Reviews...</div>}>
+					<ReviewsCarousel />
+				</React.Suspense>
 			</section>
 		</>
 	);

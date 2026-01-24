@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState, useMemo } from 'react';
+import { useEffect } from 'react';
 import { motion, useScroll, useSpring } from '@/components/ui/motion';
 import {
 	Calendar,
@@ -18,7 +19,13 @@ import { format } from 'date-fns';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomOneDark } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import remarkFootnotes from 'remark-footnotes';
+import remarkEmoji from 'remark-emoji';
 import rehypeRaw from 'rehype-raw';
+import rehypeKatex from 'rehype-katex';
+import rehypeSlug from 'rehype-slug';
+import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import ReactMarkdown from 'react-markdown';
 import type { Blog } from '@/types/blogs/index';
 import { FaTwitter, FaFacebook, FaLinkedin, FaInstagram, FaLink, FaDiscord } from 'react-icons/fa';
@@ -71,6 +78,97 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug, initialPost }) =>
 		return `${minutes} min read`;
 	};
 
+	// Generate stable slugs for headings to link from the TOC
+	const slugify = (text: string) =>
+		text
+			.toString()
+			.trim()
+			.toLowerCase()
+			.replace(/[^a-z0-9\s-]/g, '')
+			.replace(/\s+/g, '-')
+			.replace(/-+/g, '-');
+
+	const extractHeadings = (markdown: string) => {
+		const matches = Array.from(markdown.matchAll(/^#{1,6}\s+(.*)$/gm));
+		return matches.map((m) => {
+			const level = m[0].indexOf(' ') > -1 ? m[0].split(' ')[0].length : 1;
+			const text = m[1].replace(/`/g, '').trim();
+			return { level, text, id: slugify(text) };
+		});
+	};
+
+	const [headings, setHeadings] = useState<{ level: number; text: string; id: string }[]>(
+		[]
+	);
+
+	useEffect(() => {
+		if (blog?.content) {
+			setHeadings(extractHeadings(blog.content));
+		}
+	}, [blog?.content]);
+
+	// Mermaid renderer for mermaid code blocks
+	const MermaidRenderer: React.FC<{ code: string }> = ({ code }) => {
+		const containerRef = useRef<HTMLDivElement | null>(null);
+		useEffect(() => {
+			let mounted = true;
+			import('mermaid')
+				.then((mermaid) => {
+					if (!mounted) return;
+					try {
+						// initialize with automatic start disabled
+						mermaid.default.initialize({ startOnLoad: false, theme: 'dark' });
+						const id = `mermaid-${Math.random().toString(36).slice(2, 9)}`;
+						// new versions return a promise
+						const renderResult = mermaid.default.render(id, code);
+						if (typeof renderResult === 'string') {
+							if (containerRef.current) containerRef.current.innerHTML = renderResult;
+						} else if ((renderResult as any)?.then) {
+							(renderResult as any).then((svg: string) => {
+								if (containerRef.current) containerRef.current.innerHTML = svg;
+							});
+						}
+					} catch (e) {
+						console.error('Mermaid render error', e);
+					}
+				})
+				.catch((err) => console.error('Failed to load mermaid', err));
+			return () => {
+				mounted = false;
+			};
+		}, [code]);
+
+		return <div ref={containerRef} className="my-8" />;
+	};
+
+	// Code block component with copy button
+	const CodeBlock: React.FC<{ lang: string; code: string }> = ({ lang, code }) => {
+		const [copied, setCopied] = useState(false);
+		return (
+			<div className="relative my-8">
+				<button
+					className="absolute top-4 right-4 bg-white/5 text-muted-foreground px-3 py-1 rounded-full text-xs hover:bg-primary/10 transition-all"
+					onClick={() => {
+						navigator.clipboard.writeText(code).then(() => {
+							setCopied(true);
+							setTimeout(() => setCopied(false), 1500);
+						});
+					}}
+				>
+					{copied ? 'Copied' : 'Copy'}
+				</button>
+				<SyntaxHighlighter
+					style={atomOneDark}
+					language={lang}
+					PreTag="div"
+					showLineNumbers={true}
+					className="rounded-3xl border border-border/50 !bg-secondary/30 my-10 shadow-2xl"
+				>
+					{code}
+				</SyntaxHighlighter>
+			</div>
+		);
+	};
 	const shareArticle = () => {
 		if (navigator.share) {
 			navigator
@@ -233,6 +331,7 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug, initialPost }) =>
 											src={`https://strapi.purrquinox.com${blog.author.avatar.url}`}
 											alt={blog.author.name}
 											className="object-cover w-full h-full"
+											loading="lazy"
 										/>
 									</div>
 								)}
@@ -282,6 +381,7 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug, initialPost }) =>
 								src={`/api/get/og-image?slug=${blog.slug}`}
 								alt={blog.title}
 								className="object-cover w-full h-full"
+								fetchPriority="high"
 							/>
 							<div className="absolute inset-0 bg-gradient-to-t from-background/40 via-transparent to-transparent" />
 						</motion.div>
@@ -299,27 +399,42 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug, initialPost }) =>
 						className="prose prose-invert prose-lg max-w-none md:prose-xl font-inter leading-[1.8] text-foreground/90 prose-headings:font-monster prose-headings:tracking-tight prose-headings:font-bold prose-headings:text-foreground prose-strong:text-foreground prose-strong:font-bold prose-a:text-primary prose-a:no-underline hover:prose-a:underline decoration-primary/30 underline-offset-4 prose-img:rounded-[2.5rem] prose-hr:border-border/50"
 					>
 						<ReactMarkdown
-							remarkPlugins={[remarkGfm]}
-							rehypePlugins={[rehypeRaw]}
+							remarkPlugins={[remarkGfm, remarkMath, remarkFootnotes, remarkEmoji]}
+							rehypePlugins={[rehypeRaw, rehypeKatex, rehypeSlug, [rehypeAutolinkHeadings, { behavior: 'append' }]]}
 							components={{
 								h1: ({ children }) => (
-									<h1 className="text-4xl md:text-5xl font-bold font-monster mb-8 mt-12 text-foreground">
+									<h1 className="text-4xl md:text-5xl font-bold font-monster mb-8 mt-12 text-foreground" id={slugify(String(children))}>
 										<span className="bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
 											{children}
 										</span>
 									</h1>
 								),
 								h2: ({ children }) => (
-									<h2 className="text-3xl md:text-4xl font-bold font-monster mb-6 mt-10 flex items-center gap-3">
+									<h2 className="text-3xl md:text-4xl font-bold font-monster mb-6 mt-10 flex items-center gap-3" id={slugify(String(children))}>
 										<span className="w-1.5 h-8 bg-primary rounded-full" />
 										{children}
 									</h2>
 								),
 								h3: ({ children }) => (
-									<h3 className="text-2xl md:text-3xl font-bold font-monster mb-4 mt-8 text-foreground/90">
+									<h3 className="text-2xl md:text-3xl font-bold font-monster mb-4 mt-8 text-foreground/90" id={slugify(String(children))}>
 										{children}
 									</h3>
 								),
+									h4: ({ children }) => (
+										<h4 className="text-xl md:text-2xl font-bold mb-3 mt-6" id={slugify(String(children))}>
+											{children}
+										</h4>
+									),
+									h5: ({ children }) => (
+										<h5 className="text-lg font-semibold mb-2 mt-4" id={slugify(String(children))}>
+											{children}
+										</h5>
+									),
+									h6: ({ children }) => (
+										<h6 className="text-sm font-semibold mb-2 mt-3 text-muted-foreground" id={slugify(String(children))}>
+											{children}
+										</h6>
+									),
 								p: ({ children }) => (
 									<p className="mb-6 last:mb-0 text-foreground/80 leading-[1.8] font-inter">
 										{children}
@@ -337,23 +452,39 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug, initialPost }) =>
 										{children}
 									</li>
 								),
+								a: ({ href, children, title }) => {
+									const url = String(href || '');
+									const external = /^(http|https):\/\//.test(url);
+									return (
+										<a
+											href={url}
+											{...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+											className="text-primary hover:underline"
+											title={title}
+										>
+											{children}
+										</a>
+									);
+								},
+								img: ({ src, alt, title }) => {
+									const [text, caption] = (alt || '').split('|').map((s) => s.trim());
+									return (
+										<figure className="my-8">
+											<img src={String(src)} alt={text || ''} title={title} className="rounded-2xl" />
+											{caption && <figcaption className="text-sm text-muted-foreground mt-2">{caption}</figcaption>}
+										</figure>
+									);
+								},
 								code({ node, inline, className, children, ...props }: any) {
 									const match = /language-(\w+)/.exec(className || '');
-									return !inline && match ? (
-										<SyntaxHighlighter
-											style={atomOneDark}
-											language={match[1]}
-											PreTag="div"
-											className="rounded-3xl border border-border/50 !bg-secondary/30 my-10 shadow-2xl"
-											{...props}
-										>
-											{String(children).replace(/\n$/, '')}
-										</SyntaxHighlighter>
-									) : (
-										<code
-											className="bg-primary/10 text-primary px-2 py-0.5 rounded-md font-mono text-sm"
-											{...props}
-										>
+									const codeText = String(children).replace(/\n$/, '');
+									if (!inline && match) {
+									const lang = match[1];
+									if (lang === 'mermaid') return <MermaidRenderer code={codeText} />;
+									return <CodeBlock lang={lang} code={codeText} />;
+								}
+									return (
+										<code className="bg-primary/10 text-primary px-2 py-0.5 rounded-md font-mono text-sm" {...props}>
 											{children}
 										</code>
 									);
@@ -376,6 +507,7 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug, initialPost }) =>
 											src={`https://strapi.purrquinox.com${blog.author.avatar.url}`}
 											alt={blog.author.name}
 											className="object-cover w-full h-full"
+											loading="lazy"
 										/>
 									</div>
 								)}
@@ -445,6 +577,7 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug, initialPost }) =>
 												src={`/api/get/og-image?slug=${relatedBlog.slug}`}
 												alt={relatedBlog.title}
 												className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
+												loading="lazy"
 											/>
 											<div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 										</div>

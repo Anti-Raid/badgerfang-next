@@ -1,4 +1,4 @@
-@import './animate.css';
+@import 'katex/dist/katex.min.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -774,6 +774,7 @@
 }
 
 @keyframes pulse-glow {
+
 	0%,
 	100% {
 		opacity: 0.5;

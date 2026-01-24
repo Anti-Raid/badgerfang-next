@@ -131,7 +131,7 @@ const Footer = () => {
 						>
 							<div className="relative">
 								<div className="absolute inset-0 bg-primary/20 blur-lg rounded-full group-hover:bg-primary/40 transition-all duration-300" />
-								<img src={logo} className="h-10 relative z-10" alt="AntiRaid Logo" />
+								<img src={logo} className="h-10 relative z-10" alt="AntiRaid Logo" loading="lazy" />
 							</div>
 							<div className="flex flex-col">
 								<span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">

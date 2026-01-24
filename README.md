@@ -65,6 +65,7 @@
    ```
 
 4. Run the development server:
+
    ```bash
    bun run dev
    ```

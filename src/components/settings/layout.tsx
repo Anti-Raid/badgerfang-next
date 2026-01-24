@@ -188,6 +188,7 @@ export default function Settings({ guildId }: { guildId: string }) {
 								src={guildData.icon || '/logo.webp'}
 								alt={guildData.name}
 								className="w-10 h-10 rounded-xl border border-border shadow-sm object-cover"
+								loading="lazy"
 							/>
 						) : (
 							<div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold">

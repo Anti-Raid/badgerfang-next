@@ -27,13 +27,13 @@ const Loading: React.FC<LoadingProps> = ({ onClose }) => {
 
 	useEffect(() => {
 		const switchWord = () => {
-			setIntervalDuration(200 - index * 10);
+			setIntervalDuration(100 - index * 5);
 
 			if (index >= words.length - 1) {
 				setTimeout(() => {
 					setIsFinished(true);
 					onClose();
-				}, 2000);
+				}, 500);
 			} else setIndex((prevIndex) => prevIndex + 1);
 
 			setWord(words[index]);

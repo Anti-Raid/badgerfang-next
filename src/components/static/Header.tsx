@@ -139,6 +139,7 @@ const NavBar: React.FC = () => {
 						src={userData ? getAvatarUrl(userData) : getLogoPath()}
 						alt="User"
 						className="h-7 w-7 rounded-full ring-2 ring-primary/20"
+						loading="lazy"
 					/>
 					<span className="text-sm font-medium max-w-[80px] truncate hidden md:block">
 						{userData?.username || 'User'}
@@ -345,7 +346,7 @@ const NavBar: React.FC = () => {
 						{userData ? (
 							<div className="flex flex-col gap-1">
 								<div className="px-3 py-2 flex items-center gap-3">
-									<img src={getAvatarUrl(userData)} className="w-8 h-8 rounded-full" alt="" />
+									<img src={getAvatarUrl(userData)} className="w-8 h-8 rounded-full" alt="" loading="lazy" />
 									<div className="flex flex-col">
 										<span className="text-sm font-bold">{userData.username}</span>
 										<span className="text-[10px] text-muted-foreground uppercase tracking-widest">

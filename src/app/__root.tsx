@@ -1,4 +1,5 @@
 import { Outlet, createRootRouteWithContext, HeadContent, Scripts, ErrorComponent } from '@tanstack/react-router';
+import React, { useEffect } from 'react';
 import type { ReactNode } from 'react';
 import '@/app/globals.css';
 import ClientLayout from './-clientLayout';
@@ -73,13 +74,22 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 
 function RootComponent() {
 	const { queryClient } = Route.useRouteContext();
+	const [showDevtools, setShowDevtools] = React.useState(false);
+
+	useEffect(() => {
+		// Only show devtools in development
+		if (process.env.NODE_ENV === 'development') {
+			setShowDevtools(true);
+		}
+	}, []);
+
 	return (
 		<RootDocument>
 			<QueryClientProvider client={queryClient}>
 				<ClientLayout>
 					<Outlet />
 				</ClientLayout>
-				<ReactQueryDevtools buttonPosition="bottom-right" />
+				{showDevtools && <ReactQueryDevtools buttonPosition="bottom-right" />}
 			</QueryClientProvider>
 		</RootDocument>
 	);

@@ -38,7 +38,7 @@ const Particle = ({ x, y, color }: ParticleProps) => {
 
 	return (
 		<div
-			className="absolute pointer-events-none animate__animated animate__zoomOut"
+			className="absolute pointer-events-none animate-out fade-out zoom-out duration-500 fill-mode-both"
 			style={{
 				left: position.x,
 				top: position.y,
