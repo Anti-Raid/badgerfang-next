@@ -9,7 +9,7 @@ export default defineConfig({
 	server: {
 		port: 4173,
 		host: '0.0.0.0',
-		allowedHosts: ['tastack.antiraid.bot']
+		allowedHosts: ['tanstack.antiraid.bot']
 	},
 	worker: {
 		format: 'es'
