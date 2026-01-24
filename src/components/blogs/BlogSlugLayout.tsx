@@ -26,7 +26,6 @@ import remarkEmoji from 'remark-emoji';
 import rehypeRaw from 'rehype-raw';
 import rehypeKatex from 'rehype-katex';
 import rehypeSlug from 'rehype-slug';
-import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import 'katex/dist/katex.min.css';
 
 import js from 'react-syntax-highlighter/dist/esm/languages/hljs/javascript';
@@ -431,7 +430,6 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug, initialPost }) =>
 								rehypeRaw,
 								rehypeKatex,
 								rehypeSlug,
-								[rehypeAutolinkHeadings, { behavior: 'wrap' }]
 							]}
 							components={{
 								h1: ({ children }) => (
