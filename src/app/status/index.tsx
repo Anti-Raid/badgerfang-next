@@ -1,9 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useSuspenseQuery } from '@tanstack/react-query';
-import Status from '@/components/status/Layout';
 import { generateStatusMetadata } from '@/lib/Metadata';
 import { website_url } from '@/components/common';
 import { botStatsOptions } from '@/lib/api';
+import React from 'react';
+
+const Status = React.lazy(() => import('@/components/status/Layout'));
 
 export const Route = createFileRoute('/status/')({
 	loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(botStatsOptions),
@@ -17,11 +18,11 @@ export const Route = createFileRoute('/status/')({
 });
 
 function BotStatusPage() {
-	// Data is already loaded via loader, but component still uses useQuery for polling
-	// This allows the loader to SSR the initial data, then client takes over for polling
 	return (
 		<main>
-			<Status />
+			<React.Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading Status...</div>}>
+				<Status />
+			</React.Suspense>
 		</main>
 	);
 }

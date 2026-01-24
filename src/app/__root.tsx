@@ -29,6 +29,10 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 			{ name: 'theme-color', content: '#0f0f12', media: '(prefers-color-scheme: dark)' }
 		],
 		links: [
+			{ rel: 'dns-prefetch', href: 'https://fonts.googleapis.com' },
+			{ rel: 'dns-prefetch', href: 'https://fonts.gstatic.com' },
+			{ rel: 'dns-prefetch', href: 'https://www.gravatar.com' },
+			{ rel: 'dns-prefetch', href: 'https://strapi.purrquinox.com' },
 			{ rel: 'preconnect', href: 'https://fonts.googleapis.com' },
 			{ rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' },
 			{ rel: 'preconnect', href: 'https://www.gravatar.com' },
