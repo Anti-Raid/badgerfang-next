@@ -7,6 +7,7 @@ import topLevelAwait from "vite-plugin-top-level-await";
 
 export default defineConfig({
 	server: {
+		host: '0.0.0.0',
 		port: 3000
 	},
 	worker: {
