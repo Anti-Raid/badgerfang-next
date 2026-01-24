@@ -209,9 +209,8 @@ export const Route = createFileRoute('/api/get/og-image')({
 						tags: Array.isArray(post.tags) ? post.tags : [],
 						slug: post.slug,
 						authorName: post.author?.name || post.author?.username || 'AntiRaid Team',
-						authorAvatar: post.author?.avatar?.url
-							? `https://strapi.purrquinox.com${post.author.avatar.url}`
-							: undefined
+						authorAvatar: post.author?.avatar
+
 					});
 
 					const response = new Response(imageResponse.body, {

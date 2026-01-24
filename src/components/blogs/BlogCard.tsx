@@ -93,7 +93,14 @@ export default function BlogCard({ blog, index, isFeatured = false }: BlogCardPr
 						<div
 							className={`relative overflow-hidden ${isFeatured ? 'w-full md:w-3/5 h-64 md:h-auto aspect-video' : 'w-full h-56'}`}
 						>
-							{blog.slug ? (
+							{blog.image ? (
+								<Image
+									src={blog.image}
+									alt={blog.title}
+									layout="fullWidth"
+									className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+								/>
+							) : blog.slug ? (
 								<Image
 									src={`/api/get/og-image?slug=${blog.slug}`}
 									alt={blog.title}
@@ -106,11 +113,20 @@ export default function BlogCard({ blog, index, isFeatured = false }: BlogCardPr
 								</div>
 							)}
 
+
 							{/* Image Overlay Gradient */}
 							<div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
 
-							{/* Tags on Image */}
+							{/* Tags & Badges on Image */}
 							<div className="absolute bottom-4 left-4 flex flex-wrap gap-2 z-10">
+								{blog.badges?.map((badge, i) => (
+									<span
+										key={`badge-${i}`}
+										className="px-3 py-1 bg-accent text-white text-[10px] font-bold rounded-full shadow-lg border border-white/10"
+									>
+										{badge}
+									</span>
+								))}
 								{blog.tags?.slice(0, 3).map((tag, i) => (
 									<button
 										key={i}
@@ -121,6 +137,7 @@ export default function BlogCard({ blog, index, isFeatured = false }: BlogCardPr
 									</button>
 								))}
 							</div>
+
 						</div>
 
 						{/* Content Section */}
@@ -147,7 +164,7 @@ export default function BlogCard({ blog, index, isFeatured = false }: BlogCardPr
 									{blog.author.avatar ? (
 										<div className="relative w-10 h-10 rounded-xl overflow-hidden shadow-lg border border-border/50">
 											<Image
-												src={`https://strapi.purrquinox.com${blog.author.avatar.url}`}
+												src={blog.author.avatar}
 												alt={blog.author.name}
 												layout="fullWidth"
 												className="absolute inset-0 w-full h-full object-cover"

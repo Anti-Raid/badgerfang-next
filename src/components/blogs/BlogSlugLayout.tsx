@@ -25,7 +25,7 @@ import remarkEmoji from 'remark-emoji';
 import rehypeRaw from 'rehype-raw';
 import rehypeKatex from 'rehype-katex';
 import rehypeSlug from 'rehype-slug';
-import rehypeAutolinkHeadings from 'rehype-autolink-headings';
+
 import ReactMarkdown from 'react-markdown';
 import type { Blog } from '@/types/blogs/index';
 import { FaTwitter, FaFacebook, FaLinkedin, FaInstagram, FaLink, FaDiscord } from 'react-icons/fa';
@@ -297,6 +297,14 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug, initialPost }) =>
 							transition={{ duration: 0.5, delay: 0.1 }}
 							className="flex flex-wrap justify-center md:justify-start gap-3 mb-8"
 						>
+							{blog.badges?.map((badge) => (
+								<span
+									key={badge}
+									className="px-4 py-1.5 bg-gradient-to-r from-accent to-purple-500 text-white rounded-full text-xs font-bold uppercase tracking-widest shadow-lg shadow-accent/25 border border-white/10"
+								>
+									{badge}
+								</span>
+							))}
 							{blog.tags?.map((tag) => (
 								<span
 									key={tag}
@@ -306,6 +314,7 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug, initialPost }) =>
 								</span>
 							))}
 						</motion.div>
+
 
 						<motion.h1
 							initial={{ opacity: 0, y: 20 }}
@@ -328,13 +337,14 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug, initialPost }) =>
 								{blog.author.avatar && (
 									<div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20 mr-3">
 										<img
-											src={`https://strapi.purrquinox.com${blog.author.avatar.url}`}
+											src={blog.author.avatar}
 											alt={blog.author.name}
 											className="object-cover w-full h-full"
 											loading="lazy"
 										/>
 									</div>
 								)}
+
 								<div>
 									<p className="text-foreground font-bold leading-none mb-1">{blog.author.name}</p>
 									<div className="flex items-center text-xs space-x-2">
@@ -370,7 +380,7 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug, initialPost }) =>
 					</header>
 
 					{/* Feature Image */}
-					{blog.slug ? (
+					{blog.image || blog.slug ? (
 						<motion.div
 							initial={{ opacity: 0, scale: 0.95 }}
 							animate={{ opacity: 1, scale: 1 }}
@@ -378,7 +388,7 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug, initialPost }) =>
 							className="relative w-full aspect-[21/9] rounded-[2rem] overflow-hidden mb-16 shadow-2xl shadow-primary/10 border border-white/5"
 						>
 							<img
-								src={`/api/get/og-image?slug=${blog.slug}`}
+								src={blog.image || `/api/get/og-image?slug=${blog.slug}`}
 								alt={blog.title}
 								className="object-cover w-full h-full"
 								fetchPriority="high"
@@ -386,6 +396,7 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug, initialPost }) =>
 							<div className="absolute inset-0 bg-gradient-to-t from-background/40 via-transparent to-transparent" />
 						</motion.div>
 					) : (
+
 						<div className="w-full aspect-[21/9] rounded-[2rem] bg-secondary/30 mb-16 flex items-center justify-center border border-dashed border-primary/20">
 							<BookOpen size={64} className="text-primary/20" />
 						</div>
@@ -400,7 +411,8 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug, initialPost }) =>
 					>
 						<ReactMarkdown
 							remarkPlugins={[remarkGfm, remarkMath, remarkFootnotes, remarkEmoji]}
-							rehypePlugins={[rehypeRaw, rehypeKatex, rehypeSlug, [rehypeAutolinkHeadings, { behavior: 'append' }]]}
+							rehypePlugins={[rehypeRaw, rehypeKatex, rehypeSlug]}
+
 							components={{
 								h1: ({ children }) => (
 									<h1 className="text-4xl md:text-5xl font-bold font-monster mb-8 mt-12 text-foreground" id={slugify(String(children))}>
@@ -504,13 +516,14 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug, initialPost }) =>
 								{blog.author.avatar && (
 									<div className="relative w-32 h-32 rounded-3xl overflow-hidden border-2 border-border/50 shadow-xl shrink-0">
 										<img
-											src={`https://strapi.purrquinox.com${blog.author.avatar.url}`}
+											src={blog.author.avatar}
 											alt={blog.author.name}
 											className="object-cover w-full h-full"
 											loading="lazy"
 										/>
 									</div>
 								)}
+
 								<div className="text-center md:text-left space-y-4">
 									<div>
 										<h4 className="text-2xl font-bold font-monster mb-1">{blog.author.name}</h4>

@@ -357,18 +357,19 @@ export function generateBlog({
 						visibility: showAuthor && props.authorName ? 'visible' : 'hidden'
 					}}
 				>
-					<img
-						src={props.authorAvatar || 'https://via.placeholder.com/32'}
-						alt={`${props.authorName || 'Author'} avatar`}
-						width={32}
-						height={32}
-						style={{
-							borderRadius: '50%',
-							objectFit: 'cover',
-							border: '2px solid rgba(255, 255, 255, 0.3)',
-							visibility: props.authorAvatar ? 'visible' : 'hidden'
-						}}
-					/>
+					{props.authorAvatar ? (
+						<img
+							src={props.authorAvatar}
+							alt={`${props.authorName || 'Author'} avatar`}
+							width={32}
+							height={32}
+							style={{
+								borderRadius: '50%',
+								objectFit: 'cover',
+								border: '2px solid rgba(255, 255, 255, 0.3)'
+							}}
+						/>
+					) : null}
 					<div
 						style={{
 							display: 'flex',

@@ -32,11 +32,13 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 			{ rel: 'dns-prefetch', href: 'https://fonts.googleapis.com' },
 			{ rel: 'dns-prefetch', href: 'https://fonts.gstatic.com' },
 			{ rel: 'dns-prefetch', href: 'https://www.gravatar.com' },
-			{ rel: 'dns-prefetch', href: 'https://strapi.purrquinox.com' },
+			{ rel: 'dns-prefetch', href: 'https://bytepurr.purrquinox.com' },
+
 			{ rel: 'preconnect', href: 'https://fonts.googleapis.com' },
 			{ rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' },
 			{ rel: 'preconnect', href: 'https://www.gravatar.com' },
-			{ rel: 'preconnect', href: 'https://strapi.purrquinox.com' },
+			{ rel: 'preconnect', href: 'https://bytepurr.purrquinox.com' },
+
 			{
 				rel: 'preload',
 				href: 'https://fonts.gstatic.com/s/montserrat/v26/JTUSjIg1_i6t8kCHKm459Wlhyw.woff2',

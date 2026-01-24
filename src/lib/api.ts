@@ -17,7 +17,24 @@ import { queryOptions } from '@tanstack/react-query';
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || api_url;
 export const FORUM_API_URL = 'https://potsypaw.purrquinox.com';
-export const STRAPI_API_URL = 'https://strapi.purrquinox.com';
+export const IMAGE_PROXY_URL = 'https://bytepurr.purrquinox.com';
+
+const fixImageUrl = (url: string | undefined | null): string => {
+	if (!url) return '';
+	// Replace strapi.purrquinox.com with bytepurr.purrquinox.com
+	const fixed = url.replace(/https:\/\/strapi\.purrquinox\.com/g, IMAGE_PROXY_URL);
+	// Handle relative paths if any
+	if (fixed.startsWith('/uploads')) {
+		return `${IMAGE_PROXY_URL}${fixed}`;
+	}
+	// Case for purrquinox.com/uploads
+	if (fixed.startsWith('https://purrquinox.com/uploads')) {
+		return fixed.replace('https://purrquinox.com/uploads', `${IMAGE_PROXY_URL}/uploads`);
+	}
+	return fixed;
+};
+
+
 
 const getAuthToken = (): string | null => {
 	if (typeof window !== 'undefined') {
@@ -356,29 +373,33 @@ export const forumUserPostsOptions = (tag: string) =>
 
 export const fetchStrapiBlogs = async (): Promise<any> => {
 	try {
-		return await apiRequest<any>(
-			`${STRAPI_API_URL}/api/blogs?populate[author][populate]=avatar&populate[image]=true&populate`,
-			{
-				headers: {
-					Authorization: `Bearer 46c2ac374e977304d2ab121cba95e7337d19304bc0e880f5b06376a0c687618644123a3fa20cbc675ae70494e991e92903ad0d02dbf916d0cd40eb72fad1aca4132c9a80556cb5068475673907029497c4eec323b387a33c068e17d834867cb30c3166d5b266987421338a44c4fe05f9753559ae622975ada35a4e9f11f77558`
-				},
-				timeout: 5000, // Reduced to 5 second timeout
-				validateStatus: (status) => status === 200 || status === 304 // Allow 304 Not Modified
+		const response = await fetch(`https://purrquinox.com/api/data/blog/list`, {
+			method: 'GET',
+			headers: {
+				// Avoid Content-Type if possible to prevent preflight if the server doesn't support it
+				Accept: 'application/json'
 			}
-		);
-	} catch (error) {
-		console.error('Error fetching Strapi blogs:', error);
+		});
 
-		// If it's a timeout or network error, throw a more specific error
-		if (error instanceof Error) {
-			if (error.message.includes('timeout')) {
-				throw new Error('Strapi API timeout - please try again later');
-			}
-			if (error.message.includes('429')) {
-				throw new Error('Strapi API rate limited - please try again later');
-			}
+		if (!response.ok) {
+			throw new Error(`Failed to fetch blogs: ${response.statusText}`);
 		}
 
+		const blogs = await response.json();
+
+		// Apply fixImageUrl to all images and avatars
+		const fixedBlogs = (blogs || []).map((blog: any) => ({
+			...blog,
+			image: fixImageUrl(blog.image),
+			author: blog.author ? {
+				...blog.author,
+				avatar: fixImageUrl(blog.author.avatar)
+			} : { name: 'Unknown', avatar: '' }
+		}));
+
+		return { data: fixedBlogs };
+	} catch (error) {
+		console.error('Error fetching blogs:', error);
 		throw error;
 	}
 };
@@ -390,32 +411,33 @@ export const strapiBlogsOptions = queryOptions({
 
 export const fetchStrapiBlogBySlug = async (slug: string): Promise<any> => {
 	try {
-		const data = await apiRequest<{ data?: any[] }>(
-			`${STRAPI_API_URL}/api/blogs?filters[slug][$eq]=${slug}&populate[author][populate]=avatar&populate[image]=true&populate`,
-			{
-				headers: {
-					Authorization: `Bearer 46c2ac374e977304d2ab121cba95e7337d19304bc0e880f5b06376a0c687618644123a3fa20cbc675ae70494e991e92903ad0d02dbf916d0cd40eb72fad1aca4132c9a80556cb5068475673907029497c4eec323b387a33c068e17d834867cb30c3166d5b266987421338a44c4fe05f9753559ae622975ada35a4e9f11f77558`
-				},
-				timeout: 3000, // Reduced to 3 second timeout for single blog fetch
-				validateStatus: (status) => status === 200 || status === 304
+		const response = await fetch(`https://purrquinox.com/api/data/blog/get?slug=${slug}`, {
+			method: 'GET',
+			headers: {
+				Accept: 'application/json'
 			}
-		);
+		});
 
-		// Return the first (and should be only) blog post
-		return data?.data?.[0] || null;
-	} catch (error) {
-		console.error('Error fetching Strapi blog by slug:', error);
-
-		// If it's a timeout or network error, throw a more specific error
-		if (error instanceof Error) {
-			if (error.message.includes('timeout')) {
-				throw new Error('Strapi API timeout - please try again later');
-			}
-			if (error.message.includes('429')) {
-				throw new Error('Strapi API rate limited - please try again later');
-			}
+		if (!response.ok) {
+			if (response.status === 404) return null;
+			throw new Error(`Failed to fetch blog post: ${response.statusText}`);
 		}
 
+		const blog = await response.json();
+
+		if (!blog) return null;
+
+		// Apply fixImageUrl
+		return {
+			...blog,
+			image: fixImageUrl(blog.image),
+			author: blog.author ? {
+				...blog.author,
+				avatar: fixImageUrl(blog.author.avatar)
+			} : { name: 'Unknown', avatar: '' }
+		};
+	} catch (error) {
+		console.error('Error fetching blog by slug:', error);
 		throw error;
 	}
 };
@@ -425,3 +447,5 @@ export const strapiBlogBySlugOptions = (slug: string) =>
 		queryKey: ['strapiBlog', slug],
 		queryFn: () => fetchStrapiBlogBySlug(slug)
 	});
+
+

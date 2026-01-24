@@ -26,9 +26,10 @@ export const Route = createFileRoute('/blogs/$slug/')({
 		const metadata = generateBlogMetadata({
 			title: post.title,
 			description: post.description,
-			imageUrl: `${appUrl}/api/get/og-image?slug=${post.slug}`,
+			imageUrl: post.image || `${appUrl}/api/get/og-image?slug=${post.slug}`,
 			keywords: post.tags || [],
 			canonicalUrl: `https://antiraid.xyz/blogs/${post.slug}`,
+
 			ogType: 'article',
 			articleAuthor: post.author?.name || 'AntiRaid Team',
 			articlePublishedTime: post.publishedAt,
@@ -39,12 +40,13 @@ export const Route = createFileRoute('/blogs/$slug/')({
 		const articleStructuredData = generateArticleStructuredData({
 			title: post.title,
 			description: post.description,
-			image: post.image?.url || post.og?.url || `${appUrl}/api/get/og-image?slug=${post.slug}`,
+			image: post.image || `${appUrl}/api/get/og-image?slug=${post.slug}`,
 			author: {
 				name: post.author?.name || 'AntiRaid Team',
-				avatar: post.author?.avatar?.url,
+				avatar: post.author?.avatar,
 				url: post.author?.socials?.find((s: any) => s.platform === 'website')?.url
 			},
+
 			datePublished: post.publishedAt,
 			dateModified: post.updatedAt,
 			url: `https://antiraid.xyz/blogs/${post.slug}`,
