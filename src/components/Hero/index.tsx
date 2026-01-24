@@ -370,77 +370,77 @@ const Hero = () => {
 									icon={<Zap className="w-6 h-6" />}
 									title="Lightning Fast"
 									description="Blazing fast response times with optimized performance to handle servers of any size"
-									delay={0.1}
+									delay={0.05}
 									isLoaded={isVisible}
 								/>
 								<FeatureCard
 									icon={<User className="w-6 h-6" />}
 									title="Smart Moderation"
 									description="AI-powered moderation tools that learn from your server's patterns and adapt to your needs"
-									delay={0.2}
+									delay={0.1}
 									isLoaded={isVisible}
 								/>
 								<FeatureCard
 									icon={<Archive className="w-6 h-6" />}
 									title="Comprehensive Logging"
 									description="Detailed audit logs with advanced filtering and search capabilities for complete transparency"
-									delay={0.3}
+									delay={0.15}
 									isLoaded={isVisible}
 								/>
 								<FeatureCard
 									icon={<MdOutlineSettings className="w-6 h-6" />}
 									title="Fully Customizable"
 									description="Tailor every aspect of the bot to match your server's unique requirements and workflow"
-									delay={0.4}
+									delay={0.2}
 									isLoaded={isVisible}
 								/>
 								<FeatureCard
 									icon={<MdSecurity className="w-6 h-6" />}
 									title="Auto-Moderation"
 									description="Automated content filtering, spam detection, and rule enforcement to keep your server clean"
-									delay={0.5}
+									delay={0.25}
 									isLoaded={isVisible}
 								/>
 								<FeatureCard
 									icon={<HiLightningBolt className="w-6 h-6" />}
 									title="Real-Time Protection"
 									description="Instant threat detection and response with zero-delay protection against malicious actors"
-									delay={0.6}
+									delay={0.3}
 									isLoaded={isVisible}
 								/>
 								<FeatureCard
 									icon={<MdBarChart className="w-6 h-6" />}
 									title="Advanced Analytics"
 									description="Detailed insights and statistics about your server's activity, growth, and security events"
-									delay={0.7}
+									delay={0.35}
 									isLoaded={isVisible}
 								/>
 								<FeatureCard
 									icon={<MdPeople className="w-6 h-6" />}
 									title="Role Management"
 									description="Sophisticated role-based permissions and automated role assignment based on user behavior"
-									delay={0.8}
+									delay={0.4}
 									isLoaded={isVisible}
 								/>
 								<FeatureCard
 									icon={<MdNotifications className="w-6 h-6" />}
 									title="Smart Alerts"
 									description="Customizable notification system that keeps you informed about important server events"
-									delay={0.9}
+									delay={0.45}
 									isLoaded={isVisible}
 								/>
 								<FeatureCard
 									icon={<MdChat className="w-6 h-6" />}
 									title="Welcome System"
 									description="Engaging welcome messages, auto-roles, and verification systems for new members"
-									delay={1.0}
+									delay={0.5}
 									isLoaded={isVisible}
 								/>
 								<FeatureCard
 									icon={<MdAutoFixHigh className="w-6 h-6" />}
 									title="Automation Tools"
 									description="Powerful automation features including scheduled tasks, triggers, and custom workflows"
-									delay={1.1}
+									delay={0.55}
 									isLoaded={isVisible}
 								/>
 							</div>

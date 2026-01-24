@@ -26,14 +26,16 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 	useEffect(() => {
 		if (typeof window !== 'undefined') {
 			const isHome = window.location.pathname === '/';
+			const isMobile = window.innerWidth < 768;
 			const hasLoaded = sessionStorage.getItem('hasLoaded');
 			
-			if (isHome && !hasLoaded) {
+			// Show loading only on desktop home page for first visit
+			if (isHome && !hasLoaded && !isMobile) {
 				setIsLoading(true);
 				sessionStorage.setItem('hasLoaded', 'true');
 			}
 		}
-		const timer = setTimeout(() => setIsLoading(false), 800);
+		const timer = setTimeout(() => setIsLoading(false), 400);
 		return () => clearTimeout(timer);
 	}, []);
 

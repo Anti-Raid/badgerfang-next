@@ -31,6 +31,20 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 		links: [
 			{ rel: 'preconnect', href: 'https://fonts.googleapis.com' },
 			{ rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' },
+			{ rel: 'preconnect', href: 'https://www.gravatar.com' },
+			{
+				rel: 'preload',
+				href: 'https://fonts.gstatic.com/s/montserrat/v26/JTUSjIg1_i6t8kCHKm459Wlhyw.woff2',
+				as: 'font',
+				type: 'font/woff2',
+				crossOrigin: 'anonymous'
+			},
+			{
+				rel: 'preload',
+				href: '/logo.webp',
+				as: 'image',
+				type: 'image/webp'
+			},
 			{
 				href: 'https://fonts.googleapis.com/css2?family=Borel&display=swap',
 				rel: 'stylesheet'
