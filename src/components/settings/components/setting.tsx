@@ -106,7 +106,12 @@ export const fillInSetting = async (
 				`${guildId}.dash`
 			);
 		} catch (error) {
-			onError(error?.toString() || 'Unknown error');
+			// If template execution fails (for example due to WASM issues), report the error
+			// but fall back to returning the unrendered fields so the UI can still show data.
+			const msg = error?.toString() || 'Unknown error';
+			onError(msg);
+			logger.error('SettingsManager', 'view_template failed, falling back to raw fields:', msg);
+			return fields;
 		}
 	}
 
@@ -220,11 +225,38 @@ export const SettingComponent: React.FC<SettingsManagerProps> = ({
 
 	const fetchSetting = async () => {
 		try {
+			// Reset state while fetching so the UI shows a loading/empty state instead of stale data
+			setEntries([]);
+			setLoadErrors({});
+			setClientSideError(null);
 			const result = await fetcher.listEntries(setting);
+			logger.info('SettingsManager', 'Fetched raw entries for setting', setting.id, result);
 			let mergedFields: any[] = [];
 			let errors: { [templateName: string]: string } = {};
 
 			for (const templateName in result) {
+				// Some backends may return meta keys like `$builtins`. If the `$builtins` entry
+				// contains actual entries for this setting (matching primary key columns), accept it.
+				if (templateName.startsWith('$')) {
+					const data = result[templateName]?.data;
+					if (Array.isArray(data) && data.length > 0) {
+						// If items look like setting definitions (have id and columns), skip
+						if (data[0] && data[0].id && data[0].columns) {
+							logger.info('SettingsManager', 'Skipping template definition array for', templateName);
+							continue;
+						}
+						// If the items contain fields matching this setting's column ids, treat as entries
+						const columnIds = new Set(setting.columns.map((c) => c.id));
+						const looksLikeEntries = data.some((it: any) =>
+							Object.keys(it || {}).some((k) => columnIds.has(k))
+						);
+						if (!looksLikeEntries) {
+							logger.info('SettingsManager', 'Skipping internal template (no matching columns)', templateName);
+							continue;
+						}
+						logger.info('SettingsManager', 'Using internal template data for', setting.id, templateName);
+					}
+				}
 				let templateResult = result[templateName];
 				if (!templateResult) {
 					errors[templateName] = `No data found for template ${templateName}`;
@@ -242,6 +274,11 @@ export const SettingComponent: React.FC<SettingsManagerProps> = ({
 				}
 
 				if (Array.isArray(templateResult.data)) {
+					// Detect if the array contains Setting definitions (schema) rather than entries.
+					if (templateResult.data.length > 0 && templateResult.data[0] && templateResult.data[0].id && templateResult.data[0].columns) {
+						logger.info('SettingsManager', `Skipping template definition array for ${templateName}`);
+						continue;
+					}
 					for (let f of templateResult.data) {
 						const filledIn = await fillInSetting(guildId, setting, guildData, f, (e) => {
 							errors[templateName] = e;
@@ -252,6 +289,7 @@ export const SettingComponent: React.FC<SettingsManagerProps> = ({
 							mergedFields.push(filledIn);
 						}
 					}
+					logger.info('SettingsManager', `Merged ${templateName} -> ${mergedFields.length} entries (array)`);
 				} else if (typeof templateResult.data === 'object') {
 					const filledIn = await fillInSetting(
 						guildId,
@@ -268,7 +306,13 @@ export const SettingComponent: React.FC<SettingsManagerProps> = ({
 						mergedFields.push(filledIn);
 					}
 				} else {
-					errors[templateName] = `Unexpected data type returned by template ${templateName}`;
+					// If template returned a primitive (e.g., a string title), coerce into an entry
+					if (typeof templateResult.data === 'string') {
+						mergedFields.push({ title: templateResult.data });
+						logger.info('SettingsManager', `Merged ${templateName} -> 1 entry (string)`);
+					} else {
+						errors[templateName] = `Unexpected data type returned by template ${templateName}`;
+					}
 				}
 			}
 
@@ -438,16 +482,22 @@ export const SettingComponent: React.FC<SettingsManagerProps> = ({
 		}
 	};
 
-	const handleReorderEntry = async () => {
+	const handleReorderEntry = async (entriesToSave?: any[]) => {
+		const sourceEntries = entriesToSave || entries;
+		const toastId = `reorder-${setting.name || 'entries'}`;
 		let sendFields: any[] = [];
+
+		// show transient saving toast (will be updated on success/failure)
+		toast('Saving order...', { id: toastId });
+
 		try {
-			for (let fields of entries) {
+			for (let fields of sourceEntries) {
 				let _sendFields: { [key: string]: unknown } = {};
 				for (let column of setting.columns) {
 					if (column.primary_key) {
 						let entry = fields[column.id];
 						if (entry === undefined) {
-							toast.error(`Missing primary key field ${column.id} for reorder`);
+							toast.error(`Missing primary key field ${column.id} for reorder`, { id: toastId });
 							return;
 						}
 						_sendFields[column.id] = entry;
@@ -460,6 +510,8 @@ export const SettingComponent: React.FC<SettingsManagerProps> = ({
 			sendFields = await validateOperation('Reorder', sendFields);
 		} catch (error) {
 			setClientSideError(error?.toString() || 'Unknown error');
+			const msg = error instanceof Error ? error.message : String(error || 'Validation failed');
+			toast.error(msg, { id: toastId });
 			return;
 		}
 
@@ -470,6 +522,8 @@ export const SettingComponent: React.FC<SettingsManagerProps> = ({
 				await postSendOperation('Reorder', sendFields, res);
 			} catch (error) {
 				setClientSideError(error?.toString() || 'Unknown error');
+				const msg = error instanceof Error ? error.message : String(error || 'Post-send failed');
+				toast.error(msg, { id: toastId });
 				return;
 			}
 
@@ -477,9 +531,10 @@ export const SettingComponent: React.FC<SettingsManagerProps> = ({
 
 			fetchSetting();
 			setIsReordered(false);
+			toast.success('Order saved', { id: toastId });
 		} catch (error) {
 			logger.error('SettingsManager', 'Failed to reorder entries:', error);
-			toast.error(`Failed to reorder ${setting.name}`);
+			toast.error(`Failed to reorder ${setting.name}`, { id: toastId });
 		}
 	};
 
@@ -496,6 +551,8 @@ export const SettingComponent: React.FC<SettingsManagerProps> = ({
 		});
 		setEntries(newEntries);
 		setIsReordered(true);
+		// Auto-save the new order immediately using the provided entries array to avoid state timing issues
+		handleReorderEntry(newEntries);
 	};
 
 	useEffect(() => {
@@ -544,8 +601,6 @@ export const SettingComponent: React.FC<SettingsManagerProps> = ({
 							onReorder={handleReorder}
 							onEdit={setEditingEntry}
 							onDelete={handleDeleteEntry}
-							onSaveOrder={handleReorderEntry}
-							isReordered={isReordered}
 							indexBy={setting.index_by}
 						/>
 					) : (

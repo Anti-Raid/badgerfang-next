@@ -75,54 +75,57 @@ export default function Settings({ guildId }: { guildId: string }) {
 		}
 	}, [error]);
 
-	const fetcher: SettingDataFetcher = {
-		...noOpFetcher,
-		listEntries: async (setting: Setting) => {
-			const payload = {
-				operation: 'View',
-				setting: setting.id,
-				fields: {}
-			};
-			const result = await executeSettings(guildId, payload);
-			return result as { [templateName: string]: ApiDispatchResult<any> };
-		},
-		createEntry: async (setting: Setting, entry: any) => {
-			const payload = {
-				operation: 'Create',
-				setting: setting.id,
-				fields: entry
-			};
-			const result = await executeSettings(guildId, payload);
-			return result as { [templateName: string]: ApiDispatchResult<any> };
-		},
-		updateEntry: async (setting: Setting, entry: any) => {
-			const payload = {
-				operation: 'Update',
-				setting: setting.id,
-				fields: entry
-			};
-			const result = await executeSettings(guildId, payload);
-			return result as { [templateName: string]: ApiDispatchResult<any> };
-		},
-		deleteEntry: async (setting: Setting, entry: any) => {
-			const payload = {
-				operation: 'Delete',
-				setting: setting.id,
-				fields: entry
-			};
-			const result = await executeSettings(guildId, payload);
-			return result as { [templateName: string]: ApiDispatchResult<any> };
-		},
-		reorderEntries: async (setting: Setting, entries: any[]) => {
-			const payload = {
-				operation: 'Reorder',
-				setting: setting.id,
-				fields: entries
-			};
-			const result = await executeSettings(guildId, payload);
-			return result as { [templateName: string]: ApiDispatchResult<any> };
-		}
-	};
+	const fetcher: SettingDataFetcher = useMemo(
+		() => ({
+			...noOpFetcher,
+			listEntries: async (setting: Setting) => {
+				const payload = {
+					operation: 'View',
+					setting: setting.id,
+					fields: {}
+				};
+				const result = await executeSettings(guildId, payload);
+				return result as { [templateName: string]: ApiDispatchResult<any> };
+			},
+			createEntry: async (setting: Setting, entry: any) => {
+				const payload = {
+					operation: 'Create',
+					setting: setting.id,
+					fields: entry
+				};
+				const result = await executeSettings(guildId, payload);
+				return result as { [templateName: string]: ApiDispatchResult<any> };
+			},
+			updateEntry: async (setting: Setting, entry: any) => {
+				const payload = {
+					operation: 'Update',
+					setting: setting.id,
+					fields: entry
+				};
+				const result = await executeSettings(guildId, payload);
+				return result as { [templateName: string]: ApiDispatchResult<any> };
+			},
+			deleteEntry: async (setting: Setting, entry: any) => {
+				const payload = {
+					operation: 'Delete',
+					setting: setting.id,
+					fields: entry
+				};
+				const result = await executeSettings(guildId, payload);
+				return result as { [templateName: string]: ApiDispatchResult<any> };
+			},
+			reorderEntries: async (setting: Setting, entries: any[]) => {
+				const payload = {
+					operation: 'Reorder',
+					setting: setting.id,
+					fields: entries
+				};
+				const result = await executeSettings(guildId, payload);
+				return result as { [templateName: string]: ApiDispatchResult<any> };
+			}
+		}),
+		[guildId]
+	);
 
 	if (loading) {
 		return (

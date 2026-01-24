@@ -10,8 +10,7 @@ interface SettingsReorderableListProps {
 	onReorder: (entries: any[]) => void;
 	onEdit: (entry: any) => void;
 	onDelete: (entry: any) => void;
-	onSaveOrder: () => void;
-	isReordered: boolean;
+	// onSaveOrder and isReordered removed: list now auto-saves reorders
 	indexBy?: string;
 }
 
@@ -20,8 +19,6 @@ export const SettingsReorderableList: React.FC<SettingsReorderableListProps> = (
 	onReorder,
 	onEdit,
 	onDelete,
-	onSaveOrder,
-	isReordered,
 	indexBy
 }) => {
 	return (
@@ -49,6 +46,7 @@ export const SettingsReorderableList: React.FC<SettingsReorderableListProps> = (
 									<button
 										type="button"
 										className="p-2 rounded-lg text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+										onPointerDown={(e) => e.stopPropagation()}
 										onClick={() => onEdit(structuredClone(entry))}
 										aria-label={`Edit ${entry?.title || 'entry'}`}
 									>
@@ -57,6 +55,7 @@ export const SettingsReorderableList: React.FC<SettingsReorderableListProps> = (
 									<button
 										type="button"
 										className="p-2 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+										onPointerDown={(e) => e.stopPropagation()}
 										onClick={() => onDelete(entry)}
 										aria-label={`Delete ${entry?.title || 'entry'}`}
 									>
@@ -69,19 +68,7 @@ export const SettingsReorderableList: React.FC<SettingsReorderableListProps> = (
 				</Reorder.Group>
 			</div>
 
-			{isReordered && (
-				<motion.div
-					initial={{ opacity: 0, y: 10 }}
-					animate={{ opacity: 1, y: 0 }}
-					className="flex justify-end pt-2"
-				>
-					<Primary
-						Title="Save New Order"
-						onClick={onSaveOrder}
-						className="!px-6 !py-2.5 !rounded-xl !text-sm shadow-lg shadow-primary/10"
-					/>
-				</motion.div>
-			)}
+			{/* Reorder now auto-saves; no explicit save button required */}
 		</div>
 	);
 };
