@@ -3,6 +3,7 @@ declare module 'remark-footnotes';
 declare module 'remark-emoji';
 declare module 'rehype-katex';
 declare module 'rehype-slug';
+declare module 'rehype-autolink-headings';
 
 declare module 'mermaid';
 
