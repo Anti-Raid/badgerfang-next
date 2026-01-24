@@ -7,8 +7,9 @@ import topLevelAwait from "vite-plugin-top-level-await";
 
 export default defineConfig({
 	server: {
+		port: 4173,
 		host: '0.0.0.0',
-		port: 3000
+		allowedHosts: ['tastack.antiraid.bot']
 	},
 	worker: {
 		format: 'es'
