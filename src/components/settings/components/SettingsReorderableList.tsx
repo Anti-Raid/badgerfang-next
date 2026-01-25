@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Reorder, motion } from '@/components/ui/motion';
 import { GripVertical, Edit, Trash2 } from 'lucide-react';
 import { Primary } from '../../ui/Buttons';
@@ -10,7 +10,6 @@ interface SettingsReorderableListProps {
 	onReorder: (entries: any[]) => void;
 	onEdit: (entry: any) => void;
 	onDelete: (entry: any) => void;
-	// onSaveOrder and isReordered removed: list now auto-saves reorders
 	indexBy?: string;
 }
 
@@ -19,15 +18,35 @@ export const SettingsReorderableList: React.FC<SettingsReorderableListProps> = (
 	onReorder,
 	onEdit,
 	onDelete,
-	indexBy
+	indexBy = 'id'
 }) => {
+	// Keep local state to prevent re-renders from parent
+	const [localEntries, setLocalEntries] = useState(entries);
+
+	// Only update local state when entries actually change (not during drag)
+	useEffect(() => {
+		setLocalEntries(entries);
+	}, [entries]);
+
+	const handleReorder = (newEntries: any[]) => {
+		// Update local state immediately for smooth animation
+		setLocalEntries(newEntries);
+		// Call parent callback
+		onReorder(newEntries);
+	};
+
 	return (
 		<div className="space-y-4">
 			<div className="bg-accent/30 border border-border/50 rounded-2xl overflow-hidden p-3">
-				<Reorder.Group axis="y" values={entries} onReorder={onReorder} className="space-y-2">
-					{entries.map((entry, index) => (
+				<Reorder.Group 
+					axis="y" 
+					values={localEntries} 
+					onReorder={handleReorder} 
+					className="space-y-2"
+				>
+					{localEntries.map((entry) => (
 						<Reorder.Item
-							key={entry[indexBy || ''] || index}
+							key={entry[indexBy]} // Use stable ID, not index
 							value={entry}
 							className="group/reorder relative bg-card border border-border/50 hover:border-primary/30 rounded-xl p-4 transition-all duration-200 shadow-sm"
 						>
@@ -38,7 +57,7 @@ export const SettingsReorderableList: React.FC<SettingsReorderableListProps> = (
 
 								<div className="flex-1">
 									<span className="text-sm font-bold text-foreground transition-colors group-hover/reorder:text-primary">
-										{entry?.title || `Entry ${index + 1}`}
+										{entry?.label || entry?.title || `Entry`}
 									</span>
 								</div>
 
@@ -48,7 +67,7 @@ export const SettingsReorderableList: React.FC<SettingsReorderableListProps> = (
 										className="p-2 rounded-lg text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
 										onPointerDown={(e) => e.stopPropagation()}
 										onClick={() => onEdit(structuredClone(entry))}
-										aria-label={`Edit ${entry?.title || 'entry'}`}
+										aria-label={`Edit ${entry?.label || entry?.title || 'entry'}`}
 									>
 										<Edit size={16} />
 									</button>
@@ -57,7 +76,7 @@ export const SettingsReorderableList: React.FC<SettingsReorderableListProps> = (
 										className="p-2 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
 										onPointerDown={(e) => e.stopPropagation()}
 										onClick={() => onDelete(entry)}
-										aria-label={`Delete ${entry?.title || 'entry'}`}
+										aria-label={`Delete ${entry?.label || entry?.title || 'entry'}`}
 									>
 										<Trash2 size={16} />
 									</button>
@@ -67,7 +86,6 @@ export const SettingsReorderableList: React.FC<SettingsReorderableListProps> = (
 					))}
 				</Reorder.Group>
 			</div>
-
 		</div>
 	);
 };

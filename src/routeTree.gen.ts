@@ -21,6 +21,7 @@ import { Route as AuthorizeIndexRouteImport } from './app/authorize/index'
 import { Route as AboutIndexRouteImport } from './app/about/index'
 import { Route as ScriptShopIndexRouteImport } from './app/script/shop/index'
 import { Route as ScriptNameIndexRouteImport } from './app/script/$name/index'
+import { Route as DebugLuauJsInteropIndexRouteImport } from './app/debug/luau-js-interop/index'
 import { Route as DebugFlowKiteIndexRouteImport } from './app/debug/flow-kite/index'
 import { Route as DebugFflagIndexRouteImport } from './app/debug/fflag/index'
 import { Route as DashboardGuildsIndexRouteImport } from './app/dashboard/guilds/index'
@@ -90,6 +91,11 @@ const ScriptShopIndexRoute = ScriptShopIndexRouteImport.update({
 const ScriptNameIndexRoute = ScriptNameIndexRouteImport.update({
   id: '/script/$name/',
   path: '/script/$name/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DebugLuauJsInteropIndexRoute = DebugLuauJsInteropIndexRouteImport.update({
+  id: '/debug/luau-js-interop/',
+  path: '/debug/luau-js-interop/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DebugFlowKiteIndexRoute = DebugFlowKiteIndexRouteImport.update({
@@ -165,6 +171,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/guilds/': typeof DashboardGuildsIndexRoute
   '/debug/fflag/': typeof DebugFflagIndexRoute
   '/debug/flow-kite/': typeof DebugFlowKiteIndexRoute
+  '/debug/luau-js-interop/': typeof DebugLuauJsInteropIndexRoute
   '/script/$name/': typeof ScriptNameIndexRoute
   '/script/shop/': typeof ScriptShopIndexRoute
   '/debug/flow-kite/typedinput/': typeof DebugFlowKiteTypedinputIndexRoute
@@ -189,6 +196,7 @@ export interface FileRoutesByTo {
   '/dashboard/guilds': typeof DashboardGuildsIndexRoute
   '/debug/fflag': typeof DebugFflagIndexRoute
   '/debug/flow-kite': typeof DebugFlowKiteIndexRoute
+  '/debug/luau-js-interop': typeof DebugLuauJsInteropIndexRoute
   '/script/$name': typeof ScriptNameIndexRoute
   '/script/shop': typeof ScriptShopIndexRoute
   '/debug/flow-kite/typedinput': typeof DebugFlowKiteTypedinputIndexRoute
@@ -214,6 +222,7 @@ export interface FileRoutesById {
   '/dashboard/guilds/': typeof DashboardGuildsIndexRoute
   '/debug/fflag/': typeof DebugFflagIndexRoute
   '/debug/flow-kite/': typeof DebugFlowKiteIndexRoute
+  '/debug/luau-js-interop/': typeof DebugLuauJsInteropIndexRoute
   '/script/$name/': typeof ScriptNameIndexRoute
   '/script/shop/': typeof ScriptShopIndexRoute
   '/debug/flow-kite/typedinput/': typeof DebugFlowKiteTypedinputIndexRoute
@@ -240,6 +249,7 @@ export interface FileRouteTypes {
     | '/dashboard/guilds/'
     | '/debug/fflag/'
     | '/debug/flow-kite/'
+    | '/debug/luau-js-interop/'
     | '/script/$name/'
     | '/script/shop/'
     | '/debug/flow-kite/typedinput/'
@@ -264,6 +274,7 @@ export interface FileRouteTypes {
     | '/dashboard/guilds'
     | '/debug/fflag'
     | '/debug/flow-kite'
+    | '/debug/luau-js-interop'
     | '/script/$name'
     | '/script/shop'
     | '/debug/flow-kite/typedinput'
@@ -288,6 +299,7 @@ export interface FileRouteTypes {
     | '/dashboard/guilds/'
     | '/debug/fflag/'
     | '/debug/flow-kite/'
+    | '/debug/luau-js-interop/'
     | '/script/$name/'
     | '/script/shop/'
     | '/debug/flow-kite/typedinput/'
@@ -313,6 +325,7 @@ export interface RootRouteChildren {
   DashboardGuildsIndexRoute: typeof DashboardGuildsIndexRoute
   DebugFflagIndexRoute: typeof DebugFflagIndexRoute
   DebugFlowKiteIndexRoute: typeof DebugFlowKiteIndexRoute
+  DebugLuauJsInteropIndexRoute: typeof DebugLuauJsInteropIndexRoute
   ScriptNameIndexRoute: typeof ScriptNameIndexRoute
   ScriptShopIndexRoute: typeof ScriptShopIndexRoute
   DebugFlowKiteTypedinputIndexRoute: typeof DebugFlowKiteTypedinputIndexRoute
@@ -402,6 +415,13 @@ declare module '@tanstack/react-router' {
       path: '/script/$name'
       fullPath: '/script/$name/'
       preLoaderRoute: typeof ScriptNameIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/debug/luau-js-interop/': {
+      id: '/debug/luau-js-interop/'
+      path: '/debug/luau-js-interop'
+      fullPath: '/debug/luau-js-interop/'
+      preLoaderRoute: typeof DebugLuauJsInteropIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/debug/flow-kite/': {
@@ -497,6 +517,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardGuildsIndexRoute: DashboardGuildsIndexRoute,
   DebugFflagIndexRoute: DebugFflagIndexRoute,
   DebugFlowKiteIndexRoute: DebugFlowKiteIndexRoute,
+  DebugLuauJsInteropIndexRoute: DebugLuauJsInteropIndexRoute,
   ScriptNameIndexRoute: ScriptNameIndexRoute,
   ScriptShopIndexRoute: ScriptShopIndexRoute,
   DebugFlowKiteTypedinputIndexRoute: DebugFlowKiteTypedinputIndexRoute,

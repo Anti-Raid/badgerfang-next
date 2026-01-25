@@ -1253,82 +1253,68 @@ export const ReorderGroup: React.FC<ReorderGroupProps> = ({
 			draggedElement.style.transform = `translate${axis === 'y' ? 'Y' : 'X'}(${offset}px)`;
 			draggedElement.style.zIndex = '1000';
 			draggedElement.style.opacity = '0.95';
-            draggedElement.style.boxShadow = '0 10px 30px -10px rgba(0,0,0,0.5)';
+			draggedElement.style.boxShadow = '0 10px 30px -10px rgba(0,0,0,0.5)';
 			draggedElement.style.pointerEvents = 'none';
 			draggedElement.style.willChange = 'transform';
 		}
 
-        // Logic to find closest item based on center distance
-        let closestIndex = state.draggedIndex;
-        let minDistance = Infinity;
-        
-        const pointerVal = axis === 'y' ? state.currentY : state.currentX;
-        const allItems = Array.from(itemRefsRef.current.entries());
+		// Find closest item based on center distance
+		let closestIndex = state.draggedIndex;
+		let minDistance = Infinity;
 
-        // Find the index that the dragged item is hovering over
-        allItems.forEach(([index, element]) => {
-            if (index === state.draggedIndex) return;
-            const rect = element.getBoundingClientRect();
-            const center = axis === 'y' ? rect.top + rect.height / 2 : rect.left + rect.width / 2;
-            const dist = Math.abs(pointerVal - center);
-            if (dist < minDistance) {
-                minDistance = dist;
-                closestIndex = index;
-            }
-        });
-        
-        // Calculate dynamic shift amount
-        const draggedEl = state.draggedIndex !== null ? itemRefsRef.current.get(state.draggedIndex) : null;
-        const draggedSize = axis === 'y' ? (draggedEl?.offsetHeight || 0) : (draggedEl?.offsetWidth || 0);
-        
-        // Gap estimation: if there's an item 0 and 1, diff their tops vs bottoms
-        // Or assume a constant if checking all is expensive. 
-        // Let's assume 12px gap (standard tailwind space-y-3 is 0.75rem = 12px) + visual fidelity
-        const gap = 12; 
+		const pointerVal = axis === 'y' ? state.currentY : state.currentX;
+		const allItems = Array.from(itemRefsRef.current.entries());
+
+		// Find the index that the dragged item is hovering over
+		allItems.forEach(([index, element]) => {
+			if (index === state.draggedIndex) return;
+			const rect = element.getBoundingClientRect();
+			const center = axis === 'y' ? rect.top + rect.height / 2 : rect.left + rect.width / 2;
+			const dist = Math.abs(pointerVal - center);
+			if (dist < minDistance) {
+				minDistance = dist;
+				closestIndex = index;
+			}
+		});
+
+		// Calculate dynamic shift amount
+		const draggedEl = state.draggedIndex !== null ? itemRefsRef.current.get(state.draggedIndex) : null;
+		const draggedSize = axis === 'y' ? (draggedEl?.offsetHeight || 0) : (draggedEl?.offsetWidth || 0);
+		const gap = 8; // space-y-2 = 0.5rem = 8px
 
 		allItems.forEach(([index, element]) => {
 			if (index === state.draggedIndex) return;
-            
-            let offset = 0;
-            if (state.draggedIndex !== null && closestIndex !== null) {
-                if (state.draggedIndex < closestIndex) {
-                    // Dragging down: Items between draggedIndex and closestIndex (inclusive) shift UP
-                    if (index > state.draggedIndex && index <= closestIndex) {
-                        offset = -draggedSize - gap;
-                    }
-                } else if (state.draggedIndex > closestIndex) {
-                    // Dragging up: Items between closestIndex and draggedIndex shift DOWN
-                    if (index >= closestIndex && index < state.draggedIndex) {
-                        offset = draggedSize + gap;
-                    }
-                }
-            }
 
-            // Apply translation
-            const translateStr = axis === 'y' ? `translate3d(0, ${offset}px, 0)` : `translate3d(${offset}px, 0, 0)`;
-            if (element.style.transform !== translateStr) {
-                element.style.transform = translateStr;
-                element.style.transition = 'transform 0.2s cubic-bezier(0.2, 0, 0, 1)';
-            }
+			let offset = 0;
+			if (state.draggedIndex !== null && closestIndex !== null) {
+				if (state.draggedIndex < closestIndex) {
+					// Dragging down: Items between draggedIndex and closestIndex shift UP
+					if (index > state.draggedIndex && index <= closestIndex) {
+						offset = -(draggedSize + gap);
+					}
+				} else if (state.draggedIndex > closestIndex) {
+					// Dragging up: Items between closestIndex and draggedIndex shift DOWN
+					if (index >= closestIndex && index < state.draggedIndex) {
+						offset = draggedSize + gap;
+					}
+				}
+			}
+
+			// Apply translation
+			const translateStr =
+				axis === 'y' ? `translate3d(0, ${offset}px, 0)` : `translate3d(${offset}px, 0, 0)`;
+			element.style.transform = translateStr;
+			element.style.transition = 'transform 0.2s cubic-bezier(0.2, 0, 0, 1)';
 		});
 
-        if (closestIndex !== state.dragOverIndex) {
-            dragStateRef.current.dragOverIndex = closestIndex;
-            setDragOverIndex(closestIndex);
-        }
+		if (closestIndex !== state.dragOverIndex) {
+			dragStateRef.current.dragOverIndex = closestIndex;
+			setDragOverIndex(closestIndex);
+		}
 
 		handleAutoScroll();
 		rafRef.current = requestAnimationFrame(updateDragPosition);
 	}, [axis, handleAutoScroll]);
-
-	const findItemUnderPointer = useCallback(
-		(clientY: number, clientX: number): number | null => {
-			// Instead of just checking bounding box, we reuse the center logic implicitly via updateDragPosition
-            // But for the final drop, we use dragOverIndex which is calculated in updateDragPosition
-            return dragStateRef.current.dragOverIndex;
-		},
-		[]
-	);
 
 	const handlePointerDown = useCallback(
 		(index: number) => (e: React.PointerEvent) => {
@@ -1349,7 +1335,7 @@ export const ReorderGroup: React.FC<ReorderGroupProps> = ({
 			dragStateRef.current = {
 				isDragging: true,
 				draggedIndex: index,
-				dragOverIndex: index, // Initialize to self
+				dragOverIndex: index,
 				startY,
 				startX,
 				currentY: startY,
@@ -1360,7 +1346,13 @@ export const ReorderGroup: React.FC<ReorderGroupProps> = ({
 			};
 
 			setDraggedIndex(index);
+			setDragOverIndex(index);
 			element.setPointerCapture(e.pointerId);
+
+			// Start RAF loop
+			if (rafRef.current !== null) {
+				cancelAnimationFrame(rafRef.current);
+			}
 			rafRef.current = requestAnimationFrame(updateDragPosition);
 
 			const handlePointerMove = (e: PointerEvent) => {
@@ -1379,15 +1371,15 @@ export const ReorderGroup: React.FC<ReorderGroupProps> = ({
 				} else {
 					dragStateRef.current.offsetX = currentOffset;
 				}
-                // dragOverIndex is updated in RAF loop
 			};
 
 			const handlePointerUp = (e: PointerEvent) => {
 				if (!dragStateRef.current.isDragging) return;
 
 				const state = dragStateRef.current;
-				const finalIndex = state.dragOverIndex; // Use the calculated target index
+				const finalIndex = state.dragOverIndex ?? state.draggedIndex; // Fallback to draggedIndex
 
+				// Only reorder if index actually changed
 				if (
 					state.draggedIndex !== null &&
 					finalIndex !== null &&
@@ -1396,14 +1388,18 @@ export const ReorderGroup: React.FC<ReorderGroupProps> = ({
 					const newValues = [...values];
 					const [draggedItem] = newValues.splice(state.draggedIndex, 1);
 					newValues.splice(finalIndex, 0, draggedItem);
+					
+					// Call onReorder immediately with new values
 					onReorder(newValues);
 				}
 
+				// Clean up RAF
 				if (rafRef.current !== null) {
 					cancelAnimationFrame(rafRef.current);
 					rafRef.current = null;
 				}
 
+				// Reset all item styles
 				itemRefsRef.current.forEach((el) => {
 					el.style.transform = '';
 					el.style.zIndex = '';
@@ -1446,11 +1442,7 @@ export const ReorderGroup: React.FC<ReorderGroupProps> = ({
 	}, []);
 
 	return (
-		<div
-			ref={containerRef}
-			className={className}
-			style={{ position: 'relative', contain: 'layout' }}
-		>
+		<div ref={containerRef} className={className} style={{ position: 'relative', contain: 'layout' }}>
 			{React.Children.map(children, (child, index) => {
 				if (React.isValidElement(child)) {
 					const childElement = child as React.ReactElement<any>;
@@ -1474,6 +1466,7 @@ export const ReorderGroup: React.FC<ReorderGroupProps> = ({
 		</div>
 	);
 };
+
 
 interface ReorderItemProps {
 	value: any;
@@ -1500,13 +1493,7 @@ export const ReorderItem = React.forwardRef<HTMLDivElement, ReorderItemProps>(
 		);
 
 		return (
-			<div
-				ref={combinedRef}
-				className={className}
-				style={style}
-				onPointerDown={onPointerDown}
-				{...props}
-			>
+			<div ref={combinedRef} className={className} style={style} onPointerDown={onPointerDown} {...props}>
 				{children}
 			</div>
 		);
