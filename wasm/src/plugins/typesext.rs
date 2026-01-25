@@ -1,6 +1,10 @@
-use super::create_userdata_iterator_with_fields;
+use std::{collections::HashMap, sync::Arc};
+
 use mluau::prelude::*;
+use mluau_require::{AssetRequirer, FilesystemWrapper};
 use rand::distr::{Alphanumeric, SampleString};
+
+use crate::{lazy::Lazy, proxyglobals::proxy_global};
 
 // U64 type
 #[derive(Default, Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -159,27 +163,13 @@ impl LuaUserData for U64 {
 
             Ok(I64(this.0 as i64))
         });
+    }
 
-        methods.add_meta_function(LuaMetaMethod::Iter, |lua, ud: LuaAnyUserData| {
-            if !ud.is::<U64>() {
-                return Err(mluau::Error::external("Invalid userdata type"));
-            }
-
-            create_userdata_iterator_with_fields(
-                lua,
-                ud,
-                [
-                    // Methods
-                    "to_ne_bytes",
-                    "from_ne_bytes",
-                    "to_le_bytes",
-                    "from_le_bytes",
-                    "to_be_bytes",
-                    "from_be_bytes",
-                    "to_i64",
-                ],
-            )
-        });
+    fn register(registry: &mut LuaUserDataRegistry<Self>) {
+        Self::add_fields(registry);
+        Self::add_methods(registry);
+        let fields = registry.fields(false).iter().map(|x| x.to_string()).collect::<Vec<_>>();
+        registry.add_meta_field("__ud_fields", fields);
     }
 }
 
@@ -363,27 +353,13 @@ impl LuaUserData for I64 {
 
             Ok(U64(this.0 as u64))
         });
+    }
 
-        methods.add_meta_function(LuaMetaMethod::Iter, |lua, ud: LuaAnyUserData| {
-            if !ud.is::<I64>() {
-                return Err(mluau::Error::external("Invalid userdata type"));
-            }
-
-            create_userdata_iterator_with_fields(
-                lua,
-                ud,
-                [
-                    // Methods
-                    "to_ne_bytes",
-                    "from_ne_bytes",
-                    "to_le_bytes",
-                    "from_le_bytes",
-                    "to_be_bytes",
-                    "from_be_bytes",
-                    "to_u64",
-                ],
-            )
-        });
+    fn register(registry: &mut LuaUserDataRegistry<Self>) {
+        Self::add_fields(registry);
+        Self::add_methods(registry);
+        let fields = registry.fields(false).iter().map(|x| x.to_string()).collect::<Vec<_>>();
+        registry.add_meta_field("__ud_fields", fields);
     }
 }
 
@@ -658,6 +634,52 @@ fn bitu64(lua: &Lua) -> LuaResult<LuaTable> {
     Ok(submodule)
 }
 
+#[derive(Debug, Clone)]
+pub struct Vfs {
+    pub vfs: Arc<dyn mluau_require::vfs::FileSystem>
+}
+
+impl LuaUserData for Vfs {
+    fn add_methods<M: LuaUserDataMethods<Self>>(methods: &mut M) {
+        methods.add_function("newoverlay", |_lua, vfs_list: Vec<LuaValue>| {
+            let mut vfs_refs = Vec::with_capacity(vfs_list.len());
+            for vfs in vfs_list {
+                match vfs {
+                    LuaValue::UserData(vfs) => {
+                        if vfs.is::<Lazy<HashMap<String, String>>>() {
+                            let vfs = vfs
+                            .borrow::<Lazy<HashMap<String, String>>>()
+                            .map_err(|_| LuaError::external("Failed to borrow Lazy<serde_json::Value>"))?;
+
+                            vfs_refs.push(mluau_require::vfs::VfsPath::new(
+                                mluau_require::create_memory_vfs_from_map(&vfs.data)
+                                .map_err(|e| LuaError::external(format!("Failed to create memory VFS: {}", e)))?,
+                            ));
+                            continue;
+                        }
+
+                        let vfs = vfs.borrow::<Vfs>()?;
+
+                        vfs_refs.push(mluau_require::vfs::VfsPath::new(vfs.vfs.clone()));
+                    }
+                    _ => {
+                        return Err(LuaError::external(
+                            "VFS list must contain only Vfs UserData or lazy string maps",
+                        ));
+                    }
+                }
+            }
+
+            Ok(Vfs { vfs: Arc::new(mluau_require::vfs::OverlayFS::new(&vfs_refs)) })
+        });
+
+        methods.add_method("createrequirefunction", |lua, this, (id, global_table): (String, LuaTable)| {
+            let controller = AssetRequirer::new(FilesystemWrapper::new(this.vfs.clone()), id, global_table);
+            lua.create_require_function(controller)
+        });
+    }
+}
+
 pub fn init_plugin(lua: &Lua) -> LuaResult<LuaTable> {
     let module = lua.create_table()?;
 
@@ -701,6 +723,20 @@ pub fn init_plugin(lua: &Lua) -> LuaResult<LuaTable> {
             Ok(Alphanumeric.sample_string(&mut rand::rng(), length))
         })?,
     )?;
+
+    module.set("newlazystringmap", lua.create_function(|lua, val: LuaValue| {
+        let lazy_value: HashMap<String, String> = lua.from_value(val)
+            .map_err(|e| LuaError::external(format!("Failed to convert LuaValue to serde_json::Value: {}", e)))?;
+
+        Ok(Lazy::new(lazy_value))
+    })?)?;
+
+    module.set("Vfs", lua.create_proxy::<Vfs>()?)?;
+
+    //
+    module.set("createglobalproxy", lua.create_function(|lua, _: ()| {
+        proxy_global(lua)
+    })?)?;
 
     module.set_readonly(true); // Block any attempt to modify this table
 

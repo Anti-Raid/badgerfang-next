@@ -1,4 +1,4 @@
-import { LuauTemplateResultCode, LuauTemplateResult } from './wasm-types';
+import { LuauTemplateResultCode } from './wasm-types';
 
 // Web worker for wasm execution
 let worker: Worker | null = null;
@@ -8,10 +8,7 @@ const callbacks: Map<number, { resolve: Function; reject: Function; timeoutId?: 
 let msgId = 0;
 
 /**
- * Evaluates Luau code using the WASM module.
- *
- * Note that all arguments passed to this function must be serializable to JSON.
- * This means that functions, classes, and other non-serializable types will not work.
+ * Sets up a Luau VM with the given virtual file system (VFS) and returns the created vm ID.
  *
  * Note 1: this may only be called in client-side code, as it relies on the WASM module being loaded.
  *
@@ -22,20 +19,76 @@ let msgId = 0;
  * @param args The args, which must be serializable to JSON to call with.
  * @param env The environment to run the code in.
  */
-export const luauTemplate = async (
-	code: string,
-	args: any,
-	env: string,
-	vfs?: Record<string, string>
-): Promise<unknown> => {
+export const setupLuauVm = async (vfs: Record<string, string>): Promise<number> => {
+	return (await wasmCall({
+		type: 'setup',
+		vfs
+	})) as Promise<number>;
+};
+
+const ctxFuncs: Map<number, Record<string, Function>> = new Map();
+
+/**
+ * Calls the WASM web worker with the given event data.
+ * @param eventData The data to send to the web worker.
+ */
+export const luauTemplate = async (vm_id: number, ctx: Record<string, any>): Promise<any> => {
+	// Strip out all functions from ctx
+	let runid = Date.now() + Math.random();
+	let funcs: Record<string, Function> = {};
+	for (let key in ctx) {
+		if (typeof ctx[key] === 'function') {
+			funcs[key] = ctx[key];
+			delete ctx[key];
+		}
+	}
+
+	if (Object.keys(funcs).length > 0) {
+		// Store functions for later use
+		ctxFuncs.set(runid, funcs);
+	}
+
+	try {
+		return (await wasmCall({
+			type: 'luauTemplate',
+			vmid: vm_id,
+			runid,
+			ctx,
+			funcs: Object.keys(funcs)
+		})) as Promise<any>;
+	} finally {
+		// Clean up stored functions
+		if (Object.keys(funcs).length > 0) {
+			ctxFuncs.delete(runid);
+		}
+	}
+};
+
+const wasmCall = async (eventData: any): Promise<unknown> => {
 	if (typeof window === 'undefined') {
-		throw new Error('luauTemplate can only be called in client-side code.');
+		throw new Error('wasmCall can only be called in client-side code.');
 	}
 
 	if (!worker) {
 		worker = new Worker(new URL('./wasm-webworker.ts', import.meta.url));
 		worker.onmessage = (event) => {
-			const { id, data } = event.data as { id: number; data: LuauTemplateResult };
+			//console.log("WASM worker sent message:", event.data);
+			if (event.data && event.data.control) {
+				switch (event.data.control) {
+					case 'cb': {
+						//console.log("WASM worker requested callback:", event.data);
+						const { runid, funcName, args } = event.data;
+						const funcs = ctxFuncs.get(runid);
+						if (funcs && funcs[funcName]) {
+							// Call the function
+							//console.log("WASM worker calling function:", funcName, args);
+							funcs[funcName](...args);
+						}
+					}
+				}
+				return;
+			}
+			const { id, data } = event.data as { id: number; data: any };
 			const cb = callbacks.get(id);
 			if (!cb) return;
 
@@ -55,21 +108,7 @@ export const luauTemplate = async (
 
 				cb.resolve(data.result);
 			} else {
-				let errMsg: string = data.message;
-				switch (data.code) {
-					case LuauTemplateResultCode.ErrorGeneral:
-						errMsg = `General Error: ${errMsg}`;
-						break;
-					case LuauTemplateResultCode.ErrorLuau:
-						errMsg = `Luau Error: ${errMsg}`;
-						break;
-					case LuauTemplateResultCode.ErrorUnknown:
-						errMsg = `Unknown Error: ${errMsg}`;
-						break;
-					case LuauTemplateResultCode.ErrorFatal:
-						errMsg = `Fatal Error: ${errMsg}`;
-				}
-				cb.reject(errMsg);
+				cb.reject(data.message);
 			}
 		};
 
@@ -106,6 +145,7 @@ export const luauTemplate = async (
 
 		callbacks.set(id, { resolve, reject, timeoutId });
 		let workerInstance = worker as any as Worker;
-		workerInstance.postMessage({ id, code, args, env, vfs: vfs || {} });
+		eventData.id = id;
+		workerInstance.postMessage(eventData);
 	});
 };

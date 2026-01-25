@@ -2,12 +2,9 @@
 //!
 //! - Calling async functions is not supported (call_async is not available) as scheduler is currently unsupported
 
-use super::create_userdata_iterator_with_fields;
 use mluau::prelude::*;
 
 #[derive(Clone)]
-/// An lockdown executor is used to manage AntiRaid lockdowns from Lua
-/// templates
 pub struct Chunk {
     code: String,
     chunk_name: Option<String>,
@@ -87,26 +84,13 @@ impl LuaUserData for Chunk {
 
             Ok(res)
         });
+    }
 
-        methods.add_meta_function(LuaMetaMethod::Iter, |lua, ud: LuaAnyUserData| {
-            if !ud.is::<Chunk>() {
-                return Err(mluau::Error::external("Invalid userdata type"));
-            }
-
-            create_userdata_iterator_with_fields(
-                lua,
-                ud,
-                [
-                    // Fields
-                    "environment",
-                    "optimization_level",
-                    "code",
-                    "chunk_name",
-                    // Methods
-                    "call",
-                ],
-            )
-        });
+    fn register(registry: &mut LuaUserDataRegistry<Self>) {
+        Self::add_fields(registry);
+        Self::add_methods(registry);
+        let fields = registry.fields(false).iter().map(|x| x.to_string()).collect::<Vec<_>>();
+        registry.add_meta_field("__ud_fields", fields);
     }
 }
 

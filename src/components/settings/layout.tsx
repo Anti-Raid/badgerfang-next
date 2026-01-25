@@ -12,9 +12,8 @@ import {
 	Zap
 } from 'lucide-react';
 import { Section } from './components/section';
-import { Fragment, useMemo, useEffect } from 'react';
-import { baseGuildUserInfoOptions, executeSettings, settingsOptions } from '@/lib/api';
-import { useQuery } from '@tanstack/react-query';
+import { Fragment, useEffect, useState } from 'react';
+import { baseGuildUserInfo, executeSettings, getSettings } from '@/lib/api';
 import { motion } from '@/components/ui/motion';
 import { toast } from 'sonner';
 import { noOpFetcher, SettingComponent, SettingDataFetcher } from './components/setting';
@@ -34,98 +33,102 @@ import { Setting } from '@/types/api/bindings/Setting';
  * @returns A JSX element representing the settings dashboard.
  */
 export default function Settings({ guildId }: { guildId: string }) {
-	const {
-		data: guildData,
-		isLoading: isLoadingGuildData,
-		error: guildDataError
-	} = useQuery(baseGuildUserInfoOptions(guildId));
+	const [guildData, setGuildData] = useState<any>(null);
+	const [guildSettings, setGuildSettings] = useState<{
+		[key: string]: ApiDispatchResult<any>;
+	} | null>(null);
+	const [loading, setLoading] = useState<boolean>(true);
+	const [error, setError] = useState<string | null>(null);
 
-	const {
-		data: rawSettings,
-		isLoading: isLoadingSettings,
-		error: settingsError
-	} = useQuery(settingsOptions(guildId));
-
-	// Process settings to move $builtins to the front
-	const guildSettings = useMemo(() => {
-		if (!rawSettings) return null;
-
-		const builtins = rawSettings['$builtins'];
-		if (builtins) {
-			const { $builtins, ...rest } = rawSettings;
-			return {
-				$builtins: builtins,
-				...rest
+	const fetcher: SettingDataFetcher = {
+		...noOpFetcher,
+		listEntries: async (setting: Setting) => {
+			const payload = {
+				operation: 'View',
+				setting: setting.id,
+				fields: {}
 			};
+			const result = await executeSettings(guildId, payload);
+			return result as { [templateName: string]: ApiDispatchResult<any> };
+		},
+		createEntry: async (setting: Setting, entry: any) => {
+			const payload = {
+				operation: 'Create',
+				setting: setting.id,
+				fields: entry
+			};
+			const result = await executeSettings(guildId, payload);
+			return result as { [templateName: string]: ApiDispatchResult<any> };
+		},
+		updateEntry: async (setting: Setting, entry: any) => {
+			const payload = {
+				operation: 'Update',
+				setting: setting.id,
+				fields: entry
+			};
+			const result = await executeSettings(guildId, payload);
+			return result as { [templateName: string]: ApiDispatchResult<any> };
+		},
+		deleteEntry: async (setting: Setting, entry: any) => {
+			const payload = {
+				operation: 'Delete',
+				setting: setting.id,
+				fields: entry
+			};
+			const result = await executeSettings(guildId, payload);
+			return result as { [templateName: string]: ApiDispatchResult<any> };
+		},
+		reorderEntries: async (setting: Setting, entries: any[]) => {
+			const payload = {
+				operation: 'Reorder',
+				setting: setting.id,
+				fields: entries
+			};
+			const result = await executeSettings(guildId, payload);
+			return result as { [templateName: string]: ApiDispatchResult<any> };
 		}
-		return rawSettings;
-	}, [rawSettings]);
+	};
 
-	const loading = isLoadingGuildData || isLoadingSettings;
-	const error = guildDataError || settingsError;
-
-	// Show toast on error
 	useEffect(() => {
-		if (error) {
-			const errorMessage =
-				error instanceof Error
-					? error.message
-					: 'Failed to fetch guild data. Please try again later.';
-			toast.error(errorMessage);
-		}
-	}, [error]);
+		const fetchData = async () => {
+			try {
+				const data = await baseGuildUserInfo(guildId);
+				let settings = await getSettings(guildId);
 
-	const fetcher: SettingDataFetcher = useMemo(
-		() => ({
-			...noOpFetcher,
-			listEntries: async (setting: Setting) => {
-				const payload = {
-					operation: 'View',
-					setting: setting.id,
-					fields: {}
-				};
-				const result = await executeSettings(guildId, payload);
-				return result as { [templateName: string]: ApiDispatchResult<any> };
-			},
-			createEntry: async (setting: Setting, entry: any) => {
-				const payload = {
-					operation: 'Create',
-					setting: setting.id,
-					fields: entry
-				};
-				const result = await executeSettings(guildId, payload);
-				return result as { [templateName: string]: ApiDispatchResult<any> };
-			},
-			updateEntry: async (setting: Setting, entry: any) => {
-				const payload = {
-					operation: 'Update',
-					setting: setting.id,
-					fields: entry
-				};
-				const result = await executeSettings(guildId, payload);
-				return result as { [templateName: string]: ApiDispatchResult<any> };
-			},
-			deleteEntry: async (setting: Setting, entry: any) => {
-				const payload = {
-					operation: 'Delete',
-					setting: setting.id,
-					fields: entry
-				};
-				const result = await executeSettings(guildId, payload);
-				return result as { [templateName: string]: ApiDispatchResult<any> };
-			},
-			reorderEntries: async (setting: Setting, entries: any[]) => {
-				const payload = {
-					operation: 'Reorder',
-					setting: setting.id,
-					fields: entries
-				};
-				const result = await executeSettings(guildId, payload);
-				return result as { [templateName: string]: ApiDispatchResult<any> };
+				const builtins = settings['$builtins'];
+				if (builtins) {
+					delete settings['$builtins'];
+					settings = {
+						$builtins: builtins,
+						...settings
+					};
+				}
+
+				setGuildData(data);
+				setGuildSettings(settings);
+			} catch (error) {
+				if (isAxiosError(error)) {
+					const errorMessage =
+						error.response?.data?.message || 'Failed to fetch guild data. Please try again later.';
+					setError(errorMessage);
+					toast.error(errorMessage, { position: 'top-left' });
+				} else {
+					setError(`An unexpected error occurred. Please try again later: ${error}`);
+					toast.error('An unexpected error occurred. Please try again later.', {
+						position: 'top-left'
+					});
+				}
+			} finally {
+				setLoading(false);
 			}
-		}),
-		[guildId]
-	);
+		};
+
+		fetchData();
+	}, [guildId]);
+
+	function isAxiosError(error: any): error is { response?: { data?: { message?: string } } } {
+		return error && error.response;
+	}
 
 	if (loading) {
 		return (
@@ -146,11 +149,6 @@ export default function Settings({ guildId }: { guildId: string }) {
 	}
 
 	if (error) {
-		const errorMessage =
-			error instanceof Error
-				? error.message
-				: 'Failed to fetch guild data. Please try again later.';
-
 		return (
 			<div className="min-h-screen bg-background flex items-center justify-center p-6">
 				<div className="bg-card p-8 rounded-3xl border border-destructive/20 max-w-md w-full text-center shadow-2xl">
@@ -158,7 +156,7 @@ export default function Settings({ guildId }: { guildId: string }) {
 						<Shield size={32} />
 					</div>
 					<h3 className="text-2xl font-bold text-foreground mb-4">Connection Error</h3>
-					<p className="text-foreground/60 mb-8 leading-relaxed">{errorMessage}</p>
+					<p className="text-foreground/60 mb-8 leading-relaxed">{error}</p>
 					<button
 						onClick={() => window.location.reload()}
 						className="w-full bg-primary text-primary-foreground font-bold px-6 py-4 rounded-xl hover:opacity-90 transition-all active:scale-98 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-background"
@@ -170,14 +168,12 @@ export default function Settings({ guildId }: { guildId: string }) {
 		);
 	}
 
-	if (!guildData || !guildSettings) {
-		return null;
-	}
-
 	return (
 		<div className="min-h-screen bg-background text-foreground font-inter selection:bg-primary/30 selection:text-primary relative overflow-hidden pb-40">
 			{/* Subtle Background elements */}
 			<div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 blur-[150px] rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+
+
 
 			{/* Sub-Header */}
 			<div className="sticky top-16 z-40 bg-background/60 backdrop-blur-xl border-b border-border/50">
@@ -188,7 +184,6 @@ export default function Settings({ guildId }: { guildId: string }) {
 								src={guildData.icon || '/logo.webp'}
 								alt={guildData.name}
 								className="w-10 h-10 rounded-xl border border-border shadow-sm object-cover"
-								loading="lazy"
 							/>
 						) : (
 							<div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold">
@@ -234,14 +229,12 @@ export default function Settings({ guildId }: { guildId: string }) {
 						<>
 							{Object.keys(guildSettings)
 								.filter((s) => guildSettings[s].type !== 'Ok')
-								.map((setting, idx) => {
-									const errorData = guildSettings[setting].data;
-									const errorMessage =
-										typeof errorData === 'string' ? errorData : JSON.stringify(errorData);
-									return (
-										<SettingsErrorDisplay key={idx} loadErrors={{ [setting]: errorMessage }} />
-									);
-								})}
+								.map((setting, idx) => (
+									<SettingsErrorDisplay
+										key={idx}
+										loadErrors={{ [setting]: guildSettings[setting].data }}
+									/>
+								))}
 
 							{Object.keys(guildSettings)
 								.filter((s) => guildSettings[s].type === 'Ok')

@@ -68,7 +68,6 @@ export const SettingsReorderableList: React.FC<SettingsReorderableListProps> = (
 				</Reorder.Group>
 			</div>
 
-			{/* Reorder now auto-saves; no explicit save button required */}
 		</div>
 	);
 };
