@@ -4,20 +4,10 @@
  import { motion } from '@/components/ui/motion';
  import { InputField } from '@/components/settings/components/form-elements';
  import { setupLuauVm, luauTemplate } from '@/lib/wasm/wasm';
- import { DrawCmdFormList, DrawCmdList } from './settingsv2/drawcmd';
+ import { DrawCmdFormList, DrawCmdList } from './settingsv2/-drawcmd';
  import { SettingsErrorDisplay } from '@/components/settings/components/ErrorDisplay';
- import z from 'zod';
- import { SettingsCanvas } from './settingsv2/Canvas';
- import { CreateFormList } from './settingsv2/CreateUi';
-
-const prettifyZodError = (err: z.ZodError | undefined | null) => {
-    if (!err) return 'Invalid data';
-    try {
-        return err.errors.map((e) => e.message).join('; ');
-    } catch (e) {
-        return JSON.stringify(err);
-    }
-}
+ import { SettingsCanvas } from './settingsv2/-Canvas';
+ import { CreateFormList } from './settingsv2/-CreateUi';
 
 const SettingsV2 = () => {
     const [text, setText] = useState<string>(`
@@ -57,14 +47,12 @@ const SettingsV2 = () => {
     `);
     const [stdout, setStdout] = useState<string>('');
     const data = useMemo(() => {
-        let obj: any = {}
         try {
-            obj = JSON.parse(text);
+            const obj = JSON.parse(text);
+            return { success: true, data: obj };
         } catch (e) {
-            obj.msgerror = `Invalid JSON: ${(e as Error).message}`;
+            return { success: false, error: new Error(`Invalid JSON: ${(e as Error).message}`) };
         }
-
-        return DrawCmdList.safeParse(obj)
     }, [text]);
 
     return (
@@ -80,7 +68,7 @@ const SettingsV2 = () => {
              </div>
 
             {!data.success ? (
-                <SettingsErrorDisplay loadErrors={{"default": prettifyZodError(data.error as any)}} />
+                <SettingsErrorDisplay loadErrors={{"default": data.error?.message || 'Invalid data'}} />
             ) : (
                 <SettingsCanvas 
                     drawcmds={data.data} 
