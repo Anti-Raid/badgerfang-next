@@ -53,7 +53,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 				e.preventDefault();
 				if (!isOpen) {
 					// Toggle to next option without opening
-					const currentIdx = options.findIndex(o => o.value === value);
+					const currentIdx = options.findIndex((o) => o.value === value);
 					const nextIdx = currentIdx < options.length - 1 ? currentIdx + 1 : currentIdx;
 					if (nextIdx !== currentIdx) onChange(options[nextIdx].value);
 				} else {
@@ -64,7 +64,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 				e.preventDefault();
 				if (!isOpen) {
 					// Toggle to prev option without opening
-					const currentIdx = options.findIndex(o => o.value === value);
+					const currentIdx = options.findIndex((o) => o.value === value);
 					const prevIdx = currentIdx > 0 ? currentIdx - 1 : currentIdx;
 					if (prevIdx !== currentIdx) onChange(options[prevIdx].value);
 				} else {
@@ -76,7 +76,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 				e.preventDefault();
 				if (!isOpen) {
 					setIsOpen(true);
-					const currentIdx = options.findIndex(o => o.value === value);
+					const currentIdx = options.findIndex((o) => o.value === value);
 					setActiveIdx(currentIdx !== -1 ? currentIdx : 0);
 				} else if (activeIdx >= 0) {
 					onChange(options[activeIdx].value);
@@ -99,7 +99,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 
 	useEffect(() => {
 		if (isOpen) {
-			const currentIdx = options.findIndex(o => o.value === value);
+			const currentIdx = options.findIndex((o) => o.value === value);
 			setActiveIdx(currentIdx !== -1 ? currentIdx : 0);
 		} else {
 			setActiveIdx(-1);
@@ -127,8 +127,8 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 				<span className={selectedOption ? 'text-foreground' : 'text-muted-foreground/40'}>
 					{selectedOption ? selectedOption.label : placeholder}
 				</span>
-				<motion.div 
-					animate={{ rotate: isOpen ? 180 : 0 }} 
+				<motion.div
+					animate={{ rotate: isOpen ? 180 : 0 }}
 					transition={{ duration: 0.2 }}
 					className="text-muted-foreground/30"
 				>
@@ -155,9 +155,11 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 									key={option.value}
 									className={`
 										group relative flex items-center justify-between px-4 py-2.5 mx-1.5 rounded-lg text-sm font-medium cursor-pointer transition-all duration-150
-										${isSelected 
-											? 'bg-primary/10 text-primary' 
-											: 'text-foreground/70 hover:bg-accent hover:text-foreground'}
+										${
+											isSelected
+												? 'bg-primary/10 text-primary'
+												: 'text-foreground/70 hover:bg-accent hover:text-foreground'
+										}
 										${isActive ? 'bg-accent text-foreground' : ''}
 									`}
 									role="option"

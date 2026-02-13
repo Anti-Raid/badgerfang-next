@@ -40,7 +40,10 @@ export const BaseLabelAndDescription: React.FC<BaseLabelAndDescriptionProps> = (
 				</div>
 			)}
 			{description && (
-				<p className="text-xs text-muted-foreground leading-relaxed" id={id ? `${id}-desc` : undefined}>
+				<p
+					className="text-xs text-muted-foreground leading-relaxed"
+					id={id ? `${id}-desc` : undefined}
+				>
 					{description}
 				</p>
 			)}
@@ -102,7 +105,9 @@ export const InputField: React.FC<InputFieldProps> = ({
 			/>
 			<div className="relative">
 				{IconComponent && (
-					<div className={`absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10 transition-colors duration-200 ${isFocused ? 'text-primary' : 'text-muted-foreground/50'}`}>
+					<div
+						className={`absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10 transition-colors duration-200 ${isFocused ? 'text-primary' : 'text-muted-foreground/50'}`}
+					>
 						<IconComponent size={18} />
 					</div>
 				)}
@@ -175,7 +180,7 @@ export const InputField: React.FC<InputFieldProps> = ({
 			</div>
 			<AnimatePresence>
 				{error && (
-					<motion.div 
+					<motion.div
 						initial={{ opacity: 0, y: -4 }}
 						animate={{ opacity: 1, y: 0 }}
 						className="flex items-center gap-2 mt-2 text-xs font-bold text-destructive"
@@ -224,9 +229,10 @@ export const RadioOption: React.FC<RadioOptionProps> = ({
 				/>
 				<div
 					className={`w-5 h-5 rounded-full border-2 transition-all duration-200 flex items-center justify-center
-					${checked
-						? 'border-primary bg-primary/10'
-						: 'border-border bg-background group-hover/radio:border-primary/30'
+					${
+						checked
+							? 'border-primary bg-primary/10'
+							: 'border-border bg-background group-hover/radio:border-primary/30'
 					}
 					group-focus-within/radio:ring-4 group-focus-within/radio:ring-primary/10 group-focus-within/radio:border-primary/50`}
 				>
@@ -241,7 +247,9 @@ export const RadioOption: React.FC<RadioOptionProps> = ({
 						)}
 					</AnimatePresence>
 				</div>
-				<span className={`ml-3 text-sm font-bold transition-colors ${checked ? 'text-foreground' : 'text-muted-foreground'} group-focus-within/radio:text-primary`}>
+				<span
+					className={`ml-3 text-sm font-bold transition-colors ${checked ? 'text-foreground' : 'text-muted-foreground'} group-focus-within/radio:text-primary`}
+				>
 					{label}
 				</span>
 			</div>
@@ -276,11 +284,7 @@ export const GroupedRadioOption: React.FC<GroupedRadioOptionProps> = ({
 
 	return (
 		<div className={`${marginClass} ${className}`}>
-			<BaseLabelAndDescription
-				id={inputId}
-				label={label}
-				description={description}
-			/>
+			<BaseLabelAndDescription id={inputId} label={label} description={description} />
 
 			<div className="flex flex-wrap gap-2">
 				{allowedValues.map((v: string, idx: number) => (
@@ -322,7 +326,9 @@ export const Toggle: React.FC<ToggleProps> = ({
 		<div className={`${marginClass} group/toggle`}>
 			<div className="flex items-center justify-between gap-4 p-1">
 				<div className="flex-1">
-					<span className={`block font-bold text-sm transition-colors ${checked ? 'text-foreground' : 'text-muted-foreground'}`}>
+					<span
+						className={`block font-bold text-sm transition-colors ${checked ? 'text-foreground' : 'text-muted-foreground'}`}
+					>
 						{label}
 					</span>
 					{description && (

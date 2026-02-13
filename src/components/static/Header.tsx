@@ -343,11 +343,7 @@ const NavBar: React.FC = () => {
 								Navigation
 							</span>
 							<div ref={themeRef}>
-								<ThemeSelector
-									isOpen={isThemeOpen}
-									onOpenChange={setIsThemeOpen}
-									variant="sheet"
-								/>
+								<ThemeSelector isOpen={isThemeOpen} onOpenChange={setIsThemeOpen} variant="sheet" />
 							</div>
 						</div>
 						{NavItems.map((item) => (
@@ -365,21 +361,23 @@ const NavBar: React.FC = () => {
 							</Link>
 						))}
 						<div className="h-px bg-white/5 my-2" />
-						
+
 						{userData ? (
 							<div className="flex flex-col gap-1">
 								<div className="px-3 py-2 flex items-center gap-3">
 									<img src={getAvatarUrl(userData)} className="w-8 h-8 rounded-full" alt="" />
 									<div className="flex flex-col">
 										<span className="text-sm font-bold">{userData.username}</span>
-										<span className="text-[10px] text-muted-foreground uppercase tracking-widest">Account</span>
+										<span className="text-[10px] text-muted-foreground uppercase tracking-widest">
+											Account
+										</span>
 									</div>
 								</div>
 								{[
 									{ name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
 									{ name: 'Developer', href: '/dashboard/developers', icon: Terminal },
 									{ name: 'Logout', onClick: handleLogout, icon: LogOut, danger: true }
-								].map((item) => (
+								].map((item) =>
 									item.href ? (
 										<Link
 											key={item.name}
@@ -400,7 +398,7 @@ const NavBar: React.FC = () => {
 											{item.name}
 										</button>
 									)
-								))}
+								)}
 							</div>
 						) : (
 							<button

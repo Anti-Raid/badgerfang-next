@@ -40,7 +40,7 @@ export const Primary: React.FC<ButtonProps> = ({
 			{...rest}
 		>
 			<div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
-			{Icon && <Icon className="text-lg relative z-10" />} 
+			{Icon && <Icon className="text-lg relative z-10" />}
 			<span className="relative z-10">{Title}</span>
 		</button>
 	);
