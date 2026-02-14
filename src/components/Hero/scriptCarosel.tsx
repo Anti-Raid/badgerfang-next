@@ -115,7 +115,7 @@ export const TemplateCarousel = () => {
 						className="inline-flex items-center gap-4 px-6 py-2 rounded-full bg-primary/10 backdrop-blur-sm border border-primary/20 mb-8 shadow-lg shadow-primary/5"
 					>
 						<span className="h-px w-5 bg-gradient-to-r from-transparent to-primary"></span>
-						<span className="text-primary/90 font-monster text-sm font-medium tracking-wider uppercase">
+						<span className="text-primary/90 text-sm font-medium tracking-wider uppercase">
 							Premium Scripts
 						</span>
 						<span className="h-px w-5 bg-gradient-to-r from-primary to-transparent"></span>
@@ -126,7 +126,7 @@ export const TemplateCarousel = () => {
 						whileInView={{ opacity: 1, y: 0 }}
 						transition={{ duration: 0.5, delay: 0.2 }}
 						viewport={{ once: true }}
-						className="text-4xl md:text-6xl font-bold mb-6 font-monster"
+						className="text-4xl md:text-6xl font-bold mb-6"
 					>
 						Customize Your{' '}
 						<span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
@@ -200,7 +200,7 @@ export const TemplateCarousel = () => {
 								initial={{ opacity: 0, x: -20 }}
 								animate={{ opacity: 1, x: 0 }}
 								transition={{ delay: 0.2 }}
-								className="text-2xl font-bold text-foreground/90 font-monster flex items-center gap-3"
+								className="text-2xl font-bold text-foreground/90 flex items-center gap-3"
 							>
 								<FiPackage className="text-primary" />
 								Popular Scripts

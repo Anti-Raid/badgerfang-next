@@ -2,7 +2,7 @@
 
 import type React from 'react';
 import { useEffect, useState } from 'react';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, User } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { getUserServers } from '@/lib/api';
 import logger from '@/lib/logger';
@@ -14,13 +14,12 @@ import { ServerList } from '@/components/dashboard/ServerList';
 
 const AllServers: React.FC = () => {
 	const [userData, setUserData] = useState<PartialUser | null>(null);
-	const [servers, setServers] = useState<DashboardGuild[]>([]);
 	const [managedServers, setManagedServers] = useState<DashboardGuild[]>([]);
 	const [yourServers, setYourServers] = useState<DashboardGuild[]>([]);
 	const [managedSearchTerm, setManagedSearchTerm] = useState('');
 	const [yourSearchTerm, setYourSearchTerm] = useState('');
 	const [isLoading, setIsLoading] = useState(true);
-	const [activeTab, setActiveTab] = useState('managed');
+	const [activeTab, setActiveTab] = useState<'managed' | 'yours'>('managed');
 	const [refreshing, setRefreshing] = useState(false);
 
 	useEffect(() => {
@@ -42,7 +41,6 @@ const AllServers: React.FC = () => {
 		try {
 			const response = await getUserServers(refetch);
 			const { guilds, bot_in_guilds } = response;
-			setServers(guilds);
 
 			const managed = guilds.filter((server) => bot_in_guilds.includes(server.id));
 			const yours = guilds.filter((server) => !bot_in_guilds.includes(server.id));
@@ -51,7 +49,7 @@ const AllServers: React.FC = () => {
 			setYourServers(yours);
 
 			if (refetch) {
-				toast.success('Servers refreshed successfully');
+				toast.success('Servers refreshed');
 			}
 		} catch (error) {
 			console.error('Failed to fetch servers:', error);
@@ -70,105 +68,98 @@ const AllServers: React.FC = () => {
 
 	if (!userData && isLoading) {
 		return (
-			<div className="flex items-center justify-center h-screen">
-				<div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+			<div className="min-h-screen flex items-center justify-center">
+				<div className="flex flex-col items-center gap-4">
+					<div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+					<p className="text-sm text-muted-foreground">Loading servers...</p>
+				</div>
 			</div>
 		);
 	}
 
 	return (
-		<main className="container mx-auto p-4 max-w-7xl">
-			{/* User Profile Header */}
-			<div className="bg-gradient-to-r from-card/90 to-card/70 backdrop-blur-md rounded-2xl p-6 mb-8 shadow-xl border border-border/50 transition-all duration-300 hover:shadow-primary/5">
-				<div className="flex flex-col sm:flex-row items-center gap-6">
-					<div className="relative group">
-						<div className="absolute inset-0 bg-gradient-to-r from-primary to-extra rounded-full blur-md opacity-50 group-hover:opacity-70 transition-opacity duration-300"></div>
-						<Image
-							src={userData ? getAvatarUrl(userData) : '/logo.webp'}
-							alt="User Avatar"
-							height={20}
-							width={20}
-							className="relative w-20 h-20 rounded-full border-2 border-primary object-cover"
-						/>
-						<div className="absolute -bottom-2 -right-2 bg-green-500 w-5 h-5 rounded-full border-2 border-card z-10"></div>
-					</div>
-					<div className="text-center sm:text-left">
-						<h2 className="text-foreground text-2xl font-bold">
-							{userData?.global_name || userData?.username || 'Unknown User'}
-						</h2>
-						<p className="text-muted-foreground">@{userData?.username || 'unknown1234'}</p>
+		<div className="min-h-screen pt-24 pb-16 px-6">
+			<div className="max-w-6xl mx-auto">
+				{/* Header */}
+				<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-10">
+					<div className="flex items-center gap-4">
+						<div className="relative w-12 h-12 rounded-full overflow-hidden bg-muted">
+							{userData ? (
+								<Image
+									src={getAvatarUrl(userData)}
+									alt={userData.global_name || userData.username || 'User'}
+									fill
+									className="object-cover"
+								/>
+							) : (
+								<div className="w-full h-full flex items-center justify-center">
+									<User size={20} className="text-muted-foreground" />
+								</div>
+							)}
+						</div>
+						<div>
+							<h1 className="text-xl font-semibold">
+								{userData?.global_name || userData?.username || 'Dashboard'}
+							</h1>
+							{userData?.username && (
+								<p className="text-sm text-muted-foreground">@{userData.username}</p>
+							)}
+						</div>
 					</div>
 					<button
-						className="flex items-center gap-2 bg-accent hover:bg-accent/80 text-accent-foreground px-5 py-2.5 rounded-lg transition-all duration-300 ml-auto transform hover:scale-105 hover:shadow-lg"
 						onClick={() => fetchServers(true)}
 						disabled={refreshing}
+						className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
 					>
-						<RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-						<span className="hidden sm:inline font-medium">
-							{refreshing ? 'Refreshing...' : 'Refresh Servers'}
-						</span>
+						<RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
+						{refreshing ? 'Refreshing...' : 'Refresh'}
 					</button>
 				</div>
-			</div>
 
-			{/* Tab Navigation */}
-			<div className="flex mb-8 border-b border-border/50 relative">
-				<button
-					className={`px-6 py-3 font-medium text-lg transition-all duration-300 relative ${
-						activeTab === 'managed' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
-					}`}
-					onClick={() => setActiveTab('managed')}
-				>
-					Managed Servers ({managedServers.length})
-					{activeTab === 'managed' && (
-						<div
-							className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-extra"
-							style={{ animation: 'slideInFromRight 0.3s ease-out' }}
-						/>
-					)}
-				</button>
-				<button
-					className={`px-6 py-3 font-medium text-lg transition-all duration-300 relative ${
-						activeTab === 'yours' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
-					}`}
-					onClick={() => setActiveTab('yours')}
-				>
-					Your Servers ({yourServers.length})
-					{activeTab === 'yours' && (
-						<div
-							className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-extra"
-							style={{ animation: 'slideInFromRight 0.3s ease-out' }}
-						/>
-					)}
-				</button>
-				<div className="absolute bottom-0 w-full h-px bg-gradient-to-r from-primary/10 via-primary/30 to-primary/10"></div>
-			</div>
+				{/* Tabs */}
+				<div className="flex gap-1 p-1 bg-muted rounded-lg w-fit mb-8">
+					<button
+						onClick={() => setActiveTab('managed')}
+						className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+							activeTab === 'managed'
+								? 'bg-background text-foreground shadow-sm'
+								: 'text-muted-foreground hover:text-foreground'
+						}`}
+					>
+						Managed ({managedServers.length})
+					</button>
+					<button
+						onClick={() => setActiveTab('yours')}
+						className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+							activeTab === 'yours'
+								? 'bg-background text-foreground shadow-sm'
+								: 'text-muted-foreground hover:text-foreground'
+						}`}
+					>
+						Your Servers ({yourServers.length})
+					</button>
+				</div>
 
-			{/* Active Tab Content */}
-			<div className="transition-all duration-300">
+				{/* Content */}
 				{activeTab === 'managed' ? (
-					<div className="animate-[theme-fade_0.3s_ease-in-out]">
-						<ServerList
-							servers={managedServers}
-							searchTerm={managedSearchTerm}
-							setSearchTerm={setManagedSearchTerm}
-							showViewButton={true}
-							isLoading={isLoading}
-						/>
-					</div>
+					<ServerList
+						servers={managedServers}
+						searchTerm={managedSearchTerm}
+						setSearchTerm={setManagedSearchTerm}
+						showViewButton={true}
+						isLoading={isLoading}
+					/>
 				) : (
-					<div className="animate-[theme-fade_0.3s_ease-in-out]">
-						<ServerList
-							servers={yourServers}
-							searchTerm={yourSearchTerm}
-							setSearchTerm={setYourSearchTerm}
-							showViewButton={false}
-							isLoading={isLoading}
-						/>
-					</div>
+					<ServerList
+						servers={yourServers}
+						searchTerm={yourSearchTerm}
+						setSearchTerm={setYourSearchTerm}
+						showViewButton={false}
+						isLoading={isLoading}
+					/>
 				)}
 			</div>
-		</main>
+		</div>
 	);
 };
 

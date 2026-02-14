@@ -64,7 +64,7 @@ export const TemplateShop = ({ data }: { data: any[] }) => {
 	return (
 		<div className="relative overflow-hidden bg-gradient-to-b from-background to-background/95 py-16">
 			{/* Animated background elements */}
-			<div className="absolute inset-0 overflow-hidden pointer-events-none">
+			<div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
 				<div
 					className="absolute top-0 left-1/4 w-[500px] h-[500px] rounded-full bg-primary/5 blur-[120px] animate-pulse"
 					style={{ animationDuration: '15s' }}
@@ -85,11 +85,11 @@ export const TemplateShop = ({ data }: { data: any[] }) => {
 						initial={{ opacity: 0, y: -20 }}
 						animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
 						transition={{ duration: 0.6, delay: 0.1 }}
-						className="relative font-monster font-bold text-5xl md:text-6xl lg:text-7xl mb-6 inline-block"
+						className="relative font-semibold text-5xl md:text-6xl lg:text-7xl mb-6 inline-block"
 					>
 						<span className="relative z-10">Script</span>{' '}
 						<span className="relative">
-							<span className="absolute -inset-1 blur-md bg-gradient-to-r from-primary to-accent opacity-30 rounded-lg"></span>
+							<span className="absolute -inset-1 blur-md bg-gradient-to-r from-primary to-accent opacity-30 rounded-lg" aria-hidden="true"></span>
 							<span className="relative bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
 								Marketplace
 							</span>
@@ -124,7 +124,7 @@ export const TemplateShop = ({ data }: { data: any[] }) => {
 						<div className="relative bg-card/80 backdrop-blur-md border border-border hover:border-primary/30 rounded-2xl shadow-xl transition-all duration-300 flex items-center overflow-hidden">
 							<div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
-							<div className="pl-6 text-primary">
+							<div className="pl-6 text-primary" aria-hidden="true">
 								<FiSearch className="w-5 h-5" />
 							</div>
 
@@ -136,48 +136,46 @@ export const TemplateShop = ({ data }: { data: any[] }) => {
 								onChange={(e) => setSearchTerm(e.target.value)}
 								onFocus={() => setIsSearchFocused(true)}
 								onBlur={() => setIsSearchFocused(false)}
-								className="w-full px-4 py-5 bg-transparent border-none focus:ring-0 placeholder:text-muted-foreground text-foreground font-medium text-lg"
+								className="w-full px-4 py-5 bg-transparent border-none focus:ring-0 focus-visible:outline-none placeholder:text-muted-foreground text-foreground font-medium text-lg"
+								aria-label="Search scripts"
 							/>
 
 							{searchTerm && (
 								<button
 									onClick={clearSearch}
-									className="mr-2 p-2 hover:bg-primary/10 rounded-full transition-colors"
+									className="mr-2 p-2 hover:bg-primary/10 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+									aria-label="Clear search"
 								>
-									<FiX className="text-muted-foreground hover:text-primary transition-colors" />
+									<FiX className="text-muted-foreground hover:text-primary transition-colors" aria-hidden="true" />
 								</button>
 							)}
 
-							<div className="h-10 w-px bg-border mx-2"></div>
+							<div className="h-10 w-px bg-border mx-2" aria-hidden="true"></div>
 
-							<button className="p-6 hover:bg-primary/10 transition-colors flex items-center justify-center">
-								<FiFilter className="text-primary w-5 h-5" />
+							<button className="p-6 hover:bg-primary/10 transition-colors flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-primary" aria-label="Filter scripts">
+								<FiFilter className="text-primary w-5 h-5" aria-hidden="true" />
 							</button>
 						</div>
 					</div>
 
 					{/* View mode toggle */}
-					<div className="flex justify-end mt-4">
+					<div className="flex justify-end mt-4" role="group" aria-label="View mode">
 						<div className="bg-card/80 backdrop-blur-md rounded-xl border border-border p-1 flex space-x-1">
 							<button
 								onClick={() => setViewMode('grid')}
-								className={`p-2 rounded-lg flex items-center justify-center transition-all ${
-									viewMode === 'grid'
-										? 'bg-primary text-primary-foreground'
-										: 'text-muted-foreground hover:bg-primary/10'
-								}`}
+								className={`p-2 rounded-lg flex items-center justify-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${viewMode === 'grid' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-primary/10'}`}
+								aria-label="Grid view"
+								aria-pressed={viewMode === 'grid'}
 							>
-								<FiGrid className="w-4 h-4" />
+								<FiGrid className="w-4 h-4" aria-hidden="true" />
 							</button>
 							<button
 								onClick={() => setViewMode('list')}
-								className={`p-2 rounded-lg flex items-center justify-center transition-all ${
-									viewMode === 'list'
-										? 'bg-primary text-primary-foreground'
-										: 'text-muted-foreground hover:bg-primary/10'
-								}`}
+								className={`p-2 rounded-lg flex items-center justify-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${viewMode === 'list' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-primary/10'}`}
+								aria-label="List view"
+								aria-pressed={viewMode === 'list'}
 							>
-								<FiList className="w-4 h-4" />
+								<FiList className="w-4 h-4" aria-hidden="true" />
 							</button>
 						</div>
 					</div>
@@ -206,7 +204,7 @@ export const TemplateShop = ({ data }: { data: any[] }) => {
 								initial={{ opacity: 0, y: 10 }}
 								animate={{ opacity: 1, y: 0 }}
 								transition={{ delay: 0.3 }}
-								className="text-2xl font-bold mb-4 font-monster"
+								className="text-2xl font-semibold mb-4"
 							>
 								No scripts found
 							</motion.h3>

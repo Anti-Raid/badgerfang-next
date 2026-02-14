@@ -33,15 +33,15 @@ export function ScriptLayout({ script, files }: ScriptLayoutProps) {
 
 	return (
 		<div className="container mx-auto px-4 py-8 max-w-7xl">
-			<div className="mb-8">
+			<nav className="mb-8" aria-label="Back navigation">
 				<Link
 					href="/script/shop"
-					className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors duration-300 ease-in-out"
+					className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-lg px-2 py-1 -ml-2"
 				>
-					<FiArrowLeft className="mr-2" />
+					<FiArrowLeft className="mr-2" aria-hidden="true" />
 					Back to Script Shop
 				</Link>
-			</div>
+			</nav>
 
 			<div className="mb-8">
 				<CommonCard template={script} />

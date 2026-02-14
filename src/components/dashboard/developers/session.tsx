@@ -9,9 +9,7 @@ import {
 	Plus,
 	Settings,
 	Copy,
-	Shield,
 	Clock,
-	AlertCircle,
 	RefreshCw,
 	Check
 } from 'lucide-react';
@@ -37,86 +35,87 @@ const SessionCard: React.FC<{
 
 	return (
 		<motion.div
-			initial={{ opacity: 0, y: 10 }}
+			initial={{ opacity: 0, y: 12 }}
 			animate={{ opacity: 1, y: 0 }}
-			transition={{ duration: 0.4 }}
-			className={`bg-card dark:bg-card/95 backdrop-blur-md rounded-3xl shadow-lg border border-border/40 overflow-hidden h-full flex flex-col ${className}`}
+			transition={{ duration: 0.5, ease: [0.25, 0.4, 0.25, 1] as const }}
+			className={`bg-card rounded-2xl border border-border overflow-hidden h-full flex flex-col ${className}`}
+			role="region"
+			aria-label={title}
 		>
-			<div className="p-6 border-b border-border/30">
-				<div className="flex items-center gap-4 mb-3">
-					<div className="p-3 bg-primary/10 text-primary rounded-xl">{icon}</div>
+			<div className="p-6 border-b border-border">
+				<div className="flex items-center gap-4">
+					<div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center text-muted-foreground" aria-hidden="true">
+						{icon}
+					</div>
 					<div>
-						<h2 className="text-2xl font-bold text-foreground">{title}</h2>
-						<p className="text-muted-foreground">{description}</p>
+						<h2 className="text-lg font-semibold text-foreground">{title}</h2>
+						<p className="text-sm text-muted-foreground">{description}</p>
 					</div>
 				</div>
 			</div>
 
-			<div className="flex-1 p-5 overflow-hidden">
+			<div className="flex-1 p-6 overflow-hidden">
 				{sessions.length === 0 ? (
-					<div className="flex flex-col items-center justify-center h-full py-10 px-4">
-						<div className="p-4 bg-muted rounded-full mb-4">
-							<AlertCircle className="h-8 w-8 text-muted-foreground/70" />
-						</div>
-						<p className="text-muted-foreground text-center">No active sessions found</p>
+					<div className="flex flex-col items-center justify-center h-full py-12 px-4" role="status">
+						<p className="text-muted-foreground text-center text-sm">No active sessions</p>
 					</div>
 				) : (
-					<div className="space-y-3 overflow-y-auto max-h-[400px] pr-1 custom-scrollbar">
+					<div className="space-y-3 overflow-y-auto max-h-[400px]">
 						<AnimatePresence>
 							{sessions.map((session) => (
 								<motion.div
 									key={session.id}
-									initial={{ opacity: 0, x: -5 }}
-									animate={{ opacity: 1, x: 0 }}
-									exit={{ opacity: 0, x: 5 }}
-									className={`group relative p-4 rounded-xl border border-border/30 transition-all hover:border-primary/20 hover:shadow-md ${
+									initial={{ opacity: 0 }}
+									animate={{ opacity: 1 }}
+									exit={{ opacity: 0 }}
+									className={`group relative p-4 rounded-xl border transition-colors ${
 										session.id === currentSessionId
 											? 'bg-primary/5 border-primary/30'
-											: 'bg-card dark:bg-card/60'
+											: 'bg-secondary/50 border-border hover:border-primary/20'
 									}`}
 								>
 									{session.id === currentSessionId && (
-										<div className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-12 bg-primary rounded-r-full" />
+										<div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
 									)}
 
 									<div className="flex items-center justify-between">
 										<div className="flex items-center gap-3">
-											<div className="p-2 bg-muted rounded-lg">
+											<div className="w-8 h-8 rounded-lg bg-card flex items-center justify-center">
 												{session.type === 'login' ? (
-													<KeyRound className="h-5 w-5 text-primary" />
+													<KeyRound className="h-4 w-4 text-muted-foreground" />
 												) : (
-													<Settings className="h-5 w-5 text-primary" />
+													<Settings className="h-4 w-4 text-muted-foreground" />
 												)}
 											</div>
 											<div>
-												<div className="flex items-center gap-2 mb-1">
-													<p className="text-sm font-semibold text-foreground">
-														{session.name?.slice(0, 12) || 'Unnamed Session'}
+												<div className="flex items-center gap-2">
+													<p className="text-sm font-medium text-foreground">
+														{session.name?.slice(0, 16) || 'Unnamed Session'}
 													</p>
-													<code className="text-xs font-mono bg-muted px-2 py-1 rounded-md">
-														{session.id.slice(0, 10)}...
+													<code className="text-xs font-mono text-muted-foreground">
+														{session.id.slice(0, 8)}
 													</code>
 													<button
 														onClick={() => {
 															navigator.clipboard.writeText(session.id);
 															toast.success('Copied to clipboard');
 														}}
-														className="text-muted-foreground hover:text-primary transition-colors p-1 hover:bg-muted rounded-md"
+														className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded"
 														aria-label="Copy session ID"
 													>
-														<Copy className="h-3.5 w-3.5" />
+														<Copy className="h-3 w-3" />
 													</button>
 												</div>
-												<div className="flex items-center gap-2 text-xs text-muted-foreground">
-													<span className="inline-flex items-center gap-1">
-														<Clock className="h-3 w-3" />
+												<div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+													<Clock className="h-3 w-3" />
+													<span>
 														{new Date(session.created_at).toLocaleDateString(undefined, {
 															month: 'short',
 															day: 'numeric',
 															year: 'numeric'
 														})}
 													</span>
-													<span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-medium">
+													<span className="px-1.5 py-0.5 rounded bg-secondary text-xs">
 														{session.type}
 													</span>
 												</div>
@@ -138,10 +137,10 @@ const SessionCard: React.FC<{
 				)}
 			</div>
 
-			<div className="p-4 border-t border-border/30 bg-muted/20">
+			<div className="p-4 border-t border-border">
 				<button
 					onClick={() => toast.info('Refreshing sessions...')}
-					className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-muted/50 hover:bg-muted transition-colors text-sm font-medium text-muted-foreground hover:text-foreground"
+					className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-secondary hover:bg-secondary/80 transition-colors text-sm font-medium text-muted-foreground hover:text-foreground"
 				>
 					<RefreshCw className="h-4 w-4" />
 					Refresh
@@ -185,24 +184,26 @@ const CreateSessionForm: React.FC<{ onSessionCreated: () => void }> = ({ onSessi
 
 	return (
 		<motion.div
-			initial={{ opacity: 0, y: 10 }}
+			initial={{ opacity: 0, y: 12 }}
 			animate={{ opacity: 1, y: 0 }}
-			transition={{ duration: 0.4, delay: 0.1 }}
-			className="bg-card dark:bg-card/95 backdrop-blur-md rounded-3xl shadow-lg border border-border/40 overflow-hidden h-full flex flex-col"
+			transition={{ duration: 0.5, delay: 0.1, ease: [0.25, 0.4, 0.25, 1] as const }}
+			className="bg-card rounded-2xl border border-border overflow-hidden h-full flex flex-col"
+			role="form"
+			aria-label="Create new session"
 		>
-			<div className="p-6 border-b border-border/30">
-				<div className="flex items-center gap-4 mb-3">
-					<div className="p-3 bg-primary/10 text-primary rounded-xl">
-						<Plus className="h-6 w-6" />
+			<div className="p-6 border-b border-border">
+				<div className="flex items-center gap-4">
+					<div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center text-muted-foreground" aria-hidden="true">
+						<Plus className="h-5 w-5" />
 					</div>
 					<div>
-						<h2 className="text-2xl font-bold text-foreground">Create New Session</h2>
-						<p className="text-muted-foreground">Generate a new API token</p>
+						<h2 className="text-lg font-semibold text-foreground">Create Session</h2>
+						<p className="text-sm text-muted-foreground">Generate a new API token</p>
 					</div>
 				</div>
 			</div>
 
-			<form id="create-session-form" onSubmit={handleSubmit} className="flex-1 p-5 space-y-5">
+			<form id="create-session-form" onSubmit={handleSubmit} className="flex-1 p-6 space-y-5">
 				<div className="space-y-2">
 					<label htmlFor="name" className="block text-sm font-medium text-foreground">
 						Session Name
@@ -212,7 +213,7 @@ const CreateSessionForm: React.FC<{ onSessionCreated: () => void }> = ({ onSessi
 						id="name"
 						value={sessionData.name}
 						onChange={(e) => setSessionData({ ...sessionData, name: e.target.value })}
-						className="w-full px-4 py-3 rounded-xl border border-border bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground"
+						className="w-full px-4 py-3 rounded-xl border border-border bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-foreground placeholder:text-muted-foreground"
 						placeholder="Enter a descriptive name"
 						required
 						disabled={isLoading}
@@ -227,7 +228,7 @@ const CreateSessionForm: React.FC<{ onSessionCreated: () => void }> = ({ onSessi
 						id="type"
 						value={sessionData.type}
 						onChange={(e) => setSessionData({ ...sessionData, type: e.target.value as 'api' })}
-						className="w-full px-4 py-3 rounded-xl border border-border bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-foreground"
+						className="w-full px-4 py-3 rounded-xl border border-border bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-foreground"
 						disabled={isLoading}
 					>
 						<option value="api">API Token</option>
@@ -246,18 +247,16 @@ const CreateSessionForm: React.FC<{ onSessionCreated: () => void }> = ({ onSessi
 							setSessionData({ ...sessionData, expiry: Number.parseInt(e.target.value) })
 						}
 						min={3600}
-						className="w-full px-4 py-3 rounded-xl border border-border bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-foreground"
+						className="w-full px-4 py-3 rounded-xl border border-border bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-foreground"
 						placeholder="Minimum 3600 seconds"
 						disabled={isLoading}
 					/>
-					<p className="text-xs text-muted-foreground mt-1">
-						{sessionData.expiry >= 3600 && (
-							<>
-								Token will expire in {Math.floor(sessionData.expiry / 86400)} days,{' '}
-								{Math.floor((sessionData.expiry % 86400) / 3600)} hours
-							</>
-						)}
-					</p>
+					{sessionData.expiry >= 3600 && (
+						<p className="text-xs text-muted-foreground mt-1">
+							Token will expire in {Math.floor(sessionData.expiry / 86400)} days,{' '}
+							{Math.floor((sessionData.expiry % 86400) / 3600)} hours
+						</p>
+					)}
 				</div>
 
 				{createdToken && (
@@ -267,38 +266,39 @@ const CreateSessionForm: React.FC<{ onSessionCreated: () => void }> = ({ onSessi
 						className="p-4 bg-primary/5 border border-primary/20 rounded-xl"
 					>
 						<div className="flex items-center justify-between mb-2">
-							<h3 className="text-sm font-semibold text-foreground">Created Token</h3>
+							<h3 className="text-sm font-medium text-foreground">Created Token</h3>
 							<div className="flex items-center gap-1 text-xs text-primary">
 								<Check className="h-3 w-3" />
 								<span>Success</span>
 							</div>
 						</div>
-						<div className="flex items-center gap-2 bg-background/80 p-2 rounded-lg">
-							<code className="text-xs font-mono flex-1 truncate">{createdToken}</code>
+						<div className="flex items-center gap-2 bg-background p-3 rounded-lg border border-border">
+							<code className="text-xs font-mono flex-1 truncate text-muted-foreground">{createdToken}</code>
 							<button
 								onClick={() => {
 									navigator.clipboard.writeText(createdToken);
 									toast.success('Token copied to clipboard');
 								}}
-								className="p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-md transition-colors"
+								className="p-1.5 text-muted-foreground hover:text-foreground rounded transition-colors"
 								aria-label="Copy token"
 							>
 								<Copy className="h-4 w-4" />
 							</button>
 						</div>
 						<p className="text-xs text-muted-foreground mt-3">
-							Make sure to copy this token now. You won&apos;t be able to see it again!
+							Copy this token now. You won&apos;t be able to see it again.
 						</p>
 					</motion.div>
 				)}
 			</form>
 
-			<div className="p-4 border-t border-border/30 bg-muted/20">
+			<div className="p-4 border-t border-border">
 				<button
 					type="submit"
 					form="create-session-form"
-					className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-3 rounded-xl transition-all flex items-center justify-center gap-2 font-medium"
+					className="w-full bg-foreground text-background py-3 rounded-xl transition-colors hover:bg-foreground/90 flex items-center justify-center gap-2 font-medium"
 					disabled={isLoading}
+					aria-busy={isLoading}
 				>
 					{isLoading ? (
 						<>
@@ -358,81 +358,75 @@ const Dashboard: React.FC = () => {
 	};
 
 	return (
-		<div className="min-h-screen bg-background/50 dark:bg-background/90 backdrop-blur-xl">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+		<div className="min-h-screen bg-background">
+			<div className="max-w-6xl mx-auto px-6 py-16">
 				<motion.div
-					initial={{ opacity: 0, y: -10 }}
+					initial={{ opacity: 0, y: 12 }}
 					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.5 }}
+					transition={{ duration: 0.5, ease: [0.25, 0.4, 0.25, 1] as const }}
 					className="mb-12"
 				>
-					<div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-8">
-						<div className="flex items-start gap-5">
-							<div className="p-4 bg-primary/10 text-primary rounded-2xl">
-								<Shield className="h-8 w-8" />
-							</div>
-							<div>
-								<h1 className="text-4xl font-bold text-foreground mb-2">Sessions Management</h1>
-								<p className="text-muted-foreground text-lg max-w-2xl">
-									Manage your active sessions and API tokens securely. Revoke any suspicious
-									activity or create new tokens for your applications.
-								</p>
-							</div>
+					<div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">
+						<div>
+							<h1 className="text-3xl font-semibold tracking-tight text-foreground mb-2">Sessions</h1>
+							<p className="text-muted-foreground max-w-xl">
+								Manage your active sessions and API tokens. Revoke suspicious activity or create new tokens.
+							</p>
 						</div>
 
-						<div className="flex items-center gap-3">
-							<button
-								onClick={fetchSessions}
-								className="px-4 py-2.5 rounded-xl bg-muted hover:bg-muted/80 text-foreground flex items-center gap-2 transition-colors"
-							>
-								<RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-								Refresh
-							</button>
-						</div>
+						<button
+							onClick={fetchSessions}
+							className="px-4 py-2.5 rounded-xl border border-border bg-card hover:bg-secondary text-foreground flex items-center gap-2 transition-colors text-sm font-medium"
+						>
+							<RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+							Refresh
+						</button>
 					</div>
 
-					<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-						<div className="bg-card/80 backdrop-blur-sm rounded-2xl p-4 flex items-center gap-4 border border-border/30">
-							<div className="p-3 bg-primary/10 text-primary rounded-xl">
-								<KeyRound className="h-5 w-5" />
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+						<div className="bg-card rounded-xl p-5 border border-border">
+							<div className="flex items-center gap-3 mb-3">
+								<div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center" aria-hidden="true">
+									<KeyRound className="h-4 w-4 text-muted-foreground" />
+								</div>
+								<span className="text-sm text-muted-foreground">Login Sessions</span>
 							</div>
-							<div>
-								<p className="text-muted-foreground text-sm">Logged in Sessions</p>
-								<p className="text-2xl font-bold text-foreground">
-									{sessions.loginSessions.length}
-								</p>
-							</div>
+							<p className="text-2xl font-semibold text-foreground">
+								{sessions.loginSessions.length}
+							</p>
 						</div>
 
-						<div className="bg-card/80 backdrop-blur-sm rounded-2xl p-4 flex items-center gap-4 border border-border/30">
-							<div className="p-3 bg-primary/10 text-primary rounded-xl">
-								<Settings className="h-5 w-5" />
+						<div className="bg-card rounded-xl p-5 border border-border">
+							<div className="flex items-center gap-3 mb-3">
+								<div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center" aria-hidden="true">
+									<Settings className="h-4 w-4 text-muted-foreground" />
+								</div>
+								<span className="text-sm text-muted-foreground">API Tokens</span>
 							</div>
-							<div>
-								<p className="text-muted-foreground text-sm">API Tokens</p>
-								<p className="text-2xl font-bold text-foreground">{sessions.apiSessions.length}</p>
-							</div>
+							<p className="text-2xl font-semibold text-foreground">
+								{sessions.apiSessions.length}
+							</p>
 						</div>
 
-						<div className="bg-card/80 backdrop-blur-sm rounded-2xl p-4 flex items-center gap-4 border border-border/30">
-							<div className="p-3 bg-primary/10 text-primary rounded-xl">
-								<Clock className="h-5 w-5" />
+						<div className="bg-card rounded-xl p-5 border border-border">
+							<div className="flex items-center gap-3 mb-3">
+								<div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center" aria-hidden="true">
+									<Clock className="h-4 w-4 text-muted-foreground" />
+								</div>
+								<span className="text-sm text-muted-foreground">Last Updated</span>
 							</div>
-							<div>
-								<p className="text-muted-foreground text-sm">Last Updated</p>
-								<p className="text-foreground font-medium">
-									{isLoading ? 'Loading...' : new Date().toLocaleTimeString()}
-								</p>
-							</div>
+							<p className="text-foreground font-medium">
+								{isLoading ? 'Loading...' : new Date().toLocaleTimeString()}
+							</p>
 						</div>
 					</div>
 				</motion.div>
 
-				<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+				<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
 					<SessionCard
-						title="Logged in Sessions"
+						title="Login Sessions"
 						description="Active browser sessions"
-						icon={<KeyRound className="h-6 w-6" />}
+						icon={<KeyRound className="h-5 w-5" />}
 						sessions={sessions.loginSessions}
 						onRevoke={handleRevokeSession}
 					/>
@@ -441,8 +435,8 @@ const Dashboard: React.FC = () => {
 
 					<SessionCard
 						title="API Tokens"
-						description="Active API access tokens"
-						icon={<Settings className="h-6 w-6" />}
+						description="API access tokens"
+						icon={<Settings className="h-5 w-5" />}
 						sessions={sessions.apiSessions}
 						onRevoke={handleRevokeSession}
 					/>

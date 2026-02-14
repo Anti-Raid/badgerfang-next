@@ -26,34 +26,29 @@ export const SettingsReorderableList: React.FC<SettingsReorderableListProps> = (
 }) => {
 	return (
 		<div className="space-y-4">
-			<div className="bg-accent/30 border border-border/50 rounded-2xl overflow-hidden p-3">
-				<Reorder.Group
-					axis="y"
-					values={entries}
-					onReorder={onReorder}
-					className="space-y-2"
-				>
+			<div className="bg-secondary/30 border border-border rounded-xl overflow-hidden p-2">
+				<Reorder.Group axis="y" values={entries} onReorder={onReorder} className="space-y-2">
 					{entries.map((entry, index) => (
-						<Reorder.Item 
-							key={entry[indexBy || ''] || index} 
-							value={entry} 
-							className="group/reorder relative bg-card border border-border/50 hover:border-primary/30 rounded-xl p-4 transition-all duration-200 shadow-sm"
+						<Reorder.Item
+							key={entry[indexBy || ''] || index}
+							value={entry}
+							className="group/reorder relative bg-card border border-border hover:border-primary/20 rounded-xl p-4 transition-colors"
 						>
 							<div className="flex items-center gap-4">
-								<div className="text-muted-foreground/30 group-hover/reorder:text-primary transition-colors cursor-grab active:cursor-grabbing">
-									<GripVertical size={20} />
+								<div className="text-muted-foreground group-hover/reorder:text-foreground transition-colors cursor-grab active:cursor-grabbing">
+									<GripVertical size={18} />
 								</div>
-								
+
 								<div className="flex-1">
-									<span className="text-sm font-bold text-foreground transition-colors group-hover/reorder:text-primary">
+									<span className="text-sm font-medium text-foreground">
 										{entry?.title || `Entry ${index + 1}`}
 									</span>
 								</div>
 
-								<div className="flex items-center gap-1 opacity-0 group-hover/reorder:opacity-100 group-focus-within/reorder:opacity-100 transition-opacity">
+								<div className="flex items-center gap-1 opacity-0 group-hover/reorder:opacity-100 transition-opacity">
 									<button
 										type="button"
-										className="p-2 rounded-lg text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+										className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-card transition-colors"
 										onClick={() => onEdit(structuredClone(entry))}
 										aria-label={`Edit ${entry?.title || 'entry'}`}
 									>
@@ -61,7 +56,7 @@ export const SettingsReorderableList: React.FC<SettingsReorderableListProps> = (
 									</button>
 									<button
 										type="button"
-										className="p-2 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+										className="p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
 										onClick={() => onDelete(entry)}
 										aria-label={`Delete ${entry?.title || 'entry'}`}
 									>
@@ -75,15 +70,15 @@ export const SettingsReorderableList: React.FC<SettingsReorderableListProps> = (
 			</div>
 
 			{isReordered && (
-				<motion.div 
-					initial={{ opacity: 0, y: 10 }}
+				<motion.div
+					initial={{ opacity: 0, y: 6 }}
 					animate={{ opacity: 1, y: 0 }}
 					className="flex justify-end pt-2"
 				>
-					<Primary 
-						Title="Save New Order" 
-						onClick={onSaveOrder} 
-						className="!px-6 !py-2.5 !rounded-xl !text-sm shadow-lg shadow-primary/10"
+					<Primary
+						Title="Save Order"
+						onClick={onSaveOrder}
+						className="!px-5 !py-2 !rounded-xl !text-sm"
 					/>
 				</motion.div>
 			)}

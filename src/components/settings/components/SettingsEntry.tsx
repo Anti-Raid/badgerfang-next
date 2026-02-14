@@ -21,35 +21,36 @@ export const SettingsEntry: React.FC<SettingsEntryProps> = ({
 }) => {
 	return (
 		<motion.div
-			initial={{ opacity: 0, y: 10 }}
+			initial={{ opacity: 0, y: 6 }}
 			animate={{ opacity: 1, y: 0 }}
-			exit={{ opacity: 0, x: -20 }}
-			className="group/entry relative bg-background border border-border/50 rounded-xl p-4 transition-all duration-200 hover:border-primary/30 hover:shadow-md hover:shadow-primary/5"
+			exit={{ opacity: 0 }}
+			transition={{ duration: 0.2 }}
+			className="group/entry relative bg-secondary/50 border border-border rounded-xl p-4 transition-colors hover:border-primary/20"
 		>
 			<div className="flex items-center gap-4">
 				{isDraggable && (
-					<div className="text-muted-foreground/30 group-hover/entry:text-primary transition-colors cursor-grab active:cursor-grabbing">
-						<GripVertical size={20} />
+					<div className="text-muted-foreground group-hover/entry:text-foreground transition-colors cursor-grab active:cursor-grabbing">
+						<GripVertical size={18} />
 					</div>
 				)}
-				
+
 				<div className="flex-1">
-					<div className="flex items-center gap-3">
-						<span className="text-sm font-bold text-foreground">
+					<div className="flex items-center gap-2">
+						<span className="text-sm font-medium text-foreground">
 							{entry?.title || `Entry ${index + 1}`}
 						</span>
 						{entry?.type && (
-							<span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-accent text-muted-foreground">
+							<span className="text-xs px-2 py-0.5 rounded bg-secondary text-muted-foreground">
 								{entry.type}
 							</span>
 						)}
 					</div>
 				</div>
 
-				<div className="flex items-center gap-2">
+				<div className="flex items-center gap-1 opacity-0 group-hover/entry:opacity-100 transition-opacity">
 					<button
 						type="button"
-						className="p-2 rounded-lg text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+						className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-card transition-colors"
 						onClick={() => onEdit(structuredClone(entry))}
 						aria-label={`Edit ${entry?.title || 'entry'}`}
 					>
@@ -57,7 +58,7 @@ export const SettingsEntry: React.FC<SettingsEntryProps> = ({
 					</button>
 					<button
 						type="button"
-						className="p-2 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+						className="p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
 						onClick={() => onDelete(entry)}
 						aria-label={`Delete ${entry?.title || 'entry'}`}
 					>

@@ -11,22 +11,31 @@ export default {
 	theme: {
 		extend: {
 			fontFamily: {
-				monocraft: ['"Monocraft', 'sans-serif'],
-				cursive: ['"Borel"', 'cursive'],
-				monster: ['"Montserrat"', 'sans-serif'],
-				cabin: ['"Cabin"', 'sans-serif'],
+				sans: ['"Inter"', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
 				inter: ['"Inter"', 'sans-serif'],
-				lora: ['"Lora"', 'serif']
+				mono: ['"Monocraft"', 'ui-monospace', 'monospace'],
+				// Legacy aliases for backward compatibility
+				monocraft: ['"Monocraft"', 'monospace'],
+				cabin: ['"Inter"', 'sans-serif'],
+				monster: ['"Inter"', 'sans-serif'],
+				cursive: ['"Inter"', 'sans-serif'],
+				lora: ['"Inter"', 'sans-serif']
 			},
 			borderRadius: {
-				lg: 'var(--radius)',
-				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
+				lg: 'var(--radius-lg)',
+				md: 'var(--radius-md)',
+				sm: 'var(--radius-sm)',
+				xl: 'var(--radius-xl)',
+				'2xl': 'var(--radius-2xl)',
+				full: 'var(--radius-full)'
 			},
 			colors: {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
-				extra: 'hsl(var(--extra))',
+				extra: {
+					DEFAULT: 'hsl(var(--extra))',
+					foreground: 'hsl(var(--extra-foreground))'
+				},
 				card: {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
@@ -55,6 +64,14 @@ export default {
 					DEFAULT: 'hsl(var(--destructive))',
 					foreground: 'hsl(var(--destructive-foreground))'
 				},
+				success: {
+					DEFAULT: 'hsl(var(--success))',
+					foreground: 'hsl(var(--success-foreground))'
+				},
+				warning: {
+					DEFAULT: 'hsl(var(--warning))',
+					foreground: 'hsl(var(--warning-foreground))'
+				},
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
@@ -65,6 +82,21 @@ export default {
 					'4': 'hsl(var(--chart-4))',
 					'5': 'hsl(var(--chart-5))'
 				}
+			},
+			spacing: {
+				'4.5': '1.125rem',
+				'18': '4.5rem',
+				'112': '28rem',
+				'128': '32rem'
+			},
+			transitionDuration: {
+				'fast': 'var(--duration-fast)',
+				'normal': 'var(--duration-normal)',
+				'slow': 'var(--duration-slow)'
+			},
+			boxShadow: {
+				'glow': '0 0 20px hsl(var(--primary) / 0.3), 0 0 40px hsl(var(--primary) / 0.15)',
+				'glow-sm': '0 0 10px hsl(var(--primary) / 0.2)'
 			}
 		}
 	},

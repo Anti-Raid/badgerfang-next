@@ -88,27 +88,27 @@ export const ScriptModal: React.FC<ScriptModalProps> = ({
 					aria-labelledby="modal-title"
 				>
 					<motion.div
-						className="bg-background rounded-lg shadow-xl w-11/12 max-w-6xl max-h-[90vh] flex flex-col focus:outline-none"
-						initial={{ scale: 0.9, y: 20 }}
+						className="bg-background rounded-xl border border-border w-11/12 max-w-5xl max-h-[90vh] flex flex-col"
+						initial={{ scale: 0.95, y: 10 }}
 						animate={{ scale: 1, y: 0 }}
-						exit={{ scale: 0.9, y: 20 }}
-						transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+						exit={{ scale: 0.95, y: 10 }}
+						transition={{ duration: 0.2 }}
 						tabIndex={-1}
 						autoFocus
 					>
-						<div className="flex justify-between items-center p-4 border-b border-border">
-							<h3 id="modal-title" className="text-lg font-semibold">{modalTitle}</h3>
-							<motion.button
+						<div className="flex justify-between items-center p-5 border-b border-border">
+							<h3 id="modal-title" className="text-lg font-medium text-foreground">
+								{modalTitle}
+							</h3>
+							<button
 								onClick={onClose}
-								className="text-muted-foreground hover:text-foreground p-1 rounded-full hover:bg-accent/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20"
-								whileHover={{ scale: 1.1 }}
-								whileTap={{ scale: 0.9 }}
+								className="text-muted-foreground hover:text-foreground p-2 rounded-lg hover:bg-secondary transition-colors"
 								aria-label="Close modal"
 							>
 								<X className="h-5 w-5" />
-							</motion.button>
+							</button>
 						</div>
-						<div className="overflow-auto p-4 flex-grow">
+						<div className="overflow-auto p-5 flex-grow">
 							<ScriptIDE
 								files={contentToFiles(localContent)}
 								isContentEditable={isEditMode}
@@ -118,7 +118,7 @@ export const ScriptModal: React.FC<ScriptModalProps> = ({
 							/>
 						</div>
 						{isEditMode && (
-							<div className="p-4 border-t border-border flex justify-end">
+							<div className="p-5 border-t border-border flex justify-end">
 								<Primary Title="Save Changes" onClick={handleSave} />
 							</div>
 						)}

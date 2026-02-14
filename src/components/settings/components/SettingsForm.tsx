@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Plus } from 'lucide-react';
+import { X } from 'lucide-react';
 import { SettingsColumnList } from './settings-column';
 import { Primary } from '../../ui/Buttons';
 import { Column } from '@/types/api/bindings/Column';
@@ -33,7 +33,9 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({
 
 	React.useEffect(() => {
 		// Auto-focus the first input or actionable element in the form
-		const firstInput = formRef.current?.querySelector('input, textarea, select, button:not([aria-label="Cancel"])') as HTMLElement;
+		const firstInput = formRef.current?.querySelector(
+			'input, textarea, select, button:not([aria-label="Cancel"])'
+		) as HTMLElement;
 		if (firstInput) {
 			firstInput.focus();
 		}
@@ -46,29 +48,34 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({
 
 	return (
 		<motion.div
-			initial={{ opacity: 0, scale: 0.98 }}
-			animate={{ opacity: 1, scale: 1 }}
-			className="mb-10"
+			initial={{ opacity: 0, y: 8 }}
+			animate={{ opacity: 1, y: 0 }}
+			transition={{ duration: 0.3, ease: [0.25, 0.4, 0.25, 1] as const }}
+			className="mb-8"
 		>
-			<form 
+			<form
 				ref={formRef}
 				onSubmit={handleSubmit}
-				className="bg-card border border-border/50 rounded-3xl p-8 lg:p-10 shadow-2xl"
+				className="bg-card border border-border rounded-xl p-6"
+				role="form"
+				aria-label={operation === 'Create' ? `Add ${settingName}` : `Edit ${settingName}`}
 			>
-				<div className="flex items-center justify-between mb-8">
+				<div className="flex items-center justify-between mb-6">
 					<div>
-						<h3 className="text-xl font-bold tracking-tight text-foreground">
+						<h3 className="text-lg font-medium text-foreground">
 							{operation === 'Create' ? `Add ${settingName}` : `Edit ${settingName}`}
 						</h3>
-						<p className="text-xs text-muted-foreground mt-1 font-medium">Please fill in the details below</p>
+						<p className="text-sm text-muted-foreground mt-1">
+							Fill in the details below
+						</p>
 					</div>
-					<button 
+					<button
 						type="button"
 						onClick={onCancel}
-						className="w-10 h-10 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-center text-primary hover:bg-primary/10 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+						className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
 						aria-label="Cancel"
 					>
-						<Plus size={20} className={operation === 'Update' ? 'rotate-45' : ''} />
+						<X size={18} />
 					</button>
 				</div>
 
@@ -82,17 +89,17 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({
 					/>
 				</div>
 
-				<div className="flex flex-col sm:flex-row gap-3 mt-10 pt-8 border-t border-border/50">
+				<div className="flex flex-col sm:flex-row gap-3 mt-8 pt-6 border-t border-border">
 					<div className="flex-1">
-						<Primary 
-							Title={operation === 'Create' ? `Create ${settingName}` : 'Save Changes'} 
+						<Primary
+							Title={operation === 'Create' ? `Create ${settingName}` : 'Save Changes'}
 							type="submit"
-							className="w-full !py-3 !rounded-xl !text-sm !font-bold shadow-lg shadow-primary/10"
+							className="w-full !py-2.5 !rounded-xl !text-sm !font-medium"
 						/>
 					</div>
 					<button
 						type="button"
-						className="px-8 py-3 rounded-xl bg-accent/50 text-foreground font-bold text-sm hover:bg-accent transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white border border-border/50"
+						className="px-6 py-2.5 rounded-xl bg-secondary text-foreground font-medium text-sm hover:bg-secondary/80 transition-colors"
 						onClick={onCancel}
 					>
 						Cancel

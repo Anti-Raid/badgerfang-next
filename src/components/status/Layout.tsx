@@ -122,7 +122,7 @@ const MetricsBadge = ({ icon: Icon, label, value, color = 'primary' }: any) => (
 				<p className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground/20 group-hover:text-foreground/40 transition-colors">
 					{label}
 				</p>
-				<p className="text-xl font-black font-monster tracking-tighter italic uppercase mt-0.5 group-hover:text-primary transition-colors">
+				<p className="text-xl font-black tracking-tighter italic uppercase mt-0.5 group-hover:text-primary transition-colors">
 					{value}
 				</p>
 			</div>
@@ -151,15 +151,15 @@ const ShardNode = ({
 			className="group relative"
 		>
 			{/* Holographic Glowing Border */}
-			<div className="absolute -inset-[1px] bg-gradient-to-br from-primary via-primary/50 to-accent/50 rounded-[2rem] opacity-0 group-hover:opacity-30 transition-opacity blur-[2px]" />
+			<div className="absolute -inset-[1px] bg-gradient-to-br from-primary via-primary/50 to-accent/50 rounded-[2rem] opacity-0 group-hover:opacity-30 transition-opacity blur-[2px]" aria-hidden="true" />
 
-			<div className="relative h-full bg-[#0a0a0c]/80 backdrop-blur-3xl border border-white/10 rounded-[1.8rem] p-6 group-hover:bg-black/80 group-hover:border-primary/30 transition-all overflow-hidden">
+			<div className="relative h-full bg-[#0a0a0c]/80 backdrop-blur-3xl border border-white/10 rounded-[1.8rem] p-6 group-hover:bg-black/80 group-hover:border-primary/30 transition-colors overflow-hidden">
 				{/* Decorative Corner Brackets */}
-				<div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-primary/20 rounded-tl-[1.8rem] group-hover:border-primary/50 transition-colors" />
-				<div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-primary/20 rounded-br-[1.8rem] group-hover:border-primary/50 transition-colors" />
+				<div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-primary/20 rounded-tl-[1.8rem] group-hover:border-primary/50 transition-colors" aria-hidden="true" />
+				<div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-primary/20 rounded-br-[1.8rem] group-hover:border-primary/50 transition-colors" aria-hidden="true" />
 
 				{/* Shard Background Decor - Animated */}
-				<div className="absolute -top-4 -right-4 p-4 opacity-[0.02] group-hover:opacity-[0.06] transition-all group-hover:rotate-12 group-hover:scale-110 duration-700">
+				<div className="absolute -top-4 -right-4 p-4 opacity-[0.02] group-hover:opacity-[0.06] transition-opacity group-hover:rotate-12 group-hover:scale-110 duration-700" aria-hidden="true">
 					<Server size={120} />
 				</div>
 
@@ -171,7 +171,7 @@ const ShardNode = ({
 							<Icon size={30} />
 						</div>
 						<div>
-							<h3 className="text-2xl font-black font-monster tracking-tighter italic uppercase group-hover:text-primary transition-colors">
+							<h3 className="text-2xl font-black tracking-tighter italic uppercase group-hover:text-primary transition-colors">
 								Shard {shard.padStart(2, '0')}
 							</h3>
 							<div className="flex items-center gap-2 mt-1">
@@ -196,7 +196,7 @@ const ShardNode = ({
 								<span className="text-[9px] font-black uppercase tracking-widest">Latency</span>
 							</div>
 							<div className="flex items-end gap-1">
-								<span className="text-2xl font-black font-monster italic text-primary">
+								<span className="text-2xl font-black italic text-primary">
 									{details.real_latency}
 								</span>
 								<span className="text-[10px] font-bold text-foreground/30 uppercase mb-1">ms</span>
@@ -211,7 +211,7 @@ const ShardNode = ({
 								<span className="text-[9px] font-black uppercase tracking-widest">Guilds</span>
 							</div>
 							<div className="flex items-end gap-1">
-								<span className="text-2xl font-black font-monster italic">
+								<span className="text-2xl font-black italic">
 									{details.guilds.toLocaleString()}
 								</span>
 							</div>
@@ -359,7 +359,7 @@ export default function StatusPage() {
 						className="relative z-10 mb-12"
 					>
 						<div className="absolute -inset-20 bg-primary/10 rounded-full blur-[120px] animate-pulse" />
-						<h1 className="text-[14vw] lg:text-[12rem] font-black font-monster leading-[0.75] tracking-tighter text-center uppercase">
+						<h1 className="text-[14vw] lg:text-[12rem] font-black leading-[0.75] tracking-tighter text-center uppercase">
 							<span className="relative block italic text-transparent bg-clip-text bg-gradient-to-b from-white to-white/10 pb-4">
 								System
 							</span>
@@ -425,7 +425,7 @@ export default function StatusPage() {
 									<p className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground/20 group-hover:text-foreground/40 transition-colors">
 										System Health
 									</p>
-									<p className="text-xl font-black font-monster tracking-tighter italic uppercase mt-0.5 group-hover:text-primary transition-colors">
+									<p className="text-xl font-black tracking-tighter italic uppercase mt-0.5 group-hover:text-primary transition-colors">
 										{metrics?.health}% SYNCED
 									</p>
 								</div>
@@ -469,7 +469,7 @@ export default function StatusPage() {
 											className={tab === item.id ? 'text-white' : 'text-primary'}
 										/>
 									</div>
-									<span className="font-monster font-black text-xs uppercase italic tracking-widest">
+									<span className="font-black text-xs uppercase italic tracking-widest">
 										{item.label}
 									</span>
 									{tab === item.id && (
@@ -496,7 +496,7 @@ export default function StatusPage() {
 								>
 									<div className="flex items-center justify-between">
 										<div>
-											<h2 className="text-4xl font-black font-monster tracking-tighter uppercase italic mb-2">
+											<h2 className="text-4xl font-black tracking-tighter uppercase italic mb-2">
 												Health Log
 											</h2>
 											<p className="text-[10px] font-black text-foreground/30 uppercase tracking-[0.3em]">
@@ -505,9 +505,10 @@ export default function StatusPage() {
 										</div>
 										<button
 											onClick={() => fetchData()}
-											className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-primary hover:bg-primary/20 transition-all hover:rotate-180 duration-500"
+											className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-primary hover:bg-primary/20 transition-colors hover:rotate-180 duration-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+											aria-label="Refresh status data"
 										>
-											<RefreshCcw size={20} />
+											<RefreshCcw size={20} aria-hidden="true" />
 										</button>
 									</div>
 
@@ -535,10 +536,10 @@ export default function StatusPage() {
 												</ResponsiveContainer>
 												<div className="absolute inset-0 flex flex-col items-center justify-center">
 													<div className="flex items-end gap-1">
-														<span className="text-6xl font-black font-monster italic text-primary drop-shadow-[0_0_20px_rgba(var(--primary),0.4)]">
+														<span className="text-6xl font-black italic text-primary drop-shadow-[0_0_20px_rgba(var(--primary),0.4)]">
 															{metrics?.health}
 														</span>
-														<span className="text-2xl font-black font-monster text-primary/40 uppercase italic mb-2">
+														<span className="text-2xl font-black text-primary/40 uppercase italic mb-2">
 															%
 														</span>
 													</div>
@@ -582,7 +583,7 @@ export default function StatusPage() {
 										<div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
 											<Activity size={100} strokeWidth={4} />
 										</div>
-										<h3 className="text-2xl font-black font-monster uppercase italic mb-12">
+										<h3 className="text-2xl font-black uppercase italic mb-12">
 											Network Throughput
 										</h3>
 										<div className="h-[300px] w-full">
@@ -626,7 +627,7 @@ export default function StatusPage() {
 								>
 									<div className="flex items-center justify-between mb-16">
 										<div>
-											<h2 className="text-4xl font-black font-monster tracking-tighter uppercase italic mb-2">
+											<h2 className="text-4xl font-black tracking-tighter uppercase italic mb-2">
 												Shard Registry
 											</h2>
 											<p className="text-[10px] font-black text-foreground/30 uppercase tracking-[0.3em]">

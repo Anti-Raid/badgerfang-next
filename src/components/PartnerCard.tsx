@@ -32,7 +32,7 @@ const PartnerCard: React.FC<PartnerCardProps> = ({ partner }) => {
 							alt={partner.name}
 							onError={ImageLoadError}
 						/>
-						<p className="ml-2 mt-1 mb-1 font-bold font-monster">{partner.name}</p>
+						<p className="ml-2 mt-1 mb-1 font-bold ">{partner.name}</p>
 					</h2>
 					<div className="flex items-center mt-2">
 						<Link
@@ -47,7 +47,7 @@ const PartnerCard: React.FC<PartnerCardProps> = ({ partner }) => {
 								alt={partner.owner}
 								onError={ImageLoadError}
 							/>
-							<p className="ml-2 font-bold text-md font-cabin hover:underline">{partner.owner}</p>
+							<p className="ml-2 font-bold text-md hover:underline">{partner.owner}</p>
 						</Link>
 					</div>
 				</div>

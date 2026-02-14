@@ -75,7 +75,7 @@ const ParticlesBackground = () => {
 	}, []);
 
 	return (
-		<div className="fixed inset-0 z-0 pointer-events-none">
+		<div className="fixed inset-0 z-0 pointer-events-none" aria-hidden="true">
 			{particles.map((particle, index) => (
 				<div
 					key={index}
@@ -113,19 +113,20 @@ const ErrorPage = ({ error, reset }: ErrorPageProps) => {
 	const description = error.message || 'Something went wrong on our end.';
 
 	return (
-		<div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-background text-foreground p-4">
+		<div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-background text-foreground p-4" role="alert" aria-live="assertive">
 			<ParticlesBackground />
 
 			<div className="relative z-10 max-w-3xl w-full">
 				<div className="flex flex-col items-center text-center">
 					<div
 						className={`mb-6 font-mono text-8xl font-bold tracking-tighter ${isGlitching ? 'animate-pulse' : ''}`}
+						aria-label="Error code 500"
 					>
 						<span className="text-primary">{statusCode}</span>
 					</div>
 
-					<div className="relative mb-8">
-						<div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse"></div>
+					<div className="relative mb-8" aria-hidden="true">
+						<div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse-glow"></div>
 						<div className="relative flex items-center justify-center w-24 h-24 rounded-full bg-background border-2 border-primary">
 							<AlertOctagon className="h-12 w-12 text-primary animate-spin-slow" />
 						</div>
@@ -168,12 +169,12 @@ const ErrorPage = ({ error, reset }: ErrorPageProps) => {
 						</div>
 					</div>
 
-					<div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-primary/20 opacity-50 rounded-full blur-3xl"></div>
+					<div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-primary/20 opacity-50 rounded-full blur-3xl" aria-hidden="true"></div>
 				</div>
 
-				<div className="hidden md:block absolute -top-20 -left-20 w-40 h-40 bg-primary/5 rounded-full blur-xl"></div>
-				<div className="hidden md:block absolute -bottom-32 -right-32 w-64 h-64 bg-primary/10 rounded-full blur-xl"></div>
-				<div className="hidden md:block absolute top-1/4 right-10 w-20 h-20 bg-primary/20 rounded-full blur-lg"></div>
+				<div className="hidden md:block absolute -top-20 -left-20 w-40 h-40 bg-primary/5 rounded-full blur-xl" aria-hidden="true"></div>
+				<div className="hidden md:block absolute -bottom-32 -right-32 w-64 h-64 bg-primary/10 rounded-full blur-xl" aria-hidden="true"></div>
+				<div className="hidden md:block absolute top-1/4 right-10 w-20 h-20 bg-primary/20 rounded-full blur-lg" aria-hidden="true"></div>
 			</div>
 
 			<div className="absolute bottom-8 text-center text-sm text-muted-foreground">

@@ -1,6 +1,14 @@
 'use client';
 
-import { Shield, User, Code, Database, FileCode, Lock, Bell, LayoutDashboard, Zap } from 'lucide-react';
+import {
+	Shield,
+	User,
+	Code,
+	Database,
+	FileCode,
+	Lock,
+	Bell
+} from 'lucide-react';
 import { Section } from './components/section';
 import { Fragment, useEffect, useState } from 'react';
 import { baseGuildUserInfo, executeSettings, getSettings } from '@/lib/api';
@@ -123,16 +131,16 @@ export default function Settings({ guildId }: { guildId: string }) {
 
 	if (loading) {
 		return (
-			<div className="min-h-screen bg-background flex items-center justify-center relative overflow-hidden">
-				<div className="absolute inset-0 bg-primary/5 blur-[120px] rounded-full animate-pulse" />
-				<div className="text-center relative z-10 flex flex-col items-center">
-					<motion.div 
+			<div className="min-h-screen bg-background flex items-center justify-center" role="status" aria-live="polite" aria-label="Loading settings">
+				<div className="text-center flex flex-col items-center">
+					<motion.div
 						animate={{ rotate: 360 }}
-						transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-						className="w-12 h-12 border-2 border-primary/20 border-t-primary rounded-full mb-6"
+						transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
+						className="w-8 h-8 border-2 border-border border-t-foreground rounded-full mb-4"
+						aria-hidden="true"
 					/>
-					<p className="text-sm font-bold text-foreground/40 tracking-widest uppercase">
-						Loading Settings
+					<p className="text-sm text-muted-foreground">
+						Loading settings...
 					</p>
 				</div>
 			</div>
@@ -141,16 +149,16 @@ export default function Settings({ guildId }: { guildId: string }) {
 
 	if (error) {
 		return (
-			<div className="min-h-screen bg-background flex items-center justify-center p-6">
-				<div className="bg-card p-8 rounded-3xl border border-destructive/20 max-w-md w-full text-center shadow-2xl">
-					<div className="w-16 h-16 bg-destructive/10 rounded-2xl flex items-center justify-center text-destructive mx-auto mb-6">
-						<Shield size={32} />
+			<div className="min-h-screen bg-background flex items-center justify-center p-6" role="alert" aria-live="assertive">
+				<div className="bg-card p-8 rounded-2xl border border-border max-w-md w-full text-center">
+					<div className="w-12 h-12 bg-destructive/10 rounded-xl flex items-center justify-center text-destructive mx-auto mb-6" aria-hidden="true">
+						<Shield size={24} />
 					</div>
-					<h3 className="text-2xl font-bold text-foreground mb-4">Connection Error</h3>
-					<p className="text-foreground/60 mb-8 leading-relaxed">{error}</p>
+					<h3 className="text-xl font-semibold text-foreground mb-3">Connection Error</h3>
+					<p className="text-muted-foreground mb-6 text-sm">{error}</p>
 					<button
 						onClick={() => window.location.reload()}
-						className="w-full bg-primary text-primary-foreground font-bold px-6 py-4 rounded-xl hover:opacity-90 transition-all active:scale-98 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-background"
+						className="w-full bg-foreground text-background font-medium px-6 py-3 rounded-xl hover:bg-foreground/90 transition-colors"
 					>
 						Try Again
 					</button>
@@ -160,63 +168,58 @@ export default function Settings({ guildId }: { guildId: string }) {
 	}
 
 	return (
-		<div className="min-h-screen bg-background text-foreground font-inter selection:bg-primary/30 selection:text-primary relative overflow-hidden pb-40">
-			{/* Subtle Background elements */}
-			<div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 blur-[150px] rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-			
+		<div className="min-h-screen bg-background text-foreground pb-24">
 			<ToastContainer theme="dark" />
 
 			{/* Sub-Header */}
-			<div className="sticky top-16 z-40 bg-background/60 backdrop-blur-xl border-b border-border/50">
-				<div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+			<header className="sticky top-16 z-40 bg-background/80 backdrop-blur-sm border-b border-border" role="banner">
+				<div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
 					<div className="flex items-center gap-4">
 						{guildData.icon ? (
 							<img
 								src={guildData.icon || '/logo.webp'}
-								alt={guildData.name}
-								className="w-10 h-10 rounded-xl border border-border shadow-sm object-cover"
+								alt={`${guildData.name} server icon`}
+								className="w-10 h-10 rounded-xl border border-border object-cover"
 							/>
 						) : (
-							<div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold">
+							<div className="w-10 h-10 rounded-xl bg-secondary border border-border flex items-center justify-center text-muted-foreground font-medium" aria-hidden="true">
 								{guildData.name.charAt(0)}
 							</div>
 						)}
 						<div>
-							<span className="text-base font-bold tracking-tight block">
-								{guildData.name}
-							</span>
-							<p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Dashboard Settings</p>
+							<span className="text-base font-medium tracking-tight block">{guildData.name}</span>
+							<p className="text-xs text-muted-foreground">
+								Server Settings
+							</p>
 						</div>
 					</div>
 				</div>
-			</div>
+			</header>
 
-			<div className="max-w-6xl mx-auto px-6 mt-16">
+			<main className="max-w-5xl mx-auto px-6 mt-12" role="main">
 				{/* Header Section */}
 				<motion.div
-					initial={{ opacity: 0, y: 20 }}
+					initial={{ opacity: 0, y: 12 }}
 					animate={{ opacity: 1, y: 0 }}
-					className="mb-16"
+					transition={{ duration: 0.5, ease: [0.25, 0.4, 0.25, 1] as const }}
+					className="mb-12"
 				>
-					<h1 className="text-4xl font-bold tracking-tight mb-4">
-						Settings
-					</h1>
-					<p className="text-lg text-muted-foreground max-w-2xl">
-						Configure and manage how your server interacts with AntiRaid. 
-						Customize roles, detection levels, and automated responses.
+					<h1 className="text-3xl font-semibold tracking-tight mb-3">Settings</h1>
+					<p className="text-muted-foreground max-w-xl">
+						Configure how your server interacts with AntiRaid. Customize roles, detection levels, and automated responses.
 					</p>
 
-					<div className="mt-8 p-6 bg-accent/30 rounded-2xl border border-border/50 flex items-center gap-4">
-						<div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary shrink-0">
+					<div className="mt-8 p-5 bg-secondary/50 rounded-xl border border-border flex items-center gap-4">
+						<div className="w-10 h-10 bg-card rounded-xl flex items-center justify-center text-muted-foreground shrink-0" aria-hidden="true">
 							<Code size={18} />
 						</div>
-						<p className="text-sm font-medium leading-relaxed">
-							Check out <span className="text-primary font-bold">Templating</span> for advanced custom logic and script extensions.
+						<p className="text-sm text-muted-foreground">
+							Check out <span className="text-foreground font-medium">Templating</span> for advanced custom logic and script extensions.
 						</p>
 					</div>
 				</motion.div>
 
-				<div className="space-y-12">
+				<div className="space-y-8">
 					{guildSettings && guildData && (
 						<>
 							{Object.keys(guildSettings)
@@ -234,14 +237,14 @@ export default function Settings({ guildId }: { guildId: string }) {
 								.map((setting) => (
 									<Fragment key={setting.s}>
 										{setting.s !== '$builtins' && (
-											<div className="mb-8 pt-8 border-t border-border/50">
-												<h2 className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground mb-6">
+											<div className="mb-6 pt-6 border-t border-border">
+												<h2 className="text-xs font-medium uppercase tracking-widest text-muted-foreground mb-4">
 													Template: {setting.s}
 												</h2>
 											</div>
 										)}
-										
-										<div className="grid grid-cols-1 gap-6">
+
+										<div className="grid grid-cols-1 gap-4">
 											{setting.setting.map((s_item, idx) => (
 												<Section
 													key={idx}
@@ -282,7 +285,7 @@ export default function Settings({ guildId }: { guildId: string }) {
 						</>
 					)}
 				</div>
-			</div>
+			</main>
 		</div>
 	);
 }

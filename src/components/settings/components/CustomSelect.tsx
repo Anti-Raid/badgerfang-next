@@ -53,7 +53,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 				e.preventDefault();
 				if (!isOpen) {
 					// Toggle to next option without opening
-					const currentIdx = options.findIndex(o => o.value === value);
+					const currentIdx = options.findIndex((o) => o.value === value);
 					const nextIdx = currentIdx < options.length - 1 ? currentIdx + 1 : currentIdx;
 					if (nextIdx !== currentIdx) onChange(options[nextIdx].value);
 				} else {
@@ -64,7 +64,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 				e.preventDefault();
 				if (!isOpen) {
 					// Toggle to prev option without opening
-					const currentIdx = options.findIndex(o => o.value === value);
+					const currentIdx = options.findIndex((o) => o.value === value);
 					const prevIdx = currentIdx > 0 ? currentIdx - 1 : currentIdx;
 					if (prevIdx !== currentIdx) onChange(options[prevIdx].value);
 				} else {
@@ -76,7 +76,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 				e.preventDefault();
 				if (!isOpen) {
 					setIsOpen(true);
-					const currentIdx = options.findIndex(o => o.value === value);
+					const currentIdx = options.findIndex((o) => o.value === value);
 					setActiveIdx(currentIdx !== -1 ? currentIdx : 0);
 				} else if (activeIdx >= 0) {
 					onChange(options[activeIdx].value);
@@ -99,7 +99,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 
 	useEffect(() => {
 		if (isOpen) {
-			const currentIdx = options.findIndex(o => o.value === value);
+			const currentIdx = options.findIndex((o) => o.value === value);
 			setActiveIdx(currentIdx !== -1 ? currentIdx : 0);
 		} else {
 			setActiveIdx(-1);
@@ -115,22 +115,22 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 				onClick={() => setIsOpen(!isOpen)}
 				className={`
 					w-full flex items-center justify-between
-					bg-background border border-border/50 rounded-xl px-4 py-3 text-sm font-medium
-					transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-background
+					bg-background border border-border rounded-xl px-4 py-3 text-sm
+					transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20
 					${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-					${isOpen ? 'border-primary/50 ring-4 ring-primary/5 shadow-sm' : 'hover:border-primary/30'}
+					${isOpen ? 'border-primary' : 'hover:border-primary/30'}
 				`}
 				aria-haspopup="listbox"
 				aria-expanded={isOpen}
 				aria-labelledby={label ? `${id}-label` : undefined}
 			>
-				<span className={selectedOption ? 'text-foreground' : 'text-muted-foreground/40'}>
+				<span className={selectedOption ? 'text-foreground' : 'text-muted-foreground'}>
 					{selectedOption ? selectedOption.label : placeholder}
 				</span>
-				<motion.div 
-					animate={{ rotate: isOpen ? 180 : 0 }} 
+				<motion.div
+					animate={{ rotate: isOpen ? 180 : 0 }}
 					transition={{ duration: 0.2 }}
-					className="text-muted-foreground/30"
+					className="text-muted-foreground"
 				>
 					<ChevronDown className="w-4 h-4" />
 				</motion.div>
@@ -139,11 +139,11 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 			<AnimatePresence>
 				{isOpen && (
 					<motion.div
-						initial={{ opacity: 0, y: 4, scale: 0.98 }}
-						animate={{ opacity: 1, y: 0, scale: 1 }}
-						exit={{ opacity: 0, y: 4, scale: 0.98 }}
+						initial={{ opacity: 0, y: 4 }}
+						animate={{ opacity: 1, y: 0 }}
+						exit={{ opacity: 0, y: 4 }}
 						transition={{ duration: 0.15 }}
-						className="absolute z-[100] w-full mt-2 py-1.5 bg-card border border-border/50 rounded-xl shadow-2xl max-h-60 overflow-y-auto soft-scrollbar"
+						className="absolute z-[100] w-full mt-2 py-1 bg-card border border-border rounded-xl shadow-lg max-h-60 overflow-y-auto"
 						role="listbox"
 						aria-label={label}
 					>
@@ -154,11 +154,13 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 								<div
 									key={option.value}
 									className={`
-										group relative flex items-center justify-between px-4 py-2.5 mx-1.5 rounded-lg text-sm font-medium cursor-pointer transition-all duration-150
-										${isSelected 
-											? 'bg-primary/10 text-primary' 
-											: 'text-foreground/70 hover:bg-accent hover:text-foreground'}
-										${isActive ? 'bg-accent text-foreground' : ''}
+										flex items-center justify-between px-4 py-2.5 mx-1 rounded-lg text-sm cursor-pointer transition-colors
+										${
+											isSelected
+												? 'bg-primary/10 text-primary'
+												: 'text-foreground hover:bg-secondary'
+										}
+										${isActive ? 'bg-secondary' : ''}
 									`}
 									role="option"
 									aria-selected={isSelected}
@@ -170,12 +172,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 								>
 									<span>{option.label}</span>
 									{isSelected && (
-										<motion.div
-											initial={{ scale: 0, opacity: 0 }}
-											animate={{ scale: 1, opacity: 1 }}
-										>
-											<Check className="w-4 h-4" strokeWidth={3} />
-										</motion.div>
+										<Check className="w-4 h-4" strokeWidth={2} />
 									)}
 								</div>
 							);
