@@ -86,8 +86,8 @@ const AboutLayout = () => {
 						animate={isLoaded ? 'visible' : 'hidden'}
 						className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
 					>
-						AntiRaid combines advanced automation with intuitive controls to keep your
-						Discord server safe. Real-time protection, zero complexity.
+						AntiRaid combines advanced automation with intuitive controls to keep your Discord
+						server safe. Real-time protection, zero complexity.
 					</motion.p>
 				</div>
 			</section>
@@ -102,14 +102,12 @@ const AboutLayout = () => {
 						viewport={{ once: true }}
 						className="text-center"
 					>
-						<h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-8">
-							Our Mission
-						</h2>
+						<h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-8">Our Mission</h2>
 						<p className="text-lg text-muted-foreground leading-relaxed">
-							We believe every Discord community deserves enterprise-grade security without
-							the enterprise complexity. AntiRaid provides powerful, automated protection
-							that adapts to your server's unique needs—from small gaming groups to
-							large-scale professional communities.
+							We believe every Discord community deserves enterprise-grade security without the
+							enterprise complexity. AntiRaid provides powerful, automated protection that adapts to
+							your server's unique needs—from small gaming groups to large-scale professional
+							communities.
 						</p>
 					</motion.div>
 				</div>
@@ -125,9 +123,7 @@ const AboutLayout = () => {
 						viewport={{ once: true }}
 						className="text-center mb-16"
 					>
-						<h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-							What we offer
-						</h2>
+						<h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">What we offer</h2>
 						<p className="text-lg text-muted-foreground">
 							Everything you need to secure and manage your community.
 						</p>
@@ -146,12 +142,8 @@ const AboutLayout = () => {
 								<div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6">
 									<feature.icon className="w-6 h-6 text-primary" />
 								</div>
-								<h3 className="text-xl font-semibold text-foreground mb-3">
-									{feature.title}
-								</h3>
-								<p className="text-muted-foreground leading-relaxed">
-									{feature.description}
-								</p>
+								<h3 className="text-xl font-semibold text-foreground mb-3">{feature.title}</h3>
+								<p className="text-muted-foreground leading-relaxed">{feature.description}</p>
 							</motion.div>
 						))}
 					</div>
@@ -171,9 +163,7 @@ const AboutLayout = () => {
 						viewport={{ once: true }}
 						className="text-center mb-16"
 					>
-						<h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-							Partners
-						</h2>
+						<h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">Partners</h2>
 						<p className="text-lg text-muted-foreground">
 							Organizations that help make AntiRaid possible.
 						</p>
@@ -193,15 +183,10 @@ const AboutLayout = () => {
 						viewport={{ once: true }}
 						className="text-center mb-16"
 					>
-						<h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-							Meet the Team
-						</h2>
+						<h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">Meet the Team</h2>
 						<p className="text-lg text-muted-foreground">
 							The people behind AntiRaid.{' '}
-							<Link
-								href="/discord"
-								className="text-primary hover:underline underline-offset-4"
-							>
+							<Link href="/discord" className="text-primary hover:underline underline-offset-4">
 								Join our Discord
 							</Link>{' '}
 							to connect with us.
@@ -222,9 +207,7 @@ const AboutLayout = () => {
 						viewport={{ once: true }}
 						className="text-center mb-16"
 					>
-						<h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-							Style Guide
-						</h2>
+						<h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">Style Guide</h2>
 						<p className="text-lg text-muted-foreground">
 							Our design language and visual identity.
 						</p>

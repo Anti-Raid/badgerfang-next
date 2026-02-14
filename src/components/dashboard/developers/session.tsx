@@ -3,16 +3,7 @@
 import type React from 'react';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-	KeyRound,
-	Trash2,
-	Plus,
-	Settings,
-	Copy,
-	Clock,
-	RefreshCw,
-	Check
-} from 'lucide-react';
+import { KeyRound, Trash2, Plus, Settings, Copy, Clock, RefreshCw, Check } from 'lucide-react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getUserSessions, revokeSession, createSession } from '@/lib/api';
@@ -44,7 +35,10 @@ const SessionCard: React.FC<{
 		>
 			<div className="p-6 border-b border-border">
 				<div className="flex items-center gap-4">
-					<div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center text-muted-foreground" aria-hidden="true">
+					<div
+						className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center text-muted-foreground"
+						aria-hidden="true"
+					>
 						{icon}
 					</div>
 					<div>
@@ -56,7 +50,10 @@ const SessionCard: React.FC<{
 
 			<div className="flex-1 p-6 overflow-hidden">
 				{sessions.length === 0 ? (
-					<div className="flex flex-col items-center justify-center h-full py-12 px-4" role="status">
+					<div
+						className="flex flex-col items-center justify-center h-full py-12 px-4"
+						role="status"
+					>
 						<p className="text-muted-foreground text-center text-sm">No active sessions</p>
 					</div>
 				) : (
@@ -193,7 +190,10 @@ const CreateSessionForm: React.FC<{ onSessionCreated: () => void }> = ({ onSessi
 		>
 			<div className="p-6 border-b border-border">
 				<div className="flex items-center gap-4">
-					<div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center text-muted-foreground" aria-hidden="true">
+					<div
+						className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center text-muted-foreground"
+						aria-hidden="true"
+					>
 						<Plus className="h-5 w-5" />
 					</div>
 					<div>
@@ -273,7 +273,9 @@ const CreateSessionForm: React.FC<{ onSessionCreated: () => void }> = ({ onSessi
 							</div>
 						</div>
 						<div className="flex items-center gap-2 bg-background p-3 rounded-lg border border-border">
-							<code className="text-xs font-mono flex-1 truncate text-muted-foreground">{createdToken}</code>
+							<code className="text-xs font-mono flex-1 truncate text-muted-foreground">
+								{createdToken}
+							</code>
 							<button
 								onClick={() => {
 									navigator.clipboard.writeText(createdToken);
@@ -368,9 +370,12 @@ const Dashboard: React.FC = () => {
 				>
 					<div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">
 						<div>
-							<h1 className="text-3xl font-semibold tracking-tight text-foreground mb-2">Sessions</h1>
+							<h1 className="text-3xl font-semibold tracking-tight text-foreground mb-2">
+								Sessions
+							</h1>
 							<p className="text-muted-foreground max-w-xl">
-								Manage your active sessions and API tokens. Revoke suspicious activity or create new tokens.
+								Manage your active sessions and API tokens. Revoke suspicious activity or create new
+								tokens.
 							</p>
 						</div>
 
@@ -386,7 +391,10 @@ const Dashboard: React.FC = () => {
 					<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 						<div className="bg-card rounded-xl p-5 border border-border">
 							<div className="flex items-center gap-3 mb-3">
-								<div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center" aria-hidden="true">
+								<div
+									className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center"
+									aria-hidden="true"
+								>
 									<KeyRound className="h-4 w-4 text-muted-foreground" />
 								</div>
 								<span className="text-sm text-muted-foreground">Login Sessions</span>
@@ -398,7 +406,10 @@ const Dashboard: React.FC = () => {
 
 						<div className="bg-card rounded-xl p-5 border border-border">
 							<div className="flex items-center gap-3 mb-3">
-								<div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center" aria-hidden="true">
+								<div
+									className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center"
+									aria-hidden="true"
+								>
 									<Settings className="h-4 w-4 text-muted-foreground" />
 								</div>
 								<span className="text-sm text-muted-foreground">API Tokens</span>
@@ -410,7 +421,10 @@ const Dashboard: React.FC = () => {
 
 						<div className="bg-card rounded-xl p-5 border border-border">
 							<div className="flex items-center gap-3 mb-3">
-								<div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center" aria-hidden="true">
+								<div
+									className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center"
+									aria-hidden="true"
+								>
 									<Clock className="h-4 w-4 text-muted-foreground" />
 								</div>
 								<span className="text-sm text-muted-foreground">Last Updated</span>

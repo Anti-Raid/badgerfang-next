@@ -15,7 +15,11 @@ export default function DiscordRedirect() {
 	}, []);
 
 	return (
-		<div className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground" role="status" aria-live="polite">
+		<div
+			className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground"
+			role="status"
+			aria-live="polite"
+		>
 			<Head>
 				<title>Redirecting to Discord...</title>
 			</Head>

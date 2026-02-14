@@ -28,7 +28,10 @@ export const TeamMembers = ({ isLoaded }: { isLoaded: boolean }) => {
 	if (isLoading)
 		return (
 			<div className="text-center py-12" role="status" aria-live="polite">
-				<div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-primary border-r-transparent" aria-hidden="true"></div>
+				<div
+					className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-primary border-r-transparent"
+					aria-hidden="true"
+				></div>
 				<p className="mt-4 text-foreground/70">Loading team members...</p>
 			</div>
 		);
@@ -54,7 +57,10 @@ export const TeamMembers = ({ isLoaded }: { isLoaded: boolean }) => {
 				>
 					<div className="flex flex-col items-center text-center">
 						<div className="relative mb-3 w-20 h-20">
-							<div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary to-extra opacity-0 group-hover:opacity-100 blur-md transition-opacity" aria-hidden="true"></div>
+							<div
+								className="absolute inset-0 rounded-full bg-gradient-to-br from-primary to-extra opacity-0 group-hover:opacity-100 blur-md transition-opacity"
+								aria-hidden="true"
+							></div>
 							<Image
 								className="relative rounded-full object-cover border-2 border-primary/30 group-hover:border-primary/70 transition-colors"
 								src={user.avatarURL || '/logo.webp'}

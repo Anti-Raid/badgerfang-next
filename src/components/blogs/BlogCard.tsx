@@ -74,9 +74,7 @@ export default function BlogCard({ blog, index }: BlogCardProps) {
 					</h3>
 
 					{/* Description */}
-					<p className="text-sm text-muted-foreground line-clamp-2 mb-4">
-						{blog.description}
-					</p>
+					<p className="text-sm text-muted-foreground line-clamp-2 mb-4">{blog.description}</p>
 
 					{/* Meta */}
 					<div className="flex items-center justify-between text-xs text-muted-foreground">

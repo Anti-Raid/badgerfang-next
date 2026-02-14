@@ -36,10 +36,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 						) : (
 							<>
 								{/* Skip link for keyboard navigation - WCAG 2.1 AA */}
-								<a
-									href="#main-content"
-									className="skip-link"
-								>
+								<a href="#main-content" className="skip-link">
 									Skip to main content
 								</a>
 								<Header />

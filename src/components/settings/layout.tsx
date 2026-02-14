@@ -1,14 +1,6 @@
 'use client';
 
-import {
-	Shield,
-	User,
-	Code,
-	Database,
-	FileCode,
-	Lock,
-	Bell
-} from 'lucide-react';
+import { Shield, User, Code, Database, FileCode, Lock, Bell } from 'lucide-react';
 import { Section } from './components/section';
 import { Fragment, useEffect, useState } from 'react';
 import { baseGuildUserInfo, executeSettings, getSettings } from '@/lib/api';
@@ -131,7 +123,12 @@ export default function Settings({ guildId }: { guildId: string }) {
 
 	if (loading) {
 		return (
-			<div className="min-h-screen bg-background flex items-center justify-center" role="status" aria-live="polite" aria-label="Loading settings">
+			<div
+				className="min-h-screen bg-background flex items-center justify-center"
+				role="status"
+				aria-live="polite"
+				aria-label="Loading settings"
+			>
 				<div className="text-center flex flex-col items-center">
 					<motion.div
 						animate={{ rotate: 360 }}
@@ -139,9 +136,7 @@ export default function Settings({ guildId }: { guildId: string }) {
 						className="w-8 h-8 border-2 border-border border-t-foreground rounded-full mb-4"
 						aria-hidden="true"
 					/>
-					<p className="text-sm text-muted-foreground">
-						Loading settings...
-					</p>
+					<p className="text-sm text-muted-foreground">Loading settings...</p>
 				</div>
 			</div>
 		);
@@ -149,9 +144,16 @@ export default function Settings({ guildId }: { guildId: string }) {
 
 	if (error) {
 		return (
-			<div className="min-h-screen bg-background flex items-center justify-center p-6" role="alert" aria-live="assertive">
+			<div
+				className="min-h-screen bg-background flex items-center justify-center p-6"
+				role="alert"
+				aria-live="assertive"
+			>
 				<div className="bg-card p-8 rounded-2xl border border-border max-w-md w-full text-center">
-					<div className="w-12 h-12 bg-destructive/10 rounded-xl flex items-center justify-center text-destructive mx-auto mb-6" aria-hidden="true">
+					<div
+						className="w-12 h-12 bg-destructive/10 rounded-xl flex items-center justify-center text-destructive mx-auto mb-6"
+						aria-hidden="true"
+					>
 						<Shield size={24} />
 					</div>
 					<h3 className="text-xl font-semibold text-foreground mb-3">Connection Error</h3>
@@ -172,7 +174,10 @@ export default function Settings({ guildId }: { guildId: string }) {
 			<ToastContainer theme="dark" />
 
 			{/* Sub-Header */}
-			<header className="sticky top-16 z-40 bg-background/80 backdrop-blur-sm border-b border-border" role="banner">
+			<header
+				className="sticky top-16 z-40 bg-background/80 backdrop-blur-sm border-b border-border"
+				role="banner"
+			>
 				<div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
 					<div className="flex items-center gap-4">
 						{guildData.icon ? (
@@ -182,15 +187,16 @@ export default function Settings({ guildId }: { guildId: string }) {
 								className="w-10 h-10 rounded-xl border border-border object-cover"
 							/>
 						) : (
-							<div className="w-10 h-10 rounded-xl bg-secondary border border-border flex items-center justify-center text-muted-foreground font-medium" aria-hidden="true">
+							<div
+								className="w-10 h-10 rounded-xl bg-secondary border border-border flex items-center justify-center text-muted-foreground font-medium"
+								aria-hidden="true"
+							>
 								{guildData.name.charAt(0)}
 							</div>
 						)}
 						<div>
 							<span className="text-base font-medium tracking-tight block">{guildData.name}</span>
-							<p className="text-xs text-muted-foreground">
-								Server Settings
-							</p>
+							<p className="text-xs text-muted-foreground">Server Settings</p>
 						</div>
 					</div>
 				</div>
@@ -206,15 +212,20 @@ export default function Settings({ guildId }: { guildId: string }) {
 				>
 					<h1 className="text-3xl font-semibold tracking-tight mb-3">Settings</h1>
 					<p className="text-muted-foreground max-w-xl">
-						Configure how your server interacts with AntiRaid. Customize roles, detection levels, and automated responses.
+						Configure how your server interacts with AntiRaid. Customize roles, detection levels,
+						and automated responses.
 					</p>
 
 					<div className="mt-8 p-5 bg-secondary/50 rounded-xl border border-border flex items-center gap-4">
-						<div className="w-10 h-10 bg-card rounded-xl flex items-center justify-center text-muted-foreground shrink-0" aria-hidden="true">
+						<div
+							className="w-10 h-10 bg-card rounded-xl flex items-center justify-center text-muted-foreground shrink-0"
+							aria-hidden="true"
+						>
 							<Code size={18} />
 						</div>
 						<p className="text-sm text-muted-foreground">
-							Check out <span className="text-foreground font-medium">Templating</span> for advanced custom logic and script extensions.
+							Check out <span className="text-foreground font-medium">Templating</span> for advanced
+							custom logic and script extensions.
 						</p>
 					</div>
 				</motion.div>

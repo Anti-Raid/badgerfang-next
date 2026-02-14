@@ -40,10 +40,7 @@ export const BaseLabelAndDescription: React.FC<BaseLabelAndDescriptionProps> = (
 				</div>
 			)}
 			{description && (
-				<p
-					className="text-xs text-muted-foreground"
-					id={id ? `${id}-desc` : undefined}
-				>
+				<p className="text-xs text-muted-foreground" id={id ? `${id}-desc` : undefined}>
 					{description}
 				</p>
 			)}

@@ -89,7 +89,10 @@ export const TemplateShop = ({ data }: { data: any[] }) => {
 					>
 						<span className="relative z-10">Script</span>{' '}
 						<span className="relative">
-							<span className="absolute -inset-1 blur-md bg-gradient-to-r from-primary to-accent opacity-30 rounded-lg" aria-hidden="true"></span>
+							<span
+								className="absolute -inset-1 blur-md bg-gradient-to-r from-primary to-accent opacity-30 rounded-lg"
+								aria-hidden="true"
+							></span>
 							<span className="relative bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
 								Marketplace
 							</span>
@@ -146,13 +149,19 @@ export const TemplateShop = ({ data }: { data: any[] }) => {
 									className="mr-2 p-2 hover:bg-primary/10 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
 									aria-label="Clear search"
 								>
-									<FiX className="text-muted-foreground hover:text-primary transition-colors" aria-hidden="true" />
+									<FiX
+										className="text-muted-foreground hover:text-primary transition-colors"
+										aria-hidden="true"
+									/>
 								</button>
 							)}
 
 							<div className="h-10 w-px bg-border mx-2" aria-hidden="true"></div>
 
-							<button className="p-6 hover:bg-primary/10 transition-colors flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-primary" aria-label="Filter scripts">
+							<button
+								className="p-6 hover:bg-primary/10 transition-colors flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+								aria-label="Filter scripts"
+							>
 								<FiFilter className="text-primary w-5 h-5" aria-hidden="true" />
 							</button>
 						</div>

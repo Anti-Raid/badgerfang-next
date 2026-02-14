@@ -557,7 +557,6 @@
 		--input: 330 18% 92%;
 		--ring: 310 65% 70%;
 	}
-
 }
 
 /* ============================================
@@ -591,7 +590,9 @@
 
 	body {
 		font-family: var(--font-sans);
-		font-feature-settings: 'rlig' 1, 'calt' 1;
+		font-feature-settings:
+			'rlig' 1,
+			'calt' 1;
 		@apply bg-background text-foreground antialiased;
 	}
 
@@ -874,7 +875,9 @@
 
 	/* Glow effects */
 	.glow-primary {
-		box-shadow: 0 0 20px hsl(var(--primary) / 0.3), 0 0 40px hsl(var(--primary) / 0.15);
+		box-shadow:
+			0 0 20px hsl(var(--primary) / 0.3),
+			0 0 40px hsl(var(--primary) / 0.15);
 	}
 
 	.glow-sm {

@@ -155,11 +155,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 									key={option.value}
 									className={`
 										flex items-center justify-between px-4 py-2.5 mx-1 rounded-lg text-sm cursor-pointer transition-colors
-										${
-											isSelected
-												? 'bg-primary/10 text-primary'
-												: 'text-foreground hover:bg-secondary'
-										}
+										${isSelected ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-secondary'}
 										${isActive ? 'bg-secondary' : ''}
 									`}
 									role="option"
@@ -171,9 +167,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 									onMouseEnter={() => setActiveIdx(idx)}
 								>
 									<span>{option.label}</span>
-									{isSelected && (
-										<Check className="w-4 h-4" strokeWidth={2} />
-									)}
+									{isSelected && <Check className="w-4 h-4" strokeWidth={2} />}
 								</div>
 							);
 						})}

@@ -90,12 +90,12 @@ export default {
 				'128': '32rem'
 			},
 			transitionDuration: {
-				'fast': 'var(--duration-fast)',
-				'normal': 'var(--duration-normal)',
-				'slow': 'var(--duration-slow)'
+				fast: 'var(--duration-fast)',
+				normal: 'var(--duration-normal)',
+				slow: 'var(--duration-slow)'
 			},
 			boxShadow: {
-				'glow': '0 0 20px hsl(var(--primary) / 0.3), 0 0 40px hsl(var(--primary) / 0.15)',
+				glow: '0 0 20px hsl(var(--primary) / 0.3), 0 0 40px hsl(var(--primary) / 0.15)',
 				'glow-sm': '0 0 10px hsl(var(--primary) / 0.2)'
 			}
 		}
