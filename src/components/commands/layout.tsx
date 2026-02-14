@@ -92,7 +92,9 @@ const ModuleIcon = ({ name, size = 20 }: { name: string; size?: number }) => {
 		notifications: <Bell size={size} />
 	};
 
-	return <span className="text-primary">{icons[name?.toLowerCase()] || <Globe size={size} />}</span>;
+	return (
+		<span className="text-primary">{icons[name?.toLowerCase()] || <Globe size={size} />}</span>
+	);
 };
 
 // Main component
@@ -313,18 +315,11 @@ export default function CommandInterface() {
 								<motion.div
 									layout
 									className={
-										activeView === 'grid'
-											? 'grid grid-cols-1 md:grid-cols-2 gap-4'
-											: 'space-y-3'
+										activeView === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-4' : 'space-y-3'
 									}
 								>
 									{filteredCommands.map((command, idx) => (
-										<CommandCard
-											key={command.id}
-											command={command}
-											view={activeView}
-											index={idx}
-										/>
+										<CommandCard key={command.id} command={command} view={activeView} index={idx} />
 									))}
 								</motion.div>
 							) : (
@@ -384,9 +379,7 @@ const CommandCard = ({
 							<div>
 								<h3 className="font-semibold text-foreground">/{command.name}</h3>
 								{command.parentName && (
-									<p className="text-xs text-muted-foreground">
-										in /{command.parentName}
-									</p>
+									<p className="text-xs text-muted-foreground">in /{command.parentName}</p>
 								)}
 							</div>
 						</div>
@@ -447,10 +440,7 @@ const CommandCard = ({
 									</h4>
 									<div className="space-y-2">
 										{command.arguments.map((arg: any) => (
-											<div
-												key={arg.name}
-												className="p-3 bg-muted/50 rounded-lg"
-											>
+											<div key={arg.name} className="p-3 bg-muted/50 rounded-lg">
 												<div className="flex items-center justify-between mb-1">
 													<div className="flex items-center gap-2">
 														<code className="text-sm font-mono font-medium text-primary">
@@ -465,9 +455,7 @@ const CommandCard = ({
 													<CopyButton text={arg.name} />
 												</div>
 												{arg.description && (
-													<p className="text-xs text-muted-foreground">
-														{arg.description}
-													</p>
+													<p className="text-xs text-muted-foreground">{arg.description}</p>
 												)}
 												{arg.choices?.length > 0 && (
 													<div className="mt-2 flex flex-wrap gap-1">
@@ -495,10 +483,7 @@ const CommandCard = ({
 									</h4>
 									<div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
 										{command.subcommands.map((sub: any) => (
-											<div
-												key={sub.name}
-												className="p-3 bg-muted/50 rounded-lg"
-											>
+											<div key={sub.name} className="p-3 bg-muted/50 rounded-lg">
 												<div className="flex items-center justify-between mb-1">
 													<span className="text-sm font-medium">{sub.name}</span>
 													<CopyButton text={`${command.name} ${sub.name}`} />
@@ -520,10 +505,7 @@ const CommandCard = ({
 									<span className="text-primary">/</span>
 									<span>{command.name}</span>
 									{command.arguments?.[0] && (
-										<span className="text-muted-foreground">
-											{' '}
-											[{command.arguments[0].name}]
-										</span>
+										<span className="text-muted-foreground"> [{command.arguments[0].name}]</span>
 									)}
 								</code>
 								<CopyButton text={`/${command.name}`} />

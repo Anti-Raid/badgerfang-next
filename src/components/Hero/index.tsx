@@ -85,8 +85,7 @@ const Hero = () => {
 		{
 			icon: Zap,
 			title: 'Instant Response',
-			description:
-				'Sub-millisecond reaction times ensure threats are handled before they escalate.'
+			description: 'Sub-millisecond reaction times ensure threats are handled before they escalate.'
 		},
 		{
 			icon: Code,
@@ -144,8 +143,8 @@ const Hero = () => {
 						animate={isVisible ? 'visible' : 'hidden'}
 						className="text-xl lg:text-2xl text-muted-foreground max-w-2xl mx-auto mb-12 leading-relaxed"
 					>
-						AntiRaid is the most advanced Discord protection bot. Join{' '}
-						{userCount.toLocaleString()}+ users who trust us with their communities.
+						AntiRaid is the most advanced Discord protection bot. Join {userCount.toLocaleString()}+
+						users who trust us with their communities.
 					</motion.p>
 
 					{/* CTA Buttons */}
@@ -190,9 +189,7 @@ const Hero = () => {
 							{ value: '<1ms', label: 'Response Time' }
 						].map((stat, i) => (
 							<div key={i}>
-								<p className="text-4xl lg:text-5xl font-bold text-foreground mb-2">
-									{stat.value}
-								</p>
+								<p className="text-4xl lg:text-5xl font-bold text-foreground mb-2">{stat.value}</p>
 								<p className="text-muted-foreground font-medium">{stat.label}</p>
 							</div>
 						))}
@@ -231,12 +228,8 @@ const Hero = () => {
 								<div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
 									<feature.icon className="w-7 h-7 text-primary" />
 								</div>
-								<h3 className="text-2xl font-semibold text-foreground mb-3">
-									{feature.title}
-								</h3>
-								<p className="text-muted-foreground leading-relaxed">
-									{feature.description}
-								</p>
+								<h3 className="text-2xl font-semibold text-foreground mb-3">{feature.title}</h3>
+								<p className="text-muted-foreground leading-relaxed">{feature.description}</p>
 							</motion.div>
 						))}
 					</div>
@@ -257,8 +250,8 @@ const Hero = () => {
 								Everything your server needs
 							</h2>
 							<p className="text-xl text-muted-foreground mb-10 leading-relaxed">
-								From basic moderation to advanced threat protection, AntiRaid handles it
-								all so you can focus on growing your community.
+								From basic moderation to advanced threat protection, AntiRaid handles it all so you
+								can focus on growing your community.
 							</p>
 							<div className="grid sm:grid-cols-2 gap-4">
 								{benefits.map((benefit, i) => (
@@ -356,8 +349,7 @@ const Hero = () => {
 							Ready to secure your server?
 						</h2>
 						<p className="text-xl text-muted-foreground mb-10 max-w-xl mx-auto">
-							Join thousands of communities already protected by AntiRaid. Free to get
-							started.
+							Join thousands of communities already protected by AntiRaid. Free to get started.
 						</p>
 						<div className="flex flex-col sm:flex-row items-center justify-center gap-4">
 							<Link

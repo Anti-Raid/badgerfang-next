@@ -19,7 +19,8 @@ const variantStyles: Record<ButtonVariant, string> = {
 	ghost: 'bg-transparent text-foreground hover:bg-accent',
 	destructive:
 		'bg-destructive text-destructive-foreground shadow-lg hover:shadow-xl hover:shadow-destructive/20',
-	outline: 'bg-transparent text-foreground border border-border hover:bg-accent hover:border-primary/30'
+	outline:
+		'bg-transparent text-foreground border border-border hover:bg-accent hover:border-primary/30'
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
@@ -40,8 +41,7 @@ const iconSizeMap: Record<ButtonSize, number> = {
 // BUTTON COMPONENT
 // ============================================
 
-export interface ButtonProps
-	extends Omit<HTMLMotionProps<'button'>, 'children' | 'title'> {
+export interface ButtonProps extends Omit<HTMLMotionProps<'button'>, 'children' | 'title'> {
 	children?: React.ReactNode;
 	Title?: string; // Legacy support
 	onClick?: () => void;
@@ -129,25 +129,19 @@ Button.displayName = 'Button';
 // LEGACY EXPORTS FOR BACKWARD COMPATIBILITY
 // ============================================
 
-export const Primary: React.FC<ButtonProps> = (props) => (
-	<Button variant="primary" {...props} />
-);
+export const Primary: React.FC<ButtonProps> = (props) => <Button variant="primary" {...props} />;
 
 export const Secondary: React.FC<ButtonProps> = (props) => (
 	<Button variant="secondary" {...props} />
 );
 
-export const Ghost: React.FC<ButtonProps> = (props) => (
-	<Button variant="ghost" {...props} />
-);
+export const Ghost: React.FC<ButtonProps> = (props) => <Button variant="ghost" {...props} />;
 
 export const Destructive: React.FC<ButtonProps> = (props) => (
 	<Button variant="destructive" {...props} />
 );
 
-export const Outline: React.FC<ButtonProps> = (props) => (
-	<Button variant="outline" {...props} />
-);
+export const Outline: React.FC<ButtonProps> = (props) => <Button variant="outline" {...props} />;
 
 // Default export
 export default Button;

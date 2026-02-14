@@ -31,7 +31,9 @@ export const SettingsErrorDisplay: React.FC<SettingsErrorDisplayProps> = ({
 				{Object.entries(loadErrors).map(([templateName, error]) => (
 					<div key={templateName}>
 						<span className="font-medium">Error in {templateName}:</span>
-						<code className="block mt-1 text-xs whitespace-pre-wrap text-destructive/80">{error}</code>
+						<code className="block mt-1 text-xs whitespace-pre-wrap text-destructive/80">
+							{error}
+						</code>
 					</div>
 				))}
 			</div>

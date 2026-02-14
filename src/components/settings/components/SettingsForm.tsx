@@ -65,9 +65,7 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({
 						<h3 className="text-lg font-medium text-foreground">
 							{operation === 'Create' ? `Add ${settingName}` : `Edit ${settingName}`}
 						</h3>
-						<p className="text-sm text-muted-foreground mt-1">
-							Fill in the details below
-						</p>
+						<p className="text-sm text-muted-foreground mt-1">Fill in the details below</p>
 					</div>
 					<button
 						type="button"

@@ -151,15 +151,27 @@ const ShardNode = ({
 			className="group relative"
 		>
 			{/* Holographic Glowing Border */}
-			<div className="absolute -inset-[1px] bg-gradient-to-br from-primary via-primary/50 to-accent/50 rounded-[2rem] opacity-0 group-hover:opacity-30 transition-opacity blur-[2px]" aria-hidden="true" />
+			<div
+				className="absolute -inset-[1px] bg-gradient-to-br from-primary via-primary/50 to-accent/50 rounded-[2rem] opacity-0 group-hover:opacity-30 transition-opacity blur-[2px]"
+				aria-hidden="true"
+			/>
 
 			<div className="relative h-full bg-[#0a0a0c]/80 backdrop-blur-3xl border border-white/10 rounded-[1.8rem] p-6 group-hover:bg-black/80 group-hover:border-primary/30 transition-colors overflow-hidden">
 				{/* Decorative Corner Brackets */}
-				<div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-primary/20 rounded-tl-[1.8rem] group-hover:border-primary/50 transition-colors" aria-hidden="true" />
-				<div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-primary/20 rounded-br-[1.8rem] group-hover:border-primary/50 transition-colors" aria-hidden="true" />
+				<div
+					className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-primary/20 rounded-tl-[1.8rem] group-hover:border-primary/50 transition-colors"
+					aria-hidden="true"
+				/>
+				<div
+					className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-primary/20 rounded-br-[1.8rem] group-hover:border-primary/50 transition-colors"
+					aria-hidden="true"
+				/>
 
 				{/* Shard Background Decor - Animated */}
-				<div className="absolute -top-4 -right-4 p-4 opacity-[0.02] group-hover:opacity-[0.06] transition-opacity group-hover:rotate-12 group-hover:scale-110 duration-700" aria-hidden="true">
+				<div
+					className="absolute -top-4 -right-4 p-4 opacity-[0.02] group-hover:opacity-[0.06] transition-opacity group-hover:rotate-12 group-hover:scale-110 duration-700"
+					aria-hidden="true"
+				>
 					<Server size={120} />
 				</div>
 

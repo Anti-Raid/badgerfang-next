@@ -5,15 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
-import {
-	Menu,
-	X,
-	LayoutDashboard,
-	LogOut,
-	LogIn,
-	ChevronDown,
-	Terminal
-} from 'lucide-react';
+import { Menu, X, LayoutDashboard, LogOut, LogIn, ChevronDown, Terminal } from 'lucide-react';
 import { loginUser } from '@/lib/auth/login';
 import { logoutUser } from '@/lib/auth/logoutUser';
 import { getAuthCreds } from '@/lib/auth/getAuthCreds';
@@ -123,34 +115,30 @@ const NavBar: React.FC = () => {
 				>
 					{/* Logo */}
 					<Link href="/" className="flex items-center gap-3">
-						<img
-							src={getLogoPath()}
-							alt="AntiRaid"
-							className="h-8 w-8 rounded-lg"
-						/>
+						<img src={getLogoPath()} alt="AntiRaid" className="h-8 w-8 rounded-lg" />
 						<span className="text-lg font-semibold text-foreground">AntiRaid</span>
 					</Link>
 
 					{/* Desktop Navigation */}
 					<div className="hidden md:flex items-center gap-1">
-						{NavItems.filter(
-							(x) => !x.needsFFlag || !isLoaded || fflags.has(x.needsFFlag!)
-						).map((item) => {
-							const isActive = currentPath === item.href;
-							return (
-								<Link
-									key={item.name}
-									href={item.href}
-									className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${
-										isActive
-											? 'text-foreground bg-accent'
-											: 'text-muted-foreground hover:text-foreground'
-									}`}
-								>
-									{item.name}
-								</Link>
-							);
-						})}
+						{NavItems.filter((x) => !x.needsFFlag || !isLoaded || fflags.has(x.needsFFlag!)).map(
+							(item) => {
+								const isActive = currentPath === item.href;
+								return (
+									<Link
+										key={item.name}
+										href={item.href}
+										className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${
+											isActive
+												? 'text-foreground bg-accent'
+												: 'text-muted-foreground hover:text-foreground'
+										}`}
+									>
+										{item.name}
+									</Link>
+								);
+							}
+						)}
 					</div>
 
 					{/* Right Actions */}
@@ -171,11 +159,7 @@ const NavBar: React.FC = () => {
 									onClick={() => setIsProfileOpen(!isProfileOpen)}
 									className="flex items-center gap-2 px-3 py-2 rounded-full hover:bg-accent transition-colors"
 								>
-									<img
-										src={getAvatarUrl(userData)}
-										alt=""
-										className="h-7 w-7 rounded-full"
-									/>
+									<img src={getAvatarUrl(userData)} alt="" className="h-7 w-7 rounded-full" />
 									<span className="text-sm font-medium text-foreground max-w-[100px] truncate">
 										{userData.username}
 									</span>
@@ -240,11 +224,7 @@ const NavBar: React.FC = () => {
 							className="md:hidden p-2 rounded-lg hover:bg-accent transition-colors"
 							aria-label="Toggle menu"
 						>
-							{isMobileMenuOpen ? (
-								<X className="w-5 h-5" />
-							) : (
-								<Menu className="w-5 h-5" />
-							)}
+							{isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
 						</button>
 					</div>
 				</nav>
@@ -260,32 +240,28 @@ const NavBar: React.FC = () => {
 						className="md:hidden bg-background border-t border-border overflow-hidden"
 					>
 						<div className="px-6 py-4 space-y-1">
-							{NavItems.filter(
-								(x) => !x.needsFFlag || !isLoaded || fflags.has(x.needsFFlag!)
-							).map((item) => (
-								<Link
-									key={item.name}
-									href={item.href}
-									onClick={() => setIsMobileMenuOpen(false)}
-									className={`block px-4 py-3 rounded-xl text-base font-medium transition-colors ${
-										currentPath === item.href
-											? 'bg-accent text-foreground'
-											: 'text-muted-foreground hover:bg-accent hover:text-foreground'
-									}`}
-								>
-									{item.name}
-								</Link>
-							))}
+							{NavItems.filter((x) => !x.needsFFlag || !isLoaded || fflags.has(x.needsFFlag!)).map(
+								(item) => (
+									<Link
+										key={item.name}
+										href={item.href}
+										onClick={() => setIsMobileMenuOpen(false)}
+										className={`block px-4 py-3 rounded-xl text-base font-medium transition-colors ${
+											currentPath === item.href
+												? 'bg-accent text-foreground'
+												: 'text-muted-foreground hover:bg-accent hover:text-foreground'
+										}`}
+									>
+										{item.name}
+									</Link>
+								)
+							)}
 
 							<div className="h-px bg-border my-4" />
 
 							<div className="flex items-center justify-between px-4 py-2">
 								<span className="text-sm text-muted-foreground">Theme</span>
-								<ThemeSelector
-									isOpen={isThemeOpen}
-									onOpenChange={setIsThemeOpen}
-									variant="sheet"
-								/>
+								<ThemeSelector isOpen={isThemeOpen} onOpenChange={setIsThemeOpen} variant="sheet" />
 							</div>
 
 							<div className="h-px bg-border my-4" />
@@ -293,11 +269,7 @@ const NavBar: React.FC = () => {
 							{userData ? (
 								<>
 									<div className="flex items-center gap-3 px-4 py-3">
-										<img
-											src={getAvatarUrl(userData)}
-											alt=""
-											className="h-10 w-10 rounded-full"
-										/>
+										<img src={getAvatarUrl(userData)} alt="" className="h-10 w-10 rounded-full" />
 										<div>
 											<p className="font-medium text-foreground">{userData.username}</p>
 											<p className="text-sm text-muted-foreground">Logged in</p>

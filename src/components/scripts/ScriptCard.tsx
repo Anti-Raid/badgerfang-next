@@ -47,9 +47,7 @@ export const CommonCard = ({ template }: CommonCardProps) => {
 						</div>
 					</div>
 				</div>
-				<p className="text-sm text-muted-foreground line-clamp-2">
-					{template.description}
-				</p>
+				<p className="text-sm text-muted-foreground line-clamp-2">{template.description}</p>
 				{template.tags && template.tags.length > 0 && (
 					<div className="flex flex-wrap gap-1.5 mt-3">
 						{template.tags.slice(0, 3).map((tag: string, index: number) => (

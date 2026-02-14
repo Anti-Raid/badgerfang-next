@@ -113,7 +113,11 @@ const ErrorPage = ({ error, reset }: ErrorPageProps) => {
 	const description = error.message || 'Something went wrong on our end.';
 
 	return (
-		<div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-background text-foreground p-4" role="alert" aria-live="assertive">
+		<div
+			className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-background text-foreground p-4"
+			role="alert"
+			aria-live="assertive"
+		>
 			<ParticlesBackground />
 
 			<div className="relative z-10 max-w-3xl w-full">
@@ -169,12 +173,24 @@ const ErrorPage = ({ error, reset }: ErrorPageProps) => {
 						</div>
 					</div>
 
-					<div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-primary/20 opacity-50 rounded-full blur-3xl" aria-hidden="true"></div>
+					<div
+						className="absolute inset-0 bg-gradient-to-r from-primary/10 to-primary/20 opacity-50 rounded-full blur-3xl"
+						aria-hidden="true"
+					></div>
 				</div>
 
-				<div className="hidden md:block absolute -top-20 -left-20 w-40 h-40 bg-primary/5 rounded-full blur-xl" aria-hidden="true"></div>
-				<div className="hidden md:block absolute -bottom-32 -right-32 w-64 h-64 bg-primary/10 rounded-full blur-xl" aria-hidden="true"></div>
-				<div className="hidden md:block absolute top-1/4 right-10 w-20 h-20 bg-primary/20 rounded-full blur-lg" aria-hidden="true"></div>
+				<div
+					className="hidden md:block absolute -top-20 -left-20 w-40 h-40 bg-primary/5 rounded-full blur-xl"
+					aria-hidden="true"
+				></div>
+				<div
+					className="hidden md:block absolute -bottom-32 -right-32 w-64 h-64 bg-primary/10 rounded-full blur-xl"
+					aria-hidden="true"
+				></div>
+				<div
+					className="hidden md:block absolute top-1/4 right-10 w-20 h-20 bg-primary/20 rounded-full blur-lg"
+					aria-hidden="true"
+				></div>
 			</div>
 
 			<div className="absolute bottom-8 text-center text-sm text-muted-foreground">

@@ -41,11 +41,13 @@ function GuildContent() {
 export default function Guild() {
 	return (
 		<div className="min-h-screen pt-16 bg-background">
-			<Suspense fallback={
-				<div className="min-h-screen flex items-center justify-center">
-					<p className="text-muted-foreground text-sm">Loading...</p>
-				</div>
-			}>
+			<Suspense
+				fallback={
+					<div className="min-h-screen flex items-center justify-center">
+						<p className="text-muted-foreground text-sm">Loading...</p>
+					</div>
+				}
+			>
 				<ProtectedRoute>
 					<GuildContent />
 				</ProtectedRoute>

@@ -245,9 +245,7 @@ export default function BlogLayout() {
 							Subscribe
 						</button>
 					</div>
-					<p className="text-xs text-muted-foreground mt-4">
-						No spam. Unsubscribe anytime.
-					</p>
+					<p className="text-xs text-muted-foreground mt-4">No spam. Unsubscribe anytime.</p>
 				</motion.div>
 			</section>
 		</div>

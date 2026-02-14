@@ -64,7 +64,10 @@ const Loading: React.FC<LoadingProps> = ({ onClose }) => {
 			{/* Background gradient orbs */}
 			<div className="absolute inset-0 overflow-hidden" aria-hidden="true">
 				<div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[120px] animate-pulse-glow" />
-				<div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-extra/15 rounded-full blur-[100px] animate-pulse-glow" style={{ animationDelay: '1s' }} />
+				<div
+					className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-extra/15 rounded-full blur-[100px] animate-pulse-glow"
+					style={{ animationDelay: '1s' }}
+				/>
 			</div>
 
 			{/* Main content */}
@@ -77,11 +80,7 @@ const Loading: React.FC<LoadingProps> = ({ onClose }) => {
 					className="relative"
 				>
 					<div className="absolute inset-0 bg-primary/30 blur-2xl rounded-full animate-pulse" />
-					<img
-						src="/logo.webp"
-						alt="AntiRaid"
-						className="w-20 h-20 relative z-10 rounded-full"
-					/>
+					<img src="/logo.webp" alt="AntiRaid" className="w-20 h-20 relative z-10 rounded-full" />
 				</motion.div>
 
 				{/* Animated greeting */}
