@@ -22,7 +22,7 @@ export const metadata: Metadata = generateDeveloperDashboardMetadata({
  */
 export default function Settings() {
 	return (
-		<div className="min-h-screen pt-16">
+		<div className="min-h-screen pt-16 bg-background">
 			<ProtectedRoute>
 				<Dashboard />
 			</ProtectedRoute>

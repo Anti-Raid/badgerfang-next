@@ -146,11 +146,11 @@ const FlowExpandedModal: React.FC<FlowExpandedProps> = ({ nodeProps, children, t
 		hidden: { opacity: 0 },
 		visible: {
 			opacity: 1,
-			transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] }
+			transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] as const }
 		},
 		exit: {
 			opacity: 0,
-			transition: { duration: 0.2, ease: [0.4, 0, 0.2, 1] }
+			transition: { duration: 0.2, ease: [0.4, 0, 0.2, 1] as const }
 		}
 	};
 
@@ -180,7 +180,7 @@ const FlowExpandedModal: React.FC<FlowExpandedProps> = ({ nodeProps, children, t
 			rotateX: 15,
 			transition: {
 				duration: 0.25,
-				ease: [0.4, 0, 0.2, 1]
+				ease: [0.4, 0, 0.2, 1] as const
 			}
 		}
 	};
@@ -250,7 +250,7 @@ const FlowExpandedModal: React.FC<FlowExpandedProps> = ({ nodeProps, children, t
 								<div className="flex items-center justify-between">
 									<h2
 										id="modal-title"
-										className="text-2xl font-bold font-cabin bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent"
+										className="text-2xl font-semibold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent"
 									>
 										{title || `${nodeProps.data.type} Configuration`}
 									</h2>

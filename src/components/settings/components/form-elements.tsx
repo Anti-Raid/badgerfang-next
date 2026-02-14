@@ -28,10 +28,10 @@ export const BaseLabelAndDescription: React.FC<BaseLabelAndDescriptionProps> = (
 	return (
 		<div className={`${marginClass} ${className}`}>
 			{label && (
-				<div className="flex items-center gap-2 mb-1.5 transition-colors">
+				<div className="flex items-center gap-2 mb-1.5">
 					<label
 						htmlFor={id}
-						className={`text-sm font-bold tracking-tight transition-colors ${focused ? 'text-primary' : 'text-foreground'}`}
+						className={`text-sm font-medium transition-colors ${focused ? 'text-foreground' : 'text-foreground'}`}
 						id={id ? `${id}-label` : undefined}
 					>
 						{label}
@@ -41,7 +41,7 @@ export const BaseLabelAndDescription: React.FC<BaseLabelAndDescriptionProps> = (
 			)}
 			{description && (
 				<p
-					className="text-xs text-muted-foreground leading-relaxed"
+					className="text-xs text-muted-foreground"
 					id={id ? `${id}-desc` : undefined}
 				>
 					{description}
@@ -106,7 +106,7 @@ export const InputField: React.FC<InputFieldProps> = ({
 			<div className="relative">
 				{IconComponent && (
 					<div
-						className={`absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10 transition-colors duration-200 ${isFocused ? 'text-primary' : 'text-muted-foreground/50'}`}
+						className={`absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10 transition-colors ${isFocused ? 'text-foreground' : 'text-muted-foreground'}`}
 					>
 						<IconComponent size={18} />
 					</div>
@@ -128,11 +128,11 @@ export const InputField: React.FC<InputFieldProps> = ({
 					<textarea
 						id={inputId}
 						className={`
-							w-full px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200
-							bg-background border border-border/50 placeholder:text-muted-foreground/40
-							focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-background
+							w-full px-4 py-3 rounded-xl text-sm transition-colors
+							bg-background border border-border placeholder:text-muted-foreground
+							focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary
 							disabled:opacity-50 disabled:cursor-not-allowed min-h-[120px] resize-y
-							${error ? 'border-destructive/50 ring-destructive/5' : ''}
+							${error ? 'border-destructive' : ''}
 							${IconComponent ? 'pl-11' : ''}
 						`}
 						placeholder={placeholder}
@@ -149,11 +149,11 @@ export const InputField: React.FC<InputFieldProps> = ({
 							id={inputId}
 							type={inputType}
 							className={`
-								w-full px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200
-								bg-background border border-border/50 placeholder:text-muted-foreground/40
-								focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-background
+								w-full px-4 py-3 rounded-xl text-sm transition-colors
+								bg-background border border-border placeholder:text-muted-foreground
+								focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary
 								disabled:opacity-50 disabled:cursor-not-allowed
-								${error ? 'border-destructive/50 ring-destructive/5' : ''}
+								${error ? 'border-destructive' : ''}
 								${isPassword ? 'pr-12' : ''}
 								${IconComponent ? 'pl-11' : ''}
 							`}
@@ -168,7 +168,7 @@ export const InputField: React.FC<InputFieldProps> = ({
 						{isPassword && (
 							<button
 								type="button"
-								className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg text-muted-foreground/50 hover:text-primary hover:bg-primary/5 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+								className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
 								onClick={togglePasswordVisibility}
 								aria-label={showPassword ? 'Hide password' : 'Show password'}
 							>
@@ -183,7 +183,7 @@ export const InputField: React.FC<InputFieldProps> = ({
 					<motion.div
 						initial={{ opacity: 0, y: -4 }}
 						animate={{ opacity: 1, y: 0 }}
-						className="flex items-center gap-2 mt-2 text-xs font-bold text-destructive"
+						className="flex items-center gap-2 mt-2 text-xs text-destructive"
 					>
 						<span className="w-1 h-1 rounded-full bg-destructive" />
 						{error}
@@ -217,7 +217,7 @@ export const RadioOption: React.FC<RadioOptionProps> = ({
 				<input
 					type="radio"
 					name={name}
-					className="sr-only focus-visible:not-sr-only focus-visible:absolute focus-visible:opacity-0"
+					className="sr-only"
 					disabled={disabled}
 					checked={checked}
 					onChange={() => {
@@ -228,13 +228,12 @@ export const RadioOption: React.FC<RadioOptionProps> = ({
 					aria-label={label}
 				/>
 				<div
-					className={`w-5 h-5 rounded-full border-2 transition-all duration-200 flex items-center justify-center
+					className={`w-5 h-5 rounded-full border-2 transition-colors flex items-center justify-center
 					${
 						checked
-							? 'border-primary bg-primary/10'
+							? 'border-primary bg-primary/5'
 							: 'border-border bg-background group-hover/radio:border-primary/30'
-					}
-					group-focus-within/radio:ring-4 group-focus-within/radio:ring-primary/10 group-focus-within/radio:border-primary/50`}
+					}`}
 				>
 					<AnimatePresence>
 						{checked && (
@@ -248,7 +247,7 @@ export const RadioOption: React.FC<RadioOptionProps> = ({
 					</AnimatePresence>
 				</div>
 				<span
-					className={`ml-3 text-sm font-bold transition-colors ${checked ? 'text-foreground' : 'text-muted-foreground'} group-focus-within/radio:text-primary`}
+					className={`ml-3 text-sm transition-colors ${checked ? 'text-foreground' : 'text-muted-foreground'}`}
 				>
 					{label}
 				</span>
@@ -327,12 +326,12 @@ export const Toggle: React.FC<ToggleProps> = ({
 			<div className="flex items-center justify-between gap-4 p-1">
 				<div className="flex-1">
 					<span
-						className={`block font-bold text-sm transition-colors ${checked ? 'text-foreground' : 'text-muted-foreground'}`}
+						className={`block text-sm font-medium transition-colors ${checked ? 'text-foreground' : 'text-muted-foreground'}`}
 					>
 						{label}
 					</span>
 					{description && (
-						<p id={descriptionId} className="text-xs text-muted-foreground/60 mt-0.5">
+						<p id={descriptionId} className="text-xs text-muted-foreground mt-0.5">
 							{description}
 						</p>
 					)}
@@ -342,8 +341,8 @@ export const Toggle: React.FC<ToggleProps> = ({
 					role="switch"
 					aria-checked={checked}
 					disabled={disabled}
-					className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
-						checked ? 'bg-primary' : 'bg-muted'
+					className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20 ${
+						checked ? 'bg-primary' : 'bg-secondary'
 					} ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
 					onClick={() => {
 						if (disabled) return;

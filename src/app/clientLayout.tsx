@@ -11,14 +11,11 @@ import { FFlagProvider } from '@/components/ui/FFlagProvider';
 import Snowfall from '@/components/effects/Snowfall';
 
 /**
- * Renders a client-side layout for protected pages, showing a loading spinner on the home route before displaying the main content.
- *
- * The layout includes theming, document head management, data fetching configuration, toast notifications, and page transition animations, along with a header and footer.
+ * Renders a client-side layout for protected pages with accessibility features.
+ * Includes skip link, semantic structure, and smooth loading transitions.
  *
  * @param children - The content to display within the main area of the layout.
  * @returns The composed layout as a JSX element.
- *
- * @remark The loading spinner appears for 2 seconds only when the current route is the home page.
  */
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
 	const [isLoading, setIsLoading] = useState(false);
@@ -38,14 +35,24 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 							<Loading onClose={() => setIsLoading(false)} />
 						) : (
 							<>
-								<Snowfall />
+								{/* Skip link for keyboard navigation - WCAG 2.1 AA */}
+								<a
+									href="#main-content"
+									className="skip-link"
+								>
+									Skip to main content
+								</a>
 								<Header />
-								<article className="min-h-screen flex-col justify-between overflow-x-hidden">
-									<main className="mt-9 p-1 w-full md:max-w-7xl mx-auto h-full min-h-screen">
+								<div className="min-h-screen flex flex-col overflow-x-hidden">
+									<main
+										id="main-content"
+										className="flex-1 mt-20 md:mt-24 px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto"
+										role="main"
+									>
 										{children}
 									</main>
 									<Footer />
-								</article>
+								</div>
 							</>
 						)}
 					</ToastProvider>

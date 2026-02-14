@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, type JSX } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Milestone, Zap, Users, Code, ChevronDown } from 'lucide-react';
 import { FaBullhorn } from 'react-icons/fa';
@@ -116,7 +116,7 @@ export const HistoryTimeline = () => {
 					>
 						<div className="absolute -top-10 left-1/2 transform -translate-x-1/2 w-40 h-1 bg-gradient-to-r from-transparent via-primary to-transparent"></div>
 
-						<h2 className="text-4xl md:text-5xl font-monster font-bold mb-3 glitch-text relative">
+						<h2 className="text-4xl md:text-5xl font-bold mb-3 glitch-text relative">
 							<span className="relative z-10">Our Journey</span>
 							<span className="absolute inset-0 text-primary/20 translate-x-[2px] translate-y-[2px] z-0">
 								Our Journey
@@ -195,7 +195,7 @@ const TimelineEvent = ({ event, index, isLoaded }: TimelineEventProps) => {
 						<span className="absolute bottom-0 left-0 h-1 w-full bg-primary"></span>
 					</div>
 
-					<h3 className="text-xl md:text-2xl font-monster font-bold mb-2 relative inline-block group">
+					<h3 className="text-xl md:text-2xl font-semibold mb-2 relative inline-block group">
 						{event.title}
 						<span className="absolute -bottom-1 left-0 w-0 group-hover:w-full h-[2px] bg-primary transition-all duration-300"></span>
 					</h3>

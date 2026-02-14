@@ -1,126 +1,153 @@
 'use client';
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { LucideIcon } from 'lucide-react';
 import { IconType as ReactIconType } from 'react-icons';
+import { motion, HTMLMotionProps } from 'framer-motion';
 
-// Extend ButtonProps for accessibility and native button support
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-	Title: string;
+// ============================================
+// BUTTON VARIANTS & SIZE CONFIGURATION
+// ============================================
+
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive' | 'outline';
+type ButtonSize = 'sm' | 'md' | 'lg' | 'icon';
+
+const variantStyles: Record<ButtonVariant, string> = {
+	primary:
+		'bg-primary text-primary-foreground shadow-lg hover:shadow-xl hover:shadow-primary/20 border border-primary/20',
+	secondary:
+		'bg-secondary text-secondary-foreground border border-border hover:bg-accent hover:border-primary/30',
+	ghost: 'bg-transparent text-foreground hover:bg-accent',
+	destructive:
+		'bg-destructive text-destructive-foreground shadow-lg hover:shadow-xl hover:shadow-destructive/20',
+	outline: 'bg-transparent text-foreground border border-border hover:bg-accent hover:border-primary/30'
+};
+
+const sizeStyles: Record<ButtonSize, string> = {
+	sm: 'h-8 px-4 text-sm gap-1.5',
+	md: 'h-10 px-6 text-sm gap-2',
+	lg: 'h-12 px-8 text-base gap-2',
+	icon: 'h-10 w-10 p-0'
+};
+
+const iconSizeMap: Record<ButtonSize, number> = {
+	sm: 14,
+	md: 16,
+	lg: 18,
+	icon: 20
+};
+
+// ============================================
+// BUTTON COMPONENT
+// ============================================
+
+export interface ButtonProps
+	extends Omit<HTMLMotionProps<'button'>, 'children' | 'title'> {
+	children?: React.ReactNode;
+	Title?: string; // Legacy support
 	onClick?: () => void;
 	icon?: ReactIconType | LucideIcon;
-	size?: 'default' | 'inline' | 'small' | 'smallInline';
-	className?: string;
+	iconRight?: ReactIconType | LucideIcon;
+	variant?: ButtonVariant;
+	size?: ButtonSize | 'default' | 'inline' | 'small' | 'smallInline'; // Legacy size support
+	loading?: boolean;
+	fullWidth?: boolean;
 }
 
-const baseClass =
-	'px-6 py-3 w-fit min-w-[140px] rounded-full font-bold text-sm transition-all duration-300 inline-flex justify-center items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-white shadow-lg overflow-hidden relative group';
+// Map legacy sizes to new sizes
+const legacySizeMap: Record<string, ButtonSize> = {
+	default: 'md',
+	inline: 'sm',
+	small: 'sm',
+	smallInline: 'sm'
+};
 
-export const Primary: React.FC<ButtonProps> = ({
-	Title,
-	onClick,
-	icon: Icon,
-	disabled,
-	'aria-label': ariaLabel,
-	type = 'button',
-	className = '',
-	...rest
-}) => {
-	if (process.env.NODE_ENV === 'development' && (!Title || Title.trim() === '')) {
-		console.warn(
-			'Button component: Title prop is missing or empty. This is required for accessibility.'
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+	(
+		{
+			children,
+			Title,
+			onClick,
+			icon: Icon,
+			iconRight: IconRight,
+			variant = 'primary',
+			size = 'md',
+			loading = false,
+			fullWidth = false,
+			disabled,
+			className = '',
+			...rest
+		},
+		ref
+	) => {
+		// Map legacy sizes
+		const mappedSize: ButtonSize = legacySizeMap[size] || (size as ButtonSize);
+		const iconSize = iconSizeMap[mappedSize];
+		const content = children || Title;
+
+		// Dev warning for accessibility
+		if (process.env.NODE_ENV === 'development' && !content && mappedSize !== 'icon') {
+			console.warn('Button: Missing content or Title prop for accessibility.');
+		}
+
+		const baseStyles =
+			'inline-flex items-center justify-center font-semibold rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50';
+
+		return (
+			<motion.button
+				ref={ref}
+				type="button"
+				onClick={onClick}
+				disabled={disabled || loading}
+				className={`${baseStyles} ${variantStyles[variant]} ${sizeStyles[mappedSize]} ${fullWidth ? 'w-full' : ''} ${className}`}
+				whileHover={{ scale: disabled || loading ? 1 : 1.02, y: disabled || loading ? 0 : -1 }}
+				whileTap={{ scale: disabled || loading ? 1 : 0.98 }}
+				transition={{ duration: 0.15, ease: 'easeOut' }}
+				aria-label={typeof content === 'string' ? content : undefined}
+				{...rest}
+			>
+				{loading ? (
+					<motion.span
+						className="h-4 w-4 border-2 border-current border-t-transparent rounded-full"
+						animate={{ rotate: 360 }}
+						transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+					/>
+				) : (
+					<>
+						{Icon && <Icon size={iconSize} className="shrink-0" />}
+						{content && <span>{content}</span>}
+						{IconRight && <IconRight size={iconSize} className="shrink-0" />}
+					</>
+				)}
+			</motion.button>
 		);
 	}
-	return (
-		<button
-			className={`bg-primary text-primary-foreground hover:shadow-primary/30 border border-primary/20 ${baseClass} ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'} ${className}`}
-			type={type}
-			onClick={onClick}
-			disabled={disabled}
-			aria-label={ariaLabel || Title}
-			{...rest}
-		>
-			<div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
-			{Icon && <Icon className="text-lg relative z-10" />}
-			<span className="relative z-10">{Title}</span>
-		</button>
-	);
-};
+);
 
-export const Secondary: React.FC<ButtonProps> = ({
-	Title,
-	onClick,
-	icon: Icon,
-	disabled,
-	'aria-label': ariaLabel,
-	type = 'button',
-	className = '',
-	...rest
-}) => {
-	if (process.env.NODE_ENV === 'development' && (!Title || Title.trim() === '')) {
-		console.warn(
-			'Button component: Title prop is missing or empty. This is required for accessibility.'
-		);
-	}
-	return (
-		<button
-			className={`bg-white/5 text-foreground hover:bg-white/10 border border-white/10 hover:border-white/20 shadow-xl backdrop-blur-md ${baseClass} ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'} ${className}`}
-			type={type}
-			onClick={onClick}
-			disabled={disabled}
-			aria-label={ariaLabel || Title}
-			{...rest}
-		>
-			{Icon && <Icon className="text-lg" />} {Title}
-		</button>
-	);
-};
+Button.displayName = 'Button';
 
-const baseGhostClass =
-	'bg-transparent rounded-full text-foreground font-semibold hover:bg-white/5 transition-all flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary';
+// ============================================
+// LEGACY EXPORTS FOR BACKWARD COMPATIBILITY
+// ============================================
 
-const sizeClasses: Record<string, string> = {
-	default: 'px-4 py-2 text-[16px]',
-	inline: 'px-4 py-2 text-[12px] gap-1',
-	small: 'px-0 py-1 text-[12px] gap-1',
-	smallInline: 'px-0 py-1 text-[12px] gap-1'
-};
+export const Primary: React.FC<ButtonProps> = (props) => (
+	<Button variant="primary" {...props} />
+);
 
-const iconSizes: Record<string, string> = {
-	default: 'text-[18px]',
-	inline: 'text-[18px]',
-	small: 'text-[14px]',
-	smallInline: 'text-[14px]'
-};
+export const Secondary: React.FC<ButtonProps> = (props) => (
+	<Button variant="secondary" {...props} />
+);
 
-export const Ghost: React.FC<ButtonProps> = ({
-	Title,
-	onClick,
-	icon: Icon,
-	disabled,
-	'aria-label': ariaLabel,
-	type = 'button',
-	size = 'default',
-	className = '',
-	...rest
-}) => {
-	if (process.env.NODE_ENV === 'development' && (!Title || Title.trim() === '')) {
-		console.warn(
-			'Button component: Title prop is missing or empty. This is required for accessibility.'
-		);
-	}
+export const Ghost: React.FC<ButtonProps> = (props) => (
+	<Button variant="ghost" {...props} />
+);
 
-	return (
-		<button
-			className={`${baseGhostClass} ${sizeClasses[size]} ${
-				disabled ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'
-			} ${className}`}
-			type={type}
-			onClick={onClick}
-			disabled={disabled}
-			aria-label={ariaLabel || Title}
-			{...rest}
-		>
-			{Icon && <Icon className={iconSizes[size]} />} {Title}
-		</button>
-	);
-};
+export const Destructive: React.FC<ButtonProps> = (props) => (
+	<Button variant="destructive" {...props} />
+);
+
+export const Outline: React.FC<ButtonProps> = (props) => (
+	<Button variant="outline" {...props} />
+);
+
+// Default export
+export default Button;

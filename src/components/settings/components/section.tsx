@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Plus } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 
 interface SectionProps {
 	title: string;
@@ -25,29 +25,29 @@ export const Section: React.FC<SectionProps> = ({
 	return (
 		<motion.div
 			className="group/section"
-			initial={{ opacity: 0, y: 10 }}
+			initial={{ opacity: 0, y: 8 }}
 			whileInView={{ opacity: 1, y: 0 }}
 			viewport={{ once: true }}
-			transition={{ duration: 0.4 }}
+			transition={{ duration: 0.4, ease: [0.25, 0.4, 0.25, 1] as const }}
 		>
-			<div className="bg-card border border-border/50 rounded-2xl overflow-hidden transition-all duration-300 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5">
+			<div className="bg-card border border-border rounded-xl overflow-hidden transition-colors hover:border-primary/20">
 				{/* Header Section */}
 				<button
-					className="w-full text-left p-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white focus:bg-accent/5 transition-colors group/header"
+					className="w-full text-left p-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary transition-colors"
 					onClick={() => setIsOpen(!isOpen)}
 					aria-expanded={isOpen}
 					aria-controls={contentId}
 				>
-					<div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+					<div className="flex items-center justify-between gap-4">
 						<div className="flex items-center gap-4">
-							<div className="w-12 h-12 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-center text-primary transition-colors duration-300 group-hover/section:bg-primary/10 group-header:border-primary/30">
+							<div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center text-muted-foreground">
 								{React.isValidElement(icon) &&
 									React.cloneElement(icon as React.ReactElement<{ size?: number }>, {
-										size: 20
+										size: 18
 									})}
 							</div>
 							<div>
-								<h2 className="text-lg font-bold tracking-tight text-foreground transition-colors group-header:text-primary">
+								<h2 className="text-base font-medium text-foreground">
 									{title}
 								</h2>
 								{description && (
@@ -57,15 +57,13 @@ export const Section: React.FC<SectionProps> = ({
 						</div>
 
 						<div
-							className={`flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300
-								${
-									isOpen
-										? 'bg-primary text-primary-foreground'
-										: 'bg-accent/50 text-foreground/70 group-hover/header:bg-accent group-hover/header:text-foreground'
-								}
-							`}
+							className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+								isOpen
+									? 'bg-foreground text-background'
+									: 'bg-secondary text-muted-foreground hover:text-foreground'
+							}`}
 						>
-							<motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.3 }}>
+							<motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
 								<ChevronDown size={16} />
 							</motion.div>
 							<span>{isOpen ? 'Close' : 'Configure'}</span>
@@ -79,12 +77,12 @@ export const Section: React.FC<SectionProps> = ({
 							initial={{ height: 0, opacity: 0 }}
 							animate={{ height: 'auto', opacity: 1 }}
 							exit={{ height: 0, opacity: 0 }}
-							transition={{ duration: 0.3 }}
+							transition={{ duration: 0.25 }}
 							id={contentId}
 						>
-							<div className="border-t border-border/50 p-6 bg-accent/10">
+							<div className="border-t border-border p-5 bg-secondary/30">
 								<motion.div
-									initial={{ y: 5, opacity: 0 }}
+									initial={{ y: 4, opacity: 0 }}
 									animate={{ y: 0, opacity: 1 }}
 									transition={{ duration: 0.2 }}
 								>

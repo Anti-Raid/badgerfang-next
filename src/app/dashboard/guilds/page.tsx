@@ -21,7 +21,11 @@ function GuildContent() {
 	}, [searchParams]);
 
 	if (!guildId) {
-		return <div>Guild ID is missing.</div>;
+		return (
+			<div className="min-h-screen bg-background flex items-center justify-center">
+				<p className="text-muted-foreground">Guild ID is missing.</p>
+			</div>
+		);
 	}
 
 	return <Settings guildId={guildId} />;
@@ -36,8 +40,12 @@ function GuildContent() {
  */
 export default function Guild() {
 	return (
-		<div className="min-h-screen pt-16">
-			<Suspense fallback={<div>Loading...</div>}>
+		<div className="min-h-screen pt-16 bg-background">
+			<Suspense fallback={
+				<div className="min-h-screen flex items-center justify-center">
+					<p className="text-muted-foreground text-sm">Loading...</p>
+				</div>
+			}>
 				<ProtectedRoute>
 					<GuildContent />
 				</ProtectedRoute>

@@ -1,201 +1,138 @@
 'use client';
 
-import type React from 'react';
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef } from 'react';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
+import { getBotState } from '@/lib/api';
+import useSWR from 'swr';
 import {
 	Search,
-	ChevronDown,
-	Menu,
-	X,
-	Filter,
-	Command,
-	Zap,
-	ArrowRight,
-	LayoutGrid,
-	List,
-	Sparkles,
-	BookOpen,
-	Terminal,
-	Shield,
-	Rocket,
-	Code2,
-	Info,
-	ChevronRight,
-	HelpCircle,
 	Copy,
 	Check,
-	MousePointer2,
-	Globe,
-	Settings as SettingsIcon,
-	MessagesSquare,
-	ShieldAlert,
-	Wrench
+	ChevronDown,
+	Grid3X3,
+	List,
+	Shield,
+	Settings,
+	MessageSquare,
+	Users,
+	Lock,
+	Zap,
+	Bell,
+	Globe
 } from 'lucide-react';
-import {
-	motion,
-	AnimatePresence,
-	useScroll,
-	useTransform,
-	useInView,
-	useSpring,
-	useMotionValue
-} from 'framer-motion';
-import { getBotState } from '@/lib/api';
-import { ApiCreateCommandOption } from '@/types/api/bindings/ApiCreateCommandOption';
-import { TwState } from '@/types/api/bindings/TwState';
-import { ApiCreateCommand } from '@/types/api/bindings/ApiCreateCommand';
 
-const useMousePosition = () => {
-	const mouseX = useMotionValue(0);
-	const mouseY = useMotionValue(0);
-
-	useEffect(() => {
-		const handleMouseMove = (e: MouseEvent) => {
-			mouseX.set(e.clientX);
-			mouseY.set(e.clientY);
-		};
-		window.addEventListener('mousemove', handleMouseMove);
-		return () => window.removeEventListener('mousemove', handleMouseMove);
-	}, [mouseX, mouseY]);
-
-	return { mouseX, mouseY };
+// Animation variants
+const fadeUp = {
+	hidden: { opacity: 0, y: 20 },
+	visible: {
+		opacity: 1,
+		y: 0,
+		transition: { duration: 0.5, ease: [0.25, 0.4, 0.25, 1] as const }
+	}
 };
 
-const CommandBadge = ({
+// Badge component
+const Badge = ({
 	children,
-	variant = 'default',
-	className = ''
+	variant = 'default'
 }: {
 	children: React.ReactNode;
-	variant?: 'default' | 'primary' | 'secondary' | 'required' | 'optional' | 'success' | 'module';
-	className?: string;
+	variant?: 'default' | 'required' | 'optional' | 'primary';
 }) => {
 	const variants = {
-		default: 'bg-white/5 text-foreground/70 border-white/10',
-		primary: 'bg-primary/20 text-primary border-primary/30',
-		secondary: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
-		required: 'bg-red-500/15 text-red-400 border-red-500/20',
-		optional: 'bg-blue-500/15 text-blue-400 border-blue-500/20',
-		success: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20',
-		module: 'bg-white/10 text-foreground border-white/20 font-bold'
+		default: 'bg-muted text-muted-foreground',
+		required: 'bg-red-500/10 text-red-500 border-red-500/20',
+		optional: 'bg-muted text-muted-foreground',
+		primary: 'bg-primary/10 text-primary'
 	};
 
 	return (
 		<span
-			className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border backdrop-blur-md ${variants[variant]} ${className}`}
+			className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border border-transparent ${variants[variant]}`}
 		>
 			{children}
 		</span>
 	);
 };
 
+// Copy button component
 const CopyButton = ({ text }: { text: string }) => {
 	const [copied, setCopied] = useState(false);
-	const onCopy = async () => {
+
+	const handleCopy = async () => {
 		try {
-			if (navigator.clipboard && navigator.clipboard.writeText) {
-				await navigator.clipboard.writeText(text);
-			} else {
-				// Fallback for non-secure contexts or older browsers
-				const textArea = document.createElement('textarea');
-				textArea.value = text;
-				document.body.appendChild(textArea);
-				textArea.select();
-				document.execCommand('copy');
-				document.body.removeChild(textArea);
-			}
+			await navigator.clipboard.writeText(text);
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
-		} catch (err) {
-			console.error('Failed to copy text:', err);
+		} catch {
+			console.error('Failed to copy');
 		}
 	};
 
 	return (
 		<button
-			onClick={(e) => {
-				e.stopPropagation();
-				onCopy();
-			}}
-			className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-primary/20 hover:border-primary/50 transition-all text-muted-foreground hover:text-primary active:scale-90"
+			onClick={handleCopy}
+			className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+			aria-label={copied ? 'Copied' : 'Copy to clipboard'}
 		>
-			{copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+			{copied ? <Check size={14} /> : <Copy size={14} />}
 		</button>
 	);
 };
 
-const ModuleIcon = ({ name, size = 18 }: { name: string; size?: number }) => {
-	const n = name.toLowerCase();
-	if (n.includes('security') || n.includes('defend')) return <Shield size={size} />;
-	if (n.includes('mod') || n.includes('admin')) return <ShieldAlert size={size} />;
-	if (n.includes('util') || n.includes('tool')) return <Wrench size={size} />;
-	if (n.includes('social') || n.includes('chat')) return <MessagesSquare size={size} />;
-	if (n.includes('premium') || n.includes('star')) return <Sparkles size={size} />;
-	if (n.includes('config') || n.includes('setting')) return <SettingsIcon size={size} />;
-	return <Terminal size={size} />;
+// Module icon component
+const ModuleIcon = ({ name, size = 20 }: { name: string; size?: number }) => {
+	const icons: Record<string, React.ReactNode> = {
+		moderation: <Shield size={size} />,
+		settings: <Settings size={size} />,
+		messages: <MessageSquare size={size} />,
+		members: <Users size={size} />,
+		permissions: <Lock size={size} />,
+		automation: <Zap size={size} />,
+		notifications: <Bell size={size} />
+	};
+
+	return <span className="text-primary">{icons[name?.toLowerCase()] || <Globe size={size} />}</span>;
 };
 
+// Main component
 export default function CommandInterface() {
-	const [botState, setBotState] = useState<TwState | null>(null);
+	const { data: botState, isLoading } = useSWR('bot-state', getBotState, {
+		revalidateOnFocus: false,
+		revalidateOnReconnect: false
+	});
+
 	const [selectedModule, setSelectedModule] = useState<string>('all');
 	const [searchQuery, setSearchQuery] = useState('');
-	const [isLoading, setIsLoading] = useState(true);
 	const [activeView, setActiveView] = useState<'grid' | 'list'>('grid');
-	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-	const [isMounted, setIsMounted] = useState(false);
-	const { mouseX, mouseY } = useMousePosition();
 
-	useEffect(() => {
-		setIsMounted(true);
-		const fetchBotState = async () => {
-			try {
-				const data = await getBotState();
-				setBotState(data);
-				setIsLoading(false);
-			} catch (err) {
-				console.error('Error fetching bot state:', err);
-				setIsLoading(false);
-			}
-		};
-		fetchBotState();
-
-		const handleKeyDown = (e: KeyboardEvent) => {
-			if (e.key === 'Escape') {
-				setSearchQuery('');
-			}
-		};
-		window.addEventListener('keydown', handleKeyDown);
-		return () => window.removeEventListener('keydown', handleKeyDown);
-	}, []);
-
-	const containerRef = useRef<HTMLDivElement>(null);
-	const { scrollYProgress } = useScroll();
-	const smoothProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
-
+	// Process commands
 	const allCommands = useMemo(() => {
 		if (!botState) return [];
 		let idCounter = 0;
 		const commands: any[] = [];
-		botState.commands.forEach((cmd: ApiCreateCommand) => {
-			const extract = (options: any[] = []) => {
-				const sub: any[] = [];
-				const args: any[] = [];
-				options.forEach((o) => {
-					if (!o) return;
-					if (o.type === 1 || o.type === 2) sub.push(o);
-					else args.push(o);
-				});
-				return { sub, args };
-			};
 
-			const { sub, args } = extract(cmd.options);
-			commands.push({
-				...cmd,
-				moduleName: cmd.name,
-				id: `cmd-${idCounter++}`,
-				subcommands: sub,
-				arguments: args.map((a) => ({ ...a, required: a.required ?? false }))
+		const extract = (opts: any[] = []) => {
+			const sub: any[] = [];
+			const args: any[] = [];
+			opts.forEach((o) => {
+				if (o.type === 1 || o.type === 2) sub.push(o);
+				else args.push(o);
 			});
+			return { sub, args };
+		};
+
+		botState.commands.forEach((cmd: any) => {
+			const { sub, args } = extract(cmd.options);
+
+			if (sub.length === 0) {
+				commands.push({
+					...cmd,
+					moduleName: cmd.name,
+					id: `cmd-${idCounter++}`,
+					arguments: args.map((a) => ({ ...a, required: a.required ?? false }))
+				});
+			}
 
 			sub.forEach((sc) => {
 				const { sub: sSub, args: sArgs } = extract(sc.options);
@@ -225,196 +162,164 @@ export default function CommandInterface() {
 	const modules = useMemo(() => {
 		if (!botState) return [];
 		return Array.from(
-			new Set(botState.commands.map((c) => c.name).filter((n): n is string => !!n))
+			new Set(botState.commands.map((c: any) => c.name).filter((n: any): n is string => !!n))
 		);
 	}, [botState]);
 
+	// Loading state
 	if (isLoading) {
 		return (
 			<div className="min-h-screen flex items-center justify-center">
-				<div className="relative w-24 h-24">
-					<motion.div
-						animate={{ rotate: 360 }}
-						transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-						className="absolute inset-0 rounded-full border-t-2 border-primary border-r-transparent border-b-transparent border-l-transparent"
-					/>
-					<motion.div
-						animate={{ rotate: -360 }}
-						transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
-						className="absolute inset-2 rounded-full border-b-2 border-accent/50 border-t-transparent border-r-transparent border-l-transparent"
-					/>
-					<div className="absolute inset-0 flex items-center justify-center">
-						<Terminal className="text-primary animate-pulse" size={24} />
-					</div>
+				<div className="flex flex-col items-center gap-4">
+					<div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+					<p className="text-sm text-muted-foreground">Loading commands...</p>
 				</div>
 			</div>
 		);
 	}
 
 	return (
-		<div ref={containerRef} className="min-h-screen text-foreground font-inter">
-			{/* Hero Section */}
-			<section className="relative pt-32 pb-20 px-6 lg:pt-56 lg:pb-32 overflow-hidden z-10">
-				<div className="max-w-7xl mx-auto flex flex-col items-center">
-					<motion.div
-						initial={{ opacity: 0, y: 30 }}
-						animate={{ opacity: 1, y: 0 }}
-						className="relative"
+		<div className="min-h-screen">
+			{/* Hero */}
+			<section className="pt-32 pb-16 px-6">
+				<div className="max-w-4xl mx-auto text-center">
+					<motion.p
+						variants={fadeUp}
+						initial="hidden"
+						animate="visible"
+						className="text-sm font-medium text-primary mb-4"
 					>
-						<h1 className="text-[12vw] lg:text-[10rem] font-black font-monster leading-[0.8] tracking-tighter text-center uppercase">
-							<span className="relative block italic text-transparent bg-clip-text bg-gradient-to-b from-white to-white/20">
-								Command
-							</span>
-							<span className="relative block text-primary drop-shadow-[0_0_50px_rgba(var(--primary),0.5)]">
-								Arsenal
-							</span>
-						</h1>
-						<div className="absolute -top-12 left-1/2 -translate-x-1/2 flex items-center gap-4 text-primary/40">
-							<div className="h-px w-24 bg-gradient-to-r from-transparent to-primary" />
-							<Terminal size={32} strokeWidth={3} />
-							<div className="h-px w-24 bg-gradient-to-l from-transparent to-primary" />
-						</div>
-					</motion.div>
+						Documentation
+					</motion.p>
+					<motion.h1
+						variants={fadeUp}
+						initial="hidden"
+						animate="visible"
+						transition={{ delay: 0.1 }}
+						className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight mb-6"
+					>
+						Commands
+					</motion.h1>
+					<motion.p
+						variants={fadeUp}
+						initial="hidden"
+						animate="visible"
+						transition={{ delay: 0.2 }}
+						className="text-lg text-muted-foreground max-w-2xl mx-auto"
+					>
+						Explore all available commands to configure and manage AntiRaid for your server.
+					</motion.p>
 
-					{/* Digital Search Bar */}
+					{/* Search */}
 					<motion.div
-						initial={{ opacity: 0, scale: 0.95 }}
-						animate={{ opacity: 1, scale: 1 }}
+						variants={fadeUp}
+						initial="hidden"
+						animate="visible"
 						transition={{ delay: 0.3 }}
-						className="w-full max-w-3xl mt-16 group relative"
+						className="mt-10 max-w-xl mx-auto"
 					>
-						<div className="absolute -inset-1 bg-gradient-to-r from-primary/50 via-accent/50 to-primary/50 opacity-20 blur-xl group-focus-within:opacity-100 transition-opacity" />
-						<div className="relative bg-black/60 backdrop-blur-3xl border border-white/10 rounded-[2rem] p-2 flex items-center">
-							<div className="w-14 h-14 rounded-[1.5rem] bg-primary/10 flex items-center justify-center text-primary shrink-0 transition-transform group-focus-within:rotate-12">
-								<Search size={24} />
-							</div>
+						<div className="relative">
+							<Search
+								size={18}
+								className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"
+							/>
 							<input
 								type="text"
-								placeholder="Querying command definitions..."
+								placeholder="Search commands..."
 								value={searchQuery}
 								onChange={(e) => setSearchQuery(e.target.value)}
-								className="flex-1 bg-transparent border-none focus:ring-0 text-xl font-bold px-6 placeholder:text-foreground/20"
+								className="w-full pl-11 pr-4 py-3 bg-muted/50 border border-border rounded-xl text-base placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
 							/>
-							<div className="hidden lg:flex items-center gap-2 px-6 border-l border-white/10 ml-4">
-								<kbd className="px-2 py-1 bg-white/5 rounded-md text-[10px] font-black">ESC</kbd>
-								<span className="text-[10px] font-bold uppercase tracking-widest text-foreground/30 text-nowrap">
-									to clear
-								</span>
-							</div>
 						</div>
 					</motion.div>
 				</div>
 			</section>
 
-			{/* Command Browsing Hub */}
-			<section className="relative max-w-7xl mx-auto px-6 pb-40 z-10 focus:outline-none">
-				<div className="flex flex-col lg:flex-row gap-12">
-					{/* Holographic Nav Drawer */}
-					<aside className="lg:w-80 shrink-0">
-						<div className="sticky top-32 space-y-12">
-							<div>
-								<div className="flex items-center justify-between mb-8 pl-4">
-									<h3 className="text-xs font-black uppercase tracking-[0.3em] text-foreground/30">
-										System Modules
-									</h3>
-									<div className="h-[2px] w-12 bg-primary/50" />
-								</div>
-
-								<div className="space-y-2">
+			{/* Content */}
+			<section className="max-w-6xl mx-auto px-6 pb-24">
+				<div className="flex flex-col lg:flex-row gap-8">
+					{/* Sidebar */}
+					<aside className="lg:w-64 shrink-0">
+						<div className="lg:sticky lg:top-24">
+							<h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4 px-3">
+								Modules
+							</h3>
+							<nav className="space-y-1">
+								<button
+									onClick={() => setSelectedModule('all')}
+									className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+										selectedModule === 'all'
+											? 'bg-primary text-primary-foreground'
+											: 'text-muted-foreground hover:text-foreground hover:bg-muted'
+									}`}
+								>
+									<Globe size={18} />
+									All Commands
+								</button>
+								{modules.map((mod) => (
 									<button
-										onClick={() => setSelectedModule('all')}
-										className={`w-full group relative flex items-center justify-between px-6 py-4 rounded-2xl transition-all ${selectedModule === 'all' ? 'bg-primary text-white shadow-2xl shadow-primary/30' : 'hover:bg-white/5 text-foreground/50'}`}
+										key={mod}
+										onClick={() => setSelectedModule(mod)}
+										className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors capitalize ${
+											selectedModule === mod
+												? 'bg-primary text-primary-foreground'
+												: 'text-muted-foreground hover:text-foreground hover:bg-muted'
+										}`}
 									>
-										<div className="flex items-center gap-4">
-											<Globe
-												size={20}
-												className={
-													selectedModule === 'all'
-														? 'text-white'
-														: 'text-primary group-hover:scale-125 transition-transform'
-												}
-											/>
-											<span className="font-monster font-black text-sm uppercase italic">
-												Global Central
-											</span>
-										</div>
-										<ChevronRight
-											size={16}
-											className={
-												selectedModule === 'all'
-													? 'opacity-100'
-													: 'opacity-0 -translate-x-2 group-hover:opacity-50 group-hover:translate-x-0 transition-all'
-											}
-										/>
+										<ModuleIcon name={mod} size={18} />
+										{mod}
 									</button>
-									{modules.map((mod) => (
-										<button
-											key={mod}
-											onClick={() => setSelectedModule(mod)}
-											className={`w-full group relative flex items-center justify-between px-6 py-4 rounded-2xl transition-all ${selectedModule === mod ? 'bg-primary text-white shadow-2xl shadow-primary/30' : 'hover:bg-white/5 text-foreground/50'}`}
-										>
-											<div className="flex items-center gap-4">
-												<ModuleIcon name={mod} size={20} />
-												<span className="font-monster font-black text-sm uppercase">{mod}</span>
-											</div>
-											<ChevronRight
-												size={16}
-												className={
-													selectedModule === mod
-														? 'opacity-100'
-														: 'opacity-0 -translate-x-2 group-hover:opacity-50 group-hover:translate-x-0 transition-all'
-												}
-											/>
-										</button>
-									))}
-								</div>
-							</div>
+								))}
+							</nav>
 						</div>
 					</aside>
 
-					{/* Command Interface */}
-					<div className="flex-1">
-						{/* View Controls */}
-						<div className="flex flex-col md:flex-row items-end md:items-center justify-between gap-8 mb-16">
-							<div>
-								<div className="flex items-center gap-3 mb-2">
-									<Terminal size={24} className="text-primary" />
-									<h2 className="text-4xl font-black font-monster tracking-tighter uppercase italic">
-										{selectedModule === 'all' ? 'The Registry' : `${selectedModule} Unit`}
-									</h2>
-								</div>
-								<p className="text-sm font-bold text-foreground/40 uppercase tracking-[0.2em]">
-									Showing {filteredCommands.length} commands & sub-commands.
-								</p>
-							</div>
-
-							<div className="flex items-center gap-2 p-1.5 bg-black/40 backdrop-blur-2xl border border-white/10 rounded-2xl">
+					{/* Main content */}
+					<div className="flex-1 min-w-0">
+						{/* Header */}
+						<div className="flex items-center justify-between mb-6">
+							<p className="text-sm text-muted-foreground">
+								{filteredCommands.length} command{filteredCommands.length !== 1 ? 's' : ''}
+							</p>
+							<div className="flex items-center gap-1 p-1 bg-muted rounded-lg">
 								<button
 									onClick={() => setActiveView('grid')}
-									className={`p-3 rounded-xl transition-all ${activeView === 'grid' ? 'bg-primary text-white shadow-lg' : 'text-foreground/30 hover:text-foreground/70'}`}
+									className={`p-2 rounded-md transition-colors ${
+										activeView === 'grid'
+											? 'bg-background text-foreground shadow-sm'
+											: 'text-muted-foreground hover:text-foreground'
+									}`}
+									aria-label="Grid view"
 								>
-									<LayoutGrid size={20} />
+									<Grid3X3 size={16} />
 								</button>
 								<button
 									onClick={() => setActiveView('list')}
-									className={`p-3 rounded-xl transition-all ${activeView === 'list' ? 'bg-primary text-white shadow-lg' : 'text-foreground/30 hover:text-foreground/70'}`}
+									className={`p-2 rounded-md transition-colors ${
+										activeView === 'list'
+											? 'bg-background text-foreground shadow-sm'
+											: 'text-muted-foreground hover:text-foreground'
+									}`}
+									aria-label="List view"
 								>
-									<List size={20} />
+									<List size={16} />
 								</button>
 							</div>
 						</div>
 
-						{/* Dynamic Command */}
+						{/* Commands */}
 						<AnimatePresence mode="popLayout">
 							{filteredCommands.length > 0 ? (
 								<motion.div
 									layout
 									className={
-										activeView === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-8' : 'space-y-4'
+										activeView === 'grid'
+											? 'grid grid-cols-1 md:grid-cols-2 gap-4'
+											: 'space-y-3'
 									}
 								>
 									{filteredCommands.map((command, idx) => (
-										<HolographicCard
+										<CommandCard
 											key={command.id}
 											command={command}
 											view={activeView}
@@ -426,11 +331,12 @@ export default function CommandInterface() {
 								<motion.div
 									initial={{ opacity: 0 }}
 									animate={{ opacity: 1 }}
-									className="flex flex-col items-center justify-center py-40 border-2 border-dashed border-white/5 rounded-[4rem]"
+									className="flex flex-col items-center justify-center py-24 border border-dashed border-border rounded-2xl"
 								>
-									<ShieldAlert size={64} className="text-primary/20 mb-8" />
-									<p className="text-sm text-foreground/40 mt-4 uppercase tracking-[0.1em]">
-										No commands found for your query
+									<Search size={32} className="text-muted-foreground/50 mb-4" />
+									<p className="text-muted-foreground">No commands found</p>
+									<p className="text-sm text-muted-foreground/70 mt-1">
+										Try adjusting your search or filter
 									</p>
 								</motion.div>
 							)}
@@ -442,226 +348,190 @@ export default function CommandInterface() {
 	);
 }
 
-// --- Specific  Card Components ---
-
-const HolographicCard = ({ command, view, index }: any) => {
-	const [isDetailOpen, setIsDetailOpen] = useState(false);
+// Command card component
+const CommandCard = ({
+	command,
+	view,
+	index
+}: {
+	command: any;
+	view: 'grid' | 'list';
+	index: number;
+}) => {
+	const [isOpen, setIsOpen] = useState(false);
 	const cardRef = useRef(null);
-	const isInView = useInView(cardRef, { once: true, margin: '-10%' });
+	const isInView = useInView(cardRef, { once: true, margin: '-50px' });
 
 	return (
 		<motion.div
 			ref={cardRef}
 			layout
-			initial={{ opacity: 0, scale: 0.95, y: 20 }}
-			animate={isInView ? { opacity: 1, scale: 1, y: 0 } : {}}
-			transition={{ duration: 0.4, delay: (index % 6) * 0.05 }}
-			className={`
-				group relative overflow-hidden transition-all duration-500
-				${
-					view === 'grid'
-						? 'bg-gradient-to-br from-white/[0.03] to-transparent backdrop-blur-3xl border border-white/10 rounded-[2.5rem] hover:border-primary/40'
-						: 'bg-white/[0.02] border border-white/5 rounded-2xl hover:border-primary/20'
-				}
-			`}
+			initial={{ opacity: 0, y: 10 }}
+			animate={isInView ? { opacity: 1, y: 0 } : {}}
+			transition={{ duration: 0.3, delay: (index % 8) * 0.03 }}
+			className={`group bg-card border border-border rounded-xl transition-colors hover:border-primary/30 ${
+				view === 'list' ? '' : ''
+			}`}
 		>
-			<div
-				className={`p-8 ${view === 'list' ? 'flex flex-col md:flex-row md:items-center gap-8' : ''}`}
-			>
-				{/* Top  Line */}
-				<div className="absolute top-0 right-12 w-16 h-[2px] bg-primary/20 group-hover:w-24 group-hover:bg-primary/60 transition-all" />
-
-				<div className={view === 'list' ? 'flex-1' : ''}>
-					<div className="flex items-start justify-between mb-6">
-						<div className="flex items-center gap-4">
-							<div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-primary group-hover:bg-primary/20 group-hover:border-primary/50 transition-all shadow-inner">
-								<ModuleIcon name={command.moduleName} size={24} />
+			<div className={`p-5 ${view === 'list' ? 'flex items-start gap-4' : ''}`}>
+				<div className={view === 'list' ? 'flex-1 min-w-0' : ''}>
+					{/* Header */}
+					<div className="flex items-start justify-between gap-3 mb-3">
+						<div className="flex items-center gap-3">
+							<div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+								<ModuleIcon name={command.moduleName} size={18} />
 							</div>
 							<div>
-								<h3 className="text-2xl font-black font-monster tracking-tighter italic uppercase group-hover:text-primary transition-colors">
-									/{command.name}
-								</h3>
+								<h3 className="font-semibold text-foreground">/{command.name}</h3>
 								{command.parentName && (
-									<span className="text-[10px] font-black text-foreground/30 uppercase tracking-[0.2em]">
-										Group: {command.parentName}
-									</span>
+									<p className="text-xs text-muted-foreground">
+										in /{command.parentName}
+									</p>
 								)}
 							</div>
 						</div>
-						<div className="flex gap-2">
-							<CopyButton text={`/${command.name}`} />
-						</div>
+						<CopyButton text={`/${command.name}`} />
 					</div>
 
-					<p className="text-muted-foreground leading-relaxed text-sm mb-8 line-clamp-2 italic">
-						{command.description ||
-							'The documentation for this subroutine has not been synthesized yet.'}
+					{/* Description */}
+					<p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+						{command.description || 'No description available.'}
 					</p>
-				</div>
 
-				<div
-					className={`${view === 'list' ? 'md:w-72 flex flex-col items-end gap-4' : 'flex items-center justify-between border-t border-white/5 pt-8 mt-auto'}`}
-				>
-					<div className="flex flex-wrap gap-2">
+					{/* Badges */}
+					<div className="flex flex-wrap items-center gap-2">
 						{command.arguments?.length > 0 && (
-							<CommandBadge variant="optional">{command.arguments.length} INPUTS</CommandBadge>
+							<Badge variant="optional">
+								{command.arguments.length} argument{command.arguments.length !== 1 ? 's' : ''}
+							</Badge>
 						)}
 						{command.subcommands?.length > 0 && (
-							<CommandBadge variant="primary">{command.subcommands.length} SUBS</CommandBadge>
+							<Badge variant="primary">
+								{command.subcommands.length} subcommand{command.subcommands.length !== 1 ? 's' : ''}
+							</Badge>
 						)}
 					</div>
-
-					<button
-						onClick={() => setIsDetailOpen(!isDetailOpen)}
-						className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.3em] text-primary/60 hover:text-primary transition-all group/expand"
-					>
-						{isDetailOpen ? 'Collapse BIOS' : 'Analyze Logic'}
-						<div
-							className={`w-6 h-6 rounded-full border border-primary/20 flex items-center justify-center transition-transform duration-500 ${isDetailOpen ? 'rotate-180 bg-primary/10 border-primary' : 'group-hover:bg-primary/10'}`}
-						>
-							<ChevronDown size={14} className="text-primary" />
-						</div>
-					</button>
 				</div>
 
-				<AnimatePresence>
-					{isDetailOpen && (
-						<motion.div
-							initial={{ height: 0, opacity: 0 }}
-							animate={{ height: 'auto', opacity: 1 }}
-							exit={{ height: 0, opacity: 0 }}
-							transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-							className="overflow-hidden"
-						>
-							<div className="pt-12 space-y-12 pb-4">
-								{/* Arg Section */}
-								{command.arguments?.length > 0 && (
-									<div>
-										<div className="flex items-center gap-3 mb-6">
-											<div className="h-[1px] flex-1 bg-white/5" />
-											<h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground/30 italic">
-												Parameter Matrix
-											</h4>
-											<div className="h-[1px] flex-1 bg-white/5" />
-										</div>
-										<div className="grid grid-cols-1 gap-4">
-											{command.arguments.map((arg: any) => (
-												<div
-													key={arg.name}
-													className="group/arg p-6 rounded-3xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] hover:border-white/10 transition-all"
-												>
-													<div className="flex items-center justify-between mb-3">
-														<div className="flex items-center gap-3">
-															<code className="text-sm font-black text-primary font-mono">
-																{arg.name}
-															</code>
-															{arg.required ? (
-																<CommandBadge variant="required" className="!px-1.5 !py-0">
-																	REQ
-																</CommandBadge>
-															) : (
-																<CommandBadge
-																	variant="optional"
-																	className="!px-1.5 !py-0 text-[8px]"
-																>
-																	OPT
-																</CommandBadge>
-															)}
-														</div>
-														<CopyButton text={arg.name} />
+				{/* Expand button */}
+				{(command.arguments?.length > 0 || command.subcommands?.length > 0) && (
+					<button
+						onClick={() => setIsOpen(!isOpen)}
+						className="mt-4 flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+					>
+						<span>{isOpen ? 'Hide details' : 'Show details'}</span>
+						<ChevronDown
+							size={16}
+							className={`transition-transform ${isOpen ? 'rotate-180' : ''}`}
+						/>
+					</button>
+				)}
+			</div>
+
+			{/* Expanded content */}
+			<AnimatePresence>
+				{isOpen && (
+					<motion.div
+						initial={{ height: 0, opacity: 0 }}
+						animate={{ height: 'auto', opacity: 1 }}
+						exit={{ height: 0, opacity: 0 }}
+						transition={{ duration: 0.3, ease: [0.25, 0.4, 0.25, 1] as const }}
+						className="overflow-hidden"
+					>
+						<div className="px-5 pb-5 pt-2 space-y-6 border-t border-border">
+							{/* Arguments */}
+							{command.arguments?.length > 0 && (
+								<div>
+									<h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+										Arguments
+									</h4>
+									<div className="space-y-2">
+										{command.arguments.map((arg: any) => (
+											<div
+												key={arg.name}
+												className="p-3 bg-muted/50 rounded-lg"
+											>
+												<div className="flex items-center justify-between mb-1">
+													<div className="flex items-center gap-2">
+														<code className="text-sm font-mono font-medium text-primary">
+															{arg.name}
+														</code>
+														{arg.required ? (
+															<Badge variant="required">Required</Badge>
+														) : (
+															<Badge variant="optional">Optional</Badge>
+														)}
 													</div>
-													<p className="text-xs text-muted-foreground leading-relaxed">
+													<CopyButton text={arg.name} />
+												</div>
+												{arg.description && (
+													<p className="text-xs text-muted-foreground">
 														{arg.description}
 													</p>
-													{arg.choices?.length > 0 && (
-														<div className="mt-4 pt-4 border-t border-white/5 flex flex-wrap gap-2">
-															<span className="text-[8px] font-black text-foreground/30 uppercase mr-2 mt-1">
-																Options:
+												)}
+												{arg.choices?.length > 0 && (
+													<div className="mt-2 flex flex-wrap gap-1">
+														{arg.choices.map((c: string) => (
+															<span
+																key={c}
+																className="px-2 py-0.5 bg-background rounded text-xs font-mono text-muted-foreground"
+															>
+																{c}
 															</span>
-															{arg.choices.map((c: string) => (
-																<span
-																	key={c}
-																	className="px-2 py-0.5 rounded-md bg-primary/5 border border-primary/10 text-[10px] text-primary/70 font-mono"
-																>
-																	{c}
-																</span>
-															))}
-														</div>
-													)}
-												</div>
-											))}
-										</div>
-									</div>
-								)}
-
-								{/* Subs Section */}
-								{command.subcommands?.length > 0 && (
-									<div>
-										<div className="flex items-center gap-3 mb-6">
-											<div className="h-[1px] flex-1 bg-white/5" />
-											<h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground/30 italic">
-												Linked Subroutines
-											</h4>
-											<div className="h-[1px] flex-1 bg-white/5" />
-										</div>
-										<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-											{command.subcommands.map((sub: any) => (
-												<div
-													key={sub.name}
-													className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-all group/sub"
-												>
-													<div className="flex items-center justify-between mb-2">
-														<div className="flex items-center gap-2">
-															<div className="w-1.5 h-1.5 rounded-full bg-accent group-hover:scale-125 transition-transform" />
-															<span className="font-monster font-black text-xs uppercase group-hover:text-accent transition-colors">
-																{sub.name}
-															</span>
-														</div>
-														<CopyButton text={`${command.name} ${sub.name}`} />
+														))}
 													</div>
-													<p className="text-[10px] text-muted-foreground leading-relaxed">
+												)}
+											</div>
+										))}
+									</div>
+								</div>
+							)}
+
+							{/* Subcommands */}
+							{command.subcommands?.length > 0 && (
+								<div>
+									<h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+										Subcommands
+									</h4>
+									<div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+										{command.subcommands.map((sub: any) => (
+											<div
+												key={sub.name}
+												className="p-3 bg-muted/50 rounded-lg"
+											>
+												<div className="flex items-center justify-between mb-1">
+													<span className="text-sm font-medium">{sub.name}</span>
+													<CopyButton text={`${command.name} ${sub.name}`} />
+												</div>
+												{sub.description && (
+													<p className="text-xs text-muted-foreground line-clamp-2">
 														{sub.description}
 													</p>
-												</div>
-											))}
-										</div>
+												)}
+											</div>
+										))}
 									</div>
-								)}
-
-								{/* Terminal Widget */}
-								<div className="p-6 rounded-[2rem] bg-black border border-white/5 flex items-center justify-between gap-4 group/sim relative overflow-hidden">
-									<div className="absolute inset-0 bg-primary/5 opacity-0 group-hover/sim:opacity-100 transition-opacity" />
-									<div className="flex items-center gap-4 relative z-10">
-										<div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 group-hover/sim:border-primary/30 transition-colors">
-											<Terminal size={18} className="text-primary" />
-										</div>
-										<div className="font-mono text-sm flex items-center gap-2">
-											<span className="text-primary font-bold">/</span>
-											<span className="text-white font-bold">{command.name}</span>
-											<span className="text-foreground/20 italic">
-												{command.arguments && command.arguments.length > 0
-													? ` [${command.arguments[0].name}]`
-													: ''}
-											</span>
-											<motion.div
-												animate={{ opacity: [0, 1] }}
-												transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
-												className="w-1.5 h-4 bg-primary/50"
-											/>
-										</div>
-									</div>
-									<CopyButton text={`/${command.name}`} />
 								</div>
-							</div>
-						</motion.div>
-					)}
-				</AnimatePresence>
-			</div>
+							)}
 
-			{/* Decorative Corner */}
-			<div className="absolute top-4 right-4 text-foreground/5 pointer-events-none select-none">
-				<Command size={120} />
-			</div>
+							{/* Usage example */}
+							<div className="p-3 bg-muted rounded-lg flex items-center justify-between">
+								<code className="text-sm font-mono">
+									<span className="text-primary">/</span>
+									<span>{command.name}</span>
+									{command.arguments?.[0] && (
+										<span className="text-muted-foreground">
+											{' '}
+											[{command.arguments[0].name}]
+										</span>
+									)}
+								</code>
+								<CopyButton text={`/${command.name}`} />
+							</div>
+						</div>
+					</motion.div>
+				)}
+			</AnimatePresence>
 		</motion.div>
 	);
 };

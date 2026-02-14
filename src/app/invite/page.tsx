@@ -15,21 +15,9 @@ export default function DiscordRedirect() {
 	}, []);
 
 	return (
-		<div className="flex flex-col items-center justify-center min-h-screen bg-discord-dark text-white">
+		<div className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground" role="status" aria-live="polite">
 			<Head>
 				<title>Redirecting to Discord...</title>
-				<style>{`
-          :root {
-            --discord-blue: #5865F2;
-            --discord-dark: #36393f;
-          }
-          body {
-            margin: 0;
-            padding: 0;
-            background-color: var(--discord-dark);
-            overflow: hidden;
-          }
-        `}</style>
 			</Head>
 
 			<div className="flex flex-col items-center">
@@ -49,7 +37,8 @@ export default function DiscordRedirect() {
 							ease: 'linear'
 						}
 					}}
-					className="text-discord-blue mb-8"
+					className="text-primary mb-8"
+					aria-hidden="true"
 				>
 					<FaDiscord size={80} />
 				</motion.div>
@@ -65,7 +54,7 @@ export default function DiscordRedirect() {
 				</motion.div>
 
 				{/* Loading Dots */}
-				<motion.div className="flex mt-4 space-x-2">
+				<motion.div className="flex mt-4 space-x-2" aria-hidden="true">
 					{[0, 1, 2].map((index) => (
 						<motion.div
 							key={index}
@@ -79,7 +68,7 @@ export default function DiscordRedirect() {
 								repeat: Infinity,
 								delay: index * 0.2
 							}}
-							className="w-3 h-3 rounded-full bg-discord-blue"
+							className="w-3 h-3 rounded-full bg-primary"
 						/>
 					))}
 				</motion.div>

@@ -149,7 +149,7 @@ export const ReviewsCarousel = () => {
 						className="inline-flex items-center gap-4 px-6 py-2 rounded-full bg-primary/10 backdrop-blur-sm border border-primary/20 mb-2 shadow-lg shadow-primary/5"
 					>
 						<span className="h-px w-5 bg-gradient-to-r from-transparent to-primary"></span>
-						<span className="text-primary/90 font-monster text-sm font-medium tracking-wider uppercase">
+						<span className="text-primary/90 text-sm font-medium tracking-wider uppercase">
 							Reviews
 						</span>
 						<span className="h-px w-5 bg-gradient-to-r from-primary to-transparent"></span>
@@ -160,7 +160,7 @@ export const ReviewsCarousel = () => {
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.5, delay: 0.1 }}
-					className="text-4xl md:text-5xl font-bold mb-6 font-monster"
+					className="text-4xl md:text-5xl font-bold mb-6"
 				>
 					Discover what our <span className="text-primary">Amazing Users</span> have to say about us
 				</motion.h2>
@@ -200,7 +200,7 @@ export const ReviewsCarousel = () => {
 												/>
 											</div>
 											<div>
-												<h3 className="font-bold text-lg font-monster">{authorData.name}</h3>
+												<h3 className="font-bold text-lg">{authorData.name}</h3>
 												<div className="flex items-center space-x-3">
 													{reviews[currentIndex].date && (
 														<span className="text-xs text-muted-foreground">

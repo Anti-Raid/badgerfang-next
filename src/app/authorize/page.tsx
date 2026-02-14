@@ -57,18 +57,18 @@ export default function AuthorizePage() {
 		switch (status) {
 			case 'loading':
 				return (
-					<div className="flex items-center justify-center min-h-screen bg-background">
+					<div className="flex items-center justify-center min-h-screen bg-background" role="status" aria-live="polite">
 						<div className="text-center">
-							<div className="animate-spin w-12 h-12 mx-auto mb-4 border-4 border-primary border-t-transparent rounded-full"></div>
+							<div className="animate-spin w-12 h-12 mx-auto mb-4 border-4 border-primary border-t-transparent rounded-full" aria-hidden="true"></div>
 							<p className="text-xl text-foreground">Authorizing...</p>
 						</div>
 					</div>
 				);
 			case 'success':
 				return (
-					<div className="flex items-center justify-center min-h-screen bg-background">
+					<div className="flex items-center justify-center min-h-screen bg-background" role="status" aria-live="polite">
 						<div className="text-center">
-							<div className="w-16 h-16 mx-auto mb-4 text-green-500">
+							<div className="w-16 h-16 mx-auto mb-4 text-success" aria-hidden="true">
 								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
 									<path
 										fillRule="evenodd"
@@ -83,9 +83,9 @@ export default function AuthorizePage() {
 				);
 			case 'error':
 				return (
-					<div className="flex items-center justify-center min-h-screen bg-background">
+					<div className="flex items-center justify-center min-h-screen bg-background" role="alert" aria-live="assertive">
 						<div className="text-center">
-							<div className="w-16 h-16 mx-auto mb-4 text-destructive">
+							<div className="w-16 h-16 mx-auto mb-4 text-destructive" aria-hidden="true">
 								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
 									<path
 										fillRule="evenodd"

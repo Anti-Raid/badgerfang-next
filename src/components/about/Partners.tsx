@@ -54,7 +54,7 @@ export const Partners = ({ isLoaded }: { isLoaded: boolean }) => {
 							/>
 						</div>
 						<div>
-							<h3 className="text-xl font-monster font-bold">{partner.name}</h3>
+							<h3 className="text-xl font-bold">{partner.name}</h3>
 							<p className="text-foreground/70 text-sm">{partner.description}</p>
 						</div>
 					</div>
