@@ -206,7 +206,8 @@ export function generateBlogMetadata(params: GenerateMetadataParams): Metadata {
 export function generateAboutMetadata(params: GenerateMetadataParams = {}): Metadata {
 	return generateMetadata({
 		title: 'About',
-		description: 'Learn more about us.',
+		description:
+			'Meet the team behind AntiRaid — the developers and contributors building automated Discord security tools to protect communities from raids and spam.',
 		image: params.imageUrl ?? defaultImage,
 		keywords: params.keywords?.length ? params.keywords : ['About', 'Team', 'Mission'],
 		Url: params.canonicalUrl
@@ -223,7 +224,8 @@ export function generateAboutMetadata(params: GenerateMetadataParams = {}): Meta
 export function generateStatusMetadata(params: GenerateMetadataParams = {}): Metadata {
 	return generateMetadata({
 		title: 'Status',
-		description: 'Check the status of our services.',
+		description:
+			'View real-time uptime and operational status for all AntiRaid services, APIs, and infrastructure.',
 		image: params.imageUrl ?? defaultImage,
 		keywords: params.keywords?.length ? params.keywords : ['Status', 'Uptime', 'Service'],
 		Url: params.canonicalUrl
@@ -268,8 +270,9 @@ export function generateTermsMetadata(params: GenerateMetadataParams = {}): Meta
  */
 export function generateScriptMetadata(params: GenerateMetadataParams = {}): Metadata {
 	return generateMetadata({
-		title: 'Scripts Shop',
-		description: 'Explore our collection of scripts.',
+		title: params.title ?? 'Scripts Shop',
+		description:
+			'Browse and install Luau script templates for AntiRaid — customize your Discord server moderation with community-built automation scripts.',
 		image: params.imageUrl ?? defaultImage,
 		keywords: params.keywords?.length
 			? params.keywords
@@ -289,7 +292,8 @@ export function generateScriptMetadata(params: GenerateMetadataParams = {}): Met
 export function generateCommandMetadata(params: GenerateMetadataParams = {}): Metadata {
 	return generateMetadata({
 		title: 'Commands',
-		description: 'Browse all available commands',
+		description:
+			'Browse the full list of AntiRaid slash commands — moderation, security, backups, and Luau scripting tools for your Discord server.',
 		image: params.imageUrl ?? defaultImage,
 		keywords: params.keywords?.length ? params.keywords : ['Commands', 'Code', 'luau'],
 		Url: params.canonicalUrl
@@ -305,7 +309,8 @@ export function generateCommandMetadata(params: GenerateMetadataParams = {}): Me
 export function generateBlogsMetadata(params: GenerateMetadataParams = {}): Metadata {
 	return generateMetadata({
 		title: 'Blogs',
-		description: 'Read the latest news and updates.',
+		description:
+			'Read the latest AntiRaid news, updates, and guides on Discord server security, moderation best practices, and new feature announcements.',
 		image: params.imageUrl ?? defaultImage,
 		keywords: params.keywords?.length ? params.keywords : ['Blogs', 'News', 'Updates'],
 		Url: params.canonicalUrl
@@ -320,7 +325,8 @@ export function generateBlogsMetadata(params: GenerateMetadataParams = {}): Meta
 export function generateDeveloperDashboardMetadata(params: GenerateMetadataParams = {}): Metadata {
 	return generateMetadata({
 		title: 'Developer Dashboard',
-		description: 'Manage your Sessions and API Keys',
+		description:
+			'Manage your AntiRaid API keys, developer sessions, and integration settings to build on top of AntiRaid.',
 		image: params.imageUrl ?? defaultImage,
 		keywords: params.keywords?.length ? params.keywords : ['Developer', 'Dashboard', 'Settings'],
 		Url: params.canonicalUrl
@@ -337,7 +343,7 @@ export function generateDeveloperDashboardMetadata(params: GenerateMetadataParam
 export function generateHomeMetadata(params: GenerateMetadataParams = {}): Metadata {
 	return generateMetadata({
 		title: 'Home',
-		description: 'Welcome to Antiraids Homepage!',
+		description: siteDescription,
 		image: params.imageUrl ?? defaultImage,
 		keywords: params.keywords?.length ? params.keywords : ['Home', 'Antiraid'],
 		Url: params.canonicalUrl

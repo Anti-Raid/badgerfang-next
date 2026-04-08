@@ -1,73 +1,62 @@
 import { NextResponse } from 'next/server';
-import {
-	generateHomeMetadata,
-	generateScriptMetadata,
-	generateCommandMetadata,
-	generateAboutMetadata,
-	generatePrivacyMetadata,
-	generateTermsMetadata,
-	generateStatusMetadata,
-	generateDeveloperDashboardMetadata
-} from '@/lib/Metadata';
+import { website_url } from '@/components/common';
+import { fetchBlogs } from '@/lib/api';
 
-const websiteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://antiraid.xyz';
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || website_url;
+
+interface SitemapEntry {
+	loc: string;
+	changefreq: string;
+	priority: string;
+	lastmod?: string;
+}
 
 export async function GET() {
-	const urls: string[] = [];
-
-	// Static pages
-	const staticPages = [
-		{ path: '/', generator: generateHomeMetadata },
-		{ path: '/about', generator: generateAboutMetadata },
-		{ path: '/privacy', generator: generatePrivacyMetadata },
-		{ path: '/terms', generator: generateTermsMetadata },
-		{ path: '/status', generator: generateStatusMetadata },
-		{ path: '/scripts', generator: generateScriptMetadata },
-		{ path: '/commands', generator: generateCommandMetadata },
-		{ path: '/developer', generator: generateDeveloperDashboardMetadata }
+	const entries: SitemapEntry[] = [
+		{ loc: `${baseUrl}/`, changefreq: 'weekly', priority: '1.0' },
+		{ loc: `${baseUrl}/about`, changefreq: 'monthly', priority: '0.8' },
+		{ loc: `${baseUrl}/commands`, changefreq: 'weekly', priority: '0.8' },
+		{ loc: `${baseUrl}/status`, changefreq: 'always', priority: '0.7' },
+		{ loc: `${baseUrl}/blogs`, changefreq: 'daily', priority: '0.8' },
+		{ loc: `${baseUrl}/script/shop`, changefreq: 'weekly', priority: '0.7' },
+		{ loc: `${baseUrl}/privacy`, changefreq: 'yearly', priority: '0.4' },
+		{ loc: `${baseUrl}/terms`, changefreq: 'yearly', priority: '0.4' }
 	];
 
-	for (const { path, generator } of staticPages) {
-		const metadata = generator();
-		const canonical = metadata.alternates?.canonical;
-
-		// Convert canonical to string properly
-		let canonicalUrl: string;
-		if (typeof canonical === 'string') {
-			canonicalUrl = canonical;
-		} else if (canonical instanceof URL) {
-			canonicalUrl = canonical.toString();
-		} else if (canonical && typeof canonical === 'object' && 'url' in canonical) {
-			// Handle AlternateLinkDescriptor case
-			const url = canonical.url;
-			canonicalUrl = typeof url === 'string' ? url : url.toString();
-		} else {
-			canonicalUrl = `${websiteUrl}${path}`;
+	// Add dynamic blog posts
+	try {
+		const blogs = await fetchBlogs();
+		for (const blog of blogs) {
+			entries.push({
+				loc: `${baseUrl}/blogs/${blog.slug}`,
+				changefreq: 'monthly',
+				priority: '0.6',
+				lastmod: blog.updatedAt ? blog.updatedAt.split('T')[0] : undefined
+			});
 		}
-
-		urls.push(canonicalUrl);
+	} catch {
+		// Blog fetch failed — continue with static pages only
 	}
 
-	// Build the sitemap XML
 	const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-	${urls
-		.map(
-			(url) => `
-	<url>
-		<loc>${url}</loc>
-		<changefreq>weekly</changefreq>
-		<priority>1.0</priority>
-	</url>`
-		)
-		.join('\n')}
+${entries
+	.map((entry) => {
+		const lastmodTag = entry.lastmod ? `\n\t\t<lastmod>${entry.lastmod}</lastmod>` : '';
+		return `\t<url>
+\t\t<loc>${entry.loc}</loc>${lastmodTag}
+\t\t<changefreq>${entry.changefreq}</changefreq>
+\t\t<priority>${entry.priority}</priority>
+\t</url>`;
+	})
+	.join('\n')}
 </urlset>`;
 
 	return new NextResponse(sitemap, {
 		status: 200,
 		headers: {
 			'Content-Type': 'application/xml',
-			'Cache-Control': 'public, max-age=86400, s-max-age=86400' // Cache for 24 hours
+			'Cache-Control': 'public, max-age=3600, s-maxage=3600'
 		}
 	});
 }
