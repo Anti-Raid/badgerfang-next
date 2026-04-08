@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, type JSX } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { Milestone, Zap, Users, Code, ChevronDown } from 'lucide-react';
+import { Milestone, Zap, Users, Code } from 'lucide-react';
 import { FaBullhorn } from 'react-icons/fa';
 
 interface TimelineEvent {
@@ -19,8 +19,7 @@ export const HistoryTimeline = () => {
 		target: containerRef,
 		offset: ['start end', 'end start']
 	});
-
-	const lineHeight = useTransform(scrollYProgress, [0, 1], ['0%', '100%']);
+	const lineHeight = useTransform(scrollYProgress, [0, 0.9], ['0%', '100%']);
 
 	useEffect(() => {
 		setIsLoaded(true);
@@ -36,7 +35,7 @@ export const HistoryTimeline = () => {
 					protection tool.
 				</>
 			),
-			icon: <Milestone className="w-6 h-6" />
+			icon: <Milestone className="w-5 h-5" />
 		},
 		{
 			year: '2023 Q4',
@@ -48,14 +47,14 @@ export const HistoryTimeline = () => {
 						href="https://purrquinox.com"
 						target="_blank"
 						rel="noopener noreferrer"
-						className="underline bg-primary hover:bg-primary/80 hover:underline-offset-2 transition-all duration-200"
+						className="text-primary underline underline-offset-2 hover:text-primary/80 transition-colors"
 					>
 						Purrquinox
 					</a>
 					, bringing fresh ideas and accelerated development to the platform.
 				</>
 			),
-			icon: <Users className="w-6 h-6" />
+			icon: <Users className="w-5 h-5" />
 		},
 		{
 			year: '2024',
@@ -66,7 +65,7 @@ export const HistoryTimeline = () => {
 					customizable backups.
 				</>
 			),
-			icon: <Zap className="w-6 h-6" />
+			icon: <Zap className="w-5 h-5" />
 		},
 		{
 			year: '2025 Q1',
@@ -77,180 +76,106 @@ export const HistoryTimeline = () => {
 					and new features.
 				</>
 			),
-			icon: <Code className="w-6 h-6" />
+			icon: <Code className="w-5 h-5" />
 		},
 		{
 			year: '2025 Q2',
 			title: 'AntiRaid V7',
 			description: (
 				<>
-					Launch of our completely redesigned bot with new BuiltIns commands in Luau and docs for
-					enhanced user experience and new features.
+					Launch of our completely redesigned bot with new built-in Luau commands and comprehensive
+					documentation.
 				</>
 			),
-			icon: <FaBullhorn className="w-6 h-6" />
+			icon: <FaBullhorn className="w-5 h-5" />
 		}
 	];
 
 	return (
-		<section id="timeline" className="py-24 relative overflow-hidden">
-			{/* Cyberpunk background elements */}
-			<div className="absolute inset-0 bg-grid-white/5 [mask-image:linear-gradient(to_bottom,transparent,black)]"></div>
-			<div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-background/80"></div>
+		<section id="timeline" className="py-24 px-6 border-y border-border bg-card/30">
+			<div className="max-w-6xl mx-auto">
+				{/* Header */}
+				<motion.div
+					initial={{ opacity: 0, y: 30 }}
+					whileInView={{ opacity: 1, y: 0 }}
+					viewport={{ once: true }}
+					transition={{ duration: 0.7 }}
+					className="text-center mb-20"
+				>
+					<p className="text-sm font-bold text-primary uppercase tracking-widest mb-4">History</p>
+					<h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">Our Journey</h2>
+					<p className="text-lg text-muted-foreground max-w-xl mx-auto">
+						The evolution of AntiRaid through the years.
+					</p>
+				</motion.div>
 
-			{/* Animated circuit lines */}
-			<div className="absolute inset-0 opacity-10">
-				<div className="absolute top-0 left-1/4 w-[1px] h-full bg-primary"></div>
-				<div className="absolute top-0 left-3/4 w-[1px] h-full bg-primary"></div>
-				<div className="absolute top-1/4 left-0 w-full h-[1px] bg-primary"></div>
-				<div className="absolute top-3/4 left-0 w-full h-[1px] bg-primary"></div>
-			</div>
-
-			<div className="container relative mx-auto px-4 sm:px-6 lg:px-8" ref={containerRef}>
-				<div className="text-center mb-20">
+				{/* Timeline */}
+				<div className="relative max-w-4xl mx-auto" ref={containerRef}>
+					{/* Central line track (desktop) */}
+					<div className="hidden md:block absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-px bg-border" />
+					{/* Animated fill line */}
 					<motion.div
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: isLoaded ? 1 : 0, y: isLoaded ? 0 : 20 }}
-						transition={{ duration: 0.5 }}
-						className="relative"
-					>
-						<div className="absolute -top-10 left-1/2 transform -translate-x-1/2 w-40 h-1 bg-gradient-to-r from-transparent via-primary to-transparent"></div>
-
-						<h2 className="text-4xl md:text-5xl font-bold mb-3 glitch-text relative">
-							<span className="relative z-10">Our Journey</span>
-							<span className="absolute inset-0 text-primary/20 translate-x-[2px] translate-y-[2px] z-0">
-								Our Journey
-							</span>
-						</h2>
-
-						<p className="text-lg text-foreground/70 ml-2 font-mono">
-							The evolution of AntiRaid through the years
-						</p>
-
-						<div className="w-20 h-1 bg-primary mx-auto mt-6 relative">
-							<div className="absolute -left-2 -top-2 w-4 h-4 bg-background border-2 border-primary"></div>
-							<div className="absolute -right-2 -top-2 w-4 h-4 bg-background border-2 border-primary"></div>
-						</div>
-
-						<motion.div
-							className="absolute -bottom-12 w-full flex justify-center text-primary"
-							animate={{ y: [0, 10, 0] }}
-							transition={{ repeat: Infinity, duration: 2 }}
-						>
-							<ChevronDown className="w-8 h-8" />
-						</motion.div>
-					</motion.div>
-				</div>
-
-				<div className="relative max-w-4xl mx-auto">
-					{/* Desktop central line */}
-					<div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-primary/10"></div>
-					<motion.div
-						className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-1 bg-primary/50 origin-top"
+						className="hidden md:block absolute left-1/2 -translate-x-1/2 top-0 w-px bg-gradient-to-b from-primary to-blue-500 origin-top"
 						style={{ height: lineHeight }}
 					/>
 
-					{timelineEvents.map((event, index) => (
-						<div key={`${event.year}-${index}`} className="mb-16 last:mb-0">
-							<TimelineEvent event={event} index={index} isLoaded={isLoaded} />
-							{index < timelineEvents.length - 1 && <TimelineConnector />}
-						</div>
-					))}
+					<div className="space-y-16">
+						{timelineEvents.map((event, index) => (
+							<TimelineEventItem key={`${event.year}-${index}`} event={event} index={index} />
+						))}
+					</div>
 				</div>
 			</div>
 		</section>
 	);
 };
 
-interface TimelineEventProps {
-	event: TimelineEvent;
-	index: number;
-	isLoaded: boolean;
-}
-
-const TimelineEvent = ({ event, index, isLoaded }: TimelineEventProps) => {
+const TimelineEventItem = ({ event, index }: { event: TimelineEvent; index: number }) => {
 	const isEven = index % 2 === 0;
-	const containerRef = useRef<HTMLDivElement>(null);
-	const { scrollYProgress } = useScroll({
-		target: containerRef,
-		offset: ['start end', 'center center']
-	});
-
-	const opacity = useTransform(scrollYProgress, [0, 0.5], [0, 1]);
-	const x = useTransform(scrollYProgress, [0, 0.5], isEven ? [-50, 0] : [50, 0]);
+	const ref = useRef<HTMLDivElement>(null);
+	const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'center center'] });
+	const opacity = useTransform(scrollYProgress, [0, 0.6], [0, 1]);
+	const x = useTransform(scrollYProgress, [0, 0.6], isEven ? [-30, 0] : [30, 0]);
 
 	return (
-		<motion.div ref={containerRef} style={{ opacity, x }} className="relative">
+		<motion.div ref={ref} style={{ opacity }}>
 			<div
-				className={`flex flex-col md:flex-row items-center ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'}`}
+				className={`flex flex-col md:flex-row items-center gap-6 ${
+					isEven ? 'md:flex-row' : 'md:flex-row-reverse'
+				}`}
 			>
-				{/* Text Content */}
-				<div
-					className={`w-full md:w-5/12 ${isEven ? 'text-right pr-4 md:pr-8' : 'text-left pl-4 md:pl-8'}`}
+				{/* Text card */}
+				<motion.div
+					style={{ x }}
+					className={`w-full md:w-5/12 ${isEven ? 'md:text-right' : 'md:text-left'}`}
 				>
-					<div className="inline-block mb-3 mr-3 px-3 py-1 bg-primary/20 rounded-none border border-primary/50 text-primary text-sm font-mono font-semibold relative overflow-hidden group">
-						<div className="absolute inset-0 bg-primary/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-						<span className="relative z-10">{event.year}</span>
-						<span className="absolute top-0 right-0 h-full w-1 bg-primary"></span>
-						<span className="absolute bottom-0 left-0 h-1 w-full bg-primary"></span>
+					<div
+						className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20 mb-3 ${
+							isEven ? 'md:ml-auto' : ''
+						}`}
+					>
+						<span className="text-xs font-bold text-primary">{event.year}</span>
+					</div>
+					<h3 className="text-xl font-bold text-foreground mb-2">{event.title}</h3>
+					<p className="text-sm text-muted-foreground leading-relaxed">{event.description}</p>
+				</motion.div>
+
+				{/* Center icon */}
+				<div className="relative z-10 flex-shrink-0 md:absolute md:left-1/2 md:-translate-x-1/2">
+					{/* Mobile connector line above */}
+					{index > 0 && <div className="md:hidden w-px h-6 bg-border mx-auto mb-2" />}
+
+					<div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/20 to-blue-500/10 border border-primary/30 flex items-center justify-center text-primary shadow-lg shadow-primary/10">
+						{event.icon}
 					</div>
 
-					<h3 className="text-xl md:text-2xl font-semibold mb-2 relative inline-block group">
-						{event.title}
-						<span className="absolute -bottom-1 left-0 w-0 group-hover:w-full h-[2px] bg-primary transition-all duration-300"></span>
-					</h3>
-
-					<p className="text-sm md:text-base text-foreground/70 font-mono relative pl-0 group-hover:pl-4 transition-all duration-300">
-						<span className="text-primary opacity-0 group-hover:opacity-100 absolute left-0 transition-opacity duration-300">
-							&gt;
-						</span>
-						{event.description}
-					</p>
+					{/* Mobile connector line below */}
+					{index < 4 && <div className="md:hidden w-px h-6 bg-border mx-auto mt-2" />}
 				</div>
 
-				{/* Icon with mobile line segments */}
-				<div className="flex flex-col items-center md:my-0 md:absolute md:left-1/2 md:transform md:-translate-x-1/2 z-10">
-					{/* Top line segment on mobile */}
-					<div className="block md:hidden w-1 h-6 bg-primary/30" />
-
-					{/* Icon Box */}
-					<div className="w-14 h-14 rounded-none bg-background border-2 border-primary flex items-center justify-center relative group my-4 md:my-0">
-						{/* Animated corner accents */}
-						<span className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-primary"></span>
-						<span className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-primary"></span>
-						<span className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-primary"></span>
-						<span className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-primary"></span>
-
-						{/* Pulsing glow */}
-						<motion.div
-							className="absolute inset-0 bg-primary/20 z-0"
-							animate={{ opacity: [0.2, 0.5, 0.2] }}
-							transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-						/>
-
-						{/* Icon content */}
-						<div className="relative z-10 text-primary">{event.icon}</div>
-					</div>
-
-					{/* Bottom line segment on mobile */}
-					<div className="block md:hidden w-1 h-6 bg-primary/30" />
-				</div>
+				{/* Spacer for the other side on desktop */}
+				<div className="hidden md:block w-5/12" />
 			</div>
 		</motion.div>
-	);
-};
-
-const TimelineConnector = () => {
-	return (
-		<div className="flex justify-center relative">
-			<div className="w-1 h-16 bg-primary/40 z-0 relative">
-				{/* Animated data flow effect */}
-				<motion.div
-					className="absolute top-0 left-0 w-full h-4 bg-primary/80"
-					animate={{ top: ['0%', '100%'] }}
-					transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-				/>
-			</div>
-		</div>
 	);
 };

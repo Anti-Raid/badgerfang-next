@@ -183,13 +183,16 @@ export default function CommandInterface() {
 	return (
 		<div className="min-h-screen">
 			{/* Hero */}
-			<section className="pt-32 pb-16 px-6">
+			<section className="relative pt-32 pb-16 px-6 overflow-hidden">
+				<div className="absolute inset-0 -z-10 pointer-events-none">
+					<div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_50%_-10%,hsl(var(--primary)/0.15),transparent)]" />
+				</div>
 				<div className="max-w-4xl mx-auto text-center">
 					<motion.p
 						variants={fadeUp}
 						initial="hidden"
 						animate="visible"
-						className="text-sm font-medium text-primary mb-4"
+						className="text-sm font-bold text-primary uppercase tracking-widest mb-4"
 					>
 						Documentation
 					</motion.p>
@@ -198,9 +201,12 @@ export default function CommandInterface() {
 						initial="hidden"
 						animate="visible"
 						transition={{ delay: 0.1 }}
-						className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight mb-6"
+						className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6"
 					>
-						Commands
+						All{' '}
+						<span className="bg-gradient-to-r from-primary via-violet-400 to-blue-500 bg-clip-text text-transparent">
+							Commands
+						</span>
 					</motion.h1>
 					<motion.p
 						variants={fadeUp}
@@ -364,9 +370,7 @@ const CommandCard = ({
 			initial={{ opacity: 0, y: 10 }}
 			animate={isInView ? { opacity: 1, y: 0 } : {}}
 			transition={{ duration: 0.3, delay: (index % 8) * 0.03 }}
-			className={`group bg-card border border-border rounded-xl transition-colors hover:border-primary/30 ${
-				view === 'list' ? '' : ''
-			}`}
+			className={`group bg-card border border-border rounded-xl transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-0.5`}
 		>
 			<div className={`p-5 ${view === 'list' ? 'flex items-start gap-4' : ''}`}>
 				<div className={view === 'list' ? 'flex-1 min-w-0' : ''}>

@@ -3,7 +3,7 @@ import BlogSlugLayout from '@/components/blogs/BlogSlugLayout';
 import type { Blog } from '@/types/blogs';
 import { generateBlogMetadata } from '@/lib/Metadata';
 import type { Metadata } from 'next';
-import { fetchStrapiBlogs } from '@/lib/api';
+import { fetchBlogs } from '@/lib/api';
 
 /**
  * Generates metadata for a blog post page based on the provided slug.
@@ -21,7 +21,7 @@ export async function generateMetadata({
 	const { slug } = await params;
 
 	try {
-		const response = await fetchStrapiBlogs();
+		const response = await fetchBlogs();
 		const data = response.data;
 		const post = data.find((b: any) => b.slug === slug);
 

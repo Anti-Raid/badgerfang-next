@@ -2,8 +2,6 @@ import type { ImageResponseOptions } from 'next/dist/compiled/@vercel/og/types';
 import { ImageResponse } from 'next/og';
 import type { ReactElement, ReactNode } from 'react';
 
-const title = 'AntiRaid';
-
 interface GenerateProps {
 	title: ReactNode;
 	tag: string;
@@ -26,36 +24,14 @@ interface BlogGenerateProps {
 	showAuthor?: boolean;
 }
 
-/**
- * Create an ImageResponse for a generic Open Graph image using the provided generation options.
- *
- * @param options - Content and rendering options for the Open Graph image (see GenerateProps) plus ImageResponseOptions
- * @returns An ImageResponse containing the generated Open Graph image sized 1200×630
- */
 export function generateOGImage(options: GenerateProps & ImageResponseOptions): ImageResponse {
 	const { title, tag, description, primaryTextColor, ...rest } = options;
-
 	return new ImageResponse(
-		generate({
-			title,
-			tag,
-			description,
-			primaryTextColor
-		}),
-		{
-			width: 1200,
-			height: 630,
-			...rest
-		}
+		generate({ title, tag, description, primaryTextColor }),
+		{ width: 1200, height: 630, ...rest }
 	);
 }
 
-/**
- * Create an Open Graph image for a blog post.
- *
- * @param options - Configuration for the blog OG image (see `BlogGenerateProps`) and additional image response options; `showLogo` and `showAuthor` default to `true` when omitted.
- * @returns An ImageResponse representing a 1200×630 Open Graph image for the provided blog content
- */
 export function generateBlogOGImage(
 	options: BlogGenerateProps & ImageResponseOptions
 ): ImageResponse {
@@ -73,312 +49,379 @@ export function generateBlogOGImage(
 	} = options;
 
 	return new ImageResponse(
-		generateBlog({
-			title,
-			description,
-			tags,
-			slug,
-			authorName,
-			authorAvatar,
-			primaryTextColor,
-			showLogo,
-			showAuthor
-		}),
-		{
-			width: 1200,
-			height: 630,
-			...rest
-		}
+		generateBlog({ title, description, tags, slug, authorName, authorAvatar, primaryTextColor, showLogo, showAuthor }),
+		{ width: 1200, height: 630, ...rest }
 	);
 }
 
-/**
- * Produce a React element representing a generic Open Graph image for the "AntiRaid" brand.
- *
- * Renders a full-bleed radial-gradient background with a logo row, uppercased tag, title, and description,
- * using the provided color for prominent text elements.
- *
- * @param primaryTextColor - CSS color used for the logo/title accent
- * @returns A ReactElement containing the composed Open Graph image (logo, tag, title, description)
- */
-export function generate({
-	primaryTextColor = 'rgb(255,150,255)',
-	...props
-}: GenerateProps): ReactElement {
+export function generate({ primaryTextColor = '#a855f7', ...props }: GenerateProps): ReactElement {
 	return (
 		<div
 			style={{
 				display: 'flex',
-				flexDirection: 'column',
 				width: '100%',
 				height: '100%',
-				color: 'white',
-				backgroundImage:
-					'radial-gradient(145% 145% at 110% 110%, hsl(270,100%,86%) 0%, hsl(270,23%,20%) 30%, hsl(256, 78%, 47%, 1.00) 60%, hsl(0, 0.00%, 0.00%) 100%)'
+				background: '#08080f',
+				position: 'relative',
+				overflow: 'hidden',
 			}}
 		>
+			{/* Grid texture */}
+			<div
+				style={{
+					position: 'absolute',
+					inset: 0,
+					backgroundImage:
+						'linear-gradient(rgba(168,85,247,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(168,85,247,0.06) 1px, transparent 1px)',
+					backgroundSize: '60px 60px',
+				}}
+			/>
+			{/* Radial glow */}
+			<div
+				style={{
+					position: 'absolute',
+					top: '-200px',
+					right: '-200px',
+					width: '700px',
+					height: '700px',
+					borderRadius: '50%',
+					background: 'radial-gradient(circle, rgba(168,85,247,0.25) 0%, transparent 70%)',
+				}}
+			/>
+			{/* Content */}
 			<div
 				style={{
 					display: 'flex',
 					flexDirection: 'column',
 					width: '100%',
 					height: '100%',
-					padding: '4rem'
+					padding: '64px 72px',
+					position: 'relative',
 				}}
 			>
-				<div
-					style={{
-						display: 'flex',
-						flexDirection: 'row',
-						alignItems: 'center',
-						gap: '24px',
-						marginBottom: 'auto',
-						color: primaryTextColor
-					}}
-				>
-					<img
-						src="https://avatars.githubusercontent.com/u/83183936?s=200&v=4"
-						alt="AntiRaid Logo"
-						width={58}
-						height={58}
-						style={{
-							borderRadius: '8px',
-							objectFit: 'contain'
-						}}
-					/>
-					<p
-						style={{
-							fontSize: '46px',
-							fontWeight: 600
-						}}
-					>
-						{title}
-					</p>
-				</div>
-				<p
-					style={{
-						fontWeight: 600,
-						fontSize: '26px',
-						textTransform: 'uppercase'
-					}}
-				>
-					{props.tag.replace(/-/g, ' ')}
-				</p>
-				<p
-					style={{
-						fontWeight: 600,
-						fontSize: '56px'
-					}}
-				>
-					{props.title}
-				</p>
-				<p
-					style={{
-						fontSize: '28px',
-						color: 'rgba(240,240,240,0.7)'
-					}}
-				>
-					{props.description}
-				</p>
-			</div>
-		</div>
-	);
-}
-
-/**
- * Generate a React element for a blog Open Graph image.
- *
- * The rendered image uses a radial gradient background and displays the brand,
- * a "Blog Post" category line, the title, a short description, up to three tag
- * badges, and an optional author block. Titles longer than 50 characters and
- * descriptions longer than 100 characters are truncated with an ellipsis.
- *
- * @param primaryTextColor - CSS color used for prominent text and accents; defaults to 'rgb(255,150,255)'
- * @param showLogo - When true, the brand/logo row is visible; when false it is hidden
- * @param showAuthor - When true and `authorName` is provided, the author block is visible; when false it is hidden
- * @returns A React element representing the blog post Open Graph image
- */
-export function generateBlog({
-	primaryTextColor = 'rgb(255,150,255)',
-	showLogo = true,
-	showAuthor = true,
-	...props
-}: BlogGenerateProps): ReactElement {
-	// Truncate title if too long
-	const title =
-		typeof props.title === 'string' && props.title.length > 50
-			? props.title.substring(0, 50) + '...'
-			: props.title;
-
-	// Truncate description if too long
-	const description =
-		typeof props.description === 'string' && props.description && props.description.length > 100
-			? props.description.substring(0, 100) + '...'
-			: props.description || 'Read the latest news and updates from AntiRaid.';
-
-	// Limit tags to prevent performance issues
-	const tags = props.tags ? props.tags.slice(0, 3) : [];
-
-	return (
-		<div
-			style={{
-				display: 'flex',
-				flexDirection: 'column',
-				width: '100%',
-				height: '100%',
-				color: 'white',
-				backgroundImage:
-					'radial-gradient(145% 145% at 110% 110%, hsl(270,100%,86%) 0%, hsl(270,23%,20%) 30%, hsl(256, 78%, 47%, 1.00) 60%, hsl(0, 0.00%, 0.00%) 100%)',
-				position: 'relative'
-			}}
-		>
-			<div
-				style={{
-					display: 'flex',
-					flexDirection: 'column',
-					width: '100%',
-					height: '100%',
-					padding: '4rem',
-					position: 'relative'
-				}}
-			>
-				{/* Logo/Brand - Always rendered with flex container */}
-				<div
-					style={{
-						display: 'flex',
-						flexDirection: 'row',
-						alignItems: 'center',
-						gap: '16px',
-						marginBottom: 'auto',
-						color: primaryTextColor,
-						visibility: showLogo ? 'visible' : 'hidden'
-					}}
-				>
-					<img
-						src="https://avatars.githubusercontent.com/u/83183936?s=200&v=4"
-						alt="AntiRaid Logo"
-						width={48}
-						height={48}
-						style={{
-							borderRadius: '8px',
-							objectFit: 'contain'
-						}}
-					/>
-					<span
-						style={{
-							fontSize: '32px',
-							fontWeight: 600
-						}}
-					>
-						AntiRaid
+				{/* Top bar */}
+				<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'auto' }}>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+						<img
+							src="https://avatars.githubusercontent.com/u/83183936?s=200&v=4"
+							width={44}
+							height={44}
+							style={{ borderRadius: '10px', objectFit: 'contain' }}
+						/>
+						<span style={{ fontSize: '28px', fontWeight: 700, color: '#ffffff', letterSpacing: '-0.5px' }}>
+							AntiRaid
+						</span>
+					</div>
+					<span style={{ fontSize: '18px', color: 'rgba(255,255,255,0.35)', fontWeight: 500 }}>
+						antiraid.xyz
 					</span>
 				</div>
 
-				{/* Blog Category */}
+				{/* Tag label */}
 				<div
 					style={{
 						display: 'flex',
-						fontWeight: 600,
-						fontSize: '24px',
+						fontSize: '15px',
+						fontWeight: 700,
 						textTransform: 'uppercase',
+						letterSpacing: '3px',
 						color: primaryTextColor,
-						marginBottom: '16px'
+						marginBottom: '20px',
 					}}
 				>
-					Blog Post
+					{props.tag.replace(/-/g, ' ')}
 				</div>
 
 				{/* Title */}
 				<div
 					style={{
 						display: 'flex',
-						fontWeight: 700,
-						fontSize: '64px',
-						lineHeight: 1.1,
+						fontSize: '68px',
+						fontWeight: 800,
+						color: '#ffffff',
+						lineHeight: 1.05,
+						letterSpacing: '-2px',
 						marginBottom: '24px',
-						textShadow: '0 4px 8px rgba(0, 0, 0, 0.3)'
 					}}
 				>
-					{title}
+					{props.title}
+				</div>
+
+				{/* Description */}
+				{props.description && (
+					<div
+						style={{
+							display: 'flex',
+							fontSize: '26px',
+							color: 'rgba(255,255,255,0.55)',
+							lineHeight: 1.5,
+						}}
+					>
+						{props.description}
+					</div>
+				)}
+			</div>
+
+			{/* Left accent bar */}
+			<div
+				style={{
+					position: 'absolute',
+					left: 0,
+					top: '15%',
+					bottom: '15%',
+					width: '4px',
+					background: 'linear-gradient(180deg, transparent, #a855f7, #6366f1, transparent)',
+					borderRadius: '0 4px 4px 0',
+				}}
+			/>
+		</div>
+	);
+}
+
+export function generateBlog({
+	primaryTextColor = '#a855f7',
+	showLogo = true,
+	showAuthor = true,
+	...props
+}: BlogGenerateProps): ReactElement {
+	const displayTitle =
+		typeof props.title === 'string' && props.title.length > 52
+			? props.title.substring(0, 52) + '…'
+			: props.title;
+
+	const displayDesc =
+		typeof props.description === 'string' && props.description.length > 110
+			? props.description.substring(0, 110) + '…'
+			: props.description || 'Read the latest from AntiRaid.';
+
+	const tags = (props.tags ?? []).slice(0, 3);
+
+	return (
+		<div
+			style={{
+				display: 'flex',
+				width: '100%',
+				height: '100%',
+				background: '#08080f',
+				position: 'relative',
+				overflow: 'hidden',
+			}}
+		>
+			{/* Grid texture */}
+			<div
+				style={{
+					position: 'absolute',
+					inset: 0,
+					backgroundImage:
+						'linear-gradient(rgba(168,85,247,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(168,85,247,0.07) 1px, transparent 1px)',
+					backgroundSize: '56px 56px',
+				}}
+			/>
+
+			{/* Top-right radial glow */}
+			<div
+				style={{
+					position: 'absolute',
+					top: '-180px',
+					right: '-180px',
+					width: '650px',
+					height: '650px',
+					borderRadius: '50%',
+					background: 'radial-gradient(circle, rgba(139,92,246,0.30) 0%, rgba(99,102,241,0.12) 50%, transparent 70%)',
+				}}
+			/>
+
+			{/* Bottom-left secondary glow */}
+			<div
+				style={{
+					position: 'absolute',
+					bottom: '-120px',
+					left: '-80px',
+					width: '400px',
+					height: '400px',
+					borderRadius: '50%',
+					background: 'radial-gradient(circle, rgba(168,85,247,0.12) 0%, transparent 70%)',
+				}}
+			/>
+
+			{/* Left accent bar */}
+			<div
+				style={{
+					position: 'absolute',
+					left: 0,
+					top: '12%',
+					bottom: '12%',
+					width: '4px',
+					background: 'linear-gradient(180deg, transparent, #a855f7 30%, #6366f1 70%, transparent)',
+					borderRadius: '0 4px 4px 0',
+				}}
+			/>
+
+			{/* Main content */}
+			<div
+				style={{
+					display: 'flex',
+					flexDirection: 'column',
+					width: '100%',
+					height: '100%',
+					padding: '56px 72px 52px 72px',
+					position: 'relative',
+				}}
+			>
+				{/* Header row */}
+				<div
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'space-between',
+						marginBottom: 'auto',
+						opacity: showLogo ? 1 : 0,
+					}}
+				>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+						<img
+							src="https://avatars.githubusercontent.com/u/83183936?s=200&v=4"
+							width={40}
+							height={40}
+							style={{ borderRadius: '9px', objectFit: 'contain' }}
+						/>
+						<span style={{ fontSize: '26px', fontWeight: 700, color: '#ffffff', letterSpacing: '-0.5px' }}>
+							AntiRaid
+						</span>
+					</div>
+
+					{/* "Blog" pill badge */}
+					<div
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
+							padding: '8px 18px',
+							background: 'rgba(168,85,247,0.15)',
+							border: '1px solid rgba(168,85,247,0.30)',
+							borderRadius: '100px',
+						}}
+					>
+						<div
+							style={{
+								width: '7px',
+								height: '7px',
+								borderRadius: '50%',
+								background: primaryTextColor,
+							}}
+						/>
+						<span style={{ fontSize: '15px', fontWeight: 700, color: primaryTextColor, letterSpacing: '1.5px', textTransform: 'uppercase' }}>
+							Blog
+						</span>
+					</div>
+				</div>
+
+				{/* Title */}
+				<div
+					style={{
+						display: 'flex',
+						fontSize: '62px',
+						fontWeight: 800,
+						color: '#ffffff',
+						lineHeight: 1.08,
+						letterSpacing: '-2px',
+						marginBottom: '20px',
+					}}
+				>
+					{displayTitle}
 				</div>
 
 				{/* Description */}
 				<div
 					style={{
 						display: 'flex',
-						fontSize: '28px',
-						color: 'rgba(240,240,240,0.9)',
-						lineHeight: 1.4,
+						fontSize: '24px',
+						color: 'rgba(255,255,255,0.50)',
+						lineHeight: 1.55,
 						marginBottom: '32px',
-						textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)'
 					}}
 				>
-					{description}
+					{displayDesc}
 				</div>
 
-				{/* Tags - Always rendered with flex container */}
+				{/* Tags */}
+				{tags.length > 0 && (
+					<div style={{ display: 'flex', gap: '10px', marginBottom: '36px' }}>
+						{tags.map((tag, i) => (
+							<div
+								key={i}
+								style={{
+									display: 'flex',
+									padding: '6px 16px',
+									background: 'rgba(168,85,247,0.12)',
+									border: '1px solid rgba(168,85,247,0.25)',
+									borderRadius: '100px',
+									fontSize: '16px',
+									fontWeight: 600,
+									color: 'rgba(216,180,254,0.9)',
+									letterSpacing: '0.2px',
+								}}
+							>
+								{tag}
+							</div>
+						))}
+					</div>
+				)}
+
+				{/* Divider */}
 				<div
 					style={{
 						display: 'flex',
-						gap: '12px',
-						flexWrap: 'wrap',
-						marginBottom: 'auto',
-						visibility: tags.length > 0 ? 'visible' : 'hidden'
+						height: '1px',
+						background: 'rgba(255,255,255,0.08)',
+						marginBottom: '28px',
 					}}
-				>
-					{tags.map((tag: string, index: number) => (
-						<div
-							key={index}
-							style={{
-								display: 'flex',
-								backgroundColor: 'rgba(255, 255, 255, 0.2)',
-								color: 'white',
-								padding: '8px 16px',
-								borderRadius: '20px',
-								fontSize: '18px',
-								fontWeight: '500',
-								backdropFilter: 'blur(10px)'
-							}}
-						>
-							{tag}
-						</div>
-					))}
-				</div>
+				/>
 
-				{/* Author - Always rendered with flex container */}
-				<div
-					style={{
-						position: 'absolute',
-						bottom: '40px',
-						right: '60px',
-						display: 'flex',
-						alignItems: 'center',
-						gap: '12px',
-						visibility: showAuthor && props.authorName ? 'visible' : 'hidden'
-					}}
-				>
-					<img
-						src={props.authorAvatar || 'https://via.placeholder.com/32'}
-						alt={`${props.authorName || 'Author'} avatar`}
-						width={32}
-						height={32}
-						style={{
-							borderRadius: '50%',
-							objectFit: 'cover',
-							border: '2px solid rgba(255, 255, 255, 0.3)',
-							visibility: props.authorAvatar ? 'visible' : 'hidden'
-						}}
-					/>
+				{/* Author + domain footer */}
+				<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+					{/* Author */}
 					<div
 						style={{
 							display: 'flex',
-							fontSize: '20px',
-							color: 'rgba(255, 255, 255, 0.9)',
-							fontWeight: '500'
+							alignItems: 'center',
+							gap: '12px',
+							opacity: showAuthor && props.authorName ? 1 : 0,
 						}}
 					>
-						{props.authorName ? `By: ${props.authorName}` : ''}
+						{props.authorAvatar ? (
+							<img
+								src={props.authorAvatar}
+								width={36}
+								height={36}
+								style={{
+									borderRadius: '50%',
+									objectFit: 'cover',
+									border: '2px solid rgba(168,85,247,0.4)',
+								}}
+							/>
+						) : (
+							<div
+								style={{
+									width: '36px',
+									height: '36px',
+									borderRadius: '50%',
+									background: 'rgba(168,85,247,0.2)',
+									border: '2px solid rgba(168,85,247,0.35)',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+								}}
+							/>
+						)}
+						<span style={{ fontSize: '18px', fontWeight: 600, color: 'rgba(255,255,255,0.70)' }}>
+							{props.authorName}
+						</span>
 					</div>
+
+					<span style={{ fontSize: '17px', color: 'rgba(255,255,255,0.25)', fontWeight: 500 }}>
+						antiraid.xyz
+					</span>
 				</div>
 			</div>
 		</div>

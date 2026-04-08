@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { fetchStrapiBlogs, fetchStrapiBlogBySlug } from '@/lib/api';
+import { fetchBlogs, fetchBlogBySlug } from '@/lib/api';
 import { generateBlogOGImage } from '@/lib/og-image';
 
 export const runtime = 'edge';
@@ -32,20 +32,16 @@ async function getCachedBlogs() {
 }
 
 /**
- * Fetches the latest blogs from Strapi and refreshes the in-memory cache.
+ * Fetches the latest blogs from  and refreshes the in-memory cache.
  */
 async function fetchFreshBlogs() {
 	try {
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
 
-		const response = await fetchStrapiBlogs();
+		const data = await fetchBlogs();
 		clearTimeout(timeoutId);
 
-		// Access the 'data' property from the response
-		const data = response.data;
-
-		// Ensure 'data' is an array before proceeding
 		if (!Array.isArray(data)) {
 			console.error('Expected an array of blogs, got:', typeof data);
 			throw new Error('Expected an array of blogs');
@@ -70,7 +66,7 @@ async function fetchFreshBlogs() {
  */
 async function refreshCacheInBackground() {
 	try {
-		const data = await fetchStrapiBlogs();
+		const data = await fetchBlogs();
 
 		// Update cache
 		blogCache.clear();
@@ -102,7 +98,7 @@ async function getBlogBySlug(slug: string): Promise<any | null> {
 			const controller = new AbortController();
 			const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
 
-			const singleBlog = await fetchStrapiBlogBySlug(slug);
+			const singleBlog = await fetchBlogBySlug(slug);
 			clearTimeout(timeoutId);
 
 			if (singleBlog) {
@@ -207,9 +203,7 @@ export async function GET(request: NextRequest) {
 			tags: Array.isArray(post.tags) ? post.tags : [],
 			slug: post.slug,
 			authorName: post.author?.name || post.author?.username || 'AntiRaid Team',
-			authorAvatar: post.author?.avatar?.url
-				? `https://strapi.purrquinox.com${post.author.avatar.url}`
-				: undefined
+			authorAvatar: post.author?.avatar || undefined
 		});
 
 		const response = new NextResponse(imageResponse.body, {
