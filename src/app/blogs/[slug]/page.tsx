@@ -21,9 +21,8 @@ export async function generateMetadata({
 	const { slug } = await params;
 
 	try {
-		const response = await fetchBlogs();
-		const data = response.data;
-		const post = data.find((b: any) => b.slug === slug);
+		const data = await fetchBlogs();
+		const post = data.find((b) => b.slug === slug);
 
 		if (!post) {
 			// Handle the case where post is undefined
