@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import { Menu, X, LayoutDashboard, LogOut, LogIn, ChevronDown, Terminal, ArrowRight } from 'lucide-react';
 import { FaDiscord } from 'react-icons/fa';
@@ -138,18 +137,11 @@ const NavBar: React.FC = () => {
 										href={item.href}
 										className={`relative px-4 py-2 text-sm font-semibold rounded-full transition-colors ${
 											isActive
-												? 'text-primary'
-												: 'text-muted-foreground hover:text-foreground'
+												? 'text-primary bg-primary/10 border border-primary/20'
+												: 'text-muted-foreground hover:text-foreground hover:bg-accent'
 										}`}
 									>
 										{item.name}
-										{isActive && (
-											<motion.span
-												layoutId="nav-pill"
-												className="absolute inset-0 rounded-full bg-primary/10 border border-primary/20 -z-10"
-												transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-											/>
-										)}
 									</Link>
 								);
 							}
@@ -192,54 +184,51 @@ const NavBar: React.FC = () => {
 										<span className="text-sm font-semibold text-foreground max-w-[100px] truncate">
 											{userData.username}
 										</span>
-										<ChevronDown className="w-4 h-4 text-muted-foreground" />
+										<ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isProfileOpen ? 'rotate-180' : ''}`} />
 									</button>
 
-									<AnimatePresence>
-										{isProfileOpen && (
-											<motion.div
-												initial={{ opacity: 0, y: 8, scale: 0.96 }}
-												animate={{ opacity: 1, y: 0, scale: 1 }}
-												exit={{ opacity: 0, y: 8, scale: 0.96 }}
-												transition={{ duration: 0.15 }}
-												className="absolute right-0 top-full mt-2 w-52 bg-card border border-border rounded-xl shadow-xl overflow-hidden"
+									{/* Profile dropdown */}
+									<div
+										className={`absolute right-0 top-full mt-2 w-52 bg-card border border-border rounded-xl shadow-xl overflow-hidden transition-all duration-150 origin-top-right ${
+											isProfileOpen
+												? 'opacity-100 scale-100 pointer-events-auto'
+												: 'opacity-0 scale-95 pointer-events-none'
+										}`}
+									>
+										{/* User info */}
+										<div className="px-4 py-3 border-b border-border bg-accent/30">
+											<p className="text-xs text-muted-foreground">Signed in as</p>
+											<p className="text-sm font-bold text-foreground truncate">
+												{userData.username}
+											</p>
+										</div>
+										<div className="p-1">
+											<Link
+												href="/dashboard"
+												onClick={() => setIsProfileOpen(false)}
+												className="flex items-center gap-3 px-3 py-2.5 text-sm text-foreground hover:bg-accent rounded-lg transition-colors"
 											>
-												{/* User info */}
-												<div className="px-4 py-3 border-b border-border bg-accent/30">
-													<p className="text-xs text-muted-foreground">Signed in as</p>
-													<p className="text-sm font-bold text-foreground truncate">
-														{userData.username}
-													</p>
-												</div>
-												<div className="p-1">
-													<Link
-														href="/dashboard"
-														onClick={() => setIsProfileOpen(false)}
-														className="flex items-center gap-3 px-3 py-2.5 text-sm text-foreground hover:bg-accent rounded-lg transition-colors"
-													>
-														<LayoutDashboard className="w-4 h-4" />
-														Dashboard
-													</Link>
-													<Link
-														href="/dashboard/developers"
-														onClick={() => setIsProfileOpen(false)}
-														className="flex items-center gap-3 px-3 py-2.5 text-sm text-foreground hover:bg-accent rounded-lg transition-colors"
-													>
-														<Terminal className="w-4 h-4" />
-														Developer
-													</Link>
-													<div className="h-px bg-border my-1" />
-													<button
-														onClick={handleLogout}
-														className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
-													>
-														<LogOut className="w-4 h-4" />
-														Logout
-													</button>
-												</div>
-											</motion.div>
-										)}
-									</AnimatePresence>
+												<LayoutDashboard className="w-4 h-4" />
+												Dashboard
+											</Link>
+											<Link
+												href="/dashboard/developers"
+												onClick={() => setIsProfileOpen(false)}
+												className="flex items-center gap-3 px-3 py-2.5 text-sm text-foreground hover:bg-accent rounded-lg transition-colors"
+											>
+												<Terminal className="w-4 h-4" />
+												Developer
+											</Link>
+											<div className="h-px bg-border my-1" />
+											<button
+												onClick={handleLogout}
+												className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+											>
+												<LogOut className="w-4 h-4" />
+												Logout
+											</button>
+										</div>
+									</div>
 								</>
 							) : (
 								<button
@@ -260,132 +249,108 @@ const NavBar: React.FC = () => {
 							className="md:hidden p-2.5 rounded-xl hover:bg-accent transition-colors"
 							aria-label="Toggle menu"
 						>
-							<AnimatePresence mode="wait" initial={false}>
-								{isMobileMenuOpen ? (
-									<motion.span
-										key="x"
-										initial={{ rotate: -90, opacity: 0 }}
-										animate={{ rotate: 0, opacity: 1 }}
-										exit={{ rotate: 90, opacity: 0 }}
-										transition={{ duration: 0.15 }}
-									>
-										<X className="w-5 h-5" />
-									</motion.span>
-								) : (
-									<motion.span
-										key="menu"
-										initial={{ rotate: 90, opacity: 0 }}
-										animate={{ rotate: 0, opacity: 1 }}
-										exit={{ rotate: -90, opacity: 0 }}
-										transition={{ duration: 0.15 }}
-									>
-										<Menu className="w-5 h-5" />
-									</motion.span>
-								)}
-							</AnimatePresence>
+							{isMobileMenuOpen ? (
+								<X className="w-5 h-5" />
+							) : (
+								<Menu className="w-5 h-5" />
+							)}
 						</button>
 					</div>
 				</nav>
 			</div>
 
 			{/* Mobile Menu */}
-			<AnimatePresence>
-				{isMobileMenuOpen && (
-					<motion.div
-						initial={{ opacity: 0, height: 0 }}
-						animate={{ opacity: 1, height: 'auto' }}
-						exit={{ opacity: 0, height: 0 }}
-						transition={{ duration: 0.25, ease: 'easeInOut' }}
-						className="md:hidden bg-background/95 backdrop-blur-xl border-t border-border overflow-hidden"
-					>
-						<div className="px-6 py-5 space-y-1.5">
-							{NavItems.filter((x) => !x.needsFFlag || !isLoaded || fflags.has(x.needsFFlag!)).map(
-								(item) => (
-									<Link
-										key={item.name}
-										href={item.href}
-										onClick={() => setIsMobileMenuOpen(false)}
-										className={`flex items-center justify-between px-4 py-3 rounded-xl text-base font-semibold transition-colors ${
-											currentPath === item.href
-												? 'bg-primary/10 text-primary border border-primary/20'
-												: 'text-muted-foreground hover:bg-accent hover:text-foreground'
-										}`}
-									>
-										{item.name}
-										{currentPath === item.href && (
-											<span className="w-1.5 h-1.5 rounded-full bg-primary" />
-										)}
-									</Link>
-								)
-							)}
-
-							<div className="h-px bg-border my-4" />
-
-							{/* Theme */}
-							<div className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-accent/30">
-								<span className="text-sm font-semibold text-foreground">Theme</span>
-								<ThemeSelector isOpen={isThemeOpen} onOpenChange={setIsThemeOpen} variant="sheet" />
-							</div>
-
-							<div className="h-px bg-border my-4" />
-
-							{/* Auth */}
-							{userData ? (
-								<>
-									<div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-accent/30">
-										<img
-											src={getAvatarUrl(userData)}
-											alt=""
-											className="h-10 w-10 rounded-full ring-2 ring-primary/20"
-										/>
-										<div className="min-w-0">
-											<p className="font-bold text-foreground truncate">{userData.username}</p>
-											<p className="text-xs text-muted-foreground">Signed in</p>
-										</div>
-									</div>
-									<Link
-										href="/dashboard"
-										onClick={() => setIsMobileMenuOpen(false)}
-										className="flex items-center gap-3 px-4 py-3 rounded-xl text-base font-semibold text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-									>
-										<LayoutDashboard className="w-5 h-5" />
-										Dashboard
-									</Link>
-									<button
-										onClick={handleLogout}
-										className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-base font-semibold text-destructive hover:bg-destructive/10 transition-colors"
-									>
-										<LogOut className="w-5 h-5" />
-										Logout
-									</button>
-								</>
-							) : (
-								<button
-									onClick={() => {
-										loginUser();
-										setIsMobileMenuOpen(false);
-									}}
-									className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-primary text-primary-foreground rounded-xl text-base font-bold"
-								>
-									<LogIn className="w-5 h-5" />
-									Login with Discord
-								</button>
-							)}
-
-							{/* Mobile invite CTA */}
+			<div
+				className={`md:hidden bg-background/95 backdrop-blur-xl border-t border-border overflow-hidden transition-all duration-250 ${
+					isMobileMenuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'
+				}`}
+			>
+				<div className="px-6 py-5 space-y-1.5">
+					{NavItems.filter((x) => !x.needsFFlag || !isLoaded || fflags.has(x.needsFFlag!)).map(
+						(item) => (
 							<Link
-								href="/invite"
+								key={item.name}
+								href={item.href}
 								onClick={() => setIsMobileMenuOpen(false)}
-								className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-card border border-border rounded-xl text-base font-bold text-foreground hover:border-primary/40 hover:bg-primary/5 transition-all"
+								className={`flex items-center justify-between px-4 py-3 rounded-xl text-base font-semibold transition-colors ${
+									currentPath === item.href
+										? 'bg-primary/10 text-primary border border-primary/20'
+										: 'text-muted-foreground hover:bg-accent hover:text-foreground'
+								}`}
 							>
-								<FaDiscord className="w-5 h-5 text-primary" />
-								Add AntiRaid to Your Server
-								<ArrowRight className="w-4 h-4 ml-auto text-muted-foreground" />
+								{item.name}
+								{currentPath === item.href && (
+									<span className="w-1.5 h-1.5 rounded-full bg-primary" />
+								)}
 							</Link>
-						</div>
-					</motion.div>
-				)}
-			</AnimatePresence>
+						)
+					)}
+
+					<div className="h-px bg-border my-4" />
+
+					{/* Theme */}
+					<div className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-accent/30">
+						<span className="text-sm font-semibold text-foreground">Theme</span>
+						<ThemeSelector isOpen={isThemeOpen} onOpenChange={setIsThemeOpen} variant="sheet" />
+					</div>
+
+					<div className="h-px bg-border my-4" />
+
+					{/* Auth */}
+					{userData ? (
+						<>
+							<div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-accent/30">
+								<img
+									src={getAvatarUrl(userData)}
+									alt=""
+									className="h-10 w-10 rounded-full ring-2 ring-primary/20"
+								/>
+								<div className="min-w-0">
+									<p className="font-bold text-foreground truncate">{userData.username}</p>
+									<p className="text-xs text-muted-foreground">Signed in</p>
+								</div>
+							</div>
+							<Link
+								href="/dashboard"
+								onClick={() => setIsMobileMenuOpen(false)}
+								className="flex items-center gap-3 px-4 py-3 rounded-xl text-base font-semibold text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+							>
+								<LayoutDashboard className="w-5 h-5" />
+								Dashboard
+							</Link>
+							<button
+								onClick={handleLogout}
+								className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-base font-semibold text-destructive hover:bg-destructive/10 transition-colors"
+							>
+								<LogOut className="w-5 h-5" />
+								Logout
+							</button>
+						</>
+					) : (
+						<button
+							onClick={() => {
+								loginUser();
+								setIsMobileMenuOpen(false);
+							}}
+							className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-primary text-primary-foreground rounded-xl text-base font-bold"
+						>
+							<LogIn className="w-5 h-5" />
+							Login with Discord
+						</button>
+					)}
+
+					{/* Mobile invite CTA */}
+					<Link
+						href="/invite"
+						onClick={() => setIsMobileMenuOpen(false)}
+						className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-card border border-border rounded-xl text-base font-bold text-foreground hover:border-primary/40 hover:bg-primary/5 transition-all"
+					>
+						<FaDiscord className="w-5 h-5 text-primary" />
+						Add AntiRaid to Your Server
+						<ArrowRight className="w-4 h-4 ml-auto text-muted-foreground" />
+					</Link>
+				</div>
+			</div>
 		</header>
 	);
 };

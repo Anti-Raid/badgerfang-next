@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 
 interface SectionProps {
@@ -23,13 +22,7 @@ export const Section: React.FC<SectionProps> = ({
 	const contentId = React.useId();
 
 	return (
-		<motion.div
-			className="group/section"
-			initial={{ opacity: 0, y: 8 }}
-			whileInView={{ opacity: 1, y: 0 }}
-			viewport={{ once: true }}
-			transition={{ duration: 0.4, ease: [0.25, 0.4, 0.25, 1] as const }}
-		>
+		<div className="group/section animate-in fade-in-0 slide-in-from-bottom-2 duration-400">
 			<div className="bg-card border border-border rounded-xl overflow-hidden transition-colors hover:border-primary/20">
 				{/* Header Section */}
 				<button
@@ -61,36 +54,27 @@ export const Section: React.FC<SectionProps> = ({
 									: 'bg-secondary text-muted-foreground hover:text-foreground'
 							}`}
 						>
-							<motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
-								<ChevronDown size={16} />
-							</motion.div>
+							<ChevronDown
+								size={16}
+								className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+							/>
 							<span>{isOpen ? 'Close' : 'Configure'}</span>
 						</div>
 					</div>
 				</button>
 
-				<AnimatePresence>
-					{isOpen && (
-						<motion.div
-							initial={{ height: 0, opacity: 0 }}
-							animate={{ height: 'auto', opacity: 1 }}
-							exit={{ height: 0, opacity: 0 }}
-							transition={{ duration: 0.25 }}
-							id={contentId}
-						>
-							<div className="border-t border-border p-5 bg-secondary/30">
-								<motion.div
-									initial={{ y: 4, opacity: 0 }}
-									animate={{ y: 0, opacity: 1 }}
-									transition={{ duration: 0.2 }}
-								>
-									{children}
-								</motion.div>
-							</div>
-						</motion.div>
-					)}
-				</AnimatePresence>
+				{/* Accordion content using grid trick */}
+				<div
+					id={contentId}
+					className={`grid transition-all duration-250 ${isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
+				>
+					<div className="overflow-hidden">
+						<div className="border-t border-border p-5 bg-secondary/30">
+							{children}
+						</div>
+					</div>
+				</div>
 			</div>
-		</motion.div>
+		</div>
 	);
 };

@@ -1,16 +1,13 @@
 'use client';
 
-import { useState, useMemo, useRef } from 'react';
-import { motion, AnimatePresence, useInView } from 'framer-motion';
+import { useState, useMemo } from 'react';
 import { getBotState } from '@/lib/api';
 import useSWR from 'swr';
 import {
 	Search,
 	Copy,
 	Check,
-	ChevronDown,
-	Grid3X3,
-	List,
+	ChevronRight,
 	Shield,
 	Settings,
 	MessageSquare,
@@ -18,45 +15,38 @@ import {
 	Lock,
 	Zap,
 	Bell,
-	Globe
+	Globe,
+	Terminal,
+	Hash
 } from 'lucide-react';
 
-// Animation variants
-const fadeUp = {
-	hidden: { opacity: 0, y: 20 },
-	visible: {
-		opacity: 1,
-		y: 0,
-		transition: { duration: 0.5, ease: [0.25, 0.4, 0.25, 1] as const }
-	}
+// ─── Module config ────────────────────────────────────────────────────────────
+
+type ModuleMeta = {
+	icon: React.ElementType;
+	color: string;
+	bg: string;
 };
 
-// Badge component
-const Badge = ({
-	children,
-	variant = 'default'
-}: {
-	children: React.ReactNode;
-	variant?: 'default' | 'required' | 'optional' | 'primary';
-}) => {
-	const variants = {
-		default: 'bg-muted text-muted-foreground',
-		required: 'bg-red-500/10 text-red-500 border-red-500/20',
-		optional: 'bg-muted text-muted-foreground',
-		primary: 'bg-primary/10 text-primary'
-	};
-
-	return (
-		<span
-			className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border border-transparent ${variants[variant]}`}
-		>
-			{children}
-		</span>
-	);
+const MODULE_META: Record<string, ModuleMeta> = {
+	moderation:    { icon: Shield,        color: 'text-rose-400',   bg: 'bg-rose-400/10'   },
+	settings:      { icon: Settings,      color: 'text-sky-400',    bg: 'bg-sky-400/10'    },
+	messages:      { icon: MessageSquare, color: 'text-amber-400',  bg: 'bg-amber-400/10'  },
+	members:       { icon: Users,         color: 'text-emerald-400',bg: 'bg-emerald-400/10'},
+	permissions:   { icon: Lock,          color: 'text-violet-400', bg: 'bg-violet-400/10' },
+	automation:    { icon: Zap,           color: 'text-orange-400', bg: 'bg-orange-400/10' },
+	notifications: { icon: Bell,          color: 'text-cyan-400',   bg: 'bg-cyan-400/10'   },
 };
 
-// Copy button component
-const CopyButton = ({ text }: { text: string }) => {
+const DEFAULT_META: ModuleMeta = { icon: Globe, color: 'text-primary', bg: 'bg-primary/10' };
+
+function getModuleMeta(name: string): ModuleMeta {
+	return MODULE_META[name?.toLowerCase()] ?? DEFAULT_META;
+}
+
+// ─── Copy button ──────────────────────────────────────────────────────────────
+
+const CopyButton = ({ text, small }: { text: string; small?: boolean }) => {
 	const [copied, setCopied] = useState(false);
 
 	const handleCopy = async () => {
@@ -64,40 +54,24 @@ const CopyButton = ({ text }: { text: string }) => {
 			await navigator.clipboard.writeText(text);
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
-		} catch {
-			console.error('Failed to copy');
-		}
+		} catch {}
 	};
+
+	const sz = small ? 12 : 14;
 
 	return (
 		<button
-			onClick={handleCopy}
-			className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-			aria-label={copied ? 'Copied' : 'Copy to clipboard'}
+			onClick={(e) => { e.stopPropagation(); handleCopy(); }}
+			className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
+			aria-label={copied ? 'Copied' : 'Copy'}
 		>
-			{copied ? <Check size={14} /> : <Copy size={14} />}
+			{copied ? <Check size={sz} /> : <Copy size={sz} />}
 		</button>
 	);
 };
 
-// Module icon component
-const ModuleIcon = ({ name, size = 20 }: { name: string; size?: number }) => {
-	const icons: Record<string, React.ReactNode> = {
-		moderation: <Shield size={size} />,
-		settings: <Settings size={size} />,
-		messages: <MessageSquare size={size} />,
-		members: <Users size={size} />,
-		permissions: <Lock size={size} />,
-		automation: <Zap size={size} />,
-		notifications: <Bell size={size} />
-	};
+// ─── Main ─────────────────────────────────────────────────────────────────────
 
-	return (
-		<span className="text-primary">{icons[name?.toLowerCase()] || <Globe size={size} />}</span>
-	);
-};
-
-// Main component
 export default function CommandInterface() {
 	const { data: botState, isLoading } = useSWR('bot-state', getBotState, {
 		revalidateOnFocus: false,
@@ -106,75 +80,60 @@ export default function CommandInterface() {
 
 	const [selectedModule, setSelectedModule] = useState<string>('all');
 	const [searchQuery, setSearchQuery] = useState('');
-	const [activeView, setActiveView] = useState<'grid' | 'list'>('grid');
 
-	// Process commands
 	const allCommands = useMemo(() => {
 		if (!botState) return [];
-		let idCounter = 0;
+		let id = 0;
 		const commands: any[] = [];
 
 		const extract = (opts: any[] = []) => {
-			const sub: any[] = [];
-			const args: any[] = [];
-			opts.forEach((o) => {
-				if (o.type === 1 || o.type === 2) sub.push(o);
-				else args.push(o);
-			});
+			const sub: any[] = [], args: any[] = [];
+			opts.forEach((o) => (o.type === 1 || o.type === 2 ? sub : args).push(o));
 			return { sub, args };
 		};
 
 		botState.commands.forEach((cmd: any) => {
 			const { sub, args } = extract(cmd.options);
-
 			if (sub.length === 0) {
 				commands.push({
-					...cmd,
-					moduleName: cmd.name,
-					id: `cmd-${idCounter++}`,
+					...cmd, moduleName: cmd.name, id: `cmd-${id++}`,
 					arguments: args.map((a) => ({ ...a, required: a.required ?? false }))
 				});
 			}
-
 			sub.forEach((sc) => {
 				const { sub: sSub, args: sArgs } = extract(sc.options);
 				commands.push({
-					...sc,
-					moduleName: cmd.name,
-					id: `cmd-${idCounter++}`,
-					parentName: cmd.name,
+					...sc, moduleName: cmd.name, id: `cmd-${id++}`, parentName: cmd.name,
 					subcommands: sSub,
 					arguments: sArgs.map((a) => ({ ...a, required: a.required ?? false }))
 				});
 			});
 		});
+
 		return commands;
 	}, [botState]);
 
-	const filteredCommands = useMemo(() => {
-		return allCommands.filter((cmd: any) => {
-			const matchesSearch =
-				(cmd.name?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false) ||
-				(cmd.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
-			const matchesModule = selectedModule === 'all' || cmd.moduleName === selectedModule;
-			return matchesSearch && matchesModule;
-		});
-	}, [allCommands, searchQuery, selectedModule]);
+	const filteredCommands = useMemo(() => allCommands.filter((cmd: any) => {
+		const q = searchQuery.toLowerCase();
+		const matchesSearch =
+			cmd.name?.toLowerCase().includes(q) ||
+			cmd.description?.toLowerCase().includes(q);
+		return matchesSearch && (selectedModule === 'all' || cmd.moduleName === selectedModule);
+	}), [allCommands, searchQuery, selectedModule]);
 
 	const modules = useMemo(() => {
 		if (!botState) return [];
 		return Array.from(
-			new Set(botState.commands.map((c: any) => c.name).filter((n: any): n is string => !!n))
-		);
+			new Set(botState.commands.map((c: any) => c.name).filter(Boolean))
+		) as string[];
 	}, [botState]);
 
-	// Loading state
 	if (isLoading) {
 		return (
 			<div className="min-h-screen flex items-center justify-center">
-				<div className="flex flex-col items-center gap-4">
-					<div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-					<p className="text-sm text-muted-foreground">Loading commands...</p>
+				<div className="flex flex-col items-center gap-3">
+					<div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+					<p className="text-sm text-muted-foreground">Loading...</p>
 				</div>
 			</div>
 		);
@@ -182,298 +141,203 @@ export default function CommandInterface() {
 
 	return (
 		<div className="min-h-screen">
-			{/* Hero */}
-			<section className="relative pt-32 pb-16 px-6 overflow-hidden">
-				<div className="absolute inset-0 -z-10 pointer-events-none">
-					<div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_50%_-10%,hsl(var(--primary)/0.15),transparent)]" />
-				</div>
-				<div className="max-w-4xl mx-auto text-center">
-					<motion.p
-						variants={fadeUp}
-						initial="hidden"
-						animate="visible"
-						className="text-sm font-bold text-primary uppercase tracking-widest mb-4"
-					>
-						Documentation
-					</motion.p>
-					<motion.h1
-						variants={fadeUp}
-						initial="hidden"
-						animate="visible"
-						transition={{ delay: 0.1 }}
-						className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6"
-					>
-						All{' '}
-						<span className="bg-gradient-to-r from-primary via-violet-400 to-blue-500 bg-clip-text text-transparent">
-							Commands
-						</span>
-					</motion.h1>
-					<motion.p
-						variants={fadeUp}
-						initial="hidden"
-						animate="visible"
-						transition={{ delay: 0.2 }}
-						className="text-lg text-muted-foreground max-w-2xl mx-auto"
-					>
-						Explore all available commands to configure and manage AntiRaid for your server.
-					</motion.p>
+			{/* Header */}
+			<div className="pt-32 pb-10 px-6 border-b border-border">
+				<div className="max-w-5xl mx-auto">
+					<div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-8 animate-in fade-in-0 slide-in-from-bottom-3 duration-400">
+						<div>
+							<h1 className="text-3xl font-bold text-foreground tracking-tight">Commands</h1>
+							<p className="text-sm text-muted-foreground mt-1">
+								{allCommands.length} commands across {modules.length} modules
+							</p>
+						</div>
 
-					{/* Search */}
-					<motion.div
-						variants={fadeUp}
-						initial="hidden"
-						animate="visible"
-						transition={{ delay: 0.3 }}
-						className="mt-10 max-w-xl mx-auto"
-					>
-						<div className="relative">
-							<Search
-								size={18}
-								className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"
-							/>
+						<div className="relative sm:w-72">
+							<Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
 							<input
 								type="text"
-								placeholder="Search commands..."
+								placeholder="Search..."
 								value={searchQuery}
 								onChange={(e) => setSearchQuery(e.target.value)}
-								className="w-full pl-11 pr-4 py-3 bg-muted/50 border border-border rounded-xl text-base placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+								className="w-full pl-9 pr-4 py-2.5 bg-muted/50 border border-border rounded-lg text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
 							/>
 						</div>
-					</motion.div>
-				</div>
-			</section>
+					</div>
 
-			{/* Content */}
-			<section className="max-w-6xl mx-auto px-6 pb-24">
-				<div className="flex flex-col lg:flex-row gap-8">
-					{/* Sidebar */}
-					<aside className="lg:w-64 shrink-0">
-						<div className="lg:sticky lg:top-24">
-							<h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4 px-3">
-								Modules
-							</h3>
-							<nav className="space-y-1">
-								<button
-									onClick={() => setSelectedModule('all')}
-									className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-										selectedModule === 'all'
-											? 'bg-primary text-primary-foreground'
-											: 'text-muted-foreground hover:text-foreground hover:bg-muted'
-									}`}
-								>
-									<Globe size={18} />
-									All Commands
-								</button>
-								{modules.map((mod) => (
-									<button
-										key={mod}
-										onClick={() => setSelectedModule(mod)}
-										className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors capitalize ${
-											selectedModule === mod
-												? 'bg-primary text-primary-foreground'
-												: 'text-muted-foreground hover:text-foreground hover:bg-muted'
-										}`}
-									>
-										<ModuleIcon name={mod} size={18} />
-										{mod}
-									</button>
-								))}
-							</nav>
-						</div>
-					</aside>
-
-					{/* Main content */}
-					<div className="flex-1 min-w-0">
-						{/* Header */}
-						<div className="flex items-center justify-between mb-6">
-							<p className="text-sm text-muted-foreground">
-								{filteredCommands.length} command{filteredCommands.length !== 1 ? 's' : ''}
-							</p>
-							<div className="flex items-center gap-1 p-1 bg-muted rounded-lg">
-								<button
-									onClick={() => setActiveView('grid')}
-									className={`p-2 rounded-md transition-colors ${
-										activeView === 'grid'
-											? 'bg-background text-foreground shadow-sm'
-											: 'text-muted-foreground hover:text-foreground'
-									}`}
-									aria-label="Grid view"
-								>
-									<Grid3X3 size={16} />
-								</button>
-								<button
-									onClick={() => setActiveView('list')}
-									className={`p-2 rounded-md transition-colors ${
-										activeView === 'list'
-											? 'bg-background text-foreground shadow-sm'
-											: 'text-muted-foreground hover:text-foreground'
-									}`}
-									aria-label="List view"
-								>
-									<List size={16} />
-								</button>
-							</div>
-						</div>
-
-						{/* Commands */}
-						<AnimatePresence mode="popLayout">
-							{filteredCommands.length > 0 ? (
-								<motion.div
-									layout
-									className={
-										activeView === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-4' : 'space-y-3'
-									}
-								>
-									{filteredCommands.map((command, idx) => (
-										<CommandCard key={command.id} command={command} view={activeView} index={idx} />
-									))}
-								</motion.div>
-							) : (
-								<motion.div
-									initial={{ opacity: 0 }}
-									animate={{ opacity: 1 }}
-									className="flex flex-col items-center justify-center py-24 border border-dashed border-border rounded-2xl"
-								>
-									<Search size={32} className="text-muted-foreground/50 mb-4" />
-									<p className="text-muted-foreground">No commands found</p>
-									<p className="text-sm text-muted-foreground/70 mt-1">
-										Try adjusting your search or filter
-									</p>
-								</motion.div>
-							)}
-						</AnimatePresence>
+					{/* Module filter */}
+					<div className="flex items-center gap-2 flex-wrap animate-in fade-in-0 duration-400 delay-100">
+						<FilterPill
+							active={selectedModule === 'all'}
+							onClick={() => setSelectedModule('all')}
+							icon={<Hash size={13} />}
+							label="All"
+							count={allCommands.length}
+						/>
+						{modules.map((mod) => {
+							const meta = getModuleMeta(mod);
+							const Icon = meta.icon;
+							return (
+								<FilterPill
+									key={mod}
+									active={selectedModule === mod}
+									onClick={() => setSelectedModule(mod)}
+									icon={<Icon size={13} />}
+									label={mod}
+									count={allCommands.filter((c: any) => c.moduleName === mod).length}
+									colorClass={selectedModule === mod ? meta.color : undefined}
+									bgClass={selectedModule === mod ? meta.bg : undefined}
+								/>
+							);
+						})}
 					</div>
 				</div>
-			</section>
+			</div>
+
+			{/* List */}
+			<div className="max-w-5xl mx-auto px-6 py-8 pb-24">
+				{filteredCommands.length === 0 ? (
+					<div className="flex flex-col items-center justify-center py-24 text-center">
+						<Terminal size={32} className="text-muted-foreground/30 mb-3" />
+						<p className="text-muted-foreground text-sm">No commands match your search</p>
+					</div>
+				) : (
+					<div className="space-y-1.5">
+						{filteredCommands.map((command, idx) => (
+							<CommandRow key={command.id} command={command} index={idx} />
+						))}
+					</div>
+				)}
+			</div>
 		</div>
 	);
 }
 
-// Command card component
-const CommandCard = ({
-	command,
-	view,
-	index
+// ─── Filter pill ──────────────────────────────────────────────────────────────
+
+const FilterPill = ({
+	active,
+	onClick,
+	icon,
+	label,
+	count,
+	colorClass,
+	bgClass
 }: {
-	command: any;
-	view: 'grid' | 'list';
-	index: number;
-}) => {
-	const [isOpen, setIsOpen] = useState(false);
-	const cardRef = useRef(null);
-	const isInView = useInView(cardRef, { once: true, margin: '-50px' });
+	active: boolean;
+	onClick: () => void;
+	icon: React.ReactNode;
+	label: string;
+	count: number;
+	colorClass?: string;
+	bgClass?: string;
+}) => (
+	<button
+		onClick={onClick}
+		className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium capitalize transition-all border ${
+			active
+				? `${bgClass ?? 'bg-primary/10'} ${colorClass ?? 'text-primary'} border-transparent`
+				: 'border-border text-muted-foreground hover:text-foreground hover:border-border/80 bg-transparent'
+		}`}
+	>
+		{icon}
+		{label}
+		<span className={`tabular-nums ${active ? 'opacity-70' : 'opacity-50'}`}>{count}</span>
+	</button>
+);
+
+// ─── Command row ──────────────────────────────────────────────────────────────
+
+const CommandRow = ({ command, index }: { command: any; index: number }) => {
+	const [open, setOpen] = useState(false);
+	const meta = getModuleMeta(command.moduleName);
+	const Icon = meta.icon;
+	const hasDetails = command.arguments?.length > 0 || command.subcommands?.length > 0;
+
+	// Build usage string
+	const usageArgs = (command.arguments ?? [])
+		.map((a: any) => a.required ? `<${a.name}>` : `[${a.name}]`)
+		.join(' ');
+	const usage = `/${command.parentName ? `${command.parentName} ` : ''}${command.name}${usageArgs ? ' ' + usageArgs : ''}`;
 
 	return (
-		<motion.div
-			ref={cardRef}
-			layout
-			initial={{ opacity: 0, y: 10 }}
-			animate={isInView ? { opacity: 1, y: 0 } : {}}
-			transition={{ duration: 0.3, delay: (index % 8) * 0.03 }}
-			className={`group bg-card border border-border rounded-xl transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-0.5`}
+		<div
+			className="animate-in fade-in-0 slide-in-from-bottom-2"
+			style={{ animationDuration: '200ms', animationDelay: `${Math.min(index * 15, 300)}ms` }}
 		>
-			<div className={`p-5 ${view === 'list' ? 'flex items-start gap-4' : ''}`}>
-				<div className={view === 'list' ? 'flex-1 min-w-0' : ''}>
-					{/* Header */}
-					<div className="flex items-start justify-between gap-3 mb-3">
-						<div className="flex items-center gap-3">
-							<div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-								<ModuleIcon name={command.moduleName} size={18} />
-							</div>
-							<div>
-								<h3 className="font-semibold text-foreground">/{command.name}</h3>
-								{command.parentName && (
-									<p className="text-xs text-muted-foreground">in /{command.parentName}</p>
-								)}
-							</div>
-						</div>
-						<CopyButton text={`/${command.name}`} />
-					</div>
+			<div
+				onClick={() => hasDetails && setOpen(!open)}
+				className={`group flex items-start gap-4 px-4 py-4 rounded-xl border transition-all duration-150 ${
+					open
+						? 'bg-card border-border rounded-b-none'
+						: `border-transparent hover:bg-card hover:border-border ${hasDetails ? 'cursor-pointer' : ''}`
+				}`}
+			>
+				{/* Module icon */}
+				<div className={`w-8 h-8 rounded-lg ${meta.bg} flex items-center justify-center shrink-0 mt-0.5`}>
+					<Icon size={15} className={meta.color} />
+				</div>
 
-					{/* Description */}
-					<p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+				{/* Name + description */}
+				<div className="flex-1 min-w-0">
+					<div className="flex items-center gap-2 mb-1 flex-wrap">
+						<code className="text-sm font-semibold text-foreground font-mono tracking-tight">
+							{usage}
+						</code>
+						{command.parentName && (
+							<span className="text-[11px] text-muted-foreground/60 font-sans">
+								{command.parentName}
+							</span>
+						)}
+					</div>
+					<p className="text-sm text-muted-foreground leading-snug">
 						{command.description || 'No description available.'}
 					</p>
 
-					{/* Badges */}
-					<div className="flex flex-wrap items-center gap-2">
-						{command.arguments?.length > 0 && (
-							<Badge variant="optional">
-								{command.arguments.length} argument{command.arguments.length !== 1 ? 's' : ''}
-							</Badge>
-						)}
-						{command.subcommands?.length > 0 && (
-							<Badge variant="primary">
-								{command.subcommands.length} subcommand{command.subcommands.length !== 1 ? 's' : ''}
-							</Badge>
-						)}
-					</div>
+					{/* Inline meta */}
+					{(command.arguments?.length > 0 || command.subcommands?.length > 0) && (
+						<div className="flex items-center gap-3 mt-2">
+							{command.arguments?.length > 0 && (
+								<span className="text-xs text-muted-foreground/60">
+									{command.arguments.length} argument{command.arguments.length !== 1 ? 's' : ''}
+								</span>
+							)}
+							{command.subcommands?.length > 0 && (
+								<span className="text-xs text-muted-foreground/60">
+									{command.subcommands.length} subcommand{command.subcommands.length !== 1 ? 's' : ''}
+								</span>
+							)}
+						</div>
+					)}
 				</div>
 
-				{/* Expand button */}
-				{(command.arguments?.length > 0 || command.subcommands?.length > 0) && (
-					<button
-						onClick={() => setIsOpen(!isOpen)}
-						className="mt-4 flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-					>
-						<span>{isOpen ? 'Hide details' : 'Show details'}</span>
-						<ChevronDown
-							size={16}
-							className={`transition-transform ${isOpen ? 'rotate-180' : ''}`}
+				{/* Right: copy + expand */}
+				<div className="flex items-center gap-2 shrink-0 mt-0.5">
+					<span className="opacity-0 group-hover:opacity-100 transition-opacity">
+						<CopyButton text={`/${command.name}`} />
+					</span>
+					{hasDetails && (
+						<ChevronRight
+							size={15}
+							className={`text-muted-foreground/50 transition-transform duration-200 ${open ? 'rotate-90' : ''}`}
 						/>
-					</button>
-				)}
+					)}
+				</div>
 			</div>
 
-			{/* Expanded content */}
-			<AnimatePresence>
-				{isOpen && (
-					<motion.div
-						initial={{ height: 0, opacity: 0 }}
-						animate={{ height: 'auto', opacity: 1 }}
-						exit={{ height: 0, opacity: 0 }}
-						transition={{ duration: 0.3, ease: [0.25, 0.4, 0.25, 1] as const }}
-						className="overflow-hidden"
-					>
-						<div className="px-5 pb-5 pt-2 space-y-6 border-t border-border">
+			{/* Expanded panel — CSS grid accordion */}
+			<div className={`grid transition-all duration-200 ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+				<div className="overflow-hidden">
+					<div className="bg-card border border-t-0 border-border rounded-b-xl px-4 pb-4">
+						<div className="grid sm:grid-cols-2 gap-4 pt-4">
 							{/* Arguments */}
 							{command.arguments?.length > 0 && (
 								<div>
-									<h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+									<p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-2.5">
 										Arguments
-									</h4>
-									<div className="space-y-2">
+									</p>
+									<div className="space-y-1">
 										{command.arguments.map((arg: any) => (
-											<div key={arg.name} className="p-3 bg-muted/50 rounded-lg">
-												<div className="flex items-center justify-between mb-1">
-													<div className="flex items-center gap-2">
-														<code className="text-sm font-mono font-medium text-primary">
-															{arg.name}
-														</code>
-														{arg.required ? (
-															<Badge variant="required">Required</Badge>
-														) : (
-															<Badge variant="optional">Optional</Badge>
-														)}
-													</div>
-													<CopyButton text={arg.name} />
-												</div>
-												{arg.description && (
-													<p className="text-xs text-muted-foreground">{arg.description}</p>
-												)}
-												{arg.choices?.length > 0 && (
-													<div className="mt-2 flex flex-wrap gap-1">
-														{arg.choices.map((c: string) => (
-															<span
-																key={c}
-																className="px-2 py-0.5 bg-background rounded text-xs font-mono text-muted-foreground"
-															>
-																{c}
-															</span>
-														))}
-													</div>
-												)}
-											</div>
+											<ArgRow key={arg.name} arg={arg} />
 										))}
 									</div>
 								</div>
@@ -482,42 +346,72 @@ const CommandCard = ({
 							{/* Subcommands */}
 							{command.subcommands?.length > 0 && (
 								<div>
-									<h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+									<p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-2.5">
 										Subcommands
-									</h4>
-									<div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+									</p>
+									<div className="space-y-1">
 										{command.subcommands.map((sub: any) => (
-											<div key={sub.name} className="p-3 bg-muted/50 rounded-lg">
-												<div className="flex items-center justify-between mb-1">
-													<span className="text-sm font-medium">{sub.name}</span>
-													<CopyButton text={`${command.name} ${sub.name}`} />
-												</div>
-												{sub.description && (
-													<p className="text-xs text-muted-foreground line-clamp-2">
-														{sub.description}
-													</p>
-												)}
-											</div>
+											<SubRow key={sub.name} sub={sub} parent={command.name} />
 										))}
 									</div>
 								</div>
 							)}
-
-							{/* Usage example */}
-							<div className="p-3 bg-muted rounded-lg flex items-center justify-between">
-								<code className="text-sm font-mono">
-									<span className="text-primary">/</span>
-									<span>{command.name}</span>
-									{command.arguments?.[0] && (
-										<span className="text-muted-foreground"> [{command.arguments[0].name}]</span>
-									)}
-								</code>
-								<CopyButton text={`/${command.name}`} />
-							</div>
 						</div>
-					</motion.div>
-				)}
-			</AnimatePresence>
-		</motion.div>
+					</div>
+				</div>
+			</div>
+		</div>
 	);
 };
+
+// ─── Arg row ──────────────────────────────────────────────────────────────────
+
+const ArgRow = ({ arg }: { arg: any }) => (
+	<div className="flex items-start justify-between gap-3 py-2 px-3 rounded-lg bg-muted/40 group/arg">
+		<div className="min-w-0 flex-1">
+			<div className="flex items-center gap-2 flex-wrap">
+				<code className="text-xs font-mono font-semibold text-foreground">{arg.name}</code>
+				<span className={`text-[10px] px-1.5 py-px rounded font-medium ${
+					arg.required ? 'bg-rose-500/10 text-rose-400' : 'text-muted-foreground/60'
+				}`}>
+					{arg.required ? 'required' : 'optional'}
+				</span>
+			</div>
+			{arg.description && (
+				<p className="text-xs text-muted-foreground mt-0.5 leading-snug">{arg.description}</p>
+			)}
+			{arg.choices?.length > 0 && (
+				<div className="mt-1 flex flex-wrap gap-1">
+					{arg.choices.map((c: string) => (
+						<span key={c} className="text-[10px] px-1.5 py-px bg-background border border-border rounded font-mono text-muted-foreground">
+							{c}
+						</span>
+					))}
+				</div>
+			)}
+		</div>
+		<span className="opacity-0 group-hover/arg:opacity-100 transition-opacity shrink-0 mt-0.5">
+			<CopyButton text={arg.name} small />
+		</span>
+	</div>
+);
+
+// ─── Sub row ──────────────────────────────────────────────────────────────────
+
+const SubRow = ({ sub, parent }: { sub: any; parent: string }) => (
+	<div className="flex items-start justify-between gap-3 py-2 px-3 rounded-lg bg-muted/40 group/sub">
+		<div className="min-w-0 flex-1">
+			<code className="text-xs font-mono font-semibold text-foreground">
+				/{parent} {sub.name}
+			</code>
+			{sub.description && (
+				<p className="text-xs text-muted-foreground mt-0.5 leading-snug line-clamp-2">
+					{sub.description}
+				</p>
+			)}
+		</div>
+		<span className="opacity-0 group-hover/sub:opacity-100 transition-opacity shrink-0 mt-0.5">
+			<CopyButton text={`/${parent} ${sub.name}`} small />
+		</span>
+	</div>
+);

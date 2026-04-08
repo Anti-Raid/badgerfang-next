@@ -2,7 +2,6 @@ import React from 'react';
 import { Partner } from '@/types/other/Partner';
 import { Globe, ExternalLink } from 'lucide-react';
 import { FaDiscord } from 'react-icons/fa';
-import { motion } from 'framer-motion';
 import Image from 'next/image';
 
 export const Partners = ({ isLoaded }: { isLoaded: boolean }) => {
@@ -35,12 +34,10 @@ export const Partners = ({ isLoaded }: { isLoaded: boolean }) => {
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 			{partners.map((partner, index) => (
-				<motion.div
+				<div
 					key={partner.name}
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: isLoaded ? 1 : 0, y: isLoaded ? 0 : 20 }}
-					transition={{ duration: 0.5, delay: 0.1 + index * 0.1 }}
-					className="group relative p-6 rounded-2xl bg-card border border-border hover:border-primary/40 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 overflow-hidden"
+					className={`group relative p-6 rounded-2xl bg-card border border-border hover:border-primary/40 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 overflow-hidden ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}
+					style={{ transitionDelay: `${100 + index * 100}ms` }}
 				>
 					{/* Subtle glow */}
 					<div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
@@ -105,7 +102,7 @@ export const Partners = ({ isLoaded }: { isLoaded: boolean }) => {
 							))}
 						</div>
 					</div>
-				</motion.div>
+				</div>
 			))}
 		</div>
 	);

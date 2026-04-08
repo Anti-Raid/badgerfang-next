@@ -2,7 +2,6 @@
 import React, { forwardRef } from 'react';
 import { LucideIcon } from 'lucide-react';
 import { IconType as ReactIconType } from 'react-icons';
-import { motion, HTMLMotionProps } from 'framer-motion';
 
 // ============================================
 // BUTTON VARIANTS & SIZE CONFIGURATION
@@ -41,19 +40,18 @@ const iconSizeMap: Record<ButtonSize, number> = {
 // BUTTON COMPONENT
 // ============================================
 
-export interface ButtonProps extends Omit<HTMLMotionProps<'button'>, 'children' | 'title'> {
+export interface ButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'title'> {
 	children?: React.ReactNode;
-	Title?: string; // Legacy support
+	Title?: string;
 	onClick?: () => void;
 	icon?: ReactIconType | LucideIcon;
 	iconRight?: ReactIconType | LucideIcon;
 	variant?: ButtonVariant;
-	size?: ButtonSize | 'default' | 'inline' | 'small' | 'smallInline'; // Legacy size support
+	size?: ButtonSize | 'default' | 'inline' | 'small' | 'smallInline';
 	loading?: boolean;
 	fullWidth?: boolean;
 }
 
-// Map legacy sizes to new sizes
 const legacySizeMap: Record<string, ButtonSize> = {
 	default: 'md',
 	inline: 'sm',
@@ -79,38 +77,29 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 		},
 		ref
 	) => {
-		// Map legacy sizes
 		const mappedSize: ButtonSize = legacySizeMap[size] || (size as ButtonSize);
 		const iconSize = iconSizeMap[mappedSize];
 		const content = children || Title;
 
-		// Dev warning for accessibility
 		if (process.env.NODE_ENV === 'development' && !content && mappedSize !== 'icon') {
 			console.warn('Button: Missing content or Title prop for accessibility.');
 		}
 
 		const baseStyles =
-			'inline-flex items-center justify-center font-semibold rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50';
+			'inline-flex items-center justify-center font-semibold rounded-full transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:scale-[1.02] hover:-translate-y-px active:scale-[0.98]';
 
 		return (
-			<motion.button
+			<button
 				ref={ref}
 				type="button"
 				onClick={onClick}
 				disabled={disabled || loading}
 				className={`${baseStyles} ${variantStyles[variant]} ${sizeStyles[mappedSize]} ${fullWidth ? 'w-full' : ''} ${className}`}
-				whileHover={{ scale: disabled || loading ? 1 : 1.02, y: disabled || loading ? 0 : -1 }}
-				whileTap={{ scale: disabled || loading ? 1 : 0.98 }}
-				transition={{ duration: 0.15, ease: 'easeOut' }}
 				aria-label={typeof content === 'string' ? content : undefined}
 				{...rest}
 			>
 				{loading ? (
-					<motion.span
-						className="h-4 w-4 border-2 border-current border-t-transparent rounded-full"
-						animate={{ rotate: 360 }}
-						transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-					/>
+					<span className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
 				) : (
 					<>
 						{Icon && <Icon size={iconSize} className="shrink-0" />}
@@ -118,7 +107,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 						{IconRight && <IconRight size={iconSize} className="shrink-0" />}
 					</>
 				)}
-			</motion.button>
+			</button>
 		);
 	}
 );
@@ -143,5 +132,4 @@ export const Destructive: React.FC<ButtonProps> = (props) => (
 
 export const Outline: React.FC<ButtonProps> = (props) => <Button variant="outline" {...props} />;
 
-// Default export
 export default Button;

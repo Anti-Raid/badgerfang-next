@@ -1,7 +1,6 @@
 'use client';
 
 import React, { Fragment, useState, useId } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, EyeOff } from 'lucide-react';
 import type { Icon } from 'lucide-react';
 import { CustomSelect } from './CustomSelect';
@@ -175,18 +174,12 @@ export const InputField: React.FC<InputFieldProps> = ({
 					</div>
 				)}
 			</div>
-			<AnimatePresence>
-				{error && (
-					<motion.div
-						initial={{ opacity: 0, y: -4 }}
-						animate={{ opacity: 1, y: 0 }}
-						className="flex items-center gap-2 mt-2 text-xs text-destructive"
-					>
-						<span className="w-1 h-1 rounded-full bg-destructive" />
-						{error}
-					</motion.div>
-				)}
-			</AnimatePresence>
+			{error && (
+				<div className="animate-in fade-in-0 slide-in-from-top-1 duration-200 flex items-center gap-2 mt-2 text-xs text-destructive">
+					<span className="w-1 h-1 rounded-full bg-destructive" />
+					{error}
+				</div>
+			)}
 		</div>
 	);
 };
@@ -232,16 +225,9 @@ export const RadioOption: React.FC<RadioOptionProps> = ({
 							: 'border-border bg-background group-hover/radio:border-primary/30'
 					}`}
 				>
-					<AnimatePresence>
-						{checked && (
-							<motion.div
-								initial={{ scale: 0 }}
-								animate={{ scale: 1 }}
-								exit={{ scale: 0 }}
-								className="w-2.5 h-2.5 rounded-full bg-primary"
-							/>
-						)}
-					</AnimatePresence>
+					<div
+						className={`w-2.5 h-2.5 rounded-full bg-primary transition-all duration-150 ${checked ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`}
+					/>
 				</div>
 				<span
 					className={`ml-3 text-sm transition-colors ${checked ? 'text-foreground' : 'text-muted-foreground'}`}
@@ -349,16 +335,8 @@ export const Toggle: React.FC<ToggleProps> = ({
 					aria-describedby={description ? descriptionId : undefined}
 					tabIndex={0}
 				>
-					<motion.span
-						className="inline-block h-4 w-4 transform rounded-full bg-white shadow-sm"
-						animate={{
-							translateX: checked ? '1.5rem' : '0.25rem'
-						}}
-						transition={{
-							type: 'spring',
-							stiffness: 500,
-							damping: 30
-						}}
+					<span
+						className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-200 ${checked ? 'translate-x-6' : 'translate-x-1'}`}
 					/>
 				</button>
 			</div>

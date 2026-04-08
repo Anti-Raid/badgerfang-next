@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, ArrowRight, Clock, User, Tag } from 'lucide-react';
 import BlogCard from '@/components/blogs/BlogCard';
 import type { BlogPost } from '@/types/blogs/index';
@@ -17,15 +16,8 @@ const calculateReadingTime = (content: string): string => {
 	return `${mins} min read`;
 };
 
-// ── Featured post card ────────────────────────────────────────────────────────
-
 const FeaturedCard = ({ blog }: { blog: BlogPost }) => (
-	<motion.div
-		initial={{ opacity: 0, y: 24 }}
-		animate={{ opacity: 1, y: 0 }}
-		transition={{ duration: 0.6 }}
-		className="group relative rounded-3xl overflow-hidden border border-border bg-card hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300"
-	>
+	<div className="group relative rounded-3xl overflow-hidden border border-border bg-card hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 animate-in fade-in-0 slide-in-from-bottom-4 duration-600">
 		<div className="grid lg:grid-cols-2">
 			{/* Image */}
 			<div className="relative aspect-[4/3] lg:aspect-auto min-h-[280px] overflow-hidden">
@@ -36,11 +28,9 @@ const FeaturedCard = ({ blog }: { blog: BlogPost }) => (
 					className="object-cover group-hover:scale-105 transition-transform duration-700"
 					priority
 				/>
-				{/* Gradient overlay */}
 				<div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-card/80 hidden lg:block" />
 				<div className="absolute inset-0 bg-gradient-to-t from-card/80 via-transparent to-transparent lg:hidden" />
 
-				{/* Featured badge */}
 				<span className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-primary text-primary-foreground shadow-lg shadow-primary/30">
 					<span className="w-1.5 h-1.5 rounded-full bg-primary-foreground animate-pulse" />
 					Featured
@@ -49,7 +39,6 @@ const FeaturedCard = ({ blog }: { blog: BlogPost }) => (
 
 			{/* Content */}
 			<div className="p-8 lg:p-10 flex flex-col justify-center">
-				{/* Tags */}
 				{blog.tags?.length > 0 && (
 					<div className="flex flex-wrap gap-2 mb-4">
 						{blog.tags.slice(0, 3).map((tag) => (
@@ -69,16 +58,10 @@ const FeaturedCard = ({ blog }: { blog: BlogPost }) => (
 
 				<p className="text-muted-foreground leading-relaxed mb-6 line-clamp-3">{blog.description}</p>
 
-				{/* Meta */}
 				<div className="flex items-center gap-3 text-sm text-muted-foreground mb-8">
 					{blog.author?.avatar ? (
 						<div className="relative w-7 h-7 rounded-full overflow-hidden border border-border flex-shrink-0">
-							<Image
-								src={blog.author.avatar}
-								alt={blog.author.name}
-								fill
-								className="object-cover"
-							/>
+							<Image src={blog.author.avatar} alt={blog.author.name} fill className="object-cover" />
 						</div>
 					) : (
 						<div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
@@ -104,10 +87,8 @@ const FeaturedCard = ({ blog }: { blog: BlogPost }) => (
 				</Link>
 			</div>
 		</div>
-	</motion.div>
+	</div>
 );
-
-// ── Main layout ───────────────────────────────────────────────────────────────
 
 export default function BlogLayout() {
 	const [blogs, setBlogs] = useState<BlogPost[]>([]);
@@ -160,48 +141,24 @@ export default function BlogLayout() {
 
 	return (
 		<div className="min-h-screen">
-			{/* ── Hero ── */}
+			{/* Hero */}
 			<section className="relative pt-32 pb-12 px-6 overflow-hidden">
-				<div className="absolute inset-0 -z-10 pointer-events-none">
-					<div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_-10%,hsl(var(--primary)/0.18),transparent)]" />
-					<div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(hsl(var(--foreground))_1px,transparent_1px),linear-gradient(90deg,hsl(var(--foreground))_1px,transparent_1px)] bg-[size:56px_56px]" />
-				</div>
-
 				<div className="max-w-4xl mx-auto text-center">
-					<motion.p
-						initial={{ opacity: 0, y: 12 }}
-						animate={{ opacity: 1, y: 0 }}
-						className="text-sm font-bold text-primary uppercase tracking-widest mb-4"
-					>
+					<p className="text-sm font-bold text-primary uppercase tracking-widest mb-4 animate-in fade-in-0 slide-in-from-bottom-2 duration-500">
 						Insights & Updates
-					</motion.p>
-					<motion.h1
-						initial={{ opacity: 0, y: 16 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ delay: 0.05 }}
-						className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-5"
-					>
+					</p>
+					<h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-5 animate-in fade-in-0 slide-in-from-bottom-3 duration-500 delay-50">
 						The AntiRaid{' '}
 						<span className="bg-gradient-to-r from-primary via-violet-400 to-blue-500 bg-clip-text text-transparent">
 							Blog
 						</span>
-					</motion.h1>
-					<motion.p
-						initial={{ opacity: 0, y: 16 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ delay: 0.1 }}
-						className="text-lg text-muted-foreground max-w-xl mx-auto mb-10"
-					>
+					</h1>
+					<p className="text-lg text-muted-foreground max-w-xl mx-auto mb-10 animate-in fade-in-0 duration-500 delay-100">
 						Discord security insights, moderation tips, and product updates.
-					</motion.p>
+					</p>
 
 					{/* Search */}
-					<motion.div
-						initial={{ opacity: 0, y: 16 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ delay: 0.15 }}
-						className="max-w-xl mx-auto"
-					>
+					<div className="max-w-xl mx-auto animate-in fade-in-0 duration-500 delay-150">
 						<div className="relative">
 							<Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
 							<input
@@ -220,54 +177,46 @@ export default function BlogLayout() {
 								</button>
 							)}
 						</div>
-					</motion.div>
+					</div>
 				</div>
 			</section>
 
-			{/* ── Tag pills ── */}
-			<AnimatePresence>
-				{allTags.length > 0 && (
-					<motion.section
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						className="max-w-6xl mx-auto px-6 pb-8"
-					>
-						<div className="flex flex-wrap items-center justify-center gap-2">
+			{/* Tag pills */}
+			{allTags.length > 0 && (
+				<section className="max-w-6xl mx-auto px-6 pb-8">
+					<div className="flex flex-wrap items-center justify-center gap-2">
+						<button
+							onClick={() => setSelectedTag(null)}
+							className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-semibold transition-all ${
+								!selectedTag
+									? 'bg-primary text-primary-foreground shadow-sm shadow-primary/20'
+									: 'bg-accent text-muted-foreground hover:text-foreground'
+							}`}
+						>
+							All
+						</button>
+						{allTags.map((tag) => (
 							<button
-								onClick={() => setSelectedTag(null)}
+								key={tag}
+								onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
 								className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-semibold transition-all ${
-									!selectedTag
+									selectedTag === tag
 										? 'bg-primary text-primary-foreground shadow-sm shadow-primary/20'
 										: 'bg-accent text-muted-foreground hover:text-foreground'
 								}`}
 							>
-								All
+								<Tag className="w-3 h-3" />
+								{tag}
 							</button>
-							{allTags.map((tag) => (
-								<button
-									key={tag}
-									onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
-									className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-semibold transition-all ${
-										selectedTag === tag
-											? 'bg-primary text-primary-foreground shadow-sm shadow-primary/20'
-											: 'bg-accent text-muted-foreground hover:text-foreground'
-									}`}
-								>
-									<Tag className="w-3 h-3" />
-									{tag}
-								</button>
-							))}
-						</div>
-					</motion.section>
-				)}
-			</AnimatePresence>
+						))}
+					</div>
+				</section>
+			)}
 
-			{/* ── Content ── */}
+			{/* Content */}
 			<section className="max-w-6xl mx-auto px-6 pb-24 space-y-8">
 				{isLoading ? (
-					/* Skeleton */
 					<div className="space-y-8">
-						{/* Featured skeleton */}
 						<div className="rounded-3xl border border-border bg-card overflow-hidden animate-pulse">
 							<div className="grid lg:grid-cols-2">
 								<div className="aspect-[4/3] lg:aspect-auto min-h-[280px] bg-muted" />
@@ -282,7 +231,6 @@ export default function BlogLayout() {
 								</div>
 							</div>
 						</div>
-						{/* Grid skeleton */}
 						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 							{[1, 2, 3].map((i) => (
 								<div key={i} className="rounded-2xl border border-border bg-card overflow-hidden animate-pulse">
@@ -297,12 +245,7 @@ export default function BlogLayout() {
 						</div>
 					</div>
 				) : filteredBlogs.length === 0 ? (
-					/* Empty state */
-					<motion.div
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						className="text-center py-28 flex flex-col items-center"
-					>
+					<div className="text-center py-28 flex flex-col items-center animate-in fade-in-0 duration-300">
 						<div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mb-5">
 							<Search className="w-7 h-7 text-muted-foreground/50" />
 						</div>
@@ -317,16 +260,11 @@ export default function BlogLayout() {
 							<X className="w-4 h-4" />
 							Clear filters
 						</button>
-					</motion.div>
+					</div>
 				) : (
 					<>
-						{/* Filter result count */}
 						{isFiltering && (
-							<motion.div
-								initial={{ opacity: 0 }}
-								animate={{ opacity: 1 }}
-								className="flex items-center justify-between"
-							>
+							<div className="flex items-center justify-between animate-in fade-in-0 duration-200">
 								<p className="text-sm text-muted-foreground">
 									<span className="font-semibold text-foreground">{filteredBlogs.length}</span>{' '}
 									article{filteredBlogs.length !== 1 ? 's' : ''} found
@@ -344,13 +282,11 @@ export default function BlogLayout() {
 									<X className="w-3.5 h-3.5" />
 									Clear
 								</button>
-							</motion.div>
+							</div>
 						)}
 
-						{/* Featured post */}
 						{featuredPost && <FeaturedCard blog={featuredPost} />}
 
-						{/* Grid */}
 						{gridPosts.length > 0 && (
 							<>
 								{featuredPost && (
@@ -362,18 +298,11 @@ export default function BlogLayout() {
 										<div className="h-px flex-1 bg-border" />
 									</div>
 								)}
-								<motion.div
-									className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-									initial="hidden"
-									animate="show"
-									variants={{
-										show: { transition: { staggerChildren: 0.05 } }
-									}}
-								>
+								<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 									{gridPosts.map((blog, index) => (
 										<BlogCard key={blog.slug} blog={blog} index={index} />
 									))}
-								</motion.div>
+								</div>
 							</>
 						)}
 					</>

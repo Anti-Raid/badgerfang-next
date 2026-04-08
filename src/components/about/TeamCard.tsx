@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import useSWR from 'swr';
 import Image from 'next/image';
 import { FaDiscord } from 'react-icons/fa';
@@ -54,13 +53,10 @@ export const TeamMembers = ({ isLoaded }: { isLoaded: boolean }) => {
 	return (
 		<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
 			{usersData?.map((user, index) => (
-				<motion.div
+				<div
 					key={index}
-					initial={{ opacity: 0, y: 20 }}
-					whileInView={{ opacity: 1, y: 0 }}
-					viewport={{ once: true }}
-					transition={{ duration: 0.4, delay: index * 0.06 }}
-					className="group relative p-5 rounded-2xl bg-card border border-border hover:border-primary/40 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 flex flex-col items-center text-center"
+					className={`group relative p-5 rounded-2xl bg-card border border-border hover:border-primary/40 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 flex flex-col items-center text-center ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}
+					style={{ transitionDelay: `${index * 60}ms` }}
 				>
 					{/* Avatar */}
 					<div className="relative mb-3">
@@ -89,7 +85,7 @@ export const TeamMembers = ({ isLoaded }: { isLoaded: boolean }) => {
 					<div className="mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
 						<FaDiscord className="w-4 h-4 text-primary mx-auto" />
 					</div>
-				</motion.div>
+				</div>
 			))}
 		</div>
 	);

@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
 import { GripVertical, Edit, Trash2 } from 'lucide-react';
 
 interface SettingsEntryProps {
@@ -20,13 +19,7 @@ export const SettingsEntry: React.FC<SettingsEntryProps> = ({
 	isDraggable = false
 }) => {
 	return (
-		<motion.div
-			initial={{ opacity: 0, y: 6 }}
-			animate={{ opacity: 1, y: 0 }}
-			exit={{ opacity: 0 }}
-			transition={{ duration: 0.2 }}
-			className="group/entry relative bg-secondary/50 border border-border rounded-xl p-4 transition-colors hover:border-primary/20"
-		>
+		<div className="group/entry relative bg-secondary/50 border border-border rounded-xl p-4 transition-colors hover:border-primary/20">
 			<div className="flex items-center gap-4">
 				{isDraggable && (
 					<div className="text-muted-foreground group-hover/entry:text-foreground transition-colors cursor-grab active:cursor-grabbing">
@@ -66,6 +59,6 @@ export const SettingsEntry: React.FC<SettingsEntryProps> = ({
 					</button>
 				</div>
 			</div>
-		</motion.div>
+		</div>
 	);
 };

@@ -1,6 +1,5 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import React from 'react';
 
 type FeatureCardProps = {
@@ -11,20 +10,14 @@ type FeatureCardProps = {
 	isLoaded?: boolean;
 };
 
-export const FeatureCard = ({ icon, title, description, delay = 0 }: FeatureCardProps) => {
+export const FeatureCard = ({ icon, title, description }: FeatureCardProps) => {
 	return (
-		<motion.div
-			initial={{ opacity: 0, y: 10 }}
-			whileInView={{ opacity: 1, y: 0 }}
-			viewport={{ once: true }}
-			transition={{ duration: 0.4, delay }}
-			className="p-6 rounded-xl border border-border bg-card transition-colors hover:border-primary/30"
-		>
+		<div className="p-6 rounded-xl border border-border bg-card transition-colors hover:border-primary/30">
 			<div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-4">
 				{icon}
 			</div>
 			<h3 className="font-semibold text-foreground mb-2">{title}</h3>
 			<p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
-		</motion.div>
+		</div>
 	);
 };

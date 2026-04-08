@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Check, Copy, Palette, Type, Layout } from 'lucide-react';
 
-// ── Internal helpers ──────────────────────────────────────────────────────────
+// Internal helpers
 
 const CopyToken = ({ value, label }: { value: string; label?: string }) => {
 	const [copied, setCopied] = useState(false);
@@ -72,7 +72,7 @@ const Swatch = ({ name, cssVar, description }: SwatchProps) => {
 	);
 };
 
-// ── Color Palette ─────────────────────────────────────────────────────────────
+// Color Palette
 
 export const ColorPalette = () => {
 	const brand = [
@@ -163,7 +163,7 @@ export const ColorPalette = () => {
 	);
 };
 
-// ── Typography ────────────────────────────────────────────────────────────────
+// Typography
 
 export const Typography = () => {
 	const scale = [
@@ -266,7 +266,7 @@ export const Typography = () => {
 	);
 };
 
-// ── UI Components ─────────────────────────────────────────────────────────────
+// UI Components
 
 export const Buttons = () => {
 	const [inputVal, setInputVal] = useState('');

@@ -2,7 +2,6 @@
 import { NodeProps } from '@/lib/flow/data';
 import { ReactNode } from 'react';
 import { FiZap } from 'react-icons/fi';
-import { motion } from 'framer-motion';
 import { useNodeValues } from '@/lib/flow/nodes';
 
 interface Props extends NodeProps {
@@ -31,14 +30,13 @@ export default function FlowNodeBase(props: Props) {
 	const Icon = FiZap;
 
 	return (
-		<motion.div
-			initial={{ scale: 0.8, opacity: 0 }}
-			animate={{ scale: 1, opacity: 1 }}
+		<div
 			className={`
 				relative px-4 py-3 rounded-xl shadow-lg border-2 min-w-[200px] cursor-grab
 				backdrop-blur-sm transition-all duration-300
 				${selected ? 'border-primary shadow-primary/30 shadow-xl' : 'border-border hover:border-primary/50'}
 				bg-gradient-to-br from-card/90 to-card/70
+				animate-in fade-in-0 zoom-in-95 duration-200
 			`}
 		>
 			<div className="flex items-start gap-3">
@@ -64,14 +62,10 @@ export default function FlowNodeBase(props: Props) {
 
 			{/* Glow effect when selected */}
 			{selected && (
-				<motion.div
-					initial={{ opacity: 0 }}
-					animate={{ opacity: 1 }}
-					className="absolute inset-0 rounded-xl bg-primary/5 pointer-events-none"
-				/>
+				<div className="absolute inset-0 rounded-xl bg-primary/5 pointer-events-none animate-in fade-in-0 duration-150" />
 			)}
 
 			{children}
-		</motion.div>
+		</div>
 	);
 }

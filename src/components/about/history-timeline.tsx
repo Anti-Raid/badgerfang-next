@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useRef, type JSX } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
 import { Milestone, Zap, Users, Code } from 'lucide-react';
 import { FaBullhorn } from 'react-icons/fa';
 
@@ -13,16 +12,18 @@ interface TimelineEvent {
 }
 
 export const HistoryTimeline = () => {
-	const [isLoaded, setIsLoaded] = useState(false);
 	const containerRef = useRef<HTMLDivElement>(null);
-	const { scrollYProgress } = useScroll({
-		target: containerRef,
-		offset: ['start end', 'end start']
-	});
-	const lineHeight = useTransform(scrollYProgress, [0, 0.9], ['0%', '100%']);
+	const [lineVisible, setLineVisible] = useState(false);
 
 	useEffect(() => {
-		setIsLoaded(true);
+		const el = containerRef.current;
+		if (!el) return;
+		const obs = new IntersectionObserver(
+			([e]) => { if (e.isIntersecting) { setLineVisible(true); obs.disconnect(); } },
+			{ rootMargin: '-100px' }
+		);
+		obs.observe(el);
+		return () => obs.disconnect();
 	}, []);
 
 	const timelineEvents: TimelineEvent[] = [
@@ -95,28 +96,23 @@ export const HistoryTimeline = () => {
 		<section id="timeline" className="py-24 px-6 border-y border-border bg-card/30">
 			<div className="max-w-6xl mx-auto">
 				{/* Header */}
-				<motion.div
-					initial={{ opacity: 0, y: 30 }}
-					whileInView={{ opacity: 1, y: 0 }}
-					viewport={{ once: true }}
-					transition={{ duration: 0.7 }}
-					className="text-center mb-20"
-				>
+				<div className="text-center mb-20 animate-in fade-in-0 slide-in-from-bottom-4 duration-700">
 					<p className="text-sm font-bold text-primary uppercase tracking-widest mb-4">History</p>
 					<h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">Our Journey</h2>
 					<p className="text-lg text-muted-foreground max-w-xl mx-auto">
 						The evolution of AntiRaid through the years.
 					</p>
-				</motion.div>
+				</div>
 
 				{/* Timeline */}
 				<div className="relative max-w-4xl mx-auto" ref={containerRef}>
 					{/* Central line track (desktop) */}
 					<div className="hidden md:block absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-px bg-border" />
 					{/* Animated fill line */}
-					<motion.div
-						className="hidden md:block absolute left-1/2 -translate-x-1/2 top-0 w-px bg-gradient-to-b from-primary to-blue-500 origin-top"
-						style={{ height: lineHeight }}
+					<div
+						className={`hidden md:block absolute left-1/2 -translate-x-1/2 top-0 w-px bg-gradient-to-b from-primary to-blue-500 origin-top transition-all duration-[1500ms] ease-out ${
+							lineVisible ? 'h-full opacity-100' : 'h-0 opacity-0'
+						}`}
 					/>
 
 					<div className="space-y-16">
@@ -133,21 +129,35 @@ export const HistoryTimeline = () => {
 const TimelineEventItem = ({ event, index }: { event: TimelineEvent; index: number }) => {
 	const isEven = index % 2 === 0;
 	const ref = useRef<HTMLDivElement>(null);
-	const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'center center'] });
-	const opacity = useTransform(scrollYProgress, [0, 0.6], [0, 1]);
-	const x = useTransform(scrollYProgress, [0, 0.6], isEven ? [-30, 0] : [30, 0]);
+	const [show, setShow] = useState(false);
+
+	useEffect(() => {
+		const el = ref.current;
+		if (!el) return;
+		const obs = new IntersectionObserver(
+			([e]) => { if (e.isIntersecting) { setShow(true); obs.disconnect(); } },
+			{ rootMargin: '-60px' }
+		);
+		obs.observe(el);
+		return () => obs.disconnect();
+	}, []);
 
 	return (
-		<motion.div ref={ref} style={{ opacity }}>
+		<div ref={ref} className={`transition-all duration-700 ${show ? 'opacity-100' : 'opacity-0'}`}>
 			<div
 				className={`flex flex-col md:flex-row items-center gap-6 ${
 					isEven ? 'md:flex-row' : 'md:flex-row-reverse'
 				}`}
 			>
 				{/* Text card */}
-				<motion.div
-					style={{ x }}
-					className={`w-full md:w-5/12 ${isEven ? 'md:text-right' : 'md:text-left'}`}
+				<div
+					className={`w-full md:w-5/12 transition-all duration-700 ${
+						show
+							? 'opacity-100 translate-x-0'
+							: isEven
+								? 'opacity-0 -translate-x-8'
+								: 'opacity-0 translate-x-8'
+					} ${isEven ? 'md:text-right' : 'md:text-left'}`}
 				>
 					<div
 						className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20 mb-3 ${
@@ -158,7 +168,7 @@ const TimelineEventItem = ({ event, index }: { event: TimelineEvent; index: numb
 					</div>
 					<h3 className="text-xl font-bold text-foreground mb-2">{event.title}</h3>
 					<p className="text-sm text-muted-foreground leading-relaxed">{event.description}</p>
-				</motion.div>
+				</div>
 
 				{/* Center icon */}
 				<div className="relative z-10 flex-shrink-0 md:absolute md:left-1/2 md:-translate-x-1/2">
@@ -176,6 +186,6 @@ const TimelineEventItem = ({ event, index }: { event: TimelineEvent; index: numb
 				{/* Spacer for the other side on desktop */}
 				<div className="hidden md:block w-5/12" />
 			</div>
-		</motion.div>
+		</div>
 	);
 };

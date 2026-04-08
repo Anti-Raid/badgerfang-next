@@ -1,7 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { useRef, useState, useEffect } from 'react';
 import { Clock, User, ArrowUpRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -20,18 +19,25 @@ const calculateReadingTime = (content: string): string => {
 };
 
 export default function BlogCard({ blog, index }: BlogCardProps) {
-	const cardRef = useRef<HTMLDivElement>(null);
-	const isInView = useInView(cardRef, { once: true, margin: '-40px' });
+	const ref = useRef<HTMLDivElement>(null);
+	const [show, setShow] = useState(false);
+
+	useEffect(() => {
+		const el = ref.current;
+		if (!el) return;
+		const obs = new IntersectionObserver(
+			([e]) => { if (e.isIntersecting) { setShow(true); obs.disconnect(); } },
+			{ rootMargin: '-40px' }
+		);
+		obs.observe(el);
+		return () => obs.disconnect();
+	}, []);
 
 	return (
-		<motion.div
-			ref={cardRef}
-			variants={{
-				hidden: { opacity: 0, y: 16 },
-				show: { opacity: 1, y: 0, transition: { duration: 0.35 } }
-			}}
-			initial="hidden"
-			animate={isInView ? 'show' : 'hidden'}
+		<div
+			ref={ref}
+			className={`transition-all duration-500 ${show ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+			style={{ transitionDelay: `${Math.min(index * 50, 300)}ms` }}
 		>
 			<Link
 				href={`/blogs/${blog.slug}`}
@@ -116,6 +122,6 @@ export default function BlogCard({ blog, index }: BlogCardProps) {
 					</div>
 				</div>
 			</Link>
-		</motion.div>
+		</div>
 	);
 }

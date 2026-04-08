@@ -1,6 +1,5 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 interface LoadingProps {
 	onClose: () => void;
@@ -72,64 +71,35 @@ const Loading: React.FC<LoadingProps> = ({ onClose }) => {
 
 			{/* Main content */}
 			<div className="relative flex flex-col items-center gap-8">
-				{/* Animated logo */}
-				<motion.div
-					initial={{ scale: 0.8, opacity: 0 }}
-					animate={{ scale: 1, opacity: 1 }}
-					transition={{ duration: 0.5, ease: 'easeOut' }}
-					className="relative"
-				>
+				{/* Logo */}
+				<div className="relative animate-in fade-in-0 zoom-in-95 duration-500">
 					<div className="absolute inset-0 bg-primary/30 blur-2xl rounded-full animate-pulse" />
 					<img src="/logo.webp" alt="AntiRaid" className="w-20 h-20 relative z-10 rounded-full" />
-				</motion.div>
+				</div>
 
-				{/* Animated greeting */}
-				<AnimatePresence mode="wait">
-					<motion.h1
-						key={word}
-						initial={{ y: 20, opacity: 0, scale: 0.9 }}
-						animate={{ y: 0, opacity: 1, scale: 1 }}
-						exit={{ y: -20, opacity: 0, scale: 0.9 }}
-						transition={{ duration: 0.2, ease: 'easeOut' }}
-						className="text-5xl md:text-6xl font-bold text-foreground tracking-tight"
-					>
-						{word}
-					</motion.h1>
-				</AnimatePresence>
+				{/* Cycling greeting — key forces re-mount for each new word */}
+				<h1
+					key={word}
+					className="text-5xl md:text-6xl font-bold text-foreground tracking-tight animate-in fade-in-0 zoom-in-95 duration-200"
+				>
+					{word}
+				</h1>
 
 				{/* Loading indicator */}
-				<motion.div
-					initial={{ opacity: 0 }}
-					animate={{ opacity: 1 }}
-					transition={{ delay: 0.3 }}
-					className="flex items-center gap-1.5"
-				>
+				<div className="flex items-center gap-1.5 animate-in fade-in-0 duration-500 delay-300">
 					{[0, 1, 2].map((i) => (
-						<motion.span
+						<span
 							key={i}
-							className="w-2 h-2 bg-primary rounded-full"
-							animate={{
-								scale: [1, 1.3, 1],
-								opacity: [0.5, 1, 0.5]
-							}}
-							transition={{
-								duration: 0.8,
-								repeat: Infinity,
-								delay: i * 0.15
-							}}
+							className="w-2 h-2 bg-primary rounded-full animate-pulse"
+							style={{ animationDelay: `${i * 0.15}s` }}
 						/>
 					))}
-				</motion.div>
+				</div>
 
 				{/* Skip hint */}
-				<motion.p
-					initial={{ opacity: 0 }}
-					animate={{ opacity: 0.5 }}
-					transition={{ delay: 1 }}
-					className="absolute bottom-[-4rem] text-sm text-muted-foreground"
-				>
+				<p className="absolute bottom-[-4rem] text-sm text-muted-foreground opacity-50 animate-in fade-in-0 duration-500 delay-1000">
 					Click anywhere to skip
-				</motion.p>
+				</p>
 			</div>
 		</div>
 	);

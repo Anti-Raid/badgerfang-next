@@ -2,7 +2,6 @@
 
 import type React from 'react';
 import { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
 	KeyRound, Trash2, Plus, Terminal, Copy, Clock,
 	RefreshCw, Check, AlertTriangle, Zap, ShieldCheck, Eye, EyeOff
@@ -13,7 +12,7 @@ import { getUserSessions, revokeSession, createSession } from '@/lib/api';
 import type { UserSession } from '@/types/api/bindings/UserSession';
 import type { CreateUserSession } from '@/types/api/bindings/CreateUserSession';
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// Helpers
 
 function getCurrentSessionId(): string | null {
 	if (typeof window === 'undefined') return null;
@@ -35,16 +34,14 @@ function formatDate(iso: string): string {
 	return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-// ── Stat Card ─────────────────────────────────────────────────────────────────
+// Stat Card
 
 const StatCard = ({
 	label, value, icon, delay = 0
 }: { label: string; value: string | number; icon: React.ReactNode; delay?: number }) => (
-	<motion.div
-		initial={{ opacity: 0, y: 16 }}
-		animate={{ opacity: 1, y: 0 }}
-		transition={{ duration: 0.4, delay }}
-		className="relative group p-5 rounded-2xl bg-card border border-border hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 overflow-hidden"
+	<div
+		className="relative group p-5 rounded-2xl bg-card border border-border hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 overflow-hidden animate-in fade-in-0 slide-in-from-bottom-4"
+		style={{ animationDelay: `${delay * 1000}ms`, animationDuration: '500ms' }}
 	>
 		<div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
 		<div className="flex items-center gap-3 mb-3">
@@ -54,10 +51,10 @@ const StatCard = ({
 			<span className="text-sm font-medium text-muted-foreground">{label}</span>
 		</div>
 		<p className="text-3xl font-extrabold text-foreground tracking-tight">{value}</p>
-	</motion.div>
+	</div>
 );
 
-// ── Session Row ───────────────────────────────────────────────────────────────
+// Session Row
 
 const SessionRow = ({
 	session, currentSessionId, onRevoke
@@ -72,11 +69,8 @@ const SessionRow = ({
 	};
 
 	return (
-		<motion.div
-			initial={{ opacity: 0, y: 6 }}
-			animate={{ opacity: 1, y: 0 }}
-			exit={{ opacity: 0, x: -10 }}
-			className={`group relative flex items-center gap-3 p-3.5 rounded-xl border transition-all duration-200 ${
+		<div
+			className={`group relative flex items-center gap-3 p-3.5 rounded-xl border transition-all duration-200 animate-in fade-in-0 slide-in-from-bottom-1 ${
 				isCurrent
 					? 'bg-primary/5 border-primary/25'
 					: 'bg-background border-border hover:border-border/80'
@@ -138,11 +132,11 @@ const SessionRow = ({
 			>
 				<Trash2 className="w-3.5 h-3.5" />
 			</button>
-		</motion.div>
+		</div>
 	);
 };
 
-// ── Session Panel ─────────────────────────────────────────────────────────────
+// Session Panel
 
 const SessionPanel = ({
 	title, description, icon, sessions, onRevoke, delay = 0
@@ -157,11 +151,9 @@ const SessionPanel = ({
 	const currentSessionId = getCurrentSessionId();
 
 	return (
-		<motion.div
-			initial={{ opacity: 0, y: 20 }}
-			animate={{ opacity: 1, y: 0 }}
-			transition={{ duration: 0.45, delay }}
-			className="flex flex-col rounded-2xl border border-border bg-card overflow-hidden"
+		<div
+			className="flex flex-col rounded-2xl border border-border bg-card overflow-hidden animate-in fade-in-0 slide-in-from-bottom-4"
+			style={{ animationDelay: `${delay * 1000}ms`, animationDuration: '500ms' }}
 		>
 			{/* Header */}
 			<div className="flex items-center gap-3 p-5 border-b border-border">
@@ -188,24 +180,22 @@ const SessionPanel = ({
 					</div>
 				) : (
 					<div className="space-y-2 max-h-[360px] overflow-y-auto pr-0.5">
-						<AnimatePresence>
-							{sessions.map((s) => (
-								<SessionRow
-									key={s.id}
-									session={s}
-									currentSessionId={currentSessionId}
-									onRevoke={onRevoke}
-								/>
-							))}
-						</AnimatePresence>
+						{sessions.map((s) => (
+							<SessionRow
+								key={s.id}
+								session={s}
+								currentSessionId={currentSessionId}
+								onRevoke={onRevoke}
+							/>
+						))}
 					</div>
 				)}
 			</div>
-		</motion.div>
+		</div>
 	);
 };
 
-// ── Create Token Form ─────────────────────────────────────────────────────────
+// Create Token Form
 
 const CreateTokenForm = ({ onCreated }: { onCreated: () => void }) => {
 	const [form, setForm] = useState<CreateUserSession>({ name: '', type: 'api', expiry: 86400 });
@@ -241,12 +231,7 @@ const CreateTokenForm = ({ onCreated }: { onCreated: () => void }) => {
 	};
 
 	return (
-		<motion.div
-			initial={{ opacity: 0, y: 20 }}
-			animate={{ opacity: 1, y: 0 }}
-			transition={{ duration: 0.45, delay: 0.1 }}
-			className="flex flex-col rounded-2xl border border-border bg-card overflow-hidden"
-		>
+		<div className="flex flex-col rounded-2xl border border-border bg-card overflow-hidden animate-in fade-in-0 slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '100ms' }}>
 			{/* Header */}
 			<div className="flex items-center gap-3 p-5 border-b border-border">
 				<div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/20 to-violet-500/10 border border-primary/20 flex items-center justify-center text-primary flex-shrink-0">
@@ -316,48 +301,41 @@ const CreateTokenForm = ({ onCreated }: { onCreated: () => void }) => {
 					</div>
 
 					{/* Created token reveal */}
-					<AnimatePresence>
-						{token && (
-							<motion.div
-								initial={{ opacity: 0, height: 0 }}
-								animate={{ opacity: 1, height: 'auto' }}
-								exit={{ opacity: 0, height: 0 }}
-								className="rounded-xl border border-emerald-500/25 bg-emerald-500/5 overflow-hidden"
-							>
-								<div className="p-4">
-									<div className="flex items-center gap-2 mb-3">
-										<Check className="w-4 h-4 text-emerald-400" />
-										<span className="text-sm font-bold text-emerald-400">Token created</span>
-									</div>
-									<div className="flex items-center gap-2 bg-background rounded-lg border border-border p-2.5 mb-2">
-										<code className="text-xs font-mono text-muted-foreground flex-1 truncate">
-											{tokenVisible ? token : '•'.repeat(Math.min(token.length, 40))}
-										</code>
-										<button
-											type="button"
-											onClick={() => setTokenVisible(!tokenVisible)}
-											className="p-1 text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
-										>
-											{tokenVisible ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-										</button>
-										<button
-											type="button"
-											onClick={copyToken}
-											className="p-1 text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
-										>
-											{copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-										</button>
-									</div>
-									<div className="flex items-start gap-1.5">
-										<AlertTriangle className="w-3 h-3 text-amber-400 flex-shrink-0 mt-0.5" />
-										<p className="text-[11px] text-muted-foreground leading-relaxed">
-											Copy this token now — it won't be shown again.
-										</p>
-									</div>
+					{token && (
+						<div className="rounded-xl border border-emerald-500/25 bg-emerald-500/5 overflow-hidden animate-in fade-in-0 duration-200">
+							<div className="p-4">
+								<div className="flex items-center gap-2 mb-3">
+									<Check className="w-4 h-4 text-emerald-400" />
+									<span className="text-sm font-bold text-emerald-400">Token created</span>
 								</div>
-							</motion.div>
-						)}
-					</AnimatePresence>
+								<div className="flex items-center gap-2 bg-background rounded-lg border border-border p-2.5 mb-2">
+									<code className="text-xs font-mono text-muted-foreground flex-1 truncate">
+										{tokenVisible ? token : '•'.repeat(Math.min(token.length, 40))}
+									</code>
+									<button
+										type="button"
+										onClick={() => setTokenVisible(!tokenVisible)}
+										className="p-1 text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
+									>
+										{tokenVisible ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+									</button>
+									<button
+										type="button"
+										onClick={copyToken}
+										className="p-1 text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
+									>
+										{copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+									</button>
+								</div>
+								<div className="flex items-start gap-1.5">
+									<AlertTriangle className="w-3 h-3 text-amber-400 flex-shrink-0 mt-0.5" />
+									<p className="text-[11px] text-muted-foreground leading-relaxed">
+										Copy this token now — it won't be shown again.
+									</p>
+								</div>
+							</div>
+						</div>
+					)}
 				</div>
 
 				<div className="p-4 border-t border-border">
@@ -374,11 +352,11 @@ const CreateTokenForm = ({ onCreated }: { onCreated: () => void }) => {
 					</button>
 				</div>
 			</form>
-		</motion.div>
+		</div>
 	);
 };
 
-// ── Main Dashboard ─────────────────────────────────────────────────────────────
+// Main Dashboard
 
 const Dashboard: React.FC = () => {
 	const [sessions, setSessions] = useState<{ login: UserSession[]; api: UserSession[] }>({
@@ -418,57 +396,36 @@ const Dashboard: React.FC = () => {
 
 	return (
 		<div className="min-h-screen bg-background">
-			{/* ── Hero ── */}
+			{/* Hero */}
 			<section className="relative pt-28 pb-10 px-6 overflow-hidden border-b border-border">
-				<div className="absolute inset-0 -z-10 pointer-events-none">
-					<div className="absolute inset-0 bg-[radial-gradient(ellipse_55%_45%_at_50%_-5%,hsl(var(--primary)/0.14),transparent)]" />
-					<div className="absolute inset-0 opacity-[0.025] bg-[linear-gradient(hsl(var(--foreground))_1px,transparent_1px),linear-gradient(90deg,hsl(var(--foreground))_1px,transparent_1px)] bg-[size:48px_48px]" />
-				</div>
 
 				<div className="max-w-6xl mx-auto">
 					<div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10">
 						<div>
-							<motion.p
-								initial={{ opacity: 0, y: 10 }}
-								animate={{ opacity: 1, y: 0 }}
-								className="text-xs font-bold text-primary uppercase tracking-widest mb-2"
-							>
+							<p className="text-xs font-bold text-primary uppercase tracking-widest mb-2 animate-in fade-in-0 slide-in-from-bottom-2 duration-400">
 								Developer Portal
-							</motion.p>
-							<motion.h1
-								initial={{ opacity: 0, y: 14 }}
-								animate={{ opacity: 1, y: 0 }}
-								transition={{ delay: 0.04 }}
-								className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground mb-2"
-							>
+							</p>
+							<h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground mb-2 animate-in fade-in-0 slide-in-from-bottom-3 duration-400 delay-50">
 								Session{' '}
 								<span className="bg-gradient-to-r from-primary via-violet-400 to-blue-500 bg-clip-text text-transparent">
 									Management
 								</span>
-							</motion.h1>
-							<motion.p
-								initial={{ opacity: 0 }}
-								animate={{ opacity: 1 }}
-								transition={{ delay: 0.08 }}
-								className="text-sm text-muted-foreground max-w-md"
-							>
+							</h1>
+							<p className="text-sm text-muted-foreground max-w-md animate-in fade-in-0 duration-400 delay-100">
 								Manage your active sessions and API tokens. Revoke suspicious activity or generate new tokens for integrations.
-							</motion.p>
+							</p>
 						</div>
 
-						<motion.button
-							initial={{ opacity: 0 }}
-							animate={{ opacity: 1 }}
-							transition={{ delay: 0.1 }}
+						<button
 							onClick={fetchSessions}
-							className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-card text-sm font-semibold text-foreground hover:border-primary/30 hover:bg-card transition-all self-start sm:self-auto flex-shrink-0"
+							className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-card text-sm font-semibold text-foreground hover:border-primary/30 hover:bg-card transition-all self-start sm:self-auto flex-shrink-0 animate-in fade-in-0 duration-400 delay-100"
 						>
 							<RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
 							{lastUpdated
 								? `Updated ${lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
 								: 'Refresh'
 							}
-						</motion.button>
+						</button>
 					</div>
 
 					{/* Stat cards */}
@@ -495,7 +452,7 @@ const Dashboard: React.FC = () => {
 				</div>
 			</section>
 
-			{/* ── Content ── */}
+			{/* Content */}
 			<section className="max-w-6xl mx-auto px-6 py-10">
 				{loading ? (
 					<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">

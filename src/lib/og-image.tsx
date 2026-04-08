@@ -1,4 +1,3 @@
-import type { ImageResponseOptions } from 'next/dist/compiled/@vercel/og/types';
 import { ImageResponse } from 'next/og';
 import type { ReactElement, ReactNode } from 'react';
 
@@ -24,7 +23,7 @@ interface BlogGenerateProps {
 	showAuthor?: boolean;
 }
 
-export function generateOGImage(options: GenerateProps & ImageResponseOptions): ImageResponse {
+export function generateOGImage(options: GenerateProps & any): ImageResponse {
 	const { title, tag, description, primaryTextColor, ...rest } = options;
 	return new ImageResponse(
 		generate({ title, tag, description, primaryTextColor }),
@@ -33,7 +32,7 @@ export function generateOGImage(options: GenerateProps & ImageResponseOptions): 
 }
 
 export function generateBlogOGImage(
-	options: BlogGenerateProps & ImageResponseOptions
+	options: BlogGenerateProps & any
 ): ImageResponse {
 	const {
 		title,
@@ -66,16 +65,6 @@ export function generate({ primaryTextColor = '#a855f7', ...props }: GeneratePro
 				overflow: 'hidden',
 			}}
 		>
-			{/* Grid texture */}
-			<div
-				style={{
-					position: 'absolute',
-					inset: 0,
-					backgroundImage:
-						'linear-gradient(rgba(168,85,247,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(168,85,247,0.06) 1px, transparent 1px)',
-					backgroundSize: '60px 60px',
-				}}
-			/>
 			{/* Radial glow */}
 			<div
 				style={{
@@ -207,17 +196,6 @@ export function generateBlog({
 				overflow: 'hidden',
 			}}
 		>
-			{/* Grid texture */}
-			<div
-				style={{
-					position: 'absolute',
-					inset: 0,
-					backgroundImage:
-						'linear-gradient(rgba(168,85,247,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(168,85,247,0.07) 1px, transparent 1px)',
-					backgroundSize: '56px 56px',
-				}}
-			/>
-
 			{/* Top-right radial glow */}
 			<div
 				style={{

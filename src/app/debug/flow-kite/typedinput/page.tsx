@@ -2,16 +2,15 @@
 import { useState } from 'react';
 import { TypedInput, TypedInputEnum } from '@/lib/flow/data';
 import { TypedInputField } from '@/components/flow/ui/TypedInput';
-import { motion } from 'framer-motion';
 import logger from '@/lib/logger';
 
 /**
  * Renders an interactive debug view for a TypedInput value and shows its JSON representation.
  *
- * The component displays a typed input field bound to local state and an animated code block
+ * The component displays a typed input field bound to local state and a code block
  * that updates to reflect the current value as pretty-printed JSON.
  *
- * @returns A React element containing the TypedInputField and an animated JSON display of its value.
+ * @returns A React element containing the TypedInputField and a JSON display of its value.
  */
 export default function TypedInputDebug() {
 	const [data, setData] = useState<TypedInput>({
@@ -30,16 +29,11 @@ export default function TypedInputDebug() {
 				}}
 			/>
 
-			<motion.div
-				initial={{ opacity: 0, y: 10 }}
-				animate={{ opacity: 1, y: 0 }}
-				transition={{ duration: 0.5 }}
-				className="mt-8 bg-gray-100 p-1"
-			>
+			<div className="mt-8 bg-gray-100 p-1 animate-in fade-in-0 slide-in-from-bottom-2 duration-500">
 				<code className="whitespace-pre-wrap break-words text-black">
 					{JSON.stringify(data, null, 2)}
 				</code>
-			</motion.div>
+			</div>
 		</>
 	);
 }

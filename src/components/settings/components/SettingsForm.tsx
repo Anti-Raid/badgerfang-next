@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import { SettingsColumnList } from './settings-column';
 import { Primary } from '../../ui/Buttons';
@@ -32,7 +31,6 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({
 	const formRef = React.useRef<HTMLFormElement>(null);
 
 	React.useEffect(() => {
-		// Auto-focus the first input or actionable element in the form
 		const firstInput = formRef.current?.querySelector(
 			'input, textarea, select, button:not([aria-label="Cancel"])'
 		) as HTMLElement;
@@ -47,12 +45,7 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({
 	};
 
 	return (
-		<motion.div
-			initial={{ opacity: 0, y: 8 }}
-			animate={{ opacity: 1, y: 0 }}
-			transition={{ duration: 0.3, ease: [0.25, 0.4, 0.25, 1] as const }}
-			className="mb-8"
-		>
+		<div className="animate-in fade-in-0 slide-in-from-top-2 duration-300 mb-8">
 			<form
 				ref={formRef}
 				onSubmit={handleSubmit}
@@ -104,6 +97,6 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({
 					</button>
 				</div>
 			</form>
-		</motion.div>
+		</div>
 	);
 };
