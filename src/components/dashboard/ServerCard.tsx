@@ -59,9 +59,9 @@ export const ServerCard: React.FC<{ server: DashboardGuild; showViewButton: bool
 	};
 
 	return (
-		<div className="group rounded-xl border border-border bg-card p-5 transition-colors hover:border-primary/30">
+		<div className="group rounded-xl border border-border bg-card p-5 transition-all duration-300 hover:border-primary/40 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10">
 			<div className="flex items-start gap-4 mb-4">
-				<div className="relative w-12 h-12 rounded-lg overflow-hidden bg-muted shrink-0">
+				<div className="relative w-12 h-12 rounded-xl overflow-hidden bg-muted shrink-0 group-hover:shadow-md group-hover:shadow-primary/20 transition-shadow">
 					<Image
 						src={getIconUrl(server.id, server.icon) || '/logo.webp'}
 						alt={server.name}
@@ -70,20 +70,20 @@ export const ServerCard: React.FC<{ server: DashboardGuild; showViewButton: bool
 					/>
 				</div>
 				<div className="min-w-0 flex-1">
-					<h3 className="font-semibold text-foreground truncate">{server.name}</h3>
-					<p className="text-xs text-muted-foreground">ID: {server.id.slice(0, 8)}...</p>
+					<h3 className="font-bold text-foreground truncate">{server.name}</h3>
+					<p className="text-xs text-muted-foreground font-mono">ID: {server.id.slice(0, 8)}...</p>
 				</div>
 			</div>
 
 			<div className="flex items-center justify-between mb-4">
 				<div className="flex items-center gap-1.5">
 					{isAdministrator ? (
-						<span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-primary bg-primary/10 rounded">
-							<Shield size={12} />
+						<span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-primary bg-primary/10 rounded-full border border-primary/20">
+							<Shield size={11} />
 							Admin
 						</span>
 					) : (
-						<span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-muted-foreground bg-muted rounded">
+						<span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-muted-foreground bg-muted rounded-full">
 							{permissionNames[0]}
 						</span>
 					)}
@@ -92,16 +92,16 @@ export const ServerCard: React.FC<{ server: DashboardGuild; showViewButton: bool
 
 			<button
 				onClick={showViewButton ? handleViewClick : handleInviteClick}
-				className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+				className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${
 					showViewButton
-						? 'bg-muted text-foreground hover:bg-muted/80'
-						: 'bg-primary text-primary-foreground hover:bg-primary/90'
+						? 'bg-accent text-foreground hover:bg-accent/80 hover:border-primary/20 border border-border'
+						: 'bg-primary text-primary-foreground hover:opacity-90 hover:shadow-lg hover:shadow-primary/25'
 				}`}
 			>
 				{showViewButton ? (
 					<>
 						<ExternalLink size={16} />
-						Manage
+						Manage Server
 					</>
 				) : (
 					<>

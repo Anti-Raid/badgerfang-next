@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
-import { Menu, X, LayoutDashboard, LogOut, LogIn, ChevronDown, Terminal } from 'lucide-react';
+import { Menu, X, LayoutDashboard, LogOut, LogIn, ChevronDown, Terminal, ArrowRight } from 'lucide-react';
+import { FaDiscord } from 'react-icons/fa';
 import { loginUser } from '@/lib/auth/login';
 import { logoutUser } from '@/lib/auth/logoutUser';
 import { getAuthCreds } from '@/lib/auth/getAuthCreds';
@@ -20,7 +21,6 @@ const NavItems = [
 	{ name: 'Home', href: '/' },
 	{ name: 'About', href: '/about' },
 	{ name: 'Commands', href: '/commands' },
-	{ name: 'Invite', href: '/invite' },
 	{ name: 'Script Shop', href: '/script/shop', needsFFlag: FFlag.Header_ScriptShopVisible }
 ];
 
@@ -103,7 +103,9 @@ const NavBar: React.FC = () => {
 	return (
 		<header
 			className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
-				scrolled ? 'bg-background/80 backdrop-blur-xl border-b border-border' : 'bg-transparent'
+				scrolled
+					? 'bg-background/80 backdrop-blur-xl border-b border-border shadow-sm shadow-black/10'
+					: 'bg-transparent'
 			}`}
 			role="banner"
 		>
@@ -114,13 +116,19 @@ const NavBar: React.FC = () => {
 					aria-label="Main navigation"
 				>
 					{/* Logo */}
-					<Link href="/" className="flex items-center gap-3">
-						<img src={getLogoPath()} alt="AntiRaid" className="h-8 w-8 rounded-lg" />
-						<span className="text-lg font-semibold text-foreground">AntiRaid</span>
+					<Link href="/" className="flex items-center gap-2.5 group">
+						<div className="relative">
+							<img
+								src={getLogoPath()}
+								alt="AntiRaid"
+								className="h-8 w-8 rounded-lg group-hover:shadow-md group-hover:shadow-primary/30 transition-shadow"
+							/>
+						</div>
+						<span className="text-lg font-bold text-foreground tracking-tight">AntiRaid</span>
 					</Link>
 
-					{/* Desktop Navigation */}
-					<div className="hidden md:flex items-center gap-1">
+					{/* Desktop Nav */}
+					<div className="hidden md:flex items-center gap-0.5">
 						{NavItems.filter((x) => !x.needsFFlag || !isLoaded || fflags.has(x.needsFFlag!)).map(
 							(item) => {
 								const isActive = currentPath === item.href;
@@ -128,13 +136,20 @@ const NavBar: React.FC = () => {
 									<Link
 										key={item.name}
 										href={item.href}
-										className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${
+										className={`relative px-4 py-2 text-sm font-semibold rounded-full transition-colors ${
 											isActive
-												? 'text-foreground bg-accent'
+												? 'text-primary'
 												: 'text-muted-foreground hover:text-foreground'
 										}`}
 									>
 										{item.name}
+										{isActive && (
+											<motion.span
+												layoutId="nav-pill"
+												className="absolute inset-0 rounded-full bg-primary/10 border border-primary/20 -z-10"
+												transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+											/>
+										)}
 									</Link>
 								);
 							}
@@ -142,7 +157,7 @@ const NavBar: React.FC = () => {
 					</div>
 
 					{/* Right Actions */}
-					<div className="flex items-center gap-3">
+					<div className="flex items-center gap-2.5">
 						{/* Theme Toggle */}
 						<div className="hidden md:block" ref={themeRef}>
 							<ThemeSelector
@@ -152,79 +167,122 @@ const NavBar: React.FC = () => {
 							/>
 						</div>
 
+						{/* Invite shortcut (desktop) */}
+						<Link
+							href="/invite"
+							className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold bg-primary text-primary-foreground hover:opacity-90 hover:shadow-lg hover:shadow-primary/25 transition-all"
+						>
+							<FaDiscord className="w-4 h-4" />
+							Add to Server
+						</Link>
+
 						{/* Profile / Login */}
 						<div className="relative hidden md:block" ref={profileRef}>
 							{userData ? (
-								<button
-									onClick={() => setIsProfileOpen(!isProfileOpen)}
-									className="flex items-center gap-2 px-3 py-2 rounded-full hover:bg-accent transition-colors"
-								>
-									<img src={getAvatarUrl(userData)} alt="" className="h-7 w-7 rounded-full" />
-									<span className="text-sm font-medium text-foreground max-w-[100px] truncate">
-										{userData.username}
-									</span>
-									<ChevronDown className="w-4 h-4 text-muted-foreground" />
-								</button>
+								<>
+									<button
+										onClick={() => setIsProfileOpen(!isProfileOpen)}
+										className="flex items-center gap-2 px-3 py-2 rounded-full hover:bg-accent transition-colors border border-transparent hover:border-border"
+									>
+										<img
+											src={getAvatarUrl(userData)}
+											alt=""
+											className="h-7 w-7 rounded-full ring-2 ring-primary/20"
+										/>
+										<span className="text-sm font-semibold text-foreground max-w-[100px] truncate">
+											{userData.username}
+										</span>
+										<ChevronDown className="w-4 h-4 text-muted-foreground" />
+									</button>
+
+									<AnimatePresence>
+										{isProfileOpen && (
+											<motion.div
+												initial={{ opacity: 0, y: 8, scale: 0.96 }}
+												animate={{ opacity: 1, y: 0, scale: 1 }}
+												exit={{ opacity: 0, y: 8, scale: 0.96 }}
+												transition={{ duration: 0.15 }}
+												className="absolute right-0 top-full mt-2 w-52 bg-card border border-border rounded-xl shadow-xl overflow-hidden"
+											>
+												{/* User info */}
+												<div className="px-4 py-3 border-b border-border bg-accent/30">
+													<p className="text-xs text-muted-foreground">Signed in as</p>
+													<p className="text-sm font-bold text-foreground truncate">
+														{userData.username}
+													</p>
+												</div>
+												<div className="p-1">
+													<Link
+														href="/dashboard"
+														onClick={() => setIsProfileOpen(false)}
+														className="flex items-center gap-3 px-3 py-2.5 text-sm text-foreground hover:bg-accent rounded-lg transition-colors"
+													>
+														<LayoutDashboard className="w-4 h-4" />
+														Dashboard
+													</Link>
+													<Link
+														href="/dashboard/developers"
+														onClick={() => setIsProfileOpen(false)}
+														className="flex items-center gap-3 px-3 py-2.5 text-sm text-foreground hover:bg-accent rounded-lg transition-colors"
+													>
+														<Terminal className="w-4 h-4" />
+														Developer
+													</Link>
+													<div className="h-px bg-border my-1" />
+													<button
+														onClick={handleLogout}
+														className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+													>
+														<LogOut className="w-4 h-4" />
+														Logout
+													</button>
+												</div>
+											</motion.div>
+										)}
+									</AnimatePresence>
+								</>
 							) : (
 								<button
 									onClick={() => {
 										loginUser();
 										router.push('/dashboard');
 									}}
-									className="px-5 py-2 bg-primary text-primary-foreground rounded-full text-sm font-semibold hover:opacity-90 transition-opacity"
+									className="px-4 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
 								>
 									Login
 								</button>
 							)}
-
-							{/* Profile Dropdown */}
-							<AnimatePresence>
-								{isProfileOpen && userData && (
-									<motion.div
-										initial={{ opacity: 0, y: 8, scale: 0.96 }}
-										animate={{ opacity: 1, y: 0, scale: 1 }}
-										exit={{ opacity: 0, y: 8, scale: 0.96 }}
-										transition={{ duration: 0.15 }}
-										className="absolute right-0 top-full mt-2 w-52 bg-card border border-border rounded-xl shadow-lg overflow-hidden"
-									>
-										<div className="p-1">
-											<Link
-												href="/dashboard"
-												onClick={() => setIsProfileOpen(false)}
-												className="flex items-center gap-3 px-3 py-2.5 text-sm text-foreground hover:bg-accent rounded-lg transition-colors"
-											>
-												<LayoutDashboard className="w-4 h-4" />
-												Dashboard
-											</Link>
-											<Link
-												href="/dashboard/developers"
-												onClick={() => setIsProfileOpen(false)}
-												className="flex items-center gap-3 px-3 py-2.5 text-sm text-foreground hover:bg-accent rounded-lg transition-colors"
-											>
-												<Terminal className="w-4 h-4" />
-												Developer
-											</Link>
-											<div className="h-px bg-border my-1" />
-											<button
-												onClick={handleLogout}
-												className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
-											>
-												<LogOut className="w-4 h-4" />
-												Logout
-											</button>
-										</div>
-									</motion.div>
-								)}
-							</AnimatePresence>
 						</div>
 
 						{/* Mobile Menu Toggle */}
 						<button
 							onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-							className="md:hidden p-2 rounded-lg hover:bg-accent transition-colors"
+							className="md:hidden p-2.5 rounded-xl hover:bg-accent transition-colors"
 							aria-label="Toggle menu"
 						>
-							{isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+							<AnimatePresence mode="wait" initial={false}>
+								{isMobileMenuOpen ? (
+									<motion.span
+										key="x"
+										initial={{ rotate: -90, opacity: 0 }}
+										animate={{ rotate: 0, opacity: 1 }}
+										exit={{ rotate: 90, opacity: 0 }}
+										transition={{ duration: 0.15 }}
+									>
+										<X className="w-5 h-5" />
+									</motion.span>
+								) : (
+									<motion.span
+										key="menu"
+										initial={{ rotate: 90, opacity: 0 }}
+										animate={{ rotate: 0, opacity: 1 }}
+										exit={{ rotate: -90, opacity: 0 }}
+										transition={{ duration: 0.15 }}
+									>
+										<Menu className="w-5 h-5" />
+									</motion.span>
+								)}
+							</AnimatePresence>
 						</button>
 					</div>
 				</nav>
@@ -237,55 +295,67 @@ const NavBar: React.FC = () => {
 						initial={{ opacity: 0, height: 0 }}
 						animate={{ opacity: 1, height: 'auto' }}
 						exit={{ opacity: 0, height: 0 }}
-						className="md:hidden bg-background border-t border-border overflow-hidden"
+						transition={{ duration: 0.25, ease: 'easeInOut' }}
+						className="md:hidden bg-background/95 backdrop-blur-xl border-t border-border overflow-hidden"
 					>
-						<div className="px-6 py-4 space-y-1">
+						<div className="px-6 py-5 space-y-1.5">
 							{NavItems.filter((x) => !x.needsFFlag || !isLoaded || fflags.has(x.needsFFlag!)).map(
 								(item) => (
 									<Link
 										key={item.name}
 										href={item.href}
 										onClick={() => setIsMobileMenuOpen(false)}
-										className={`block px-4 py-3 rounded-xl text-base font-medium transition-colors ${
+										className={`flex items-center justify-between px-4 py-3 rounded-xl text-base font-semibold transition-colors ${
 											currentPath === item.href
-												? 'bg-accent text-foreground'
+												? 'bg-primary/10 text-primary border border-primary/20'
 												: 'text-muted-foreground hover:bg-accent hover:text-foreground'
 										}`}
 									>
 										{item.name}
+										{currentPath === item.href && (
+											<span className="w-1.5 h-1.5 rounded-full bg-primary" />
+										)}
 									</Link>
 								)
 							)}
 
 							<div className="h-px bg-border my-4" />
 
-							<div className="flex items-center justify-between px-4 py-2">
-								<span className="text-sm text-muted-foreground">Theme</span>
+							{/* Theme */}
+							<div className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-accent/30">
+								<span className="text-sm font-semibold text-foreground">Theme</span>
 								<ThemeSelector isOpen={isThemeOpen} onOpenChange={setIsThemeOpen} variant="sheet" />
 							</div>
 
 							<div className="h-px bg-border my-4" />
 
+							{/* Auth */}
 							{userData ? (
 								<>
-									<div className="flex items-center gap-3 px-4 py-3">
-										<img src={getAvatarUrl(userData)} alt="" className="h-10 w-10 rounded-full" />
-										<div>
-											<p className="font-medium text-foreground">{userData.username}</p>
-											<p className="text-sm text-muted-foreground">Logged in</p>
+									<div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-accent/30">
+										<img
+											src={getAvatarUrl(userData)}
+											alt=""
+											className="h-10 w-10 rounded-full ring-2 ring-primary/20"
+										/>
+										<div className="min-w-0">
+											<p className="font-bold text-foreground truncate">{userData.username}</p>
+											<p className="text-xs text-muted-foreground">Signed in</p>
 										</div>
 									</div>
 									<Link
 										href="/dashboard"
 										onClick={() => setIsMobileMenuOpen(false)}
-										className="block px-4 py-3 rounded-xl text-base font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+										className="flex items-center gap-3 px-4 py-3 rounded-xl text-base font-semibold text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
 									>
+										<LayoutDashboard className="w-5 h-5" />
 										Dashboard
 									</Link>
 									<button
 										onClick={handleLogout}
-										className="w-full text-left px-4 py-3 rounded-xl text-base font-medium text-destructive hover:bg-destructive/10 transition-colors"
+										className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-base font-semibold text-destructive hover:bg-destructive/10 transition-colors"
 									>
+										<LogOut className="w-5 h-5" />
 										Logout
 									</button>
 								</>
@@ -295,12 +365,23 @@ const NavBar: React.FC = () => {
 										loginUser();
 										setIsMobileMenuOpen(false);
 									}}
-									className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary text-primary-foreground rounded-xl text-base font-semibold"
+									className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-primary text-primary-foreground rounded-xl text-base font-bold"
 								>
 									<LogIn className="w-5 h-5" />
-									Login
+									Login with Discord
 								</button>
 							)}
+
+							{/* Mobile invite CTA */}
+							<Link
+								href="/invite"
+								onClick={() => setIsMobileMenuOpen(false)}
+								className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-card border border-border rounded-xl text-base font-bold text-foreground hover:border-primary/40 hover:bg-primary/5 transition-all"
+							>
+								<FaDiscord className="w-5 h-5 text-primary" />
+								Add AntiRaid to Your Server
+								<ArrowRight className="w-4 h-4 ml-auto text-muted-foreground" />
+							</Link>
 						</div>
 					</motion.div>
 				)}

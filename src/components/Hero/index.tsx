@@ -6,7 +6,8 @@ import { ReviewsCarousel } from './reviewCarosel';
 import { getBotStats } from '@/lib/api';
 import { motion } from 'framer-motion';
 import { GetStatusResponse } from '@/types/api/bindings/GetStatusResponse';
-import { Shield, Zap, Code, ArrowRight, Check } from 'lucide-react';
+import { Shield, Zap, Code, ArrowRight, Check, Users, Server, Activity, Clock } from 'lucide-react';
+import { FaDiscord } from 'react-icons/fa';
 import Link from 'next/link';
 
 const Hero = () => {
@@ -96,17 +97,32 @@ const Hero = () => {
 
 	const benefits = [
 		'Intelligent raid detection',
-		'AI-powered moderation',
+		'Automated moderation',
 		'Comprehensive logging',
 		'Real-time analytics',
 		'Custom automation',
 		'24/7 protection'
 	];
 
+	const protectionItems = [
+		{ label: 'Raid Shield', icon: Shield },
+		{ label: 'Automated Moderation', icon: Zap },
+		{ label: 'Auto-Logging', icon: Activity },
+		{ label: 'Threat Detection', icon: Clock }
+	];
+
 	return (
 		<div className="relative">
-			{/* Hero Section */}
-			<section className="relative min-h-[90vh] flex items-center justify-center px-6 py-24 lg:py-32">
+			{/* ── Hero Section ── */}
+			<section className="relative min-h-[90vh] flex items-center justify-center px-6 py-24 lg:py-32 overflow-hidden">
+				{/* Background */}
+				<div className="absolute inset-0 -z-10 pointer-events-none">
+					<div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_55%_at_50%_-5%,hsl(var(--primary)/0.22),transparent)]" />
+					<div className="absolute inset-0 opacity-[0.035] bg-[linear-gradient(hsl(var(--foreground))_1px,transparent_1px),linear-gradient(90deg,hsl(var(--foreground))_1px,transparent_1px)] bg-[size:56px_56px]" />
+					<div className="absolute top-1/4 -left-40 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
+					<div className="absolute top-1/3 -right-40 w-72 h-72 bg-[hsl(240,60%,55%)]/10 rounded-full blur-3xl" />
+				</div>
+
 				<div className="max-w-5xl mx-auto text-center">
 					{/* Badge */}
 					<motion.div
@@ -116,23 +132,28 @@ const Hero = () => {
 						animate={isVisible ? 'visible' : 'hidden'}
 						className="mb-8"
 					>
-						<span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-primary/10 text-primary border border-primary/20">
-							<span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+						<span className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full text-sm font-semibold bg-primary/10 text-primary border border-primary/25 shadow-sm shadow-primary/10">
+							<span className="relative flex h-2 w-2">
+								<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+								<span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
+							</span>
 							Protecting {serverCount.toLocaleString()}+ servers
 						</span>
 					</motion.div>
 
-					{/* Main Headline */}
+					{/* Headline */}
 					<motion.h1
 						custom={0.1}
 						variants={fadeUp}
 						initial="hidden"
 						animate={isVisible ? 'visible' : 'hidden'}
-						className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-foreground leading-[1.1] mb-8"
+						className="text-5xl sm:text-6xl lg:text-8xl font-extrabold tracking-tight leading-[1.05] mb-8"
 					>
-						Discord security,
+						<span className="text-foreground">Discord security,</span>
 						<br />
-						<span className="text-primary">reimagined.</span>
+						<span className="bg-gradient-to-r from-primary via-violet-400 to-blue-500 bg-clip-text text-transparent">
+							reimagined.
+						</span>
 					</motion.h1>
 
 					{/* Subtitle */}
@@ -141,10 +162,13 @@ const Hero = () => {
 						variants={fadeUp}
 						initial="hidden"
 						animate={isVisible ? 'visible' : 'hidden'}
-						className="text-xl lg:text-2xl text-muted-foreground max-w-2xl mx-auto mb-12 leading-relaxed"
+						className="text-lg sm:text-xl lg:text-2xl text-muted-foreground max-w-2xl mx-auto mb-12 leading-relaxed"
 					>
-						AntiRaid is the most advanced Discord protection bot. Join {userCount.toLocaleString()}+
-						users who trust us with their communities.
+						The most advanced Discord protection bot. Join{' '}
+						<span className="text-foreground font-semibold">
+							{userCount.toLocaleString()}+ users
+						</span>{' '}
+						who trust us with their communities.
 					</motion.p>
 
 					{/* CTA Buttons */}
@@ -157,14 +181,15 @@ const Hero = () => {
 					>
 						<Link
 							href="/invite"
-							className="group inline-flex items-center justify-center gap-3 px-8 py-4 bg-primary text-primary-foreground rounded-full font-semibold text-lg transition-all hover:opacity-90 hover:shadow-lg hover:shadow-primary/25"
+							className="group inline-flex items-center justify-center gap-3 px-8 py-4 bg-primary text-primary-foreground rounded-full font-bold text-lg transition-all hover:opacity-90 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 active:translate-y-0"
 						>
-							Get Started Free
+							<FaDiscord className="w-5 h-5" />
+							Add to Discord
 							<ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
 						</Link>
 						<Link
 							href="/about"
-							className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-secondary text-secondary-foreground rounded-full font-semibold text-lg transition-all hover:bg-accent"
+							className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-semibold text-lg border border-border hover:border-primary/40 hover:bg-primary/5 transition-all text-foreground"
 						>
 							Learn More
 						</Link>
@@ -172,32 +197,60 @@ const Hero = () => {
 				</div>
 			</section>
 
-			{/* Stats Section */}
-			<section className="py-24 px-6 border-t border-border">
+			{/* ── Stats Section ── */}
+			<section className="py-16 px-6 border-y border-border bg-card/30">
 				<div className="max-w-6xl mx-auto">
 					<motion.div
 						initial={{ opacity: 0, y: 40 }}
 						whileInView={{ opacity: 1, y: 0 }}
 						transition={{ duration: 0.8 }}
 						viewport={{ once: true }}
-						className="grid grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 text-center"
+						className="grid grid-cols-2 lg:grid-cols-4 gap-4"
 					>
 						{[
-							{ value: `${serverCount.toLocaleString()}+`, label: 'Servers Protected' },
-							{ value: `${userCount.toLocaleString()}+`, label: 'Users Secured' },
-							{ value: '99.9%', label: 'Uptime' },
-							{ value: '<1ms', label: 'Response Time' }
+							{
+								icon: Server,
+								value: `${serverCount.toLocaleString()}+`,
+								label: 'Servers Protected',
+								color: 'text-primary',
+								glow: 'group-hover:shadow-primary/20'
+							},
+							{
+								icon: Users,
+								value: `${userCount.toLocaleString()}+`,
+								label: 'Users Secured',
+								color: 'text-blue-400',
+								glow: 'group-hover:shadow-blue-400/20'
+							},
+							{
+								icon: Activity,
+								value: '99.9%',
+								label: 'Uptime',
+								color: 'text-emerald-400',
+								glow: 'group-hover:shadow-emerald-400/20'
+							},
+							{
+								icon: Clock,
+								value: '<1ms',
+								label: 'Response Time',
+								color: 'text-amber-400',
+								glow: 'group-hover:shadow-amber-400/20'
+							}
 						].map((stat, i) => (
-							<div key={i}>
-								<p className="text-4xl lg:text-5xl font-bold text-foreground mb-2">{stat.value}</p>
-								<p className="text-muted-foreground font-medium">{stat.label}</p>
+							<div
+								key={i}
+								className={`group flex flex-col items-center p-5 lg:p-6 rounded-2xl bg-card border border-border hover:border-primary/20 hover:shadow-lg ${stat.glow} transition-all text-center`}
+							>
+								<stat.icon className={`w-5 h-5 mb-3 ${stat.color}`} />
+								<p className={`text-2xl lg:text-3xl font-bold mb-1 ${stat.color}`}>{stat.value}</p>
+								<p className="text-xs lg:text-sm text-muted-foreground font-medium">{stat.label}</p>
 							</div>
 						))}
 					</motion.div>
 				</div>
 			</section>
 
-			{/* Features Section */}
+			{/* ── Features Section ── */}
 			<section className="py-32 px-6">
 				<div className="max-w-6xl mx-auto">
 					<motion.div
@@ -207,6 +260,7 @@ const Hero = () => {
 						viewport={{ once: true }}
 						className="text-center mb-20"
 					>
+						<p className="text-sm font-bold text-primary uppercase tracking-widest mb-4">Features</p>
 						<h2 className="text-4xl lg:text-5xl font-bold text-foreground mb-6">
 							Built for modern Discord servers
 						</h2>
@@ -215,7 +269,7 @@ const Hero = () => {
 						</p>
 					</motion.div>
 
-					<div className="grid lg:grid-cols-3 gap-8">
+					<div className="grid lg:grid-cols-3 gap-6">
 						{features.map((feature, i) => (
 							<motion.div
 								key={i}
@@ -223,12 +277,12 @@ const Hero = () => {
 								whileInView={{ opacity: 1, y: 0 }}
 								transition={{ duration: 0.6, delay: i * 0.1 }}
 								viewport={{ once: true }}
-								className="p-8 rounded-3xl bg-card border border-border hover:border-primary/30 transition-colors"
+								className="group p-8 rounded-3xl bg-card border border-border hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-300"
 							>
-								<div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
+								<div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-blue-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
 									<feature.icon className="w-7 h-7 text-primary" />
 								</div>
-								<h3 className="text-2xl font-semibold text-foreground mb-3">{feature.title}</h3>
+								<h3 className="text-xl font-bold text-foreground mb-3">{feature.title}</h3>
 								<p className="text-muted-foreground leading-relaxed">{feature.description}</p>
 							</motion.div>
 						))}
@@ -236,16 +290,20 @@ const Hero = () => {
 				</div>
 			</section>
 
-			{/* Benefits Section */}
-			<section className="py-32 px-6 bg-card/50">
+			{/* ── Benefits Section ── */}
+			<section className="py-32 px-6 bg-card/30 border-y border-border">
 				<div className="max-w-6xl mx-auto">
 					<div className="grid lg:grid-cols-2 gap-16 items-center">
+						{/* Left */}
 						<motion.div
 							initial={{ opacity: 0, x: -40 }}
 							whileInView={{ opacity: 1, x: 0 }}
 							transition={{ duration: 0.8 }}
 							viewport={{ once: true }}
 						>
+							<p className="text-sm font-bold text-primary uppercase tracking-widest mb-4">
+								Why AntiRaid
+							</p>
 							<h2 className="text-4xl lg:text-5xl font-bold text-foreground mb-6">
 								Everything your server needs
 							</h2>
@@ -253,18 +311,22 @@ const Hero = () => {
 								From basic moderation to advanced threat protection, AntiRaid handles it all so you
 								can focus on growing your community.
 							</p>
-							<div className="grid sm:grid-cols-2 gap-4">
+							<div className="grid sm:grid-cols-2 gap-2">
 								{benefits.map((benefit, i) => (
-									<div key={i} className="flex items-center gap-3">
+									<div
+										key={i}
+										className="flex items-center gap-3 p-3 rounded-xl hover:bg-accent/50 transition-colors"
+									>
 										<div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-											<Check className="w-4 h-4 text-primary" />
+											<Check className="w-3.5 h-3.5 text-primary" />
 										</div>
-										<span className="text-foreground font-medium">{benefit}</span>
+										<span className="text-foreground font-medium text-sm">{benefit}</span>
 									</div>
 								))}
 							</div>
 						</motion.div>
 
+						{/* Right — Protection Status mock UI */}
 						<motion.div
 							initial={{ opacity: 0, x: 40 }}
 							whileInView={{ opacity: 1, x: 0 }}
@@ -272,15 +334,71 @@ const Hero = () => {
 							viewport={{ once: true }}
 							className="relative"
 						>
-							<div className="aspect-square rounded-3xl bg-gradient-to-br from-primary/20 via-card to-accent/20 border border-border p-8 flex items-center justify-center">
-								<Shield className="w-32 h-32 text-primary/30" />
+							<div className="relative rounded-3xl bg-card border border-border p-6 overflow-hidden">
+								{/* Glow orb */}
+								<div className="absolute -top-8 -right-8 w-40 h-40 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
+
+								{/* Header row */}
+								<div className="flex items-center justify-between mb-6">
+									<div className="flex items-center gap-2.5">
+										<div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+											<Shield className="w-5 h-5 text-primary" />
+										</div>
+										<span className="font-bold text-foreground">Protection Status</span>
+									</div>
+									<span className="text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20">
+										● Active
+									</span>
+								</div>
+
+								{/* Feature rows */}
+								<div className="space-y-2.5">
+									{protectionItems.map((item, i) => (
+										<motion.div
+											key={i}
+											initial={{ opacity: 0, x: 20 }}
+											whileInView={{ opacity: 1, x: 0 }}
+											transition={{ duration: 0.4, delay: i * 0.08 }}
+											viewport={{ once: true }}
+											className="flex items-center justify-between p-3.5 rounded-xl bg-accent/40 border border-border/50"
+										>
+											<div className="flex items-center gap-3">
+												<item.icon className="w-4 h-4 text-primary" />
+												<span className="text-sm font-medium text-foreground">{item.label}</span>
+											</div>
+											<span className="text-xs text-emerald-400 font-semibold">✓ Enabled</span>
+										</motion.div>
+									))}
+								</div>
+
+								{/* Footer stat */}
+								<div className="mt-5 pt-4 border-t border-border">
+									<div className="flex items-center justify-between">
+										<span className="text-xs text-muted-foreground">Threats blocked today</span>
+										<span className="text-sm font-bold text-primary">{Math.floor(Math.random() * 10000000).toLocaleString()}</span>
+									</div>
+									<p className="text-[10px] text-white mt-1">* Illustrative figure, not live data</p>
+								</div>
 							</div>
+
+							{/* Floating badge */}
+							<motion.div
+								animate={{ y: [0, -6, 0] }}
+								transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+								className="absolute -bottom-4 -left-4 flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-card border border-border shadow-xl"
+							>
+								<span className="relative flex h-2 w-2">
+									<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+									<span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+								</span>
+								<span className="text-xs font-semibold text-foreground">All systems operational</span>
+							</motion.div>
 						</motion.div>
 					</div>
 				</div>
 			</section>
 
-			{/* Scripting Section */}
+			{/* ── Scripting Section ── */}
 			<section className="py-32 px-6">
 				<div className="max-w-6xl mx-auto">
 					<motion.div
@@ -290,6 +408,7 @@ const Hero = () => {
 						viewport={{ once: true }}
 						className="text-center mb-16"
 					>
+						<p className="text-sm font-bold text-primary uppercase tracking-widest mb-4">Scripting</p>
 						<h2 className="text-4xl lg:text-5xl font-bold text-foreground mb-6">
 							Extend with custom scripts
 						</h2>
@@ -308,27 +427,33 @@ const Hero = () => {
 						{[
 							{
 								name: 'Luau',
-								desc: 'Fast, lightweight, and easy to learn',
-								color: 'text-blue-500',
-								bg: 'bg-blue-500/10'
+								desc: 'Fast, lightweight, and easy to learn. Roblox-compatible syntax.',
+								color: 'text-blue-400',
+								gradFrom: 'from-blue-500/15',
+								gradTo: 'to-blue-500/5',
+								borderHover: 'hover:border-blue-500/40',
+								shadowHover: 'hover:shadow-blue-500/10'
 							},
 							{
 								name: 'JavaScript',
-								desc: 'Familiar syntax with rich ecosystem',
-								color: 'text-yellow-500',
-								bg: 'bg-yellow-500/10'
+								desc: 'Familiar syntax with a rich ecosystem you already know.',
+								color: 'text-amber-400',
+								gradFrom: 'from-amber-500/15',
+								gradTo: 'to-amber-500/5',
+								borderHover: 'hover:border-amber-500/40',
+								shadowHover: 'hover:shadow-amber-500/10'
 							}
 						].map((lang, i) => (
 							<div
 								key={i}
-								className="p-8 rounded-3xl bg-card border border-border hover:border-primary/30 transition-colors"
+								className={`group p-8 rounded-3xl bg-card border border-border ${lang.borderHover} hover:-translate-y-1 hover:shadow-xl ${lang.shadowHover} transition-all duration-300`}
 							>
 								<div
-									className={`w-14 h-14 rounded-2xl ${lang.bg} flex items-center justify-center mb-6`}
+									className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${lang.gradFrom} ${lang.gradTo} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}
 								>
 									<Code className={`w-7 h-7 ${lang.color}`} />
 								</div>
-								<h3 className={`text-2xl font-semibold ${lang.color} mb-2`}>{lang.name}</h3>
+								<h3 className={`text-2xl font-bold ${lang.color} mb-2`}>{lang.name}</h3>
 								<p className="text-muted-foreground">{lang.desc}</p>
 							</div>
 						))}
@@ -336,8 +461,13 @@ const Hero = () => {
 				</div>
 			</section>
 
-			{/* CTA Section */}
-			<section className="py-32 px-6">
+			{/* ── CTA Section ── */}
+			<section className="relative py-32 px-6 overflow-hidden">
+				{/* Background glow */}
+				<div className="absolute inset-0 -z-10 pointer-events-none">
+					<div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_70%_at_50%_50%,hsl(var(--primary)/0.13),transparent)]" />
+				</div>
+
 				<div className="max-w-4xl mx-auto text-center">
 					<motion.div
 						initial={{ opacity: 0, y: 40 }}
@@ -345,17 +475,25 @@ const Hero = () => {
 						transition={{ duration: 0.8 }}
 						viewport={{ once: true }}
 					>
-						<h2 className="text-4xl lg:text-5xl font-bold text-foreground mb-6">
-							Ready to secure your server?
+						<span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20 mb-8">
+							Free to get started — no credit card needed
+						</span>
+						<h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-foreground mb-6 leading-tight">
+							Ready to secure your
+							<br />
+							<span className="bg-gradient-to-r from-primary via-violet-400 to-blue-500 bg-clip-text text-transparent">
+								community?
+							</span>
 						</h2>
 						<p className="text-xl text-muted-foreground mb-10 max-w-xl mx-auto">
-							Join thousands of communities already protected by AntiRaid. Free to get started.
+							Join thousands of communities already protected by AntiRaid.
 						</p>
 						<div className="flex flex-col sm:flex-row items-center justify-center gap-4">
 							<Link
 								href="/invite"
-								className="group inline-flex items-center justify-center gap-3 px-8 py-4 bg-primary text-primary-foreground rounded-full font-semibold text-lg transition-all hover:opacity-90 hover:shadow-lg hover:shadow-primary/25"
+								className="group inline-flex items-center justify-center gap-3 px-8 py-4 bg-primary text-primary-foreground rounded-full font-bold text-lg transition-all hover:opacity-90 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 active:translate-y-0"
 							>
+								<FaDiscord className="w-5 h-5" />
 								Add to Discord
 								<ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
 							</Link>

@@ -14,10 +14,11 @@ import { JsonValue } from '@/types/api/bindings/serde_json/JsonValue';
 import { AuthorizedSession } from '@/types/api/bindings/AuthorizedSession';
 import { DashboardGuildData } from '@/types/api/bindings/DashboardGuildData';
 import { AuthorizeRequest } from '@/types/api/bindings/AuthorizeRequest';
+import { BlogPost } from '@/types/blogs';
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || api_url;
 export const FORUM_API_URL = 'https://potsypaw.purrquinox.com';
-export const STRAPI_API_URL = 'https://strapi.purrquinox.com';
+export const BLOG_API_URL = 'https://purrquinox.com';
 
 const getAuthToken = (): string | null => {
 	if (typeof window !== 'undefined') {
@@ -198,29 +199,26 @@ export const listForumUserPosts = async (tag: string): Promise<forumTypes.posts[
 	return response.data;
 };
 
-export const fetchStrapiBlogs = async (): Promise<any> => {
+export const fetchBlogs = async (): Promise<BlogPost[]> => {
 	try {
-		const response = await axios.get(
-			`${STRAPI_API_URL}/api/blogs?populate[author][populate]=avatar&populate[image]=true&populate`,
+		const response = await axios.get<BlogPost[]>(
+			`${BLOG_API_URL}/api/data/blog/list`,
 			{
-				headers: {
-					Authorization: `Bearer 46c2ac374e977304d2ab121cba95e7337d19304bc0e880f5b06376a0c687618644123a3fa20cbc675ae70494e991e92903ad0d02dbf916d0cd40eb72fad1aca4132c9a80556cb5068475673907029497c4eec323b387a33c068e17d834867cb30c3166d5b266987421338a44c4fe05f9753559ae622975ada35a4e9f11f77558`
-				},
-				timeout: 5000, // Reduced to 5 second timeout
-				validateStatus: (status) => status === 200 || status === 304 // Allow 304 Not Modified
+				timeout: 5000,
+				validateStatus: (status) => status === 200 || status === 304
 			}
 		);
 		return response.data;
 	} catch (error) {
-		console.error('Error fetching Strapi blogs:', error);
+		console.error('Error fetching  blogs:', error);
 
 		// If it's a timeout or network error, throw a more specific error
 		if (axios.isAxiosError(error)) {
 			if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
-				throw new Error('Strapi API timeout - please try again later');
+				throw new Error('API timeout - please try again later');
 			}
 			if (error.response?.status === 429) {
-				throw new Error('Strapi API rate limited - please try again later');
+				throw new Error('API rate limited - please try again later');
 			}
 		}
 
@@ -228,31 +226,26 @@ export const fetchStrapiBlogs = async (): Promise<any> => {
 	}
 };
 
-export const fetchStrapiBlogBySlug = async (slug: string): Promise<any> => {
+export const fetchBlogBySlug = async (slug: string): Promise<BlogPost | null> => {
 	try {
-		const response = await axios.get(
-			`${STRAPI_API_URL}/api/blogs?filters[slug][$eq]=${slug}&populate[author][populate]=avatar&populate[image]=true&populate`,
+		const response = await axios.get<BlogPost>(
+			`${BLOG_API_URL}/api/data/blog/get?slug=${slug}`,
 			{
-				headers: {
-					Authorization: `Bearer 46c2ac374e977304d2ab121cba95e7337d19304bc0e880f5b06376a0c687618644123a3fa20cbc675ae70494e991e92903ad0d02dbf916d0cd40eb72fad1aca4132c9a80556cb5068475673907029497c4eec323b387a33c068e17d834867cb30c3166d5b266987421338a44c4fe05f9753559ae622975ada35a4e9f11f77558`
-				},
-				timeout: 3000, // Reduced to 3 second timeout for single blog fetch
+				timeout: 3000,
 				validateStatus: (status) => status === 200 || status === 304
 			}
 		);
-
-		// Return the first (and should be only) blog post
-		return response.data.data?.[0] || null;
+		return response.data || null;
 	} catch (error) {
-		console.error('Error fetching Strapi blog by slug:', error);
+		console.error('Error fetching  blog by slug:', error);
 
 		// If it's a timeout or network error, throw a more specific error
 		if (axios.isAxiosError(error)) {
 			if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
-				throw new Error('Strapi API timeout - please try again later');
+				throw new Error('API timeout - please try again later');
 			}
 			if (error.response?.status === 429) {
-				throw new Error('Strapi API rate limited - please try again later');
+				throw new Error('API rate limited - please try again later');
 			}
 		}
 

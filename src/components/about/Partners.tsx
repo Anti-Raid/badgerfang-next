@@ -1,11 +1,10 @@
 import React from 'react';
 import { Partner } from '@/types/other/Partner';
-import { Globe } from 'lucide-react';
+import { Globe, ExternalLink } from 'lucide-react';
 import { FaDiscord } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 
-// Partners Component
 export const Partners = ({ isLoaded }: { isLoaded: boolean }) => {
 	const partners: Partner[] = [
 		{
@@ -21,12 +20,12 @@ export const Partners = ({ isLoaded }: { isLoaded: boolean }) => {
 			links: [
 				{
 					name: 'Website',
-					icon: <Globe className="w-5 h-5" />,
+					icon: <Globe className="w-4 h-4" />,
 					link: 'https://omniplex.gg/'
 				},
 				{
 					name: 'Discord',
-					icon: <FaDiscord className="w-5 h-5" />,
+					icon: <FaDiscord className="w-4 h-4" />,
 					link: 'https://discord.com/invite/KBCRuBKrHe'
 				}
 			]
@@ -34,58 +33,72 @@ export const Partners = ({ isLoaded }: { isLoaded: boolean }) => {
 	];
 
 	return (
-		<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+		<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 			{partners.map((partner, index) => (
 				<motion.div
 					key={partner.name}
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: isLoaded ? 1 : 0, y: isLoaded ? 0 : 20 }}
-					transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
-					className="bg-background/30 backdrop-blur-sm border border-primary/10 rounded-xl p-6 hover:border-primary/30 transition-all hover:shadow-[0_5px_15px_rgba(var(--primary)/10%)]"
+					transition={{ duration: 0.5, delay: 0.1 + index * 0.1 }}
+					className="group relative p-6 rounded-2xl bg-card border border-border hover:border-primary/40 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 overflow-hidden"
 				>
-					<div className="flex items-center mb-4">
-						<div className="relative w-16 h-16 mr-4">
+					{/* Subtle glow */}
+					<div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
+
+					{/* Header */}
+					<div className="flex items-center gap-4 mb-4">
+						<div className="w-14 h-14 rounded-xl overflow-hidden border border-border flex-shrink-0">
 							<Image
-								src={partner.logo || '/placeholder.svg'}
+								src={partner.logo || '/logo.webp'}
 								alt={partner.name}
-								height={64}
-								width={64}
-								className="rounded-lg object-cover"
+								height={56}
+								width={56}
+								className="object-cover"
 							/>
 						</div>
-						<div>
-							<h3 className="text-xl font-bold">{partner.name}</h3>
-							<p className="text-foreground/70 text-sm">{partner.description}</p>
+						<div className="min-w-0">
+							<h3 className="text-lg font-bold text-foreground">{partner.name}</h3>
+							<p className="text-sm text-muted-foreground line-clamp-1">{partner.description}</p>
 						</div>
 					</div>
 
-					<div className="mb-4 pb-4 border-b border-border/20">
-						<p className="text-foreground/80">{partner.long_description}</p>
-					</div>
+					{/* Description */}
+					<p className="text-sm text-muted-foreground leading-relaxed mb-5 pb-5 border-b border-border">
+						{partner.long_description}
+					</p>
 
+					{/* Footer */}
 					<div className="flex items-center justify-between">
-						<div className="flex items-center">
-							<div className="relative w-8 h-8 mr-2">
-								<Image
-									src={partner.owner_image || '/placeholder.svg'}
-									alt={partner.owner}
-									height={32}
-									width={32}
-									className="rounded-full object-cover"
-								/>
-							</div>
-							<span className="text-sm text-foreground/70">{partner.owner}</span>
-						</div>
+						{/* Owner */}
+						<a
+							href={partner.owner_website}
+							target="_blank"
+							rel="noopener noreferrer"
+							className="flex items-center gap-2 hover:text-primary transition-colors group/owner"
+						>
+							<Image
+								src={partner.owner_image || '/logo.webp'}
+								alt={partner.owner}
+								height={28}
+								width={28}
+								className="rounded-full border border-border group-hover/owner:border-primary/40 transition-colors"
+							/>
+							<span className="text-sm font-medium text-muted-foreground group-hover/owner:text-foreground transition-colors">
+								{partner.owner}
+							</span>
+							<ExternalLink className="w-3 h-3 opacity-0 group-hover/owner:opacity-100 transition-opacity" />
+						</a>
 
-						<div className="flex space-x-2">
+						{/* Links */}
+						<div className="flex items-center gap-2">
 							{partner.links.map((link) => (
 								<a
 									key={link.name}
 									href={link.link}
 									target="_blank"
 									rel="noopener noreferrer"
-									className="p-2 bg-background/50 rounded-full text-foreground/70 hover:text-primary transition-colors"
 									title={link.name}
+									className="p-2 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all"
 								>
 									{link.icon}
 								</a>
