@@ -117,7 +117,7 @@
 		--popover-foreground: 0 0% 98%;
 
 		--primary: 270 75% 60%;
-		--primary-foreground: 270 20% 10%;
+		--primary-foreground: 0 0% 100%;
 
 		--secondary: 270 12% 18%;
 		--secondary-foreground: 0 0% 95%;
@@ -165,7 +165,7 @@
 		--popover-foreground: 215 30% 98%;
 
 		--primary: 210 95% 58%;
-		--primary-foreground: 210 30% 10%;
+		--primary-foreground: 0 0% 100%;
 
 		--secondary: 215 40% 16%;
 		--secondary-foreground: 215 30% 98%;
@@ -207,7 +207,7 @@
 		--popover-foreground: 215 30% 98%;
 
 		--primary: 220 90% 55%;
-		--primary-foreground: 220 30% 10%;
+		--primary-foreground: 0 0% 100%;
 
 		--secondary: 225 50% 12%;
 		--secondary-foreground: 215 30% 98%;
@@ -249,7 +249,7 @@
 		--popover-foreground: 350 15% 98%;
 
 		--primary: 355 80% 55%;
-		--primary-foreground: 355 15% 10%;
+		--primary-foreground: 0 0% 100%;
 
 		--secondary: 350 35% 15%;
 		--secondary-foreground: 350 15% 98%;
@@ -291,7 +291,7 @@
 		--popover-foreground: 150 15% 98%;
 
 		--primary: 155 70% 45%;
-		--primary-foreground: 155 15% 10%;
+		--primary-foreground: 0 0% 100%;
 
 		--secondary: 160 40% 15%;
 		--secondary-foreground: 150 15% 98%;
@@ -333,7 +333,7 @@
 		--popover-foreground: 150 15% 98%;
 
 		--primary: 155 80% 40%;
-		--primary-foreground: 155 15% 10%;
+		--primary-foreground: 0 0% 100%;
 
 		--secondary: 160 45% 11%;
 		--secondary-foreground: 150 15% 98%;
@@ -375,7 +375,7 @@
 		--popover-foreground: 280 20% 98%;
 
 		--primary: 280 85% 58%;
-		--primary-foreground: 280 20% 10%;
+		--primary-foreground: 0 0% 100%;
 
 		--secondary: 280 45% 14%;
 		--secondary-foreground: 280 20% 98%;
@@ -507,7 +507,7 @@
 		--popover: 215 35% 16%;
 		--popover-foreground: 180 28% 95%;
 		--primary: 190 85% 50%;
-		--primary-foreground: 215 35% 10%;
+		--primary-foreground: 0 0% 100%;
 		--secondary: 215 28% 20%;
 		--secondary-foreground: 180 28% 95%;
 		--extra: 200 75% 42%;
@@ -525,6 +525,223 @@
 		--border: 215 28% 20%;
 		--input: 215 28% 18%;
 		--ring: 190 85% 50%;
+	}
+
+	/* ============================================
+	   AURORA THEME
+	   ============================================ */
+	.aurora-theme {
+		--background: 200 70% 4%;
+		--foreground: 180 30% 96%;
+		--card: 200 65% 7%;
+		--card-foreground: 180 30% 96%;
+		--popover: 200 65% 9%;
+		--popover-foreground: 180 30% 96%;
+		--primary: 160 100% 48%;
+		--primary-foreground: 0 0% 100%;
+		--secondary: 200 55% 12%;
+		--secondary-foreground: 180 30% 96%;
+		--extra: 185 100% 44%;
+		--extra-foreground: 200 70% 4%;
+		--muted: 200 45% 15%;
+		--muted-foreground: 180 25% 58%;
+		--accent: 160 70% 15%;
+		--accent-foreground: 180 30% 96%;
+		--destructive: 0 72% 52%;
+		--destructive-foreground: 0 0% 98%;
+		--success: 145 60% 42%;
+		--success-foreground: 145 10% 10%;
+		--warning: 40 80% 52%;
+		--warning-foreground: 40 10% 10%;
+		--border: 200 50% 14%;
+		--input: 200 50% 11%;
+		--ring: 160 100% 48%;
+	}
+
+	/* ============================================
+	   MOCHA THEME
+	   ============================================ */
+	.mocha-theme {
+		--background: 25 30% 7%;
+		--foreground: 30 25% 95%;
+		--card: 25 28% 11%;
+		--card-foreground: 30 25% 95%;
+		--popover: 25 28% 13%;
+		--popover-foreground: 30 25% 95%;
+		--primary: 25 72% 52%;
+		--primary-foreground: 0 0% 100%;
+		--secondary: 25 22% 17%;
+		--secondary-foreground: 30 25% 95%;
+		--extra: 35 65% 58%;
+		--extra-foreground: 25 30% 7%;
+		--muted: 25 20% 20%;
+		--muted-foreground: 25 18% 58%;
+		--accent: 25 40% 20%;
+		--accent-foreground: 30 25% 95%;
+		--destructive: 0 72% 52%;
+		--destructive-foreground: 0 0% 98%;
+		--success: 145 60% 42%;
+		--success-foreground: 145 10% 10%;
+		--warning: 40 80% 52%;
+		--warning-foreground: 40 10% 10%;
+		--border: 25 25% 16%;
+		--input: 25 22% 13%;
+		--ring: 25 72% 52%;
+	}
+
+	/* ============================================
+	   SAKURA THEME (Light)
+	   ============================================ */
+	.sakura-theme {
+		--background: 340 45% 98%;
+		--foreground: 340 25% 18%;
+		--card: 340 40% 95%;
+		--card-foreground: 340 25% 18%;
+		--popover: 340 40% 95%;
+		--popover-foreground: 340 25% 18%;
+		--primary: 345 70% 62%;
+		--primary-foreground: 0 0% 100%;
+		--secondary: 340 30% 90%;
+		--secondary-foreground: 340 25% 18%;
+		--extra: 320 60% 68%;
+		--extra-foreground: 0 0% 100%;
+		--muted: 340 20% 88%;
+		--muted-foreground: 340 15% 48%;
+		--accent: 345 50% 90%;
+		--accent-foreground: 340 25% 18%;
+		--destructive: 0 70% 50%;
+		--destructive-foreground: 0 0% 100%;
+		--success: 145 55% 40%;
+		--success-foreground: 0 0% 100%;
+		--warning: 40 75% 50%;
+		--warning-foreground: 40 10% 10%;
+		--border: 340 20% 88%;
+		--input: 340 20% 92%;
+		--ring: 345 70% 62%;
+	}
+
+	/* ============================================
+	   VOID THEME
+	   ============================================ */
+	.void-theme {
+		--background: 270 12% 3%;
+		--foreground: 270 8% 90%;
+		--card: 270 10% 6%;
+		--card-foreground: 270 8% 90%;
+		--popover: 270 10% 8%;
+		--popover-foreground: 270 8% 90%;
+		--primary: 270 45% 48%;
+		--primary-foreground: 0 0% 100%;
+		--secondary: 270 8% 12%;
+		--secondary-foreground: 270 8% 90%;
+		--extra: 255 40% 50%;
+		--extra-foreground: 0 0% 100%;
+		--muted: 270 8% 14%;
+		--muted-foreground: 270 6% 50%;
+		--accent: 270 15% 16%;
+		--accent-foreground: 270 8% 90%;
+		--destructive: 0 72% 52%;
+		--destructive-foreground: 0 0% 98%;
+		--success: 145 60% 42%;
+		--success-foreground: 145 10% 10%;
+		--warning: 40 80% 52%;
+		--warning-foreground: 40 10% 10%;
+		--border: 270 8% 12%;
+		--input: 270 8% 10%;
+		--ring: 270 45% 48%;
+	}
+
+	/* ============================================
+	   COPPER THEME
+	   ============================================ */
+	.copper-theme {
+		--background: 15 40% 5%;
+		--foreground: 20 20% 95%;
+		--card: 15 38% 8%;
+		--card-foreground: 20 20% 95%;
+		--popover: 15 38% 10%;
+		--popover-foreground: 20 20% 95%;
+		--primary: 20 82% 50%;
+		--primary-foreground: 0 0% 100%;
+		--secondary: 15 30% 14%;
+		--secondary-foreground: 20 20% 95%;
+		--extra: 10 75% 55%;
+		--extra-foreground: 0 0% 100%;
+		--muted: 15 25% 17%;
+		--muted-foreground: 15 18% 58%;
+		--accent: 20 52% 18%;
+		--accent-foreground: 20 20% 95%;
+		--destructive: 0 72% 52%;
+		--destructive-foreground: 0 0% 98%;
+		--success: 145 60% 42%;
+		--success-foreground: 145 10% 10%;
+		--warning: 40 80% 52%;
+		--warning-foreground: 40 10% 10%;
+		--border: 15 32% 14%;
+		--input: 15 28% 11%;
+		--ring: 20 82% 50%;
+	}
+
+	/* ============================================
+	   HACKER THEME
+	   ============================================ */
+	.hacker-theme {
+		--background: 0 0% 3%;
+		--foreground: 120 60% 85%;
+		--card: 0 0% 6%;
+		--card-foreground: 120 60% 85%;
+		--popover: 0 0% 8%;
+		--popover-foreground: 120 60% 85%;
+		--primary: 120 100% 40%;
+		--primary-foreground: 0 0% 5%;
+		--secondary: 0 0% 12%;
+		--secondary-foreground: 120 60% 85%;
+		--extra: 140 100% 38%;
+		--extra-foreground: 0 0% 5%;
+		--muted: 0 0% 14%;
+		--muted-foreground: 120 20% 52%;
+		--accent: 120 40% 14%;
+		--accent-foreground: 120 60% 85%;
+		--destructive: 0 85% 55%;
+		--destructive-foreground: 0 0% 98%;
+		--success: 145 60% 42%;
+		--success-foreground: 145 10% 10%;
+		--warning: 40 80% 52%;
+		--warning-foreground: 40 10% 10%;
+		--border: 120 25% 14%;
+		--input: 0 0% 10%;
+		--ring: 120 100% 40%;
+	}
+
+	/* ============================================
+	   DUSK THEME
+	   ============================================ */
+	.dusk-theme {
+		--background: 258 45% 7%;
+		--foreground: 30 35% 96%;
+		--card: 258 40% 10%;
+		--card-foreground: 30 35% 96%;
+		--popover: 258 40% 12%;
+		--popover-foreground: 30 35% 96%;
+		--primary: 28 92% 58%;
+		--primary-foreground: 0 0% 100%;
+		--secondary: 258 32% 16%;
+		--secondary-foreground: 30 35% 96%;
+		--extra: 280 65% 58%;
+		--extra-foreground: 0 0% 100%;
+		--muted: 258 25% 18%;
+		--muted-foreground: 258 18% 58%;
+		--accent: 280 40% 20%;
+		--accent-foreground: 30 35% 96%;
+		--destructive: 0 72% 52%;
+		--destructive-foreground: 0 0% 98%;
+		--success: 145 60% 42%;
+		--success-foreground: 145 10% 10%;
+		--warning: 40 80% 52%;
+		--warning-foreground: 40 10% 10%;
+		--border: 258 30% 16%;
+		--input: 258 28% 13%;
+		--ring: 28 92% 58%;
 	}
 
 	/* ============================================

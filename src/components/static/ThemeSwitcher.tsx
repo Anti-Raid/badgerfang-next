@@ -14,11 +14,9 @@ interface ThemeSelectorProps {
 	onOpenChange?: (open: boolean) => void;
 }
 
-const ThemeSelector: React.FC<ThemeSelectorProps & { variant?: 'dropdown' | 'sheet' | 'icon' }> = ({
-	isOpen: controlledIsOpen,
-	onOpenChange,
-	variant = 'dropdown'
-}) => {
+const ThemeSelector: React.FC<
+	ThemeSelectorProps & { variant?: 'dropdown' | 'sheet' | 'icon' | 'inline' }
+> = ({ isOpen: controlledIsOpen, onOpenChange, variant = 'dropdown' }) => {
 	const [internalIsOpen, setInternalIsOpen] = useState(false);
 	const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen;
 	const setIsOpen = (value: boolean) => {
@@ -51,30 +49,73 @@ const ThemeSelector: React.FC<ThemeSelectorProps & { variant?: 'dropdown' | 'she
 		{ id: 'neon-cyber-theme', label: 'Neon Cyber' },
 		{ id: 'retro-haze-theme', label: 'Retro Haze' },
 		{ id: 'deep-ocean-theme', label: 'Deep Ocean' },
-		{ id: 'cotton-candy-theme', label: 'Cotton Candy' }
+		{ id: 'cotton-candy-theme', label: 'Cotton Candy' },
+		{ id: 'arctic-frost-theme', label: 'Arctic Frost' },
+		{ id: 'aurora-theme', label: 'Aurora' },
+		{ id: 'mocha-theme', label: 'Mocha' },
+		{ id: 'sakura-theme', label: 'Sakura' },
+		{ id: 'void-theme', label: 'Void' },
+		{ id: 'copper-theme', label: 'Copper' },
+		{ id: 'hacker-theme', label: 'Hacker' },
+		{ id: 'dusk-theme', label: 'Dusk' }
 	];
 
 	const getThemeColors = (themeId: string) => {
 		switch (themeId) {
-			case 'dark': return 'from-[hsl(268,95%,55%)] to-[hsl(244,80%,65%)]';
-			case 'blue-theme': return 'from-[hsl(210,100%,60%)] to-[hsl(195,85%,65%)]';
-			case 'dark-blue-theme': return 'from-[hsl(220,95%,50%)] to-[hsl(200,90%,60%)]';
-			case 'dark-red-theme': return 'from-[hsl(355,95%,55%)] to-[hsl(330,90%,65%)]';
-			case 'green-theme': return 'from-[hsl(155,85%,45%)] to-[hsl(170,85%,55%)]';
-			case 'dark-green-theme': return 'from-[hsl(155,95%,40%)] to-[hsl(170,90%,50%)]';
-			case 'electric-purple-theme': return 'from-[hsl(275,100%,60%)] to-[hsl(290,90%,70%)]';
-			case 'sunset-amber-theme': return 'from-[hsl(35,100%,55%)] to-[hsl(20,90%,65%)]';
-			case 'stargaze-theme': return 'from-[#BBA9AB] to-[#B4A9B8]';
-			case 'sunbeam-theme': return 'from-[#F0F1ED] to-[#A5CCDC]';
-			case 'velvetsky-theme': return 'from-[#A792B1] to-[#A8C0D9]';
-			case 'crisp-theme': return 'from-[#F0F1ED] to-[#A5CCDC]';
-			case 'float-theme': return 'from-[#A6D1D9] to-[#7FB8BE]';
-			case 'puzzlebloom-theme': return 'from-[#F0E3CB] to-[#D9AA90]';
-			case 'neon-cyber-theme': return 'from-[#d946ef] to-[#06b6d4]';
-			case 'retro-haze-theme': return 'from-[#fb923c] to-[#a855f7]';
-			case 'deep-ocean-theme': return 'from-[#0ea5e9] to-[#1e293b]';
-			case 'cotton-candy-theme': return 'from-[#f9a8d4] to-[#a5f3fc]';
-			default: return 'from-primary to-extra';
+			case 'dark':
+				return 'from-[hsl(268,95%,55%)] to-[hsl(244,80%,65%)]';
+			case 'blue-theme':
+				return 'from-[hsl(210,100%,60%)] to-[hsl(195,85%,65%)]';
+			case 'dark-blue-theme':
+				return 'from-[hsl(220,95%,50%)] to-[hsl(200,90%,60%)]';
+			case 'dark-red-theme':
+				return 'from-[hsl(355,95%,55%)] to-[hsl(330,90%,65%)]';
+			case 'green-theme':
+				return 'from-[hsl(155,85%,45%)] to-[hsl(170,85%,55%)]';
+			case 'dark-green-theme':
+				return 'from-[hsl(155,95%,40%)] to-[hsl(170,90%,50%)]';
+			case 'electric-purple-theme':
+				return 'from-[hsl(275,100%,60%)] to-[hsl(290,90%,70%)]';
+			case 'sunset-amber-theme':
+				return 'from-[hsl(35,100%,55%)] to-[hsl(20,90%,65%)]';
+			case 'stargaze-theme':
+				return 'from-[#BBA9AB] to-[#B4A9B8]';
+			case 'sunbeam-theme':
+				return 'from-[#F0F1ED] to-[#A5CCDC]';
+			case 'velvetsky-theme':
+				return 'from-[#A792B1] to-[#A8C0D9]';
+			case 'crisp-theme':
+				return 'from-[#F0F1ED] to-[#A5CCDC]';
+			case 'float-theme':
+				return 'from-[#A6D1D9] to-[#7FB8BE]';
+			case 'puzzlebloom-theme':
+				return 'from-[#F0E3CB] to-[#D9AA90]';
+			case 'neon-cyber-theme':
+				return 'from-[#d946ef] to-[#06b6d4]';
+			case 'retro-haze-theme':
+				return 'from-[#fb923c] to-[#a855f7]';
+			case 'deep-ocean-theme':
+				return 'from-[#0ea5e9] to-[#1e293b]';
+			case 'cotton-candy-theme':
+				return 'from-[#f9a8d4] to-[#a5f3fc]';
+			case 'arctic-frost-theme':
+				return 'from-[hsl(195,85%,45%)] to-[hsl(180,75%,42%)]';
+			case 'aurora-theme':
+				return 'from-[hsl(160,100%,48%)] to-[hsl(185,100%,44%)]';
+			case 'mocha-theme':
+				return 'from-[hsl(25,72%,52%)] to-[hsl(35,65%,58%)]';
+			case 'sakura-theme':
+				return 'from-[hsl(345,70%,62%)] to-[hsl(320,60%,68%)]';
+			case 'void-theme':
+				return 'from-[hsl(270,45%,48%)] to-[hsl(255,40%,50%)]';
+			case 'copper-theme':
+				return 'from-[hsl(20,82%,50%)] to-[hsl(10,75%,55%)]';
+			case 'hacker-theme':
+				return 'from-[hsl(120,100%,40%)] to-[hsl(140,100%,38%)]';
+			case 'dusk-theme':
+				return 'from-[hsl(28,92%,58%)] to-[hsl(280,65%,58%)]';
+			default:
+				return 'from-primary to-extra';
 		}
 	};
 
@@ -136,6 +177,42 @@ const ThemeSelector: React.FC<ThemeSelectorProps & { variant?: 'dropdown' | 'she
 		);
 	};
 
+	// Inline variant — no overlay, just a toggle button + collapsible grid
+	if (variant === 'inline') {
+		return (
+			<div className="w-full">
+				<button
+					onClick={() => setIsOpen(!isOpen)}
+					className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-accent/30 hover:bg-accent/50 transition-colors"
+					aria-label="Change theme"
+				>
+					<span className="text-sm font-semibold text-foreground">Theme</span>
+					<div className="flex items-center gap-2">
+						{mounted && (
+							<span className="text-xs text-muted-foreground capitalize">
+								{themes.find((t) => t.id === theme)?.label ?? theme}
+							</span>
+						)}
+						<PaletteIcon
+							className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+						/>
+					</div>
+				</button>
+				<div
+					className={`grid transition-all duration-200 ${isOpen ? 'grid-rows-[1fr] mt-3' : 'grid-rows-[0fr]'}`}
+				>
+					<div className="overflow-hidden">
+						<div className="grid grid-cols-2 gap-2 pb-1">
+							{themes.map((t) => (
+								<ThemeButton key={t.id} themeOption={t} />
+							))}
+						</div>
+					</div>
+				</div>
+			</div>
+		);
+	}
+
 	return (
 		<div className="relative" ref={dropdownRef}>
 			{/* Trigger Button */}
@@ -146,12 +223,12 @@ const ThemeSelector: React.FC<ThemeSelectorProps & { variant?: 'dropdown' | 'she
                     flex items-center justify-center
                     transition-all duration-300
                     ${
-						variant === 'sheet'
-							? 'p-2 rounded-full hover:bg-muted/50 active:scale-95'
-							: variant === 'icon'
-								? 'p-2 rounded-full hover:bg-white/10'
-								: 'p-2.5 rounded-xl hover:bg-accent/80 ring-1 ring-border/50 hover:ring-primary/50'
-					}
+											variant === 'sheet'
+												? 'p-2 rounded-full hover:bg-muted/50 active:scale-95'
+												: variant === 'icon'
+													? 'p-2 rounded-full hover:bg-white/10'
+													: 'p-2.5 rounded-xl hover:bg-accent/80 ring-1 ring-border/50 hover:ring-primary/50'
+										}
                 `}
 				aria-label="Change theme"
 			>
