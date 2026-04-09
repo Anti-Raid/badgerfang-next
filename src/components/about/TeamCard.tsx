@@ -27,7 +27,11 @@ export const TeamMembers = ({ isLoaded }: { isLoaded: boolean }) => {
 
 	if (isLoading) {
 		return (
-			<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4" role="status" aria-live="polite">
+			<div
+				className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"
+				role="status"
+				aria-live="polite"
+			>
 				{userIds.map((id) => (
 					<div
 						key={id}

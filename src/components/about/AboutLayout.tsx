@@ -67,8 +67,8 @@ const AboutLayout = () => {
 					<p
 						className={`text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-10 transition-all duration-700 delay-150 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
 					>
-						AntiRaid combines advanced automation with intuitive controls to keep your Discord server
-						safe. Real-time protection, zero complexity.
+						AntiRaid combines advanced automation with intuitive controls to keep your Discord
+						server safe. Real-time protection, zero complexity.
 					</p>
 
 					<div
@@ -151,13 +151,13 @@ const AboutLayout = () => {
 			<section id="partners" className="py-24 px-6">
 				<div className="max-w-6xl mx-auto">
 					<div className="text-center mb-16">
-						<p className="text-sm font-bold text-primary uppercase tracking-widest mb-4">Partners</p>
+						<p className="text-sm font-bold text-primary uppercase tracking-widest mb-4">
+							Partners
+						</p>
 						<h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
 							Organizations that support us
 						</h2>
-						<p className="text-lg text-muted-foreground">
-							Helping make AntiRaid possible.
-						</p>
+						<p className="text-lg text-muted-foreground">Helping make AntiRaid possible.</p>
 					</div>
 
 					<Partners isLoaded={isLoaded} />
@@ -191,7 +191,9 @@ const AboutLayout = () => {
 							Design System
 						</p>
 						<h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">Style Guide</h2>
-						<p className="text-lg text-muted-foreground">Our design language and visual identity.</p>
+						<p className="text-lg text-muted-foreground">
+							Our design language and visual identity.
+						</p>
 					</div>
 
 					<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 items-start">
