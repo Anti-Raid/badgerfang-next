@@ -14,7 +14,7 @@ export const Partners = ({ isLoaded }: { isLoaded: boolean }) => {
 			logo: 'https://cdn.omniplex.gg/core/logo.webp',
 			url: 'https://omniplex.gg/',
 			owner: 'CodeMeAPixel',
-			owner_image: 'https://codemeapixel.dev/logo.png',
+			owner_image: 'https://codemeapixel.dev/character.png',
 			owner_website: 'https://codemeapixel.dev/',
 			links: [
 				{
@@ -32,62 +32,29 @@ export const Partners = ({ isLoaded }: { isLoaded: boolean }) => {
 	];
 
 	return (
-		<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+		<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 			{partners.map((partner, index) => (
 				<div
 					key={partner.name}
-					className={`group relative p-6 rounded-2xl bg-card border border-border hover:border-primary/40 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 overflow-hidden ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}
+					className={`group flex flex-col gap-4 p-5 rounded-2xl border border-border bg-card hover:border-border/60 transition-all duration-300 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
 					style={{ transitionDelay: `${100 + index * 100}ms` }}
 				>
-					{/* Subtle glow */}
-					<div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
-
-					{/* Header */}
-					<div className="flex items-center gap-4 mb-4">
-						<div className="w-14 h-14 rounded-xl overflow-hidden border border-border flex-shrink-0">
+					{/* Header row */}
+					<div className="flex items-center gap-3">
+						<div className="shrink-0 w-10 h-10 rounded-lg overflow-hidden border border-border">
 							<Image
 								src={partner.logo || '/logo.webp'}
 								alt={partner.name}
-								height={56}
-								width={56}
+								height={40}
+								width={40}
 								className="object-cover"
 							/>
 						</div>
-						<div className="min-w-0">
-							<h3 className="text-lg font-bold text-foreground">{partner.name}</h3>
-							<p className="text-sm text-muted-foreground line-clamp-1">{partner.description}</p>
+						<div className="flex-1 min-w-0">
+							<h3 className="font-bold text-foreground leading-tight">{partner.name}</h3>
+							<p className="text-xs text-muted-foreground truncate">{partner.description}</p>
 						</div>
-					</div>
-
-					{/* Description */}
-					<p className="text-sm text-muted-foreground leading-relaxed mb-5 pb-5 border-b border-border">
-						{partner.long_description}
-					</p>
-
-					{/* Footer */}
-					<div className="flex items-center justify-between">
-						{/* Owner */}
-						<a
-							href={partner.owner_website}
-							target="_blank"
-							rel="noopener noreferrer"
-							className="flex items-center gap-2 hover:text-primary transition-colors group/owner"
-						>
-							<Image
-								src={partner.owner_image || '/logo.webp'}
-								alt={partner.owner}
-								height={28}
-								width={28}
-								className="rounded-full border border-border group-hover/owner:border-primary/40 transition-colors"
-							/>
-							<span className="text-sm font-medium text-muted-foreground group-hover/owner:text-foreground transition-colors">
-								{partner.owner}
-							</span>
-							<ExternalLink className="w-3 h-3 opacity-0 group-hover/owner:opacity-100 transition-opacity" />
-						</a>
-
-						{/* Links */}
-						<div className="flex items-center gap-2">
+						<div className="flex items-center gap-0.5 shrink-0">
 							{partner.links.map((link) => (
 								<a
 									key={link.name}
@@ -95,13 +62,38 @@ export const Partners = ({ isLoaded }: { isLoaded: boolean }) => {
 									target="_blank"
 									rel="noopener noreferrer"
 									title={link.name}
-									className="p-2 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all"
+									className="p-1.5 rounded-lg text-muted-foreground/40 hover:text-foreground transition-colors"
 								>
 									{link.icon}
 								</a>
 							))}
 						</div>
 					</div>
+
+					{/* Description */}
+					<p className="text-sm text-muted-foreground leading-relaxed flex-1">
+						{partner.long_description}
+					</p>
+
+					{/* Owner byline */}
+					<a
+						href={partner.owner_website}
+						target="_blank"
+						rel="noopener noreferrer"
+						className="inline-flex items-center gap-2 group/owner w-fit"
+					>
+						<Image
+							src={partner.owner_image || '/logo.webp'}
+							alt={partner.owner}
+							height={20}
+							width={20}
+							className="rounded-full"
+						/>
+						<span className="text-xs text-muted-foreground/50 group-hover/owner:text-muted-foreground transition-colors">
+							{partner.owner}
+						</span>
+						<ExternalLink className="w-3 h-3 text-muted-foreground/20 opacity-0 group-hover/owner:opacity-100 transition-opacity" />
+					</a>
 				</div>
 			))}
 		</div>
