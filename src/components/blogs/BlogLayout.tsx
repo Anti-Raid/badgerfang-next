@@ -56,19 +56,28 @@ const FeaturedCard = ({ blog }: { blog: BlogPost }) => (
 					{blog.title}
 				</h2>
 
-				<p className="text-muted-foreground leading-relaxed mb-6 line-clamp-3">{blog.description}</p>
+				<p className="text-muted-foreground leading-relaxed mb-6 line-clamp-3">
+					{blog.description}
+				</p>
 
 				<div className="flex items-center gap-3 text-sm text-muted-foreground mb-8">
 					{blog.author?.avatar ? (
 						<div className="relative w-7 h-7 rounded-full overflow-hidden border border-border flex-shrink-0">
-							<Image src={blog.author.avatar} alt={blog.author.name} fill className="object-cover" />
+							<Image
+								src={blog.author.avatar}
+								alt={blog.author.name}
+								fill
+								className="object-cover"
+							/>
 						</div>
 					) : (
 						<div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
 							<User className="w-3.5 h-3.5" />
 						</div>
 					)}
-					<span className="font-medium text-foreground">{blog.author?.name ?? 'AntiRaid Team'}</span>
+					<span className="font-medium text-foreground">
+						{blog.author?.name ?? 'AntiRaid Team'}
+					</span>
 					<span className="text-border">·</span>
 					<span>{format(new Date(blog.createdAt), 'MMM d, yyyy')}</span>
 					<span className="text-border">·</span>
@@ -105,7 +114,9 @@ export default function BlogLayout() {
 				setBlogs(data);
 				setFilteredBlogs(data);
 				const tags = data.reduce((acc: string[], blog: BlogPost) => {
-					blog.tags?.forEach((t) => { if (!acc.includes(t)) acc.push(t); });
+					blog.tags?.forEach((t) => {
+						if (!acc.includes(t)) acc.push(t);
+					});
 					return acc;
 				}, []);
 				setAllTags(tags);
@@ -137,7 +148,10 @@ export default function BlogLayout() {
 	const featuredPost = !isFiltering && filteredBlogs.length > 0 ? filteredBlogs[0] : null;
 	const gridPosts = !isFiltering ? filteredBlogs.slice(1) : filteredBlogs;
 
-	const clearFilters = () => { setSearchTerm(''); setSelectedTag(null); };
+	const clearFilters = () => {
+		setSearchTerm('');
+		setSelectedTag(null);
+	};
 
 	return (
 		<div className="min-h-screen">
@@ -233,7 +247,10 @@ export default function BlogLayout() {
 						</div>
 						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 							{[1, 2, 3].map((i) => (
-								<div key={i} className="rounded-2xl border border-border bg-card overflow-hidden animate-pulse">
+								<div
+									key={i}
+									className="rounded-2xl border border-border bg-card overflow-hidden animate-pulse"
+								>
 									<div className="aspect-[16/9] bg-muted" />
 									<div className="p-5 space-y-3">
 										<div className="h-3 w-1/4 bg-muted rounded-full" />
@@ -270,8 +287,8 @@ export default function BlogLayout() {
 									article{filteredBlogs.length !== 1 ? 's' : ''} found
 									{selectedTag && (
 										<>
-											{' '}tagged{' '}
-											<span className="text-primary font-semibold">#{selectedTag}</span>
+											{' '}
+											tagged <span className="text-primary font-semibold">#{selectedTag}</span>
 										</>
 									)}
 								</p>

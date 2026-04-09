@@ -39,10 +39,38 @@ import {
 type TabKey = 'overview' | 'shards';
 
 const STATUS_VARIANTS = {
-	Ready: { colorClass: 'text-emerald-400', bgClass: 'bg-emerald-400/10', borderClass: 'border-emerald-400/20', dotClass: 'bg-emerald-400', label: 'Operational', icon: Check },
-	Connected: { colorClass: 'text-primary', bgClass: 'bg-primary/10', borderClass: 'border-primary/20', dotClass: 'bg-primary', label: 'Active', icon: Radio },
-	MarkedForClosure: { colorClass: 'text-amber-400', bgClass: 'bg-amber-400/10', borderClass: 'border-amber-400/20', dotClass: 'bg-amber-400', label: 'Maintenance', icon: AlertTriangle },
-	Default: { colorClass: 'text-destructive', bgClass: 'bg-destructive/10', borderClass: 'border-destructive/20', dotClass: 'bg-destructive', label: 'Offline', icon: X }
+	Ready: {
+		colorClass: 'text-emerald-400',
+		bgClass: 'bg-emerald-400/10',
+		borderClass: 'border-emerald-400/20',
+		dotClass: 'bg-emerald-400',
+		label: 'Operational',
+		icon: Check
+	},
+	Connected: {
+		colorClass: 'text-primary',
+		bgClass: 'bg-primary/10',
+		borderClass: 'border-primary/20',
+		dotClass: 'bg-primary',
+		label: 'Active',
+		icon: Radio
+	},
+	MarkedForClosure: {
+		colorClass: 'text-amber-400',
+		bgClass: 'bg-amber-400/10',
+		borderClass: 'border-amber-400/20',
+		dotClass: 'bg-amber-400',
+		label: 'Maintenance',
+		icon: AlertTriangle
+	},
+	Default: {
+		colorClass: 'text-destructive',
+		bgClass: 'bg-destructive/10',
+		borderClass: 'border-destructive/20',
+		dotClass: 'bg-destructive',
+		label: 'Offline',
+		icon: X
+	}
 };
 
 // Utilities
@@ -110,13 +138,13 @@ const ShardNode = ({
 			{/* Header */}
 			<div className="flex items-start justify-between mb-5">
 				<div className="flex items-center gap-3">
-					<div className={`w-10 h-10 rounded-xl ${config.bgClass} border ${config.borderClass} flex items-center justify-center`}>
+					<div
+						className={`w-10 h-10 rounded-xl ${config.bgClass} border ${config.borderClass} flex items-center justify-center`}
+					>
 						<Icon className={`w-5 h-5 ${config.colorClass}`} />
 					</div>
 					<div>
-						<h3 className="text-base font-bold text-foreground">
-							Shard {shard.padStart(2, '0')}
-						</h3>
+						<h3 className="text-base font-bold text-foreground">Shard {shard.padStart(2, '0')}</h3>
 						<div className="flex items-center gap-1.5 mt-0.5">
 							<span className={`w-1.5 h-1.5 rounded-full ${config.dotClass} animate-pulse`} />
 							<span className="text-xs text-muted-foreground font-medium">{config.label}</span>
@@ -142,7 +170,9 @@ const ShardNode = ({
 						<Globe className="w-3 h-3" />
 						<span className="text-[10px] font-bold uppercase tracking-widest">Guilds</span>
 					</div>
-					<span className="text-xl font-bold text-foreground">{details.guilds.toLocaleString()}</span>
+					<span className="text-xl font-bold text-foreground">
+						{details.guilds.toLocaleString()}
+					</span>
 				</div>
 			</div>
 
@@ -178,7 +208,10 @@ const ChartTooltip = ({ active, payload, label }: any) => {
 	return (
 		<div className="px-3 py-2 rounded-xl bg-card border border-border shadow-xl text-sm">
 			<p className="text-muted-foreground text-xs mb-1">{label}</p>
-			<p className="font-bold text-foreground">{payload[0].value}{payload[0].name === 'latency' ? 'ms' : ''}</p>
+			<p className="font-bold text-foreground">
+				{payload[0].value}
+				{payload[0].name === 'latency' ? 'ms' : ''}
+			</p>
 		</div>
 	);
 };
@@ -215,9 +248,18 @@ export default function StatusPage() {
 		const totalServers = data.total_guilds;
 		const avgLatency = Math.round(shards.reduce((a, b) => a + b.real_latency, 0) / shards.length);
 		const totalUsers = data.total_users;
-		const onlineShards = shards.filter((s) => s.status === 'Ready' || s.status === 'Connected').length;
+		const onlineShards = shards.filter(
+			(s) => s.status === 'Ready' || s.status === 'Connected'
+		).length;
 		const health = Math.round((onlineShards / shards.length) * 100);
-		return { totalServers, avgLatency, totalUsers, onlineShards, totalShards: shards.length, health };
+		return {
+			totalServers,
+			avgLatency,
+			totalUsers,
+			onlineShards,
+			totalShards: shards.length,
+			health
+		};
 	}, [data]);
 
 	const chartData = useMemo(() => {
@@ -350,10 +392,12 @@ export default function StatusPage() {
 				{/* Tab bar */}
 				<div className="flex items-center justify-between mb-10">
 					<div className="flex items-center gap-2 p-1 bg-accent/40 rounded-xl border border-border">
-						{([
-							{ id: 'overview', label: 'Overview', icon: LayoutDashboard },
-							{ id: 'shards', label: 'Shards', icon: Server }
-						] as const).map((t) => (
+						{(
+							[
+								{ id: 'overview', label: 'Overview', icon: LayoutDashboard },
+								{ id: 'shards', label: 'Shards', icon: Server }
+							] as const
+						).map((t) => (
 							<button
 								key={t.id}
 								onClick={() => setTab(t.id)}
@@ -438,12 +482,16 @@ export default function StatusPage() {
 									<ResponsiveContainer width="100%" height="100%">
 										<ReBarChart data={chartData.slice(0, 32)} barSize={8}>
 											<ReBar dataKey="latency" fill="hsl(var(--primary))" radius={[4, 4, 4, 4]} />
-											<Tooltip content={<ChartTooltip />} cursor={{ fill: 'hsl(var(--accent))', radius: 4 }} />
+											<Tooltip
+												content={<ChartTooltip />}
+												cursor={{ fill: 'hsl(var(--accent))', radius: 4 }}
+											/>
 										</ReBarChart>
 									</ResponsiveContainer>
 								</div>
 								<p className="text-xs text-muted-foreground mt-3">
-									Showing {Math.min(chartData.length, 32)} of {chartData.length} shards · avg {metrics?.avgLatency}ms
+									Showing {Math.min(chartData.length, 32)} of {chartData.length} shards · avg{' '}
+									{metrics?.avgLatency}ms
 								</p>
 							</div>
 						</div>
@@ -481,7 +529,10 @@ export default function StatusPage() {
 											dot={false}
 											activeDot={{ r: 4, fill: 'hsl(var(--primary))' }}
 										/>
-										<Tooltip content={<ChartTooltip />} cursor={{ stroke: 'hsl(var(--border))', strokeWidth: 1 }} />
+										<Tooltip
+											content={<ChartTooltip />}
+											cursor={{ stroke: 'hsl(var(--border))', strokeWidth: 1 }}
+										/>
 									</AreaChart>
 								</ResponsiveContainer>
 							</div>
@@ -502,7 +553,8 @@ export default function StatusPage() {
 							<div>
 								<h2 className="text-2xl font-bold text-foreground mb-1">Shard Registry</h2>
 								<p className="text-sm text-muted-foreground">
-									Individual cluster status across {Object.keys(data?.shard_conns ?? {}).length} shards
+									Individual cluster status across {Object.keys(data?.shard_conns ?? {}).length}{' '}
+									shards
 								</p>
 							</div>
 							<div className="hidden sm:flex items-center gap-4 text-xs text-muted-foreground font-medium">

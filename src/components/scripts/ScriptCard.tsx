@@ -18,7 +18,12 @@ export const CommonCard = ({ template }: CommonCardProps) => {
 		const el = ref.current;
 		if (!el) return;
 		const obs = new IntersectionObserver(
-			([e]) => { if (e.isIntersecting) { setShow(true); obs.disconnect(); } },
+			([e]) => {
+				if (e.isIntersecting) {
+					setShow(true);
+					obs.disconnect();
+				}
+			},
 			{ rootMargin: '-50px' }
 		);
 		obs.observe(el);

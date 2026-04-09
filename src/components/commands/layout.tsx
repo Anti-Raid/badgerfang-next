@@ -29,13 +29,13 @@ type ModuleMeta = {
 };
 
 const MODULE_META: Record<string, ModuleMeta> = {
-	moderation:    { icon: Shield,        color: 'text-rose-400',   bg: 'bg-rose-400/10'   },
-	settings:      { icon: Settings,      color: 'text-sky-400',    bg: 'bg-sky-400/10'    },
-	messages:      { icon: MessageSquare, color: 'text-amber-400',  bg: 'bg-amber-400/10'  },
-	members:       { icon: Users,         color: 'text-emerald-400',bg: 'bg-emerald-400/10'},
-	permissions:   { icon: Lock,          color: 'text-violet-400', bg: 'bg-violet-400/10' },
-	automation:    { icon: Zap,           color: 'text-orange-400', bg: 'bg-orange-400/10' },
-	notifications: { icon: Bell,          color: 'text-cyan-400',   bg: 'bg-cyan-400/10'   },
+	moderation: { icon: Shield, color: 'text-rose-400', bg: 'bg-rose-400/10' },
+	settings: { icon: Settings, color: 'text-sky-400', bg: 'bg-sky-400/10' },
+	messages: { icon: MessageSquare, color: 'text-amber-400', bg: 'bg-amber-400/10' },
+	members: { icon: Users, color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
+	permissions: { icon: Lock, color: 'text-violet-400', bg: 'bg-violet-400/10' },
+	automation: { icon: Zap, color: 'text-orange-400', bg: 'bg-orange-400/10' },
+	notifications: { icon: Bell, color: 'text-cyan-400', bg: 'bg-cyan-400/10' }
 };
 
 const DEFAULT_META: ModuleMeta = { icon: Globe, color: 'text-primary', bg: 'bg-primary/10' };
@@ -61,7 +61,10 @@ const CopyButton = ({ text, small }: { text: string; small?: boolean }) => {
 
 	return (
 		<button
-			onClick={(e) => { e.stopPropagation(); handleCopy(); }}
+			onClick={(e) => {
+				e.stopPropagation();
+				handleCopy();
+			}}
 			className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
 			aria-label={copied ? 'Copied' : 'Copy'}
 		>
@@ -87,7 +90,8 @@ export default function CommandInterface() {
 		const commands: any[] = [];
 
 		const extract = (opts: any[] = []) => {
-			const sub: any[] = [], args: any[] = [];
+			const sub: any[] = [],
+				args: any[] = [];
 			opts.forEach((o) => (o.type === 1 || o.type === 2 ? sub : args).push(o));
 			return { sub, args };
 		};
@@ -96,14 +100,19 @@ export default function CommandInterface() {
 			const { sub, args } = extract(cmd.options);
 			if (sub.length === 0) {
 				commands.push({
-					...cmd, moduleName: cmd.name, id: `cmd-${id++}`,
+					...cmd,
+					moduleName: cmd.name,
+					id: `cmd-${id++}`,
 					arguments: args.map((a) => ({ ...a, required: a.required ?? false }))
 				});
 			}
 			sub.forEach((sc) => {
 				const { sub: sSub, args: sArgs } = extract(sc.options);
 				commands.push({
-					...sc, moduleName: cmd.name, id: `cmd-${id++}`, parentName: cmd.name,
+					...sc,
+					moduleName: cmd.name,
+					id: `cmd-${id++}`,
+					parentName: cmd.name,
 					subcommands: sSub,
 					arguments: sArgs.map((a) => ({ ...a, required: a.required ?? false }))
 				});
@@ -113,13 +122,16 @@ export default function CommandInterface() {
 		return commands;
 	}, [botState]);
 
-	const filteredCommands = useMemo(() => allCommands.filter((cmd: any) => {
-		const q = searchQuery.toLowerCase();
-		const matchesSearch =
-			cmd.name?.toLowerCase().includes(q) ||
-			cmd.description?.toLowerCase().includes(q);
-		return matchesSearch && (selectedModule === 'all' || cmd.moduleName === selectedModule);
-	}), [allCommands, searchQuery, selectedModule]);
+	const filteredCommands = useMemo(
+		() =>
+			allCommands.filter((cmd: any) => {
+				const q = searchQuery.toLowerCase();
+				const matchesSearch =
+					cmd.name?.toLowerCase().includes(q) || cmd.description?.toLowerCase().includes(q);
+				return matchesSearch && (selectedModule === 'all' || cmd.moduleName === selectedModule);
+			}),
+		[allCommands, searchQuery, selectedModule]
+	);
 
 	const modules = useMemo(() => {
 		if (!botState) return [];
@@ -142,7 +154,7 @@ export default function CommandInterface() {
 	return (
 		<div className="min-h-screen">
 			{/* Header */}
-			<div className="pt-32 pb-10 px-6 border-b border-border">
+			<div className="pt-8 pb-10 border-b border-border">
 				<div className="max-w-5xl mx-auto">
 					<div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-8 animate-in fade-in-0 slide-in-from-bottom-3 duration-400">
 						<div>
@@ -153,7 +165,10 @@ export default function CommandInterface() {
 						</div>
 
 						<div className="relative sm:w-72">
-							<Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+							<Search
+								size={15}
+								className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+							/>
 							<input
 								type="text"
 								placeholder="Search..."
@@ -194,7 +209,7 @@ export default function CommandInterface() {
 			</div>
 
 			{/* List */}
-			<div className="max-w-5xl mx-auto px-6 py-8 pb-24">
+			<div className="max-w-5xl mx-auto py-8 pb-24">
 				{filteredCommands.length === 0 ? (
 					<div className="flex flex-col items-center justify-center py-24 text-center">
 						<Terminal size={32} className="text-muted-foreground/30 mb-3" />
@@ -255,7 +270,7 @@ const CommandRow = ({ command, index }: { command: any; index: number }) => {
 
 	// Build usage string
 	const usageArgs = (command.arguments ?? [])
-		.map((a: any) => a.required ? `<${a.name}>` : `[${a.name}]`)
+		.map((a: any) => (a.required ? `<${a.name}>` : `[${a.name}]`))
 		.join(' ');
 	const usage = `/${command.parentName ? `${command.parentName} ` : ''}${command.name}${usageArgs ? ' ' + usageArgs : ''}`;
 
@@ -273,7 +288,9 @@ const CommandRow = ({ command, index }: { command: any; index: number }) => {
 				}`}
 			>
 				{/* Module icon */}
-				<div className={`w-8 h-8 rounded-lg ${meta.bg} flex items-center justify-center shrink-0 mt-0.5`}>
+				<div
+					className={`w-8 h-8 rounded-lg ${meta.bg} flex items-center justify-center shrink-0 mt-0.5`}
+				>
 					<Icon size={15} className={meta.color} />
 				</div>
 
@@ -303,7 +320,8 @@ const CommandRow = ({ command, index }: { command: any; index: number }) => {
 							)}
 							{command.subcommands?.length > 0 && (
 								<span className="text-xs text-muted-foreground/60">
-									{command.subcommands.length} subcommand{command.subcommands.length !== 1 ? 's' : ''}
+									{command.subcommands.length} subcommand
+									{command.subcommands.length !== 1 ? 's' : ''}
 								</span>
 							)}
 						</div>
@@ -325,7 +343,9 @@ const CommandRow = ({ command, index }: { command: any; index: number }) => {
 			</div>
 
 			{/* Expanded panel — CSS grid accordion */}
-			<div className={`grid transition-all duration-200 ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+			<div
+				className={`grid transition-all duration-200 ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
+			>
 				<div className="overflow-hidden">
 					<div className="bg-card border border-t-0 border-border rounded-b-xl px-4 pb-4">
 						<div className="grid sm:grid-cols-2 gap-4 pt-4">
@@ -371,9 +391,11 @@ const ArgRow = ({ arg }: { arg: any }) => (
 		<div className="min-w-0 flex-1">
 			<div className="flex items-center gap-2 flex-wrap">
 				<code className="text-xs font-mono font-semibold text-foreground">{arg.name}</code>
-				<span className={`text-[10px] px-1.5 py-px rounded font-medium ${
-					arg.required ? 'bg-rose-500/10 text-rose-400' : 'text-muted-foreground/60'
-				}`}>
+				<span
+					className={`text-[10px] px-1.5 py-px rounded font-medium ${
+						arg.required ? 'bg-rose-500/10 text-rose-400' : 'text-muted-foreground/60'
+					}`}
+				>
 					{arg.required ? 'required' : 'optional'}
 				</span>
 			</div>
@@ -383,7 +405,10 @@ const ArgRow = ({ arg }: { arg: any }) => (
 			{arg.choices?.length > 0 && (
 				<div className="mt-1 flex flex-wrap gap-1">
 					{arg.choices.map((c: string) => (
-						<span key={c} className="text-[10px] px-1.5 py-px bg-background border border-border rounded font-mono text-muted-foreground">
+						<span
+							key={c}
+							className="text-[10px] px-1.5 py-px bg-background border border-border rounded font-mono text-muted-foreground"
+						>
 							{c}
 						</span>
 					))}

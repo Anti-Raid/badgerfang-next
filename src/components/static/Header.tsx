@@ -4,7 +4,16 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
-import { Menu, X, LayoutDashboard, LogOut, LogIn, ChevronDown, Terminal, ArrowRight } from 'lucide-react';
+import {
+	Menu,
+	X,
+	LayoutDashboard,
+	LogOut,
+	LogIn,
+	ChevronDown,
+	Terminal,
+	ArrowRight
+} from 'lucide-react';
 import { FaDiscord } from 'react-icons/fa';
 import { loginUser } from '@/lib/auth/login';
 import { logoutUser } from '@/lib/auth/logoutUser';
@@ -162,7 +171,7 @@ const NavBar: React.FC = () => {
 						{/* Invite shortcut (desktop) */}
 						<Link
 							href="/invite"
-							className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold bg-primary text-primary-foreground hover:opacity-90 hover:shadow-lg hover:shadow-primary/25 transition-all"
+							className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold border border-border text-foreground hover:bg-accent hover:border-accent transition-all"
 						>
 							<FaDiscord className="w-4 h-4" />
 							Add to Server
@@ -184,7 +193,9 @@ const NavBar: React.FC = () => {
 										<span className="text-sm font-semibold text-foreground max-w-[100px] truncate">
 											{userData.username}
 										</span>
-										<ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isProfileOpen ? 'rotate-180' : ''}`} />
+										<ChevronDown
+											className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isProfileOpen ? 'rotate-180' : ''}`}
+										/>
 									</button>
 
 									{/* Profile dropdown */}
@@ -236,8 +247,9 @@ const NavBar: React.FC = () => {
 										loginUser();
 										router.push('/dashboard');
 									}}
-									className="px-4 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
+									className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold bg-primary text-primary-foreground hover:opacity-90 hover:shadow-lg hover:shadow-primary/25 transition-all"
 								>
+									<LogIn className="w-4 h-4" />
 									Login
 								</button>
 							)}
@@ -249,11 +261,7 @@ const NavBar: React.FC = () => {
 							className="md:hidden p-2.5 rounded-xl hover:bg-accent transition-colors"
 							aria-label="Toggle menu"
 						>
-							{isMobileMenuOpen ? (
-								<X className="w-5 h-5" />
-							) : (
-								<Menu className="w-5 h-5" />
-							)}
+							{isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
 						</button>
 					</div>
 				</nav>
@@ -289,10 +297,7 @@ const NavBar: React.FC = () => {
 					<div className="h-px bg-border my-4" />
 
 					{/* Theme */}
-					<div className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-accent/30">
-						<span className="text-sm font-semibold text-foreground">Theme</span>
-						<ThemeSelector isOpen={isThemeOpen} onOpenChange={setIsThemeOpen} variant="sheet" />
-					</div>
+					<ThemeSelector variant="inline" />
 
 					<div className="h-px bg-border my-4" />
 

@@ -18,7 +18,12 @@ export const TemplateShop = ({ data }: { data: any[] }) => {
 		const el = headerRef.current;
 		if (!el) return;
 		const obs = new IntersectionObserver(
-			([e]) => { if (e.isIntersecting) { setHeaderVisible(true); obs.disconnect(); } },
+			([e]) => {
+				if (e.isIntersecting) {
+					setHeaderVisible(true);
+					obs.disconnect();
+				}
+			},
 			{ rootMargin: '-100px' }
 		);
 		obs.observe(el);

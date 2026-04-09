@@ -3,8 +3,19 @@
 import type React from 'react';
 import { useState, useEffect, useCallback } from 'react';
 import {
-	KeyRound, Trash2, Plus, Terminal, Copy, Clock,
-	RefreshCw, Check, AlertTriangle, Zap, ShieldCheck, Eye, EyeOff
+	KeyRound,
+	Trash2,
+	Plus,
+	Terminal,
+	Copy,
+	Clock,
+	RefreshCw,
+	Check,
+	AlertTriangle,
+	Zap,
+	ShieldCheck,
+	Eye,
+	EyeOff
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -31,14 +42,26 @@ function formatExpiry(expirySeconds: number): string {
 }
 
 function formatDate(iso: string): string {
-	return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+	return new Date(iso).toLocaleDateString(undefined, {
+		month: 'short',
+		day: 'numeric',
+		year: 'numeric'
+	});
 }
 
 // Stat Card
 
 const StatCard = ({
-	label, value, icon, delay = 0
-}: { label: string; value: string | number; icon: React.ReactNode; delay?: number }) => (
+	label,
+	value,
+	icon,
+	delay = 0
+}: {
+	label: string;
+	value: string | number;
+	icon: React.ReactNode;
+	delay?: number;
+}) => (
 	<div
 		className="relative group p-5 rounded-2xl bg-card border border-border hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 overflow-hidden animate-in fade-in-0 slide-in-from-bottom-4"
 		style={{ animationDelay: `${delay * 1000}ms`, animationDuration: '500ms' }}
@@ -57,8 +80,14 @@ const StatCard = ({
 // Session Row
 
 const SessionRow = ({
-	session, currentSessionId, onRevoke
-}: { session: UserSession; currentSessionId: string | null; onRevoke: (id: string) => void }) => {
+	session,
+	currentSessionId,
+	onRevoke
+}: {
+	session: UserSession;
+	currentSessionId: string | null;
+	onRevoke: (id: string) => void;
+}) => {
 	const [copied, setCopied] = useState(false);
 	const isCurrent = session.id === currentSessionId;
 
@@ -82,10 +111,11 @@ const SessionRow = ({
 
 			{/* Icon */}
 			<div className="w-8 h-8 rounded-lg bg-accent border border-border flex items-center justify-center flex-shrink-0">
-				{session.type === 'login'
-					? <KeyRound className="w-3.5 h-3.5 text-muted-foreground" />
-					: <Terminal className="w-3.5 h-3.5 text-muted-foreground" />
-				}
+				{session.type === 'login' ? (
+					<KeyRound className="w-3.5 h-3.5 text-muted-foreground" />
+				) : (
+					<Terminal className="w-3.5 h-3.5 text-muted-foreground" />
+				)}
 			</div>
 
 			{/* Info */}
@@ -99,11 +129,13 @@ const SessionRow = ({
 							Current
 						</span>
 					)}
-					<span className={`px-1.5 py-0.5 text-[10px] font-bold rounded-full border ${
-						session.type === 'login'
-							? 'text-blue-400 bg-blue-500/10 border-blue-500/20'
-							: 'text-violet-400 bg-violet-500/10 border-violet-500/20'
-					}`}>
+					<span
+						className={`px-1.5 py-0.5 text-[10px] font-bold rounded-full border ${
+							session.type === 'login'
+								? 'text-blue-400 bg-blue-500/10 border-blue-500/20'
+								: 'text-violet-400 bg-violet-500/10 border-violet-500/20'
+						}`}
+					>
 						{session.type}
 					</span>
 				</div>
@@ -139,7 +171,12 @@ const SessionRow = ({
 // Session Panel
 
 const SessionPanel = ({
-	title, description, icon, sessions, onRevoke, delay = 0
+	title,
+	description,
+	icon,
+	sessions,
+	onRevoke,
+	delay = 0
 }: {
 	title: string;
 	description: string;
@@ -213,8 +250,14 @@ const CreateTokenForm = ({ onCreated }: { onCreated: () => void }) => {
 
 	const submit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		if (!form.name.trim()) { toast.error('Please enter a name'); return; }
-		if (form.expiry < 3600) { toast.error('Minimum expiry is 1 hour (3600s)'); return; }
+		if (!form.name.trim()) {
+			toast.error('Please enter a name');
+			return;
+		}
+		if (form.expiry < 3600) {
+			toast.error('Minimum expiry is 1 hour (3600s)');
+			return;
+		}
 		setLoading(true);
 		try {
 			const res = await createSession(form);
@@ -231,7 +274,10 @@ const CreateTokenForm = ({ onCreated }: { onCreated: () => void }) => {
 	};
 
 	return (
-		<div className="flex flex-col rounded-2xl border border-border bg-card overflow-hidden animate-in fade-in-0 slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '100ms' }}>
+		<div
+			className="flex flex-col rounded-2xl border border-border bg-card overflow-hidden animate-in fade-in-0 slide-in-from-bottom-4"
+			style={{ animationDuration: '500ms', animationDelay: '100ms' }}
+		>
 			{/* Header */}
 			<div className="flex items-center gap-3 p-5 border-b border-border">
 				<div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/20 to-violet-500/10 border border-primary/20 flex items-center justify-center text-primary flex-shrink-0">
@@ -269,7 +315,7 @@ const CreateTokenForm = ({ onCreated }: { onCreated: () => void }) => {
 							{[
 								{ label: '1 day', value: 86400 },
 								{ label: '7 days', value: 604800 },
-								{ label: '30 days', value: 2592000 },
+								{ label: '30 days', value: 2592000 }
 							].map(({ label, value }) => (
 								<button
 									key={value}
@@ -317,14 +363,22 @@ const CreateTokenForm = ({ onCreated }: { onCreated: () => void }) => {
 										onClick={() => setTokenVisible(!tokenVisible)}
 										className="p-1 text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
 									>
-										{tokenVisible ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+										{tokenVisible ? (
+											<EyeOff className="w-3.5 h-3.5" />
+										) : (
+											<Eye className="w-3.5 h-3.5" />
+										)}
 									</button>
 									<button
 										type="button"
 										onClick={copyToken}
 										className="p-1 text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
 									>
-										{copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+										{copied ? (
+											<Check className="w-3.5 h-3.5 text-emerald-400" />
+										) : (
+											<Copy className="w-3.5 h-3.5" />
+										)}
 									</button>
 								</div>
 								<div className="flex items-start gap-1.5">
@@ -345,9 +399,13 @@ const CreateTokenForm = ({ onCreated }: { onCreated: () => void }) => {
 						className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-primary text-primary-foreground text-sm font-bold hover:opacity-90 hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:translate-y-0 disabled:cursor-not-allowed"
 					>
 						{loading ? (
-							<><RefreshCw className="w-4 h-4 animate-spin" /> Generating…</>
+							<>
+								<RefreshCw className="w-4 h-4 animate-spin" /> Generating…
+							</>
 						) : (
-							<><Zap className="w-4 h-4" /> Generate Token</>
+							<>
+								<Zap className="w-4 h-4" /> Generate Token
+							</>
 						)}
 					</button>
 				</div>
@@ -382,7 +440,9 @@ const Dashboard: React.FC = () => {
 		}
 	}, []);
 
-	useEffect(() => { fetchSessions(); }, [fetchSessions]);
+	useEffect(() => {
+		fetchSessions();
+	}, [fetchSessions]);
 
 	const handleRevoke = async (sessionId: string) => {
 		try {
@@ -398,7 +458,6 @@ const Dashboard: React.FC = () => {
 		<div className="min-h-screen bg-background">
 			{/* Hero */}
 			<section className="relative pt-28 pb-10 px-6 overflow-hidden border-b border-border">
-
 				<div className="max-w-6xl mx-auto">
 					<div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10">
 						<div>
@@ -412,7 +471,8 @@ const Dashboard: React.FC = () => {
 								</span>
 							</h1>
 							<p className="text-sm text-muted-foreground max-w-md animate-in fade-in-0 duration-400 delay-100">
-								Manage your active sessions and API tokens. Revoke suspicious activity or generate new tokens for integrations.
+								Manage your active sessions and API tokens. Revoke suspicious activity or generate
+								new tokens for integrations.
 							</p>
 						</div>
 
@@ -423,8 +483,7 @@ const Dashboard: React.FC = () => {
 							<RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
 							{lastUpdated
 								? `Updated ${lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
-								: 'Refresh'
-							}
+								: 'Refresh'}
 						</button>
 					</div>
 
@@ -457,7 +516,10 @@ const Dashboard: React.FC = () => {
 				{loading ? (
 					<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
 						{[0, 1, 2].map((i) => (
-							<div key={i} className="rounded-2xl border border-border bg-card overflow-hidden animate-pulse">
+							<div
+								key={i}
+								className="rounded-2xl border border-border bg-card overflow-hidden animate-pulse"
+							>
 								<div className="p-5 border-b border-border flex items-center gap-3">
 									<div className="w-9 h-9 rounded-xl bg-muted" />
 									<div className="space-y-1.5 flex-1">

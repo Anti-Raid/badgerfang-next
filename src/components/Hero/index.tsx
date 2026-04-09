@@ -70,7 +70,8 @@ const Hero = () => {
 		{
 			icon: Shield,
 			title: 'Advanced Protection',
-			description: 'Real-time threat detection and automatic response systems that adapt to your server.'
+			description:
+				'Real-time threat detection and automatic response systems that adapt to your server.'
 		},
 		{
 			icon: Zap,
@@ -167,10 +168,34 @@ const Hero = () => {
 				<div className="max-w-6xl mx-auto">
 					<div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
 						{[
-							{ icon: Server, value: `${serverCount.toLocaleString()}+`, label: 'Servers Protected', color: 'text-primary', glow: 'group-hover:shadow-primary/20' },
-							{ icon: Users, value: `${userCount.toLocaleString()}+`, label: 'Users Secured', color: 'text-blue-400', glow: 'group-hover:shadow-blue-400/20' },
-							{ icon: Activity, value: '99.9%', label: 'Uptime', color: 'text-emerald-400', glow: 'group-hover:shadow-emerald-400/20' },
-							{ icon: Clock, value: '<1ms', label: 'Response Time', color: 'text-amber-400', glow: 'group-hover:shadow-amber-400/20' }
+							{
+								icon: Server,
+								value: `${serverCount.toLocaleString()}+`,
+								label: 'Servers Protected',
+								color: 'text-primary',
+								glow: 'group-hover:shadow-primary/20'
+							},
+							{
+								icon: Users,
+								value: `${userCount.toLocaleString()}+`,
+								label: 'Users Secured',
+								color: 'text-blue-400',
+								glow: 'group-hover:shadow-blue-400/20'
+							},
+							{
+								icon: Activity,
+								value: '99.9%',
+								label: 'Uptime',
+								color: 'text-emerald-400',
+								glow: 'group-hover:shadow-emerald-400/20'
+							},
+							{
+								icon: Clock,
+								value: '<1ms',
+								label: 'Response Time',
+								color: 'text-amber-400',
+								glow: 'group-hover:shadow-amber-400/20'
+							}
 						].map((stat, i) => (
 							<div
 								key={i}
@@ -189,7 +214,9 @@ const Hero = () => {
 			<section className="py-32 px-6">
 				<div className="max-w-6xl mx-auto">
 					<div className="text-center mb-20">
-						<p className="text-sm font-bold text-primary uppercase tracking-widest mb-4">Features</p>
+						<p className="text-sm font-bold text-primary uppercase tracking-widest mb-4">
+							Features
+						</p>
 						<h2 className="text-4xl lg:text-5xl font-bold text-foreground mb-6">
 							Built for modern Discord servers
 						</h2>
@@ -281,7 +308,9 @@ const Hero = () => {
 								<div className="mt-5 pt-4 border-t border-border">
 									<div className="flex items-center justify-between">
 										<span className="text-xs text-muted-foreground">Servers protected</span>
-										<span className="text-sm font-bold text-primary">{serverCount.toLocaleString()}+</span>
+										<span className="text-sm font-bold text-primary">
+											{serverCount.toLocaleString()}+
+										</span>
 									</div>
 								</div>
 							</div>
@@ -295,7 +324,9 @@ const Hero = () => {
 									<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
 									<span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
 								</span>
-								<span className="text-xs font-semibold text-foreground">All systems operational</span>
+								<span className="text-xs font-semibold text-foreground">
+									All systems operational
+								</span>
 							</div>
 						</div>
 					</div>
@@ -306,7 +337,9 @@ const Hero = () => {
 			<section className="py-32 px-6">
 				<div className="max-w-6xl mx-auto">
 					<div className="text-center mb-16">
-						<p className="text-sm font-bold text-primary uppercase tracking-widest mb-4">Scripting</p>
+						<p className="text-sm font-bold text-primary uppercase tracking-widest mb-4">
+							Scripting
+						</p>
 						<h2 className="text-4xl lg:text-5xl font-bold text-foreground mb-6">
 							Extend with custom scripts
 						</h2>
@@ -317,14 +350,32 @@ const Hero = () => {
 
 					<div className="grid lg:grid-cols-2 gap-6">
 						{[
-							{ name: 'Luau', desc: 'Fast, lightweight, and easy to learn. Roblox-compatible syntax.', color: 'text-blue-400', gradFrom: 'from-blue-500/15', gradTo: 'to-blue-500/5', borderHover: 'hover:border-blue-500/40', shadowHover: 'hover:shadow-blue-500/10' },
-							{ name: 'JavaScript', desc: 'Familiar syntax with a rich ecosystem you already know.', color: 'text-amber-400', gradFrom: 'from-amber-500/15', gradTo: 'to-amber-500/5', borderHover: 'hover:border-amber-500/40', shadowHover: 'hover:shadow-amber-500/10' }
+							{
+								name: 'Luau',
+								desc: 'Fast, lightweight, and easy to learn. Roblox-compatible syntax.',
+								color: 'text-blue-400',
+								gradFrom: 'from-blue-500/15',
+								gradTo: 'to-blue-500/5',
+								borderHover: 'hover:border-blue-500/40',
+								shadowHover: 'hover:shadow-blue-500/10'
+							},
+							{
+								name: 'JavaScript',
+								desc: 'Familiar syntax with a rich ecosystem you already know.',
+								color: 'text-amber-400',
+								gradFrom: 'from-amber-500/15',
+								gradTo: 'to-amber-500/5',
+								borderHover: 'hover:border-amber-500/40',
+								shadowHover: 'hover:shadow-amber-500/10'
+							}
 						].map((lang, i) => (
 							<div
 								key={i}
 								className={`group p-8 rounded-3xl bg-card border border-border ${lang.borderHover} hover:-translate-y-1 hover:shadow-xl ${lang.shadowHover} transition-all duration-300`}
 							>
-								<div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${lang.gradFrom} ${lang.gradTo} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+								<div
+									className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${lang.gradFrom} ${lang.gradTo} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}
+								>
 									<Code className={`w-7 h-7 ${lang.color}`} />
 								</div>
 								<h3 className={`text-2xl font-bold ${lang.color} mb-2`}>{lang.name}</h3>

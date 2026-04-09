@@ -1,7 +1,16 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { Calendar, ArrowLeft, Share2, Clock, User, BookOpen, Check, ArrowUpRight } from 'lucide-react';
+import {
+	Calendar,
+	ArrowLeft,
+	Share2,
+	Clock,
+	User,
+	BookOpen,
+	Check,
+	ArrowUpRight
+} from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { format } from 'date-fns';
@@ -26,11 +35,16 @@ const calculateReadingTime = (content: string): string => {
 
 const getSocialIcon = (platform?: string) => {
 	switch ((platform ?? '').toLowerCase()) {
-		case 'twitter': return <FaTwitter size={15} />;
-		case 'facebook': return <FaFacebook size={15} />;
-		case 'linkedin': return <FaLinkedin size={15} />;
-		case 'discord': return <FaDiscord size={15} />;
-		default: return <FaLink size={15} />;
+		case 'twitter':
+			return <FaTwitter size={15} />;
+		case 'facebook':
+			return <FaFacebook size={15} />;
+		case 'linkedin':
+			return <FaLinkedin size={15} />;
+		case 'discord':
+			return <FaDiscord size={15} />;
+		default:
+			return <FaLink size={15} />;
 	}
 };
 
@@ -90,7 +104,9 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 					const allBlogs: BlogPost[] = allBlogsResponse;
 					if (mainBlog.tags?.length > 0) {
 						const related = allBlogs
-							.filter((b) => b.slug !== slug && b.tags?.some((t: string) => mainBlog.tags?.includes(t)))
+							.filter(
+								(b) => b.slug !== slug && b.tags?.some((t: string) => mainBlog.tags?.includes(t))
+							)
 							.slice(0, 3);
 						setRelatedBlogs(related);
 					}
@@ -106,7 +122,12 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 
 	const shareArticle = () => {
 		if (navigator.share) {
-			navigator.share({ title: blog?.title || 'AntiRaid Blog', text: blog?.description || '', url: window.location.href })
+			navigator
+				.share({
+					title: blog?.title || 'AntiRaid Blog',
+					text: blog?.description || '',
+					url: window.location.href
+				})
 				.catch(() => {});
 		} else {
 			navigator.clipboard.writeText(window.location.href).then(() => {
@@ -212,14 +233,21 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 							<div className="flex items-center gap-2">
 								{blog.author?.avatar ? (
 									<div className="relative w-9 h-9 rounded-full overflow-hidden border-2 border-border">
-										<Image src={blog.author.avatar} alt={blog.author.name} fill className="object-cover" />
+										<Image
+											src={blog.author.avatar}
+											alt={blog.author.name}
+											fill
+											className="object-cover"
+										/>
 									</div>
 								) : (
 									<div className="w-9 h-9 rounded-full bg-accent border border-border flex items-center justify-center">
 										<User className="w-4 h-4 text-muted-foreground" />
 									</div>
 								)}
-								<span className="text-sm font-bold text-foreground">{blog.author?.name ?? 'AntiRaid Team'}</span>
+								<span className="text-sm font-bold text-foreground">
+									{blog.author?.name ?? 'AntiRaid Team'}
+								</span>
 							</div>
 
 							<span className="text-border select-none">·</span>
@@ -242,9 +270,15 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 								aria-label="Share article"
 							>
 								{copied ? (
-									<><Check className="w-4 h-4 text-emerald-400" /><span className="text-emerald-400">Copied!</span></>
+									<>
+										<Check className="w-4 h-4 text-emerald-400" />
+										<span className="text-emerald-400">Copied!</span>
+									</>
 								) : (
-									<><Share2 className="w-4 h-4" />Share</>
+									<>
+										<Share2 className="w-4 h-4" />
+										Share
+									</>
 								)}
 							</button>
 						</div>
@@ -319,9 +353,15 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 									if (!src) return null;
 									return (
 										<span className="block my-8">
-											<img src={src} alt={alt ?? ''} className="w-full rounded-2xl border border-border" />
+											<img
+												src={src}
+												alt={alt ?? ''}
+												className="w-full rounded-2xl border border-border"
+											/>
 											{alt && (
-												<span className="block text-center text-xs text-muted-foreground mt-2">{alt}</span>
+												<span className="block text-center text-xs text-muted-foreground mt-2">
+													{alt}
+												</span>
 											)}
 										</span>
 									);
@@ -344,10 +384,18 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 									return <thead className="bg-accent/50 border-b border-border">{children}</thead>;
 								},
 								th({ children }: any) {
-									return <th className="px-4 py-3 text-left font-bold text-foreground text-xs uppercase tracking-wider">{children}</th>;
+									return (
+										<th className="px-4 py-3 text-left font-bold text-foreground text-xs uppercase tracking-wider">
+											{children}
+										</th>
+									);
 								},
 								td({ children }: any) {
-									return <td className="px-4 py-3 text-foreground/85 border-t border-border">{children}</td>;
+									return (
+										<td className="px-4 py-3 text-foreground/85 border-t border-border">
+											{children}
+										</td>
+									);
 								},
 								hr() {
 									return <hr className="my-10 border-border" />;
@@ -363,7 +411,12 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 						<div className="flex items-start gap-5 p-6 rounded-2xl bg-card border border-border">
 							{blog.author?.avatar ? (
 								<div className="relative w-16 h-16 rounded-2xl overflow-hidden border border-border flex-shrink-0">
-									<Image src={blog.author.avatar} alt={blog.author.name} fill className="object-cover" />
+									<Image
+										src={blog.author.avatar}
+										alt={blog.author.name}
+										fill
+										className="object-cover"
+									/>
 								</div>
 							) : (
 								<div className="w-16 h-16 rounded-2xl bg-accent border border-border flex items-center justify-center flex-shrink-0">
@@ -371,10 +424,16 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 								</div>
 							)}
 							<div className="flex-1 min-w-0">
-								<p className="text-xs font-bold text-primary uppercase tracking-widest mb-1">Written by</p>
-								<p className="text-lg font-bold text-foreground mb-1">{blog.author?.name ?? 'AntiRaid Team'}</p>
+								<p className="text-xs font-bold text-primary uppercase tracking-widest mb-1">
+									Written by
+								</p>
+								<p className="text-lg font-bold text-foreground mb-1">
+									{blog.author?.name ?? 'AntiRaid Team'}
+								</p>
 								{blog.author?.bio && (
-									<p className="text-sm text-muted-foreground leading-relaxed mb-3">{blog.author.bio}</p>
+									<p className="text-sm text-muted-foreground leading-relaxed mb-3">
+										{blog.author.bio}
+									</p>
 								)}
 								{blog.author?.socials?.length > 0 && (
 									<div className="flex gap-2">
@@ -401,7 +460,10 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 					<section className="mt-20 pt-12 border-t border-border">
 						<div className="flex items-center justify-between mb-6">
 							<h2 className="text-xl font-bold text-foreground">Related articles</h2>
-							<Link href="/blogs" className="text-sm font-semibold text-muted-foreground hover:text-primary transition-colors">
+							<Link
+								href="/blogs"
+								className="text-sm font-semibold text-muted-foreground hover:text-primary transition-colors"
+							>
 								All articles →
 							</Link>
 						</div>

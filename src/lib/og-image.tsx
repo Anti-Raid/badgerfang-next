@@ -25,15 +25,14 @@ interface BlogGenerateProps {
 
 export function generateOGImage(options: GenerateProps & any): ImageResponse {
 	const { title, tag, description, primaryTextColor, ...rest } = options;
-	return new ImageResponse(
-		generate({ title, tag, description, primaryTextColor }),
-		{ width: 1200, height: 630, ...rest }
-	);
+	return new ImageResponse(generate({ title, tag, description, primaryTextColor }), {
+		width: 1200,
+		height: 630,
+		...rest
+	});
 }
 
-export function generateBlogOGImage(
-	options: BlogGenerateProps & any
-): ImageResponse {
+export function generateBlogOGImage(options: BlogGenerateProps & any): ImageResponse {
 	const {
 		title,
 		description,
@@ -48,7 +47,17 @@ export function generateBlogOGImage(
 	} = options;
 
 	return new ImageResponse(
-		generateBlog({ title, description, tags, slug, authorName, authorAvatar, primaryTextColor, showLogo, showAuthor }),
+		generateBlog({
+			title,
+			description,
+			tags,
+			slug,
+			authorName,
+			authorAvatar,
+			primaryTextColor,
+			showLogo,
+			showAuthor
+		}),
 		{ width: 1200, height: 630, ...rest }
 	);
 }
@@ -62,7 +71,7 @@ export function generate({ primaryTextColor = '#a855f7', ...props }: GeneratePro
 				height: '100%',
 				background: '#08080f',
 				position: 'relative',
-				overflow: 'hidden',
+				overflow: 'hidden'
 			}}
 		>
 			{/* Radial glow */}
@@ -74,7 +83,7 @@ export function generate({ primaryTextColor = '#a855f7', ...props }: GeneratePro
 					width: '700px',
 					height: '700px',
 					borderRadius: '50%',
-					background: 'radial-gradient(circle, rgba(168,85,247,0.25) 0%, transparent 70%)',
+					background: 'radial-gradient(circle, rgba(168,85,247,0.25) 0%, transparent 70%)'
 				}}
 			/>
 			{/* Content */}
@@ -85,11 +94,18 @@ export function generate({ primaryTextColor = '#a855f7', ...props }: GeneratePro
 					width: '100%',
 					height: '100%',
 					padding: '64px 72px',
-					position: 'relative',
+					position: 'relative'
 				}}
 			>
 				{/* Top bar */}
-				<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'auto' }}>
+				<div
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'space-between',
+						marginBottom: 'auto'
+					}}
+				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
 						<img
 							src="https://avatars.githubusercontent.com/u/83183936?s=200&v=4"
@@ -97,7 +113,14 @@ export function generate({ primaryTextColor = '#a855f7', ...props }: GeneratePro
 							height={44}
 							style={{ borderRadius: '10px', objectFit: 'contain' }}
 						/>
-						<span style={{ fontSize: '28px', fontWeight: 700, color: '#ffffff', letterSpacing: '-0.5px' }}>
+						<span
+							style={{
+								fontSize: '28px',
+								fontWeight: 700,
+								color: '#ffffff',
+								letterSpacing: '-0.5px'
+							}}
+						>
 							AntiRaid
 						</span>
 					</div>
@@ -115,7 +138,7 @@ export function generate({ primaryTextColor = '#a855f7', ...props }: GeneratePro
 						textTransform: 'uppercase',
 						letterSpacing: '3px',
 						color: primaryTextColor,
-						marginBottom: '20px',
+						marginBottom: '20px'
 					}}
 				>
 					{props.tag.replace(/-/g, ' ')}
@@ -130,7 +153,7 @@ export function generate({ primaryTextColor = '#a855f7', ...props }: GeneratePro
 						color: '#ffffff',
 						lineHeight: 1.05,
 						letterSpacing: '-2px',
-						marginBottom: '24px',
+						marginBottom: '24px'
 					}}
 				>
 					{props.title}
@@ -143,7 +166,7 @@ export function generate({ primaryTextColor = '#a855f7', ...props }: GeneratePro
 							display: 'flex',
 							fontSize: '26px',
 							color: 'rgba(255,255,255,0.55)',
-							lineHeight: 1.5,
+							lineHeight: 1.5
 						}}
 					>
 						{props.description}
@@ -160,7 +183,7 @@ export function generate({ primaryTextColor = '#a855f7', ...props }: GeneratePro
 					bottom: '15%',
 					width: '4px',
 					background: 'linear-gradient(180deg, transparent, #a855f7, #6366f1, transparent)',
-					borderRadius: '0 4px 4px 0',
+					borderRadius: '0 4px 4px 0'
 				}}
 			/>
 		</div>
@@ -193,7 +216,7 @@ export function generateBlog({
 				height: '100%',
 				background: '#08080f',
 				position: 'relative',
-				overflow: 'hidden',
+				overflow: 'hidden'
 			}}
 		>
 			{/* Top-right radial glow */}
@@ -205,7 +228,8 @@ export function generateBlog({
 					width: '650px',
 					height: '650px',
 					borderRadius: '50%',
-					background: 'radial-gradient(circle, rgba(139,92,246,0.30) 0%, rgba(99,102,241,0.12) 50%, transparent 70%)',
+					background:
+						'radial-gradient(circle, rgba(139,92,246,0.30) 0%, rgba(99,102,241,0.12) 50%, transparent 70%)'
 				}}
 			/>
 
@@ -218,7 +242,7 @@ export function generateBlog({
 					width: '400px',
 					height: '400px',
 					borderRadius: '50%',
-					background: 'radial-gradient(circle, rgba(168,85,247,0.12) 0%, transparent 70%)',
+					background: 'radial-gradient(circle, rgba(168,85,247,0.12) 0%, transparent 70%)'
 				}}
 			/>
 
@@ -231,7 +255,7 @@ export function generateBlog({
 					bottom: '12%',
 					width: '4px',
 					background: 'linear-gradient(180deg, transparent, #a855f7 30%, #6366f1 70%, transparent)',
-					borderRadius: '0 4px 4px 0',
+					borderRadius: '0 4px 4px 0'
 				}}
 			/>
 
@@ -243,7 +267,7 @@ export function generateBlog({
 					width: '100%',
 					height: '100%',
 					padding: '56px 72px 52px 72px',
-					position: 'relative',
+					position: 'relative'
 				}}
 			>
 				{/* Header row */}
@@ -253,7 +277,7 @@ export function generateBlog({
 						alignItems: 'center',
 						justifyContent: 'space-between',
 						marginBottom: 'auto',
-						opacity: showLogo ? 1 : 0,
+						opacity: showLogo ? 1 : 0
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
@@ -263,7 +287,14 @@ export function generateBlog({
 							height={40}
 							style={{ borderRadius: '9px', objectFit: 'contain' }}
 						/>
-						<span style={{ fontSize: '26px', fontWeight: 700, color: '#ffffff', letterSpacing: '-0.5px' }}>
+						<span
+							style={{
+								fontSize: '26px',
+								fontWeight: 700,
+								color: '#ffffff',
+								letterSpacing: '-0.5px'
+							}}
+						>
 							AntiRaid
 						</span>
 					</div>
@@ -277,7 +308,7 @@ export function generateBlog({
 							padding: '8px 18px',
 							background: 'rgba(168,85,247,0.15)',
 							border: '1px solid rgba(168,85,247,0.30)',
-							borderRadius: '100px',
+							borderRadius: '100px'
 						}}
 					>
 						<div
@@ -285,10 +316,18 @@ export function generateBlog({
 								width: '7px',
 								height: '7px',
 								borderRadius: '50%',
-								background: primaryTextColor,
+								background: primaryTextColor
 							}}
 						/>
-						<span style={{ fontSize: '15px', fontWeight: 700, color: primaryTextColor, letterSpacing: '1.5px', textTransform: 'uppercase' }}>
+						<span
+							style={{
+								fontSize: '15px',
+								fontWeight: 700,
+								color: primaryTextColor,
+								letterSpacing: '1.5px',
+								textTransform: 'uppercase'
+							}}
+						>
 							Blog
 						</span>
 					</div>
@@ -303,7 +342,7 @@ export function generateBlog({
 						color: '#ffffff',
 						lineHeight: 1.08,
 						letterSpacing: '-2px',
-						marginBottom: '20px',
+						marginBottom: '20px'
 					}}
 				>
 					{displayTitle}
@@ -316,7 +355,7 @@ export function generateBlog({
 						fontSize: '24px',
 						color: 'rgba(255,255,255,0.50)',
 						lineHeight: 1.55,
-						marginBottom: '32px',
+						marginBottom: '32px'
 					}}
 				>
 					{displayDesc}
@@ -337,7 +376,7 @@ export function generateBlog({
 									fontSize: '16px',
 									fontWeight: 600,
 									color: 'rgba(216,180,254,0.9)',
-									letterSpacing: '0.2px',
+									letterSpacing: '0.2px'
 								}}
 							>
 								{tag}
@@ -352,7 +391,7 @@ export function generateBlog({
 						display: 'flex',
 						height: '1px',
 						background: 'rgba(255,255,255,0.08)',
-						marginBottom: '28px',
+						marginBottom: '28px'
 					}}
 				/>
 
@@ -364,7 +403,7 @@ export function generateBlog({
 							display: 'flex',
 							alignItems: 'center',
 							gap: '12px',
-							opacity: showAuthor && props.authorName ? 1 : 0,
+							opacity: showAuthor && props.authorName ? 1 : 0
 						}}
 					>
 						{props.authorAvatar ? (
@@ -375,7 +414,7 @@ export function generateBlog({
 								style={{
 									borderRadius: '50%',
 									objectFit: 'cover',
-									border: '2px solid rgba(168,85,247,0.4)',
+									border: '2px solid rgba(168,85,247,0.4)'
 								}}
 							/>
 						) : (
@@ -388,7 +427,7 @@ export function generateBlog({
 									border: '2px solid rgba(168,85,247,0.35)',
 									display: 'flex',
 									alignItems: 'center',
-									justifyContent: 'center',
+									justifyContent: 'center'
 								}}
 							/>
 						)}

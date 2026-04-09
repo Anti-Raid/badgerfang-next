@@ -53,9 +53,7 @@ const Footer = () => {
 						<p className="text-xs font-bold text-primary uppercase tracking-widest mb-1">
 							Get started for free
 						</p>
-						<h3 className="text-xl font-bold text-foreground">
-							Protect your server today.
-						</h3>
+						<h3 className="text-xl font-bold text-foreground">Protect your server today.</h3>
 						<p className="text-sm text-muted-foreground mt-1">
 							No credit card required. Setup in under 60 seconds.
 						</p>
@@ -192,9 +190,7 @@ const Footer = () => {
 							Purrquinox
 						</Link>
 					</p>
-					<p className="text-xs text-muted-foreground/60">
-						Not affiliated with Discord Inc.
-					</p>
+					<p className="text-xs text-muted-foreground/60">Not affiliated with Discord Inc.</p>
 				</div>
 			</div>
 		</footer>

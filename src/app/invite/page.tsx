@@ -25,7 +25,11 @@ export default function DiscordRedirect() {
 
 			<div className="flex flex-col items-center animate-in fade-in-0 zoom-in-95 duration-500">
 				{/* Spinning Discord Logo */}
-				<div className="text-primary mb-8 animate-spin" style={{ animationDuration: '1.5s' }} aria-hidden="true">
+				<div
+					className="text-primary mb-8 animate-spin"
+					style={{ animationDuration: '1.5s' }}
+					aria-hidden="true"
+				>
 					<FaDiscord size={80} />
 				</div>
 

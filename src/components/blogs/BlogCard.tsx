@@ -26,7 +26,12 @@ export default function BlogCard({ blog, index }: BlogCardProps) {
 		const el = ref.current;
 		if (!el) return;
 		const obs = new IntersectionObserver(
-			([e]) => { if (e.isIntersecting) { setShow(true); obs.disconnect(); } },
+			([e]) => {
+				if (e.isIntersecting) {
+					setShow(true);
+					obs.disconnect();
+				}
+			},
 			{ rootMargin: '-40px' }
 		);
 		obs.observe(el);

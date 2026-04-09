@@ -69,9 +69,7 @@ export const Section: React.FC<SectionProps> = ({
 					className={`grid transition-all duration-250 ${isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
 				>
 					<div className="overflow-hidden">
-						<div className="border-t border-border p-5 bg-secondary/30">
-							{children}
-						</div>
+						<div className="border-t border-border p-5 bg-secondary/30">{children}</div>
 					</div>
 				</div>
 			</div>
