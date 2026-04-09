@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import {
@@ -712,90 +711,77 @@ export function ScriptIDE({
 			)}
 
 			<div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_400px] gap-8">
-				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.3 }}
-					className="relative w-full"
-				>
+				<div className="relative w-full animate-in fade-in-0 slide-in-from-bottom-4 duration-300">
 					<div className="relative flex">
-						<AnimatePresence>
-							{isSidebarOpen && (
-								<motion.div
-									initial={{ x: -250, opacity: 0 }}
-									animate={{ x: 0, opacity: 1 }}
-									exit={{ x: -250, opacity: 0 }}
-									transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-									className="absolute top-0 left-0 z-10 h-full w-64 bg-card border-r border-border shadow-lg"
-								>
-									<div className="p-4 h-full overflow-y-auto">
-										<div className="flex items-center justify-between mb-4">
-											<h3 className="font-semibold">Explorer</h3>
-											<button
-												onClick={() => setIsSidebarOpen(false)}
-												className="text-muted-foreground hover:text-foreground"
-											>
-												<FiX className="h-4 w-4" />
-											</button>
-										</div>
-
-										{isContentEditable && (
-											<div className="mb-4 flex items-center gap-2">
-												<Tooltip text="New File">
-													<button
-														onClick={() => addFile('')}
-														className="p-1.5 rounded-md hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-colors"
-														aria-label="New File"
-													>
-														<FiFilePlus className="w-4 h-4" />
-													</button>
-												</Tooltip>
-												<Tooltip text="New Folder">
-													<button
-														onClick={() => addFolder('')}
-														className="p-1.5 rounded-md hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-colors"
-														aria-label="New Folder"
-													>
-														<FiFolderPlus className="w-4 h-4" />
-													</button>
-												</Tooltip>
-												<Tooltip text="Upload Files">
-													<button
-														onClick={triggerFileUpload}
-														className="p-1.5 rounded-md hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-colors"
-														aria-label="Upload Files"
-													>
-														<FiUpload className="w-4 h-4" />
-													</button>
-												</Tooltip>
-												<input
-													type="file"
-													ref={fileInputRef}
-													onChange={handleFileUpload}
-													className="hidden"
-													multiple
-												/>
-												<Tooltip text="Import from GitHub">
-													<button
-														onClick={importFromGitHub}
-														className="p-1.5 rounded-md hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-colors"
-														aria-label="Import from GitHub"
-													>
-														<FiGithub className="w-4 h-4" />
-													</button>
-												</Tooltip>
-											</div>
-										)}
-
-										<div className="space-y-1">
-											{fileStructure.map((item) => (
-												<TreeItem key={item.path} item={item} />
-											))}
-										</div>
+						{isSidebarOpen && (
+							<div className="absolute top-0 left-0 z-10 h-full w-64 bg-card border-r border-border shadow-lg animate-in fade-in-0 slide-in-from-left-4 duration-200">
+								<div className="p-4 h-full overflow-y-auto">
+									<div className="flex items-center justify-between mb-4">
+										<h3 className="font-semibold">Explorer</h3>
+										<button
+											onClick={() => setIsSidebarOpen(false)}
+											className="text-muted-foreground hover:text-foreground"
+										>
+											<FiX className="h-4 w-4" />
+										</button>
 									</div>
-								</motion.div>
-							)}
-						</AnimatePresence>
+
+									{isContentEditable && (
+										<div className="mb-4 flex items-center gap-2">
+											<Tooltip text="New File">
+												<button
+													onClick={() => addFile('')}
+													className="p-1.5 rounded-md hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-colors"
+													aria-label="New File"
+												>
+													<FiFilePlus className="w-4 h-4" />
+												</button>
+											</Tooltip>
+											<Tooltip text="New Folder">
+												<button
+													onClick={() => addFolder('')}
+													className="p-1.5 rounded-md hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-colors"
+													aria-label="New Folder"
+												>
+													<FiFolderPlus className="w-4 h-4" />
+												</button>
+											</Tooltip>
+											<Tooltip text="Upload Files">
+												<button
+													onClick={triggerFileUpload}
+													className="p-1.5 rounded-md hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-colors"
+													aria-label="Upload Files"
+												>
+													<FiUpload className="w-4 h-4" />
+												</button>
+											</Tooltip>
+											<input
+												type="file"
+												ref={fileInputRef}
+												onChange={handleFileUpload}
+												className="hidden"
+												multiple
+											/>
+											<Tooltip text="Import from GitHub">
+												<button
+													onClick={importFromGitHub}
+													className="p-1.5 rounded-md hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-colors"
+													aria-label="Import from GitHub"
+												>
+													<FiGithub className="w-4 h-4" />
+												</button>
+											</Tooltip>
+										</div>
+									)}
+
+									<div className="space-y-1">
+										{fileStructure.map((item) => (
+											<TreeItem key={item.path} item={item} />
+										))}
+									</div>
+								</div>
+							</div>
+						)}
 
 						<div className="flex-1 bg-card rounded-xl shadow-lg border border-border overflow-hidden">
 							<div className="p-2 bg-muted/30 border-b border-border flex items-center justify-between">
@@ -969,7 +955,7 @@ export function ScriptIDE({
 							)}
 						</div>
 					</div>
-				</motion.div>
+				</div>
 			</div>
 		</div>
 	);

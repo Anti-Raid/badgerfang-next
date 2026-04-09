@@ -1,7 +1,6 @@
 'use client';
 import { useState } from 'react';
 import { FlowData } from '@/lib/flow/data';
-import { motion } from 'framer-motion';
 import { CodeGenASTGenerator } from '@/lib/flow/codegen/blocklayer/block2ast';
 import FlowList from '@/components/flow/ui/FlowList';
 import { Primary } from '@/components/ui/Buttons';
@@ -53,16 +52,11 @@ export default function Blockly() {
 					setSelectedFlowIndex(data.length);
 				}}
 			/>
-			<motion.div
-				initial={{ opacity: 0, y: 10 }}
-				animate={{ opacity: 1, y: 0 }}
-				transition={{ duration: 0.5 }}
-				className="mt-8"
-			>
+			<div className="mt-8 animate-in fade-in-0 slide-in-from-bottom-2 duration-500">
 				<code className="whitespace-pre-wrap break-words bg-gray-100 text-black">
 					{JSON.stringify(data)}
 				</code>
-			</motion.div>
+			</div>
 
 			{selectedFlowIndex >= 0 && data[selectedFlowIndex] && (
 				<>
@@ -83,31 +77,13 @@ export default function Blockly() {
 				<>
 					<h2 className="text-lg">CodeGen AST</h2>
 
-					<motion.div
-						initial={{ opacity: 0, y: 10 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.5 }}
-						className="mt-8 bg-gray-100 p-1"
-					>
+					<div className="mt-8 bg-gray-100 p-1 animate-in fade-in-0 slide-in-from-bottom-2 duration-500">
 						<code className="whitespace-pre-wrap break-words text-black">
 							{JSON.stringify(compiledAst, null, 2)}
 						</code>
-					</motion.div>
+					</div>
 				</>
 			)}
-
-			{/*<ConditionalTypeField value={dbgConditional} onChange={setDbgConditional} />
-
-			<motion.div
-				initial={{ opacity: 0, y: 10 }}
-				animate={{ opacity: 1, y: 0 }}
-				transition={{ duration: 0.5 }}
-				className="mt-8 bg-gray-100 p-1"
-			>
-				<code className="whitespace-pre-wrap break-words text-black">
-					{JSON.stringify(dbgConditional, null, 2)}
-				</code>
-			</motion.div>*/}
 		</>
 	);
 }

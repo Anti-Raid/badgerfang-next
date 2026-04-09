@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
 import { AlertCircle, Code } from 'lucide-react';
 import { Primary, Secondary } from '../../ui/Buttons';
 import { BaseLabelAndDescription, GroupedRadioOption, InputField, Toggle } from './form-elements';
@@ -224,11 +223,8 @@ export const SettingsColumn: React.FC<SettingsColumnProps> = ({
 								</React.Fragment>
 							))
 						) : (
-							<motion.div
-								className="bg-yellow-100 border border-yellow-300 rounded-lg p-4 flex items-center gap-3 mb-2"
-								initial={{ opacity: 0, y: 10 }}
-								animate={{ opacity: 1, y: 0 }}
-								transition={{ duration: 0.3 }}
+							<div
+								className="bg-yellow-100 border border-yellow-300 rounded-lg p-4 flex items-center gap-3 mb-2 animate-in fade-in-0 slide-in-from-bottom-2 duration-300"
 								role="alert"
 								aria-live="polite"
 							>
@@ -238,18 +234,15 @@ export const SettingsColumn: React.FC<SettingsColumnProps> = ({
 										Schema Error: Array column type passed but input is not an array
 									</span>
 								</p>
-							</motion.div>
+							</div>
 						)}
 					</div>
 				</>
 			) : column.column_type.type === 'Widget' ? (
 				<>
 					{column.column_type.inner.type === 'Info' ? (
-						<motion.div
-							className="bg-blue-100 border border-yellow-300 rounded-lg p-4 flex items-center gap-3 mb-2"
-							initial={{ opacity: 0, y: 10 }}
-							animate={{ opacity: 1, y: 0 }}
-							transition={{ duration: 0.3 }}
+						<div
+							className="bg-blue-100 border border-yellow-300 rounded-lg p-4 flex items-center gap-3 mb-2 animate-in fade-in-0 slide-in-from-bottom-2 duration-300"
 							role="alert"
 							aria-live="polite"
 						>
@@ -257,13 +250,10 @@ export const SettingsColumn: React.FC<SettingsColumnProps> = ({
 							<p className="text-yellow-800 font-medium">
 								<span className="font-bold">{column.column_type.inner.message}</span>
 							</p>
-						</motion.div>
+						</div>
 					) : column.column_type.inner.type === 'Warning' ? (
-						<motion.div
-							className="bg-yellow-100 border border-yellow-300 rounded-lg p-4 flex items-center gap-3 mb-2"
-							initial={{ opacity: 0, y: 10 }}
-							animate={{ opacity: 1, y: 0 }}
-							transition={{ duration: 0.3 }}
+						<div
+							className="bg-yellow-100 border border-yellow-300 rounded-lg p-4 flex items-center gap-3 mb-2 animate-in fade-in-0 slide-in-from-bottom-2 duration-300"
 							role="alert"
 							aria-live="polite"
 						>
@@ -271,13 +261,10 @@ export const SettingsColumn: React.FC<SettingsColumnProps> = ({
 							<p className="text-yellow-800 font-medium">
 								<span className="font-bold">{column.column_type.inner.message}</span>
 							</p>
-						</motion.div>
+						</div>
 					) : column.column_type.inner.type === 'Button' ? (
-						<motion.div
-							className="bg-yellow-100 border border-yellow-300 rounded-lg p-4 flex items-center gap-3 mb-2"
-							initial={{ opacity: 0, y: 10 }}
-							animate={{ opacity: 1, y: 0 }}
-							transition={{ duration: 0.3 }}
+						<div
+							className="bg-yellow-100 border border-yellow-300 rounded-lg p-4 flex items-center gap-3 mb-2 animate-in fade-in-0 slide-in-from-bottom-2 duration-300"
 							role="alert"
 							aria-live="polite"
 						>
@@ -285,13 +272,10 @@ export const SettingsColumn: React.FC<SettingsColumnProps> = ({
 							<p className="text-yellow-800 font-medium">
 								<span className="font-bold">Use of unsupported feature: Custom Action Buttons</span>
 							</p>
-						</motion.div>
+						</div>
 					) : (
-						<motion.div
-							className="bg-red-100 border border-red-300 rounded-lg p-4 flex items-center gap-3 mb-2"
-							initial={{ opacity: 0, y: 10 }}
-							animate={{ opacity: 1, y: 0 }}
-							transition={{ duration: 0.3 }}
+						<div
+							className="bg-red-100 border border-red-300 rounded-lg p-4 flex items-center gap-3 mb-2 animate-in fade-in-0 slide-in-from-bottom-2 duration-300"
 							role="alert"
 							aria-live="polite"
 						>
@@ -299,17 +283,14 @@ export const SettingsColumn: React.FC<SettingsColumnProps> = ({
 							<p className="text-red-800 font-medium">
 								<span className="font-bold">Unknown widget type: {column.column_type.inner}</span>
 							</p>
-						</motion.div>
+						</div>
 					)}
 				</>
 			) : (
 				<>
 					{/* Fallback for unsupported column types */}
-					<motion.div
-						className="bg-yellow-100 border border-yellow-300 rounded-lg p-4 flex items-center gap-3 mb-2"
-						initial={{ opacity: 0, y: 10 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.3 }}
+					<div
+						className="bg-yellow-100 border border-yellow-300 rounded-lg p-4 flex items-center gap-3 mb-2 animate-in fade-in-0 slide-in-from-bottom-2 duration-300"
 						role="alert"
 						aria-live="polite"
 					>
@@ -319,7 +300,7 @@ export const SettingsColumn: React.FC<SettingsColumnProps> = ({
 								Use of unsupported feature ict.{JSON.stringify(column.column_type)}
 							</span>
 						</p>
-					</motion.div>
+					</div>
 				</>
 			)}
 		</>
@@ -540,11 +521,8 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 					marginClass={marginClass}
 				/>
 			) : column.type == 'BitFlag' ? (
-				<motion.div
-					className="bg-yellow-100 border border-yellow-300 rounded-lg p-4 flex items-center gap-3 mb-2"
-					initial={{ opacity: 0, y: 10 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.3 }}
+				<div
+					className="bg-yellow-100 border border-yellow-300 rounded-lg p-4 flex items-center gap-3 mb-2 animate-in fade-in-0 slide-in-from-bottom-2 duration-300"
 					role="alert"
 					aria-live="polite"
 				>
@@ -552,7 +530,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 					<p className="text-yellow-800 font-medium">
 						<span className="font-bold">Bitflag input is currently not supported</span>
 					</p>
-				</motion.div>
+				</div>
 			) : column.type == 'Boolean' ? (
 				<Toggle
 					label={columnLabel || parentColumn.name}
@@ -704,11 +682,8 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 
 							{!jsonOk && (
 								<>
-									<motion.div
-										className="bg-yellow-100 border border-yellow-300 rounded-lg p-4 flex items-center gap-3 mb-2"
-										initial={{ opacity: 0, y: 10 }}
-										animate={{ opacity: 1, y: 0 }}
-										transition={{ duration: 0.3 }}
+									<div
+										className="bg-yellow-100 border border-yellow-300 rounded-lg p-4 flex items-center gap-3 mb-2 animate-in fade-in-0 slide-in-from-bottom-2 duration-300"
 										role="alert"
 										aria-live="polite"
 									>
@@ -719,7 +694,7 @@ const SettingsInnerColumn: React.FC<SettingsInnerColumnProps> = ({
 												<code>{JSON.stringify(value)}</code> has been kept
 											</span>
 										</p>
-									</motion.div>
+									</div>
 								</>
 							)}
 						</>

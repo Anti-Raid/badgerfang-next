@@ -2,7 +2,7 @@
 'use client';
 
 import type React from 'react';
-import { useEffect, useMemo, useState, useRef } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { getBotStats } from '@/lib/api';
 import type { GetStatusResponse } from '@/types/api/bindings/GetStatusResponse';
 import type { ShardConn } from '@/types/api/bindings/ShardConn';
@@ -33,20 +33,47 @@ import {
 	Radio,
 	Users
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 
-// ── Types & Constants ─────────────────────────────────────────────────────────
+// Types & Constants
 
 type TabKey = 'overview' | 'shards';
 
 const STATUS_VARIANTS = {
-	Ready: { colorClass: 'text-emerald-400', bgClass: 'bg-emerald-400/10', borderClass: 'border-emerald-400/20', dotClass: 'bg-emerald-400', label: 'Operational', icon: Check },
-	Connected: { colorClass: 'text-primary', bgClass: 'bg-primary/10', borderClass: 'border-primary/20', dotClass: 'bg-primary', label: 'Active', icon: Radio },
-	MarkedForClosure: { colorClass: 'text-amber-400', bgClass: 'bg-amber-400/10', borderClass: 'border-amber-400/20', dotClass: 'bg-amber-400', label: 'Maintenance', icon: AlertTriangle },
-	Default: { colorClass: 'text-destructive', bgClass: 'bg-destructive/10', borderClass: 'border-destructive/20', dotClass: 'bg-destructive', label: 'Offline', icon: X }
+	Ready: {
+		colorClass: 'text-emerald-400',
+		bgClass: 'bg-emerald-400/10',
+		borderClass: 'border-emerald-400/20',
+		dotClass: 'bg-emerald-400',
+		label: 'Operational',
+		icon: Check
+	},
+	Connected: {
+		colorClass: 'text-primary',
+		bgClass: 'bg-primary/10',
+		borderClass: 'border-primary/20',
+		dotClass: 'bg-primary',
+		label: 'Active',
+		icon: Radio
+	},
+	MarkedForClosure: {
+		colorClass: 'text-amber-400',
+		bgClass: 'bg-amber-400/10',
+		borderClass: 'border-amber-400/20',
+		dotClass: 'bg-amber-400',
+		label: 'Maintenance',
+		icon: AlertTriangle
+	},
+	Default: {
+		colorClass: 'text-destructive',
+		bgClass: 'bg-destructive/10',
+		borderClass: 'border-destructive/20',
+		dotClass: 'bg-destructive',
+		label: 'Offline',
+		icon: X
+	}
 };
 
-// ── Utilities ─────────────────────────────────────────────────────────────────
+// Utilities
 
 const formatUptime = (seconds: number): string => {
 	const d = Math.floor(seconds / 86400);
@@ -62,7 +89,7 @@ const formatUptime = (seconds: number): string => {
 const getStatusConfig = (status: string) =>
 	STATUS_VARIANTS[status as keyof typeof STATUS_VARIANTS] ?? STATUS_VARIANTS.Default;
 
-// ── Metric Card ───────────────────────────────────────────────────────────────
+// Metric Card
 
 const MetricCard = ({
 	icon: Icon,
@@ -82,7 +109,7 @@ const MetricCard = ({
 	</div>
 );
 
-// ── Shard Node Card ───────────────────────────────────────────────────────────
+// Shard Node Card
 
 const ShardNode = ({
 	shard,
@@ -97,11 +124,9 @@ const ShardNode = ({
 	const Icon = config.icon;
 
 	return (
-		<motion.div
-			initial={{ opacity: 0, y: 20 }}
-			animate={{ opacity: 1, y: 0 }}
-			transition={{ duration: 0.4, delay: index * 0.04 }}
-			className="group relative p-5 rounded-2xl bg-card border border-border hover:border-primary/40 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 overflow-hidden"
+		<div
+			className="group relative p-5 rounded-2xl bg-card border border-border hover:border-primary/40 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 overflow-hidden animate-in fade-in-0 slide-in-from-bottom-2"
+			style={{ animationDelay: `${Math.min(index * 40, 400)}ms`, animationFillMode: 'backwards' }}
 		>
 			{/* Subtle background icon */}
 			<Server
@@ -113,13 +138,13 @@ const ShardNode = ({
 			{/* Header */}
 			<div className="flex items-start justify-between mb-5">
 				<div className="flex items-center gap-3">
-					<div className={`w-10 h-10 rounded-xl ${config.bgClass} border ${config.borderClass} flex items-center justify-center`}>
+					<div
+						className={`w-10 h-10 rounded-xl ${config.bgClass} border ${config.borderClass} flex items-center justify-center`}
+					>
 						<Icon className={`w-5 h-5 ${config.colorClass}`} />
 					</div>
 					<div>
-						<h3 className="text-base font-bold text-foreground">
-							Shard {shard.padStart(2, '0')}
-						</h3>
+						<h3 className="text-base font-bold text-foreground">Shard {shard.padStart(2, '0')}</h3>
 						<div className="flex items-center gap-1.5 mt-0.5">
 							<span className={`w-1.5 h-1.5 rounded-full ${config.dotClass} animate-pulse`} />
 							<span className="text-xs text-muted-foreground font-medium">{config.label}</span>
@@ -145,7 +170,9 @@ const ShardNode = ({
 						<Globe className="w-3 h-3" />
 						<span className="text-[10px] font-bold uppercase tracking-widest">Guilds</span>
 					</div>
-					<span className="text-xl font-bold text-foreground">{details.guilds.toLocaleString()}</span>
+					<span className="text-xl font-bold text-foreground">
+						{details.guilds.toLocaleString()}
+					</span>
 				</div>
 			</div>
 
@@ -158,32 +185,38 @@ const ShardNode = ({
 				{/* Mini activity bars */}
 				<div className="flex gap-0.5 items-end h-3.5">
 					{[1, 2, 3, 4].map((i) => (
-						<motion.div
+						<div
 							key={i}
-							animate={{ height: [3, 10, 5, 8, 3], opacity: [0.4, 1, 0.4] }}
-							transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
-							className="w-1 bg-primary/50 rounded-full"
+							className="w-1 bg-primary/50 rounded-full animate-pulse"
+							style={{
+								height: `${[3, 8, 5, 10][i - 1]}px`,
+								animationDelay: `${i * 0.2}s`,
+								animationDuration: '1.5s'
+							}}
 						/>
 					))}
 				</div>
 			</div>
-		</motion.div>
+		</div>
 	);
 };
 
-// ── Custom Tooltip ─────────────────────────────────────────────────────────────
+// Custom Tooltip
 
 const ChartTooltip = ({ active, payload, label }: any) => {
 	if (!active || !payload?.length) return null;
 	return (
 		<div className="px-3 py-2 rounded-xl bg-card border border-border shadow-xl text-sm">
 			<p className="text-muted-foreground text-xs mb-1">{label}</p>
-			<p className="font-bold text-foreground">{payload[0].value}{payload[0].name === 'latency' ? 'ms' : ''}</p>
+			<p className="font-bold text-foreground">
+				{payload[0].value}
+				{payload[0].name === 'latency' ? 'ms' : ''}
+			</p>
 		</div>
 	);
 };
 
-// ── Main Layout ───────────────────────────────────────────────────────────────
+// Main Layout
 
 export default function StatusPage() {
 	const [data, setData] = useState<GetStatusResponse | null>(null);
@@ -215,9 +248,18 @@ export default function StatusPage() {
 		const totalServers = data.total_guilds;
 		const avgLatency = Math.round(shards.reduce((a, b) => a + b.real_latency, 0) / shards.length);
 		const totalUsers = data.total_users;
-		const onlineShards = shards.filter((s) => s.status === 'Ready' || s.status === 'Connected').length;
+		const onlineShards = shards.filter(
+			(s) => s.status === 'Ready' || s.status === 'Connected'
+		).length;
 		const health = Math.round((onlineShards / shards.length) * 100);
-		return { totalServers, avgLatency, totalUsers, onlineShards, totalShards: shards.length, health };
+		return {
+			totalServers,
+			avgLatency,
+			totalUsers,
+			onlineShards,
+			totalShards: shards.length,
+			health
+		};
 	}, [data]);
 
 	const chartData = useMemo(() => {
@@ -229,17 +271,13 @@ export default function StatusPage() {
 		}));
 	}, [data]);
 
-	// ── Loading ──
+	// Loading
 	if (loading) {
 		return (
 			<div className="min-h-screen flex items-center justify-center">
 				<div className="flex flex-col items-center gap-4">
 					<div className="relative w-16 h-16">
-						<motion.div
-							animate={{ rotate: 360 }}
-							transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
-							className="absolute inset-0 rounded-full border-2 border-t-primary border-r-transparent border-b-transparent border-l-transparent"
-						/>
+						<div className="absolute inset-0 rounded-full border-2 border-t-primary border-r-transparent border-b-transparent border-l-transparent animate-spin" />
 						<div className="absolute inset-0 flex items-center justify-center">
 							<Shield className="w-6 h-6 text-primary animate-pulse" />
 						</div>
@@ -250,7 +288,7 @@ export default function StatusPage() {
 		);
 	}
 
-	// ── Error ──
+	// Error
 	if (err && !data) {
 		return (
 			<div className="min-h-screen flex items-center justify-center px-6">
@@ -276,21 +314,11 @@ export default function StatusPage() {
 
 	return (
 		<div className="min-h-screen">
-			{/* ── Hero ── */}
+			{/* Hero */}
 			<section className="relative pt-32 pb-16 px-6 overflow-hidden">
-				{/* Background */}
-				<div className="absolute inset-0 -z-10 pointer-events-none">
-					<div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_50%_-10%,hsl(var(--primary)/0.18),transparent)]" />
-					<div className="absolute inset-0 opacity-[0.035] bg-[linear-gradient(hsl(var(--foreground))_1px,transparent_1px),linear-gradient(90deg,hsl(var(--foreground))_1px,transparent_1px)] bg-[size:56px_56px]" />
-				</div>
-
 				<div className="max-w-4xl mx-auto text-center">
 					{/* Status badge */}
-					<motion.div
-						initial={{ opacity: 0, y: 16 }}
-						animate={{ opacity: 1, y: 0 }}
-						className="mb-6"
-					>
+					<div className="mb-6 animate-in fade-in-0 slide-in-from-bottom-4 duration-500">
 						<span
 							className={`inline-flex items-center gap-2.5 px-4 py-2 rounded-full text-sm font-bold border ${
 								isHealthy
@@ -298,7 +326,7 @@ export default function StatusPage() {
 									: 'bg-amber-400/10 text-amber-400 border-amber-400/20'
 							}`}
 						>
-							<span className={`relative flex h-2 w-2`}>
+							<span className="relative flex h-2 w-2">
 								<span
 									className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
 										isHealthy ? 'bg-emerald-400' : 'bg-amber-400'
@@ -312,40 +340,25 @@ export default function StatusPage() {
 							</span>
 							{isHealthy ? 'All Systems Operational' : 'Partial Degradation'}
 						</span>
-					</motion.div>
+					</div>
 
-					<motion.h1
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ delay: 0.05 }}
-						className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05] mb-5"
-					>
+					<h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05] mb-5 animate-in fade-in-0 slide-in-from-bottom-4 duration-500 delay-75">
 						<span className="text-foreground">System </span>
 						<span className="bg-gradient-to-r from-primary via-violet-400 to-blue-500 bg-clip-text text-transparent">
 							Status
 						</span>
-					</motion.h1>
+					</h1>
 
-					<motion.p
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ delay: 0.1 }}
-						className="text-lg text-muted-foreground max-w-xl mx-auto"
-					>
+					<p className="text-lg text-muted-foreground max-w-xl mx-auto animate-in fade-in-0 duration-500 delay-100">
 						Live metrics across all shards. Updates every 15 seconds.
-					</motion.p>
+					</p>
 				</div>
 			</section>
 
-			{/* ── Metrics ── */}
+			{/* Metrics */}
 			<section className="py-8 px-6 border-y border-border bg-card/30">
 				<div className="max-w-6xl mx-auto">
-					<motion.div
-						initial={{ opacity: 0, y: 24 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ delay: 0.15 }}
-						className="grid grid-cols-2 lg:grid-cols-4 gap-4"
-					>
+					<div className="grid grid-cols-2 lg:grid-cols-4 gap-4 animate-in fade-in-0 slide-in-from-bottom-4 duration-500 delay-150">
 						<MetricCard
 							icon={Database}
 							label="Servers Protected"
@@ -370,19 +383,21 @@ export default function StatusPage() {
 							value={metrics ? `${metrics.onlineShards}/${metrics.totalShards}` : '—'}
 							colorClass="text-amber-400"
 						/>
-					</motion.div>
+					</div>
 				</div>
 			</section>
 
-			{/* ── Tabs & Content ── */}
+			{/* Tabs & Content */}
 			<section className="max-w-6xl mx-auto px-6 py-16 pb-32">
 				{/* Tab bar */}
 				<div className="flex items-center justify-between mb-10">
 					<div className="flex items-center gap-2 p-1 bg-accent/40 rounded-xl border border-border">
-						{([
-							{ id: 'overview', label: 'Overview', icon: LayoutDashboard },
-							{ id: 'shards', label: 'Shards', icon: Server }
-						] as const).map((t) => (
+						{(
+							[
+								{ id: 'overview', label: 'Overview', icon: LayoutDashboard },
+								{ id: 'shards', label: 'Shards', icon: Server }
+							] as const
+						).map((t) => (
 							<button
 								key={t.id}
 								onClick={() => setTab(t.id)}
@@ -413,166 +428,158 @@ export default function StatusPage() {
 				</div>
 
 				{/* Tab content */}
-				<AnimatePresence mode="wait">
-					{tab === 'overview' && (
-						<motion.div
-							key="overview"
-							initial={{ opacity: 0, y: 16 }}
-							animate={{ opacity: 1, y: 0 }}
-							exit={{ opacity: 0, y: -16 }}
-							transition={{ duration: 0.25 }}
-							className="space-y-6"
-						>
-							{/* Health + Latency row */}
-							<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-								{/* Health radial */}
-								<div className="p-8 rounded-3xl bg-card border border-border flex flex-col items-center justify-center min-h-[280px]">
-									<p className="text-xs font-bold text-primary uppercase tracking-widest mb-6">
-										System Health
-									</p>
-									<div className="relative w-48 h-48">
-										<ResponsiveContainer width="100%" height="100%">
-											<RadialBarChart
-												innerRadius="75%"
-												outerRadius="100%"
-												data={[{ name: 'Health', value: metrics?.health ?? 0 }]}
-												startAngle={180}
-												endAngle={-180}
-											>
-												<RadialBar
-													dataKey="value"
-													cornerRadius={20}
-													fill="hsl(var(--primary))"
-													background={{ fill: 'hsl(var(--accent))' }}
-												/>
-											</RadialBarChart>
-										</ResponsiveContainer>
-										<div className="absolute inset-0 flex flex-col items-center justify-center">
-											<span className="text-4xl font-extrabold text-primary">
-												{metrics?.health ?? 0}%
-											</span>
-											<span className="text-xs text-muted-foreground font-medium mt-1">
-												Operational
-											</span>
-										</div>
-									</div>
-									<div className="mt-6 flex items-center gap-2">
-										<span
-											className={`w-2 h-2 rounded-full ${isHealthy ? 'bg-emerald-400' : 'bg-amber-400'} animate-pulse`}
-										/>
-										<span className="text-sm font-semibold text-foreground">
-											{metrics?.onlineShards}/{metrics?.totalShards} shards online
+				{tab === 'overview' && (
+					<div className="space-y-6 animate-in fade-in-0 slide-in-from-bottom-2 duration-250">
+						{/* Health + Latency row */}
+						<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+							{/* Health radial */}
+							<div className="p-8 rounded-3xl bg-card border border-border flex flex-col items-center justify-center min-h-[280px]">
+								<p className="text-xs font-bold text-primary uppercase tracking-widest mb-6">
+									System Health
+								</p>
+								<div className="relative w-48 h-48">
+									<ResponsiveContainer width="100%" height="100%">
+										<RadialBarChart
+											innerRadius="75%"
+											outerRadius="100%"
+											data={[{ name: 'Health', value: metrics?.health ?? 0 }]}
+											startAngle={180}
+											endAngle={-180}
+										>
+											<RadialBar
+												dataKey="value"
+												cornerRadius={20}
+												fill="hsl(var(--primary))"
+												background={{ fill: 'hsl(var(--accent))' }}
+											/>
+										</RadialBarChart>
+									</ResponsiveContainer>
+									<div className="absolute inset-0 flex flex-col items-center justify-center">
+										<span className="text-4xl font-extrabold text-primary">
+											{metrics?.health ?? 0}%
+										</span>
+										<span className="text-xs text-muted-foreground font-medium mt-1">
+											Operational
 										</span>
 									</div>
 								</div>
-
-								{/* Latency bar chart */}
-								<div className="lg:col-span-2 p-8 rounded-3xl bg-card border border-border">
-									<p className="text-xs font-bold text-primary uppercase tracking-widest mb-6">
-										Shard Latency Distribution
-									</p>
-									<div className="h-[220px]">
-										<ResponsiveContainer width="100%" height="100%">
-											<ReBarChart data={chartData.slice(0, 32)} barSize={8}>
-												<ReBar dataKey="latency" fill="hsl(var(--primary))" radius={[4, 4, 4, 4]} />
-												<Tooltip content={<ChartTooltip />} cursor={{ fill: 'hsl(var(--accent))', radius: 4 }} />
-											</ReBarChart>
-										</ResponsiveContainer>
-									</div>
-									<p className="text-xs text-muted-foreground mt-3">
-										Showing {Math.min(chartData.length, 32)} of {chartData.length} shards · avg {metrics?.avgLatency}ms
-									</p>
+								<div className="mt-6 flex items-center gap-2">
+									<span
+										className={`w-2 h-2 rounded-full ${isHealthy ? 'bg-emerald-400' : 'bg-amber-400'} animate-pulse`}
+									/>
+									<span className="text-sm font-semibold text-foreground">
+										{metrics?.onlineShards}/{metrics?.totalShards} shards online
+									</span>
 								</div>
 							</div>
 
-							{/* Network throughput area chart */}
-							<div className="p-8 rounded-3xl bg-card border border-border">
-								<div className="flex items-center justify-between mb-6">
-									<div>
-										<p className="text-xs font-bold text-primary uppercase tracking-widest mb-1">
-											Network Throughput
-										</p>
-										<h3 className="text-xl font-bold text-foreground">Latency across all shards</h3>
-									</div>
-									<div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-accent/40 border border-border">
-										<Zap className="w-3.5 h-3.5 text-primary" />
-										<span className="text-xs font-bold text-foreground">Live</span>
-									</div>
-								</div>
-								<div className="h-[240px]">
+							{/* Latency bar chart */}
+							<div className="lg:col-span-2 p-8 rounded-3xl bg-card border border-border">
+								<p className="text-xs font-bold text-primary uppercase tracking-widest mb-6">
+									Shard Latency Distribution
+								</p>
+								<div className="h-[220px]">
 									<ResponsiveContainer width="100%" height="100%">
-										<AreaChart data={chartData}>
-											<defs>
-												<linearGradient id="latencyGradient" x1="0" y1="0" x2="0" y2="1">
-													<stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.25} />
-													<stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-												</linearGradient>
-											</defs>
-											<Area
-												type="monotone"
-												dataKey="latency"
-												stroke="hsl(var(--primary))"
-												strokeWidth={2.5}
-												fillOpacity={1}
-												fill="url(#latencyGradient)"
-												dot={false}
-												activeDot={{ r: 4, fill: 'hsl(var(--primary))' }}
+										<ReBarChart data={chartData.slice(0, 32)} barSize={8}>
+											<ReBar dataKey="latency" fill="hsl(var(--primary))" radius={[4, 4, 4, 4]} />
+											<Tooltip
+												content={<ChartTooltip />}
+												cursor={{ fill: 'hsl(var(--accent))', radius: 4 }}
 											/>
-											<Tooltip content={<ChartTooltip />} cursor={{ stroke: 'hsl(var(--border))', strokeWidth: 1 }} />
-										</AreaChart>
+										</ReBarChart>
 									</ResponsiveContainer>
 								</div>
+								<p className="text-xs text-muted-foreground mt-3">
+									Showing {Math.min(chartData.length, 32)} of {chartData.length} shards · avg{' '}
+									{metrics?.avgLatency}ms
+								</p>
 							</div>
+						</div>
 
-							{/* Status summary rows */}
-							{err && (
-								<div className="flex items-center gap-3 p-4 rounded-2xl bg-destructive/10 border border-destructive/20 text-destructive text-sm font-medium">
-									<AlertTriangle className="w-4 h-4 flex-shrink-0" />
-									{err}
-								</div>
-							)}
-						</motion.div>
-					)}
-
-					{tab === 'shards' && (
-						<motion.div
-							key="shards"
-							initial={{ opacity: 0, y: 16 }}
-							animate={{ opacity: 1, y: 0 }}
-							exit={{ opacity: 0, y: -16 }}
-							transition={{ duration: 0.25 }}
-						>
+						{/* Network throughput area chart */}
+						<div className="p-8 rounded-3xl bg-card border border-border">
 							<div className="flex items-center justify-between mb-6">
 								<div>
-									<h2 className="text-2xl font-bold text-foreground mb-1">Shard Registry</h2>
-									<p className="text-sm text-muted-foreground">
-										Individual cluster status across {Object.keys(data?.shard_conns ?? {}).length} shards
+									<p className="text-xs font-bold text-primary uppercase tracking-widest mb-1">
+										Network Throughput
 									</p>
+									<h3 className="text-xl font-bold text-foreground">Latency across all shards</h3>
 								</div>
-								<div className="hidden sm:flex items-center gap-4 text-xs text-muted-foreground font-medium">
-									<span className="flex items-center gap-1.5">
-										<span className="w-2 h-2 rounded-full bg-emerald-400" />
-										Operational
-									</span>
-									<span className="flex items-center gap-1.5">
-										<span className="w-2 h-2 rounded-full bg-amber-400" />
-										Maintenance
-									</span>
-									<span className="flex items-center gap-1.5">
-										<span className="w-2 h-2 rounded-full bg-destructive" />
-										Offline
-									</span>
+								<div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-accent/40 border border-border">
+									<Zap className="w-3.5 h-3.5 text-primary" />
+									<span className="text-xs font-bold text-foreground">Live</span>
 								</div>
 							</div>
+							<div className="h-[240px]">
+								<ResponsiveContainer width="100%" height="100%">
+									<AreaChart data={chartData}>
+										<defs>
+											<linearGradient id="latencyGradient" x1="0" y1="0" x2="0" y2="1">
+												<stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.25} />
+												<stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+											</linearGradient>
+										</defs>
+										<Area
+											type="monotone"
+											dataKey="latency"
+											stroke="hsl(var(--primary))"
+											strokeWidth={2.5}
+											fillOpacity={1}
+											fill="url(#latencyGradient)"
+											dot={false}
+											activeDot={{ r: 4, fill: 'hsl(var(--primary))' }}
+										/>
+										<Tooltip
+											content={<ChartTooltip />}
+											cursor={{ stroke: 'hsl(var(--border))', strokeWidth: 1 }}
+										/>
+									</AreaChart>
+								</ResponsiveContainer>
+							</div>
+						</div>
 
-							<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-								{Object.entries(data?.shard_conns ?? {}).map(([id, s], idx) => (
-									<ShardNode key={id} shard={id} details={s!} index={idx} />
-								))}
+						{err && (
+							<div className="flex items-center gap-3 p-4 rounded-2xl bg-destructive/10 border border-destructive/20 text-destructive text-sm font-medium">
+								<AlertTriangle className="w-4 h-4 flex-shrink-0" />
+								{err}
 							</div>
-						</motion.div>
-					)}
-				</AnimatePresence>
+						)}
+					</div>
+				)}
+
+				{tab === 'shards' && (
+					<div className="animate-in fade-in-0 slide-in-from-bottom-2 duration-250">
+						<div className="flex items-center justify-between mb-6">
+							<div>
+								<h2 className="text-2xl font-bold text-foreground mb-1">Shard Registry</h2>
+								<p className="text-sm text-muted-foreground">
+									Individual cluster status across {Object.keys(data?.shard_conns ?? {}).length}{' '}
+									shards
+								</p>
+							</div>
+							<div className="hidden sm:flex items-center gap-4 text-xs text-muted-foreground font-medium">
+								<span className="flex items-center gap-1.5">
+									<span className="w-2 h-2 rounded-full bg-emerald-400" />
+									Operational
+								</span>
+								<span className="flex items-center gap-1.5">
+									<span className="w-2 h-2 rounded-full bg-amber-400" />
+									Maintenance
+								</span>
+								<span className="flex items-center gap-1.5">
+									<span className="w-2 h-2 rounded-full bg-destructive" />
+									Offline
+								</span>
+							</div>
+						</div>
+
+						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+							{Object.entries(data?.shard_conns ?? {}).map(([id, s], idx) => (
+								<ShardNode key={id} shard={id} details={s!} index={idx} />
+							))}
+						</div>
+					</div>
+				)}
 			</section>
 		</div>
 	);

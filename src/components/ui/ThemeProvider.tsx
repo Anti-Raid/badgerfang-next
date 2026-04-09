@@ -1,6 +1,4 @@
 'use client';
-
-import * as React from 'react';
 import { ThemeProvider as NextThemesProvider, ThemeProviderProps } from 'next-themes';
 
 /**
@@ -39,7 +37,14 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
 				'neon-cyber-theme',
 				'retro-haze-theme',
 				'deep-ocean-theme',
-				'cotton-candy-theme'
+				'cotton-candy-theme',
+				'aurora-theme',
+				'mocha-theme',
+				'sakura-theme',
+				'void-theme',
+				'copper-theme',
+				'hacker-theme',
+				'dusk-theme'
 			]}
 			{...props}
 		>

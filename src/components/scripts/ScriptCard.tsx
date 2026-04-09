@@ -1,7 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { useRef, useState, useEffect } from 'react';
 import { Package, Clock, GitBranch, Server, Eye, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { format, isValid } from 'date-fns';
@@ -12,8 +11,24 @@ interface CommonCardProps {
 
 export const CommonCard = ({ template }: CommonCardProps) => {
 	const router = useRouter();
-	const cardRef = useRef<HTMLDivElement>(null);
-	const isInView = useInView(cardRef, { once: true, margin: '-50px' });
+	const ref = useRef<HTMLDivElement>(null);
+	const [show, setShow] = useState(false);
+
+	useEffect(() => {
+		const el = ref.current;
+		if (!el) return;
+		const obs = new IntersectionObserver(
+			([e]) => {
+				if (e.isIntersecting) {
+					setShow(true);
+					obs.disconnect();
+				}
+			},
+			{ rootMargin: '-50px' }
+		);
+		obs.observe(el);
+		return () => obs.disconnect();
+	}, []);
 
 	const safeFormatDate = (dateString: string) => {
 		const date = new Date(dateString);
@@ -27,12 +42,9 @@ export const CommonCard = ({ template }: CommonCardProps) => {
 	const formattedUpdatedDate = safeFormatDate(template.last_updated_at);
 
 	return (
-		<motion.div
-			ref={cardRef}
-			initial={{ opacity: 0, y: 10 }}
-			animate={isInView ? { opacity: 1, y: 0 } : {}}
-			transition={{ duration: 0.3 }}
-			className="group rounded-xl border border-border bg-card overflow-hidden transition-colors hover:border-primary/30"
+		<div
+			ref={ref}
+			className={`transition-all duration-300 ${show ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'} group rounded-xl border border-border bg-card overflow-hidden hover:border-primary/30`}
 		>
 			{/* Header */}
 			<div className="p-5 border-b border-border">
@@ -91,6 +103,6 @@ export const CommonCard = ({ template }: CommonCardProps) => {
 					View Details
 				</button>
 			</div>
-		</motion.div>
+		</div>
 	);
 };

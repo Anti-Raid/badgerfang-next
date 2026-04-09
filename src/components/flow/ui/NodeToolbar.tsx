@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { FiLayers, FiChevronLeft, FiChevronRight, FiZap } from 'react-icons/fi';
 import clsx from 'clsx';
 import { NodeValues, nodeTypes } from '@/lib/flow/nodes';
@@ -36,10 +35,9 @@ export default function FlowNodeExplorer() {
 	const sections = useMemo(() => nodeCategories[category] || [], [category]);
 
 	return (
-		<motion.div
-			initial={false}
-			animate={{ width: isCollapsed ? 60 : 320 }}
-			className="h-full bg-gradient-to-b from-background to-muted/30 border-r border-border flex flex-col relative shadow-xl"
+		<div
+			className="h-full bg-gradient-to-b from-background to-muted/30 border-r border-border flex flex-col relative shadow-xl transition-all duration-300"
+			style={{ width: isCollapsed ? 60 : 320 }}
 		>
 			{/* Collapse Button */}
 			<button
@@ -53,73 +51,61 @@ export default function FlowNodeExplorer() {
 				)}
 			</button>
 
-			<AnimatePresence mode="wait">
-				{!isCollapsed ? (
-					<motion.div
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						exit={{ opacity: 0 }}
-						className="flex flex-col h-full"
-					>
-						{/* Header */}
-						<div className="p-6 border-b border-border">
-							<div className="flex items-center gap-3 mb-2">
-								<div className="p-2 rounded-lg bg-primary/10">
-									<FiLayers className="w-5 h-5 text-primary" />
-								</div>
-								<h2 className="text-xl font-bold text-foreground">Nodes</h2>
+			{!isCollapsed ? (
+				<div className="flex flex-col h-full animate-in fade-in-0 duration-200">
+					{/* Header */}
+					<div className="p-6 border-b border-border">
+						<div className="flex items-center gap-3 mb-2">
+							<div className="p-2 rounded-lg bg-primary/10">
+								<FiLayers className="w-5 h-5 text-primary" />
 							</div>
-							<p className="text-sm text-muted-foreground">Drag nodes to canvas</p>
+							<h2 className="text-xl font-bold text-foreground">Nodes</h2>
 						</div>
+						<p className="text-sm text-muted-foreground">Drag nodes to canvas</p>
+					</div>
 
-						{/* Category Tabs */}
-						<div className="flex gap-2 p-4 border-b border-border">
-							{(['action', 'control_flow'] as NodeCategory[]).map((cat) => (
-								<button
-									key={cat}
-									onClick={() => setCategory(cat)}
-									className={clsx(
-										'flex-1 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200',
-										category === cat
-											? 'bg-primary text-primary-foreground shadow-md'
-											: 'bg-muted/50 text-muted-foreground hover:bg-muted'
-									)}
-								>
-									{cat === 'action' ? 'Actions' : 'Control Flow'}
-								</button>
-							))}
-						</div>
+					{/* Category Tabs */}
+					<div className="flex gap-2 p-4 border-b border-border">
+						{(['action', 'control_flow'] as NodeCategory[]).map((cat) => (
+							<button
+								key={cat}
+								onClick={() => setCategory(cat)}
+								className={clsx(
+									'flex-1 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200',
+									category === cat
+										? 'bg-primary text-primary-foreground shadow-md'
+										: 'bg-muted/50 text-muted-foreground hover:bg-muted'
+								)}
+							>
+								{cat === 'action' ? 'Actions' : 'Control Flow'}
+							</button>
+						))}
+					</div>
 
-						{/* Nodes List */}
-						<div className="flex-1 overflow-y-auto p-4 space-y-6">
-							{sections.map((section, i) => (
-								<div key={i}>
-									<h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-1">
-										{section.title}
-									</h3>
-									<div className="space-y-2">
-										{section.nodeTypes.map((type) => (
-											<AvailableNode key={type} type={type} values={nodeTypes[type]} />
-										))}
-									</div>
+					{/* Nodes List */}
+					<div className="flex-1 overflow-y-auto p-4 space-y-6">
+						{sections.map((section, i) => (
+							<div key={i}>
+								<h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-1">
+									{section.title}
+								</h3>
+								<div className="space-y-2">
+									{section.nodeTypes.map((type) => (
+										<AvailableNode key={type} type={type} values={nodeTypes[type]} />
+									))}
 								</div>
-							))}
-						</div>
-					</motion.div>
-				) : (
-					<motion.div
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						exit={{ opacity: 0 }}
-						className="flex flex-col items-center py-6 gap-4"
-					>
-						<div className="p-3 rounded-lg bg-primary/10">
-							<FiLayers className="w-6 h-6 text-primary" />
-						</div>
-					</motion.div>
-				)}
-			</AnimatePresence>
-		</motion.div>
+							</div>
+						))}
+					</div>
+				</div>
+			) : (
+				<div className="flex flex-col items-center py-6 gap-4 animate-in fade-in-0 duration-200">
+					<div className="p-3 rounded-lg bg-primary/10">
+						<FiLayers className="w-6 h-6 text-primary" />
+					</div>
+				</div>
+			)}
+		</div>
 	);
 }
 

@@ -1,5 +1,4 @@
 import { useState, useMemo, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { FiLayers, FiZap, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import { NodeValues } from '@/lib/flow/nodes';
 import { useFlowHPane } from '../management/FlowHPaneProvider';
@@ -27,10 +26,9 @@ export default function FlowExpandedArea() {
 	);
 
 	return (
-		<motion.div
-			initial={false}
-			animate={{ height: isCollapsed ? 70 : '100%', width: '100%' }}
-			className="w-full bg-muted/30 border-r border-border flex flex-col relative shadow-xl"
+		<div
+			className="w-full bg-muted/30 border-r border-border flex flex-col relative shadow-xl transition-all duration-300"
+			style={{ height: isCollapsed ? 70 : '100%', width: '100%' }}
 		>
 			{/* Collapse Button */}
 			<button
@@ -44,54 +42,40 @@ export default function FlowExpandedArea() {
 				)}
 			</button>
 
-			<AnimatePresence mode="wait">
-				{!isCollapsed ? (
-					<>
-						{!hpane?.expanded && (
-							<>
-								<motion.div
-									initial={{ opacity: 0 }}
-									animate={{ opacity: 1 }}
-									exit={{ opacity: 0 }}
-									className="flex flex-row w-full"
-								>
-									{/* Header */}
-									<div className="p-6 py-3 border-b border-border">
-										<div className="flex items-center gap-3 mb-2">
-											<h2 className="text-xl font-bold text-foreground">No node being editted!</h2>
-										</div>
-										<p className="text-sm text-muted-foreground">INSERT_DESCRIPTION_HERE</p>
+			{!isCollapsed ? (
+				<>
+					{!hpane?.expanded && (
+						<>
+							<div className="flex flex-row w-full animate-in fade-in-0 duration-200">
+								{/* Header */}
+								<div className="p-6 py-3 border-b border-border">
+									<div className="flex items-center gap-3 mb-2">
+										<h2 className="text-xl font-bold text-foreground">No node being editted!</h2>
 									</div>
-								</motion.div>
-								<div className="flex-1 overflow-x-auto p-2 space-y-6">
-									<p></p>
-								</div>
-							</>
-						)}
-						<div ref={targetRef}></div>
-					</>
-				) : (
-					<>
-						<motion.div
-							initial={{ opacity: 0 }}
-							animate={{ opacity: 1 }}
-							exit={{ opacity: 0 }}
-							className="flex flex-row w-full"
-						>
-							{/* Header */}
-							<div className="p-6 py-3 border-b border-border">
-								<div className="flex items-center gap-3 mb-2">
-									<div className="p-2 rounded-lg bg-primary/10">
-										<FiLayers className="w-5 h-5 text-primary" />
-									</div>
-									<h2 className="text-xl font-bold text-foreground">Expand Area</h2>
+									<p className="text-sm text-muted-foreground">INSERT_DESCRIPTION_HERE</p>
 								</div>
 							</div>
-						</motion.div>
-					</>
-				)}
-			</AnimatePresence>
-		</motion.div>
+							<div className="flex-1 overflow-x-auto p-2 space-y-6">
+								<p></p>
+							</div>
+						</>
+					)}
+					<div ref={targetRef}></div>
+				</>
+			) : (
+				<div className="flex flex-row w-full animate-in fade-in-0 duration-200">
+					{/* Header */}
+					<div className="p-6 py-3 border-b border-border">
+						<div className="flex items-center gap-3 mb-2">
+							<div className="p-2 rounded-lg bg-primary/10">
+								<FiLayers className="w-5 h-5 text-primary" />
+							</div>
+							<h2 className="text-xl font-bold text-foreground">Expand Area</h2>
+						</div>
+					</div>
+				</div>
+			)}
+		</div>
 	);
 }
 

@@ -4,7 +4,6 @@ import { Shield, User, Code, Database, FileCode, Lock, Bell } from 'lucide-react
 import { Section } from './components/section';
 import { Fragment, useEffect, useState } from 'react';
 import { baseGuildUserInfo, executeSettings, getSettings } from '@/lib/api';
-import { motion } from 'framer-motion';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { noOpFetcher, SettingComponent, SettingDataFetcher } from './components/setting';
@@ -130,10 +129,8 @@ export default function Settings({ guildId }: { guildId: string }) {
 				aria-label="Loading settings"
 			>
 				<div className="text-center flex flex-col items-center">
-					<motion.div
-						animate={{ rotate: 360 }}
-						transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
-						className="w-8 h-8 border-2 border-border border-t-foreground rounded-full mb-4"
+					<div
+						className="w-8 h-8 border-2 border-border border-t-foreground rounded-full mb-4 animate-spin"
 						aria-hidden="true"
 					/>
 					<p className="text-sm text-muted-foreground">Loading settings...</p>
@@ -204,12 +201,7 @@ export default function Settings({ guildId }: { guildId: string }) {
 
 			<main className="max-w-5xl mx-auto px-6 mt-12" role="main">
 				{/* Header Section */}
-				<motion.div
-					initial={{ opacity: 0, y: 12 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.5, ease: [0.25, 0.4, 0.25, 1] as const }}
-					className="mb-12"
-				>
+				<div className="mb-12 animate-in fade-in-0 slide-in-from-bottom-3 duration-500">
 					<h1 className="text-3xl font-semibold tracking-tight mb-3">Settings</h1>
 					<p className="text-muted-foreground max-w-xl">
 						Configure how your server interacts with AntiRaid. Customize roles, detection levels,
@@ -228,7 +220,7 @@ export default function Settings({ guildId }: { guildId: string }) {
 							custom logic and script extensions.
 						</p>
 					</div>
-				</motion.div>
+				</div>
 
 				<div className="space-y-8">
 					{guildSettings && guildData && (

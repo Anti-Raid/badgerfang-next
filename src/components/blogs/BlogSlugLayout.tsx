@@ -1,8 +1,16 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { motion, useScroll, useSpring } from 'framer-motion';
-import { Calendar, ArrowLeft, Share2, Clock, User, BookOpen, Check, ArrowUpRight } from 'lucide-react';
+import {
+	Calendar,
+	ArrowLeft,
+	Share2,
+	Clock,
+	User,
+	BookOpen,
+	Check,
+	ArrowUpRight
+} from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { format } from 'date-fns';
@@ -27,15 +35,18 @@ const calculateReadingTime = (content: string): string => {
 
 const getSocialIcon = (platform?: string) => {
 	switch ((platform ?? '').toLowerCase()) {
-		case 'twitter': return <FaTwitter size={15} />;
-		case 'facebook': return <FaFacebook size={15} />;
-		case 'linkedin': return <FaLinkedin size={15} />;
-		case 'discord': return <FaDiscord size={15} />;
-		default: return <FaLink size={15} />;
+		case 'twitter':
+			return <FaTwitter size={15} />;
+		case 'facebook':
+			return <FaFacebook size={15} />;
+		case 'linkedin':
+			return <FaLinkedin size={15} />;
+		case 'discord':
+			return <FaDiscord size={15} />;
+		default:
+			return <FaLink size={15} />;
 	}
 };
-
-// ── Related post mini-card ────────────────────────────────────────────────────
 
 const RelatedCard = ({ blog }: { blog: Blog }) => (
 	<Link
@@ -65,16 +76,23 @@ const RelatedCard = ({ blog }: { blog: Blog }) => (
 	</Link>
 );
 
-// ── Main layout ───────────────────────────────────────────────────────────────
-
 const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 	const [blog, setBlog] = useState<Blog | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [relatedBlogs, setRelatedBlogs] = useState<Blog[]>([]);
 	const [copied, setCopied] = useState(false);
+	const [scrollProgress, setScrollProgress] = useState(0);
 
-	const { scrollYProgress } = useScroll();
-	const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
+	useEffect(() => {
+		const handleScroll = () => {
+			const el = document.documentElement;
+			const scrollTop = el.scrollTop || document.body.scrollTop;
+			const scrollHeight = el.scrollHeight - el.clientHeight;
+			setScrollProgress(scrollHeight > 0 ? scrollTop / scrollHeight : 0);
+		};
+		window.addEventListener('scroll', handleScroll, { passive: true });
+		return () => window.removeEventListener('scroll', handleScroll);
+	}, []);
 
 	useEffect(() => {
 		const loadData = async () => {
@@ -86,7 +104,9 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 					const allBlogs: BlogPost[] = allBlogsResponse;
 					if (mainBlog.tags?.length > 0) {
 						const related = allBlogs
-							.filter((b) => b.slug !== slug && b.tags?.some((t: string) => mainBlog.tags?.includes(t)))
+							.filter(
+								(b) => b.slug !== slug && b.tags?.some((t: string) => mainBlog.tags?.includes(t))
+							)
 							.slice(0, 3);
 						setRelatedBlogs(related);
 					}
@@ -102,7 +122,12 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 
 	const shareArticle = () => {
 		if (navigator.share) {
-			navigator.share({ title: blog?.title || 'AntiRaid Blog', text: blog?.description || '', url: window.location.href })
+			navigator
+				.share({
+					title: blog?.title || 'AntiRaid Blog',
+					text: blog?.description || '',
+					url: window.location.href
+				})
 				.catch(() => {});
 		} else {
 			navigator.clipboard.writeText(window.location.href).then(() => {
@@ -112,7 +137,6 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 		}
 	};
 
-	// ── Loading ──
 	if (isLoading) {
 		return (
 			<div className="min-h-screen pt-32 px-6">
@@ -129,14 +153,13 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 					</div>
 					<div className="aspect-video w-full bg-muted rounded-2xl" />
 					{[...Array(6)].map((_, i) => (
-						<div key={i} className="h-4 bg-muted rounded" style={{ width: `${70 + Math.random() * 30}%` }} />
+						<div key={i} className="h-4 bg-muted rounded" />
 					))}
 				</div>
 			</div>
 		);
 	}
 
-	// ── Not found ──
 	if (!blog) {
 		return (
 			<div className="min-h-screen flex items-center justify-center px-6">
@@ -163,14 +186,14 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 	return (
 		<div className="min-h-screen">
 			{/* Reading progress bar */}
-			<motion.div
-				className="fixed top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary via-violet-400 to-blue-500 z-50 origin-left"
-				style={{ scaleX }}
+			<div
+				className="fixed top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary via-violet-400 to-blue-500 z-50 origin-left transition-transform duration-100"
+				style={{ transform: `scaleX(${scrollProgress})` }}
 			/>
 
 			<div className="max-w-3xl mx-auto px-6 py-32">
-				{/* ── Back link ── */}
-				<motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="mb-10">
+				{/* Back link */}
+				<div className="mb-10 animate-in fade-in-0 slide-in-from-left-2 duration-400">
 					<Link
 						href="/blogs"
 						className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
@@ -178,18 +201,13 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 						<ArrowLeft className="w-4 h-4" />
 						All articles
 					</Link>
-				</motion.div>
+				</div>
 
 				<article>
-					{/* ── Article header ── */}
+					{/* Article header */}
 					<header className="mb-10">
-						{/* Tags */}
 						{blog.tags?.length > 0 && (
-							<motion.div
-								initial={{ opacity: 0 }}
-								animate={{ opacity: 1 }}
-								className="flex flex-wrap gap-2 mb-5"
-							>
+							<div className="flex flex-wrap gap-2 mb-5 animate-in fade-in-0 duration-400">
 								{blog.tags.map((tag) => (
 									<span
 										key={tag}
@@ -198,39 +216,20 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 										{tag}
 									</span>
 								))}
-							</motion.div>
+							</div>
 						)}
 
-						{/* Title */}
-						<motion.h1
-							initial={{ opacity: 0, y: 16 }}
-							animate={{ opacity: 1, y: 0 }}
-							transition={{ delay: 0.05 }}
-							className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-[1.1] mb-5"
-						>
+						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-[1.1] mb-5 animate-in fade-in-0 slide-in-from-bottom-3 duration-500 delay-50">
 							{blog.title}
-						</motion.h1>
+						</h1>
 
-						{/* Description */}
 						{blog.description && (
-							<motion.p
-								initial={{ opacity: 0 }}
-								animate={{ opacity: 1 }}
-								transition={{ delay: 0.1 }}
-								className="text-lg text-muted-foreground leading-relaxed mb-6"
-							>
+							<p className="text-lg text-muted-foreground leading-relaxed mb-6 animate-in fade-in-0 duration-500 delay-100">
 								{blog.description}
-							</motion.p>
+							</p>
 						)}
 
-						{/* Meta row */}
-						<motion.div
-							initial={{ opacity: 0 }}
-							animate={{ opacity: 1 }}
-							transition={{ delay: 0.15 }}
-							className="flex flex-wrap items-center gap-x-4 gap-y-2 pb-8 border-b border-border"
-						>
-							{/* Author */}
+						<div className="flex flex-wrap items-center gap-x-4 gap-y-2 pb-8 border-b border-border animate-in fade-in-0 duration-500 delay-150">
 							<div className="flex items-center gap-2">
 								{blog.author?.avatar ? (
 									<div className="relative w-9 h-9 rounded-full overflow-hidden border-2 border-border">
@@ -246,7 +245,9 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 										<User className="w-4 h-4 text-muted-foreground" />
 									</div>
 								)}
-								<span className="text-sm font-bold text-foreground">{blog.author?.name ?? 'AntiRaid Team'}</span>
+								<span className="text-sm font-bold text-foreground">
+									{blog.author?.name ?? 'AntiRaid Team'}
+								</span>
 							</div>
 
 							<span className="text-border select-none">·</span>
@@ -263,7 +264,6 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 								{calculateReadingTime(blog.content)}
 							</span>
 
-							{/* Share */}
 							<button
 								onClick={shareArticle}
 								className="ml-auto relative inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-accent border border-border text-sm font-semibold text-foreground hover:border-primary/30 hover:bg-primary/5 transition-all"
@@ -281,17 +281,12 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 									</>
 								)}
 							</button>
-						</motion.div>
+						</div>
 					</header>
 
-					{/* ── Cover image ── */}
+					{/* Cover image */}
 					{blog.slug && (
-						<motion.div
-							initial={{ opacity: 0, y: 16 }}
-							animate={{ opacity: 1, y: 0 }}
-							transition={{ delay: 0.2 }}
-							className="relative aspect-video rounded-2xl overflow-hidden mb-12 bg-muted border border-border"
-						>
+						<div className="relative aspect-video rounded-2xl overflow-hidden mb-12 bg-muted border border-border animate-in fade-in-0 slide-in-from-bottom-3 duration-500 delay-200">
 							<Image
 								src={`/api/get/og-image?slug=${blog.slug}`}
 								alt={blog.title}
@@ -299,15 +294,12 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 								className="object-cover"
 								priority
 							/>
-						</motion.div>
+						</div>
 					)}
 
-					{/* ── Article body ── */}
-					<motion.div
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						transition={{ delay: 0.25 }}
-						className="prose prose-neutral dark:prose-invert max-w-none
+					{/* Article body */}
+					<div
+						className="prose prose-neutral dark:prose-invert max-w-none animate-in fade-in-0 duration-500 delay-250
 							prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-foreground prose-headings:scroll-mt-20
 							prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-h4:text-lg
 							prose-p:text-foreground/85 prose-p:leading-[1.85]
@@ -321,12 +313,9 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 							remarkPlugins={[remarkGfm]}
 							rehypePlugins={[rehypeRaw]}
 							components={{
-								// Suppress the <pre> wrapper — SyntaxHighlighter provides its own
 								pre({ children }) {
 									return <>{children}</>;
 								},
-
-								// Block code: className="language-*" | Inline code: no className
 								code({ className, children }: any) {
 									const match = /language-(\w+)/.exec(className || '');
 									if (match) {
@@ -347,8 +336,6 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 										</code>
 									);
 								},
-
-								// External links open in new tab
 								a({ href, children }: any) {
 									const external = href?.startsWith('http');
 									return (
@@ -362,8 +349,6 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 										</a>
 									);
 								},
-
-								// Images — full width with border
 								img({ src, alt }: any) {
 									if (!src) return null;
 									return (
@@ -381,8 +366,6 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 										</span>
 									);
 								},
-
-								// Blockquote
 								blockquote({ children }: any) {
 									return (
 										<blockquote className="my-6 pl-5 border-l-[3px] border-primary/50 bg-primary/5 rounded-r-xl pr-5 py-4 text-muted-foreground not-italic">
@@ -390,8 +373,6 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 										</blockquote>
 									);
 								},
-
-								// GFM tables
 								table({ children }: any) {
 									return (
 										<div className="overflow-x-auto my-8 rounded-2xl border border-border">
@@ -416,8 +397,6 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 										</td>
 									);
 								},
-
-								// Horizontal rule
 								hr() {
 									return <hr className="my-10 border-border" />;
 								}
@@ -425,9 +404,9 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 						>
 							{blog.content}
 						</ReactMarkdown>
-					</motion.div>
+					</div>
 
-					{/* ── Author card ── */}
+					{/* Author card */}
 					<footer className="mt-16 pt-8 border-t border-border">
 						<div className="flex items-start gap-5 p-6 rounded-2xl bg-card border border-border">
 							{blog.author?.avatar ? (
@@ -445,7 +424,9 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 								</div>
 							)}
 							<div className="flex-1 min-w-0">
-								<p className="text-xs font-bold text-primary uppercase tracking-widest mb-1">Written by</p>
+								<p className="text-xs font-bold text-primary uppercase tracking-widest mb-1">
+									Written by
+								</p>
 								<p className="text-lg font-bold text-foreground mb-1">
 									{blog.author?.name ?? 'AntiRaid Team'}
 								</p>
@@ -475,7 +456,6 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug }) => {
 					</footer>
 				</article>
 
-				{/* ── Related posts ── */}
 				{relatedBlogs.length > 0 && (
 					<section className="mt-20 pt-12 border-t border-border">
 						<div className="flex items-center justify-between mb-6">

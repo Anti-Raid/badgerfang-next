@@ -1,6 +1,5 @@
 'use client';
 import { useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { FaDiscord } from 'react-icons/fa';
 import Head from 'next/head';
 import { supportConfig } from '@/lib/data/support';
@@ -24,58 +23,31 @@ export default function DiscordRedirect() {
 				<title>Redirecting to Discord...</title>
 			</Head>
 
-			<div className="flex flex-col items-center">
+			<div className="flex flex-col items-center animate-in fade-in-0 zoom-in-95 duration-500">
 				{/* Spinning Discord Logo */}
-				<motion.div
-					initial={{ scale: 0.8, opacity: 0 }}
-					animate={{
-						scale: 1,
-						opacity: 1,
-						rotate: [0, 360]
-					}}
-					transition={{
-						duration: 2,
-						rotate: {
-							duration: 1.5,
-							repeat: Infinity,
-							ease: 'linear'
-						}
-					}}
-					className="text-primary mb-8"
+				<div
+					className="text-primary mb-8 animate-spin"
+					style={{ animationDuration: '1.5s' }}
 					aria-hidden="true"
 				>
 					<FaDiscord size={80} />
-				</motion.div>
+				</div>
 
 				{/* Loading Text */}
-				<motion.div
-					initial={{ opacity: 0, y: 10 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.3, duration: 0.5 }}
-					className="text-xl font-medium"
-				>
+				<div className="text-xl font-medium animate-in fade-in-0 slide-in-from-bottom-2 duration-500 delay-300">
 					Redirecting you to the invite page!
-				</motion.div>
+				</div>
 
 				{/* Loading Dots */}
-				<motion.div className="flex mt-4 space-x-2" aria-hidden="true">
+				<div className="flex mt-4 space-x-2" aria-hidden="true">
 					{[0, 1, 2].map((index) => (
-						<motion.div
+						<div
 							key={index}
-							initial={{ opacity: 0, y: 0 }}
-							animate={{
-								opacity: [0, 1, 0],
-								y: [0, -10, 0]
-							}}
-							transition={{
-								duration: 1.5,
-								repeat: Infinity,
-								delay: index * 0.2
-							}}
-							className="w-3 h-3 rounded-full bg-primary"
+							className="w-3 h-3 rounded-full bg-primary animate-bounce"
+							style={{ animationDelay: `${index * 0.2}s`, animationDuration: '1.5s' }}
 						/>
 					))}
-				</motion.div>
+				</div>
 			</div>
 		</div>
 	);

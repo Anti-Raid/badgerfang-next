@@ -23,18 +23,16 @@
 - 📜 **Dual-Language Scripting**: Extend your server's functionality with **Luau** and **JavaScript**.
 - 🛠️ **Visual Workflows**: Manage complex automation using our **Holographic HUD** Flow UI.
 - 📊 **Smart Analytics**: Deep insights into server activity, growth, and security events.
-- 🎨 **Modern UI/UX**: A premium, "Holographic" design system built with Framer Motion and Tailwind CSS.
+- 🎨 **Modern UI/UX**: A premium, "Holographic" design system built with Tailwind CSS.
 
 ## 🛠️ Tech Stack
 
 - **Framework**: [Next.js 16 (Canary)](https://nextjs.org/)
 - **Library**: [React 19](https://react.dev/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/) & [Framer Motion](https://www.framer.com/motion/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
 - **Runtime**: [Bun](https://bun.sh/)
 - **Visuals**: [Lucide React](https://lucide.dev/), [React Icons](https://react-icons.github.io/react-icons/), [Recharts](https://recharts.org/)
 - **Workflow UI**: [@xyflow/react](https://reactflow.dev/) (React Flow)
-- **Editor**: [Monaco Editor](https://microsoft.github.io/monaco-editor/)
-- **Observability**: [OpenTelemetry](https://opentelemetry.io/)
 
 ## 📦 Getting Started
 

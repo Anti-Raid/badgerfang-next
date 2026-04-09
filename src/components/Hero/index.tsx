@@ -4,7 +4,6 @@ import { useEffect, useState, useCallback } from 'react';
 import { TemplateCarousel } from './scriptCarosel';
 import { ReviewsCarousel } from './reviewCarosel';
 import { getBotStats } from '@/lib/api';
-import { motion } from 'framer-motion';
 import { GetStatusResponse } from '@/types/api/bindings/GetStatusResponse';
 import { Shield, Zap, Code, ArrowRight, Check, Users, Server, Activity, Clock } from 'lucide-react';
 import { FaDiscord } from 'react-icons/fa';
@@ -67,15 +66,6 @@ const Hero = () => {
 		return () => clearInterval(intervalId);
 	}, [stats?.total_users, updateUserCount]);
 
-	const fadeUp = {
-		hidden: { opacity: 0, y: 30 },
-		visible: (delay: number) => ({
-			opacity: 1,
-			y: 0,
-			transition: { duration: 0.8, delay, ease: [0.25, 0.4, 0.25, 1] as const }
-		})
-	};
-
 	const features = [
 		{
 			icon: Shield,
@@ -96,7 +86,7 @@ const Hero = () => {
 	];
 
 	const benefits = [
-		'Intelligent raid detection',
+		'Raid detection',
 		'Automated moderation',
 		'Comprehensive logging',
 		'Real-time analytics',
@@ -113,24 +103,12 @@ const Hero = () => {
 
 	return (
 		<div className="relative">
-			{/* ── Hero Section ── */}
+			{/* Hero */}
 			<section className="relative min-h-[90vh] flex items-center justify-center px-6 py-24 lg:py-32 overflow-hidden">
-				{/* Background */}
-				<div className="absolute inset-0 -z-10 pointer-events-none">
-					<div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_55%_at_50%_-5%,hsl(var(--primary)/0.22),transparent)]" />
-					<div className="absolute inset-0 opacity-[0.035] bg-[linear-gradient(hsl(var(--foreground))_1px,transparent_1px),linear-gradient(90deg,hsl(var(--foreground))_1px,transparent_1px)] bg-[size:56px_56px]" />
-					<div className="absolute top-1/4 -left-40 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
-					<div className="absolute top-1/3 -right-40 w-72 h-72 bg-[hsl(240,60%,55%)]/10 rounded-full blur-3xl" />
-				</div>
-
 				<div className="max-w-5xl mx-auto text-center">
 					{/* Badge */}
-					<motion.div
-						custom={0}
-						variants={fadeUp}
-						initial="hidden"
-						animate={isVisible ? 'visible' : 'hidden'}
-						className="mb-8"
+					<div
+						className={`mb-8 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
 					>
 						<span className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full text-sm font-semibold bg-primary/10 text-primary border border-primary/25 shadow-sm shadow-primary/10">
 							<span className="relative flex h-2 w-2">
@@ -139,45 +117,33 @@ const Hero = () => {
 							</span>
 							Protecting {serverCount.toLocaleString()}+ servers
 						</span>
-					</motion.div>
+					</div>
 
 					{/* Headline */}
-					<motion.h1
-						custom={0.1}
-						variants={fadeUp}
-						initial="hidden"
-						animate={isVisible ? 'visible' : 'hidden'}
-						className="text-5xl sm:text-6xl lg:text-8xl font-extrabold tracking-tight leading-[1.05] mb-8"
+					<h1
+						className={`text-5xl sm:text-6xl lg:text-8xl font-extrabold tracking-tight leading-[1.05] mb-8 transition-all duration-700 delay-75 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
 					>
 						<span className="text-foreground">Discord security,</span>
 						<br />
 						<span className="bg-gradient-to-r from-primary via-violet-400 to-blue-500 bg-clip-text text-transparent">
 							reimagined.
 						</span>
-					</motion.h1>
+					</h1>
 
 					{/* Subtitle */}
-					<motion.p
-						custom={0.2}
-						variants={fadeUp}
-						initial="hidden"
-						animate={isVisible ? 'visible' : 'hidden'}
-						className="text-lg sm:text-xl lg:text-2xl text-muted-foreground max-w-2xl mx-auto mb-12 leading-relaxed"
+					<p
+						className={`text-lg sm:text-xl lg:text-2xl text-muted-foreground max-w-2xl mx-auto mb-12 leading-relaxed transition-all duration-700 delay-150 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
 					>
 						The most advanced Discord protection bot. Join{' '}
 						<span className="text-foreground font-semibold">
 							{userCount.toLocaleString()}+ users
 						</span>{' '}
 						who trust us with their communities.
-					</motion.p>
+					</p>
 
 					{/* CTA Buttons */}
-					<motion.div
-						custom={0.3}
-						variants={fadeUp}
-						initial="hidden"
-						animate={isVisible ? 'visible' : 'hidden'}
-						className="flex flex-col sm:flex-row items-center justify-center gap-4"
+					<div
+						className={`flex flex-col sm:flex-row items-center justify-center gap-4 transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
 					>
 						<Link
 							href="/invite"
@@ -193,20 +159,14 @@ const Hero = () => {
 						>
 							Learn More
 						</Link>
-					</motion.div>
+					</div>
 				</div>
 			</section>
 
-			{/* ── Stats Section ── */}
+			{/* Stats */}
 			<section className="py-16 px-6 border-y border-border bg-card/30">
 				<div className="max-w-6xl mx-auto">
-					<motion.div
-						initial={{ opacity: 0, y: 40 }}
-						whileInView={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.8 }}
-						viewport={{ once: true }}
-						className="grid grid-cols-2 lg:grid-cols-4 gap-4"
-					>
+					<div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
 						{[
 							{
 								icon: Server,
@@ -246,37 +206,29 @@ const Hero = () => {
 								<p className="text-xs lg:text-sm text-muted-foreground font-medium">{stat.label}</p>
 							</div>
 						))}
-					</motion.div>
+					</div>
 				</div>
 			</section>
 
-			{/* ── Features Section ── */}
+			{/* Features */}
 			<section className="py-32 px-6">
 				<div className="max-w-6xl mx-auto">
-					<motion.div
-						initial={{ opacity: 0, y: 40 }}
-						whileInView={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.8 }}
-						viewport={{ once: true }}
-						className="text-center mb-20"
-					>
-						<p className="text-sm font-bold text-primary uppercase tracking-widest mb-4">Features</p>
+					<div className="text-center mb-20">
+						<p className="text-sm font-bold text-primary uppercase tracking-widest mb-4">
+							Features
+						</p>
 						<h2 className="text-4xl lg:text-5xl font-bold text-foreground mb-6">
 							Built for modern Discord servers
 						</h2>
 						<p className="text-xl text-muted-foreground max-w-2xl mx-auto">
 							Everything you need to keep your community safe, all in one place.
 						</p>
-					</motion.div>
+					</div>
 
 					<div className="grid lg:grid-cols-3 gap-6">
 						{features.map((feature, i) => (
-							<motion.div
+							<div
 								key={i}
-								initial={{ opacity: 0, y: 40 }}
-								whileInView={{ opacity: 1, y: 0 }}
-								transition={{ duration: 0.6, delay: i * 0.1 }}
-								viewport={{ once: true }}
 								className="group p-8 rounded-3xl bg-card border border-border hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-300"
 							>
 								<div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-blue-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
@@ -284,23 +236,18 @@ const Hero = () => {
 								</div>
 								<h3 className="text-xl font-bold text-foreground mb-3">{feature.title}</h3>
 								<p className="text-muted-foreground leading-relaxed">{feature.description}</p>
-							</motion.div>
+							</div>
 						))}
 					</div>
 				</div>
 			</section>
 
-			{/* ── Benefits Section ── */}
+			{/* Benefits */}
 			<section className="py-32 px-6 bg-card/30 border-y border-border">
 				<div className="max-w-6xl mx-auto">
 					<div className="grid lg:grid-cols-2 gap-16 items-center">
 						{/* Left */}
-						<motion.div
-							initial={{ opacity: 0, x: -40 }}
-							whileInView={{ opacity: 1, x: 0 }}
-							transition={{ duration: 0.8 }}
-							viewport={{ once: true }}
-						>
+						<div>
 							<p className="text-sm font-bold text-primary uppercase tracking-widest mb-4">
 								Why AntiRaid
 							</p>
@@ -324,21 +271,13 @@ const Hero = () => {
 									</div>
 								))}
 							</div>
-						</motion.div>
+						</div>
 
 						{/* Right — Protection Status mock UI */}
-						<motion.div
-							initial={{ opacity: 0, x: 40 }}
-							whileInView={{ opacity: 1, x: 0 }}
-							transition={{ duration: 0.8 }}
-							viewport={{ once: true }}
-							className="relative"
-						>
+						<div className="relative">
 							<div className="relative rounded-3xl bg-card border border-border p-6 overflow-hidden">
-								{/* Glow orb */}
 								<div className="absolute -top-8 -right-8 w-40 h-40 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
 
-								{/* Header row */}
 								<div className="flex items-center justify-between mb-6">
 									<div className="flex items-center gap-2.5">
 										<div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -351,15 +290,10 @@ const Hero = () => {
 									</span>
 								</div>
 
-								{/* Feature rows */}
 								<div className="space-y-2.5">
 									{protectionItems.map((item, i) => (
-										<motion.div
+										<div
 											key={i}
-											initial={{ opacity: 0, x: 20 }}
-											whileInView={{ opacity: 1, x: 0 }}
-											transition={{ duration: 0.4, delay: i * 0.08 }}
-											viewport={{ once: true }}
 											className="flex items-center justify-between p-3.5 rounded-xl bg-accent/40 border border-border/50"
 										>
 											<div className="flex items-center gap-3">
@@ -367,63 +301,54 @@ const Hero = () => {
 												<span className="text-sm font-medium text-foreground">{item.label}</span>
 											</div>
 											<span className="text-xs text-emerald-400 font-semibold">✓ Enabled</span>
-										</motion.div>
+										</div>
 									))}
 								</div>
 
-								{/* Footer stat */}
 								<div className="mt-5 pt-4 border-t border-border">
 									<div className="flex items-center justify-between">
-										<span className="text-xs text-muted-foreground">Threats blocked today</span>
-										<span className="text-sm font-bold text-primary">{Math.floor(Math.random() * 10000000).toLocaleString()}</span>
+										<span className="text-xs text-muted-foreground">Servers protected</span>
+										<span className="text-sm font-bold text-primary">
+											{serverCount.toLocaleString()}+
+										</span>
 									</div>
-									<p className="text-[10px] text-white mt-1">* Illustrative figure, not live data</p>
 								</div>
 							</div>
 
 							{/* Floating badge */}
-							<motion.div
-								animate={{ y: [0, -6, 0] }}
-								transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-								className="absolute -bottom-4 -left-4 flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-card border border-border shadow-xl"
+							<div
+								className="absolute -bottom-4 -left-4 flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-card border border-border shadow-xl animate-bounce"
+								style={{ animationDuration: '3s' }}
 							>
 								<span className="relative flex h-2 w-2">
 									<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
 									<span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
 								</span>
-								<span className="text-xs font-semibold text-foreground">All systems operational</span>
-							</motion.div>
-						</motion.div>
+								<span className="text-xs font-semibold text-foreground">
+									All systems operational
+								</span>
+							</div>
+						</div>
 					</div>
 				</div>
 			</section>
 
-			{/* ── Scripting Section ── */}
+			{/* Scripting */}
 			<section className="py-32 px-6">
 				<div className="max-w-6xl mx-auto">
-					<motion.div
-						initial={{ opacity: 0, y: 40 }}
-						whileInView={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.8 }}
-						viewport={{ once: true }}
-						className="text-center mb-16"
-					>
-						<p className="text-sm font-bold text-primary uppercase tracking-widest mb-4">Scripting</p>
+					<div className="text-center mb-16">
+						<p className="text-sm font-bold text-primary uppercase tracking-widest mb-4">
+							Scripting
+						</p>
 						<h2 className="text-4xl lg:text-5xl font-bold text-foreground mb-6">
 							Extend with custom scripts
 						</h2>
 						<p className="text-xl text-muted-foreground max-w-2xl mx-auto">
 							Write powerful automation in Luau or JavaScript. No limits, full control.
 						</p>
-					</motion.div>
+					</div>
 
-					<motion.div
-						initial={{ opacity: 0, y: 40 }}
-						whileInView={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.8 }}
-						viewport={{ once: true }}
-						className="grid lg:grid-cols-2 gap-6"
-					>
+					<div className="grid lg:grid-cols-2 gap-6">
 						{[
 							{
 								name: 'Luau',
@@ -457,54 +382,42 @@ const Hero = () => {
 								<p className="text-muted-foreground">{lang.desc}</p>
 							</div>
 						))}
-					</motion.div>
+					</div>
 				</div>
 			</section>
 
-			{/* ── CTA Section ── */}
+			{/* CTA */}
 			<section className="relative py-32 px-6 overflow-hidden">
-				{/* Background glow */}
-				<div className="absolute inset-0 -z-10 pointer-events-none">
-					<div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_70%_at_50%_50%,hsl(var(--primary)/0.13),transparent)]" />
-				</div>
-
 				<div className="max-w-4xl mx-auto text-center">
-					<motion.div
-						initial={{ opacity: 0, y: 40 }}
-						whileInView={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.8 }}
-						viewport={{ once: true }}
-					>
-						<span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20 mb-8">
-							Free to get started — no credit card needed
+					<span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20 mb-8">
+						Free to get started — no credit card needed
+					</span>
+					<h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-foreground mb-6 leading-tight">
+						Ready to secure your
+						<br />
+						<span className="bg-gradient-to-r from-primary via-violet-400 to-blue-500 bg-clip-text text-transparent">
+							community?
 						</span>
-						<h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-foreground mb-6 leading-tight">
-							Ready to secure your
-							<br />
-							<span className="bg-gradient-to-r from-primary via-violet-400 to-blue-500 bg-clip-text text-transparent">
-								community?
-							</span>
-						</h2>
-						<p className="text-xl text-muted-foreground mb-10 max-w-xl mx-auto">
-							Join thousands of communities already protected by AntiRaid.
-						</p>
-						<div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-							<Link
-								href="/invite"
-								className="group inline-flex items-center justify-center gap-3 px-8 py-4 bg-primary text-primary-foreground rounded-full font-bold text-lg transition-all hover:opacity-90 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 active:translate-y-0"
-							>
-								<FaDiscord className="w-5 h-5" />
-								Add to Discord
-								<ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-							</Link>
-							<Link
-								href="/commands"
-								className="inline-flex items-center justify-center px-8 py-4 text-foreground font-semibold text-lg hover:text-primary transition-colors"
-							>
-								View Commands →
-							</Link>
-						</div>
-					</motion.div>
+					</h2>
+					<p className="text-xl text-muted-foreground mb-10 max-w-xl mx-auto">
+						Join thousands of communities already protected by AntiRaid.
+					</p>
+					<div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+						<Link
+							href="/invite"
+							className="group inline-flex items-center justify-center gap-3 px-8 py-4 bg-primary text-primary-foreground rounded-full font-bold text-lg transition-all hover:opacity-90 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 active:translate-y-0"
+						>
+							<FaDiscord className="w-5 h-5" />
+							Add to Discord
+							<ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+						</Link>
+						<Link
+							href="/commands"
+							className="inline-flex items-center justify-center px-8 py-4 text-foreground font-semibold text-lg hover:text-primary transition-colors"
+						>
+							View Commands →
+						</Link>
+					</div>
 				</div>
 			</section>
 

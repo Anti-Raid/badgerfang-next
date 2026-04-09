@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
 import { AlertCircle } from 'lucide-react';
 
 interface SettingsErrorDisplayProps {
@@ -18,11 +17,8 @@ export const SettingsErrorDisplay: React.FC<SettingsErrorDisplayProps> = ({
 	}
 
 	return (
-		<motion.div
-			className="bg-destructive/10 border border-destructive/20 rounded-xl p-4 flex items-start gap-3 mb-4"
-			initial={{ opacity: 0, y: 8 }}
-			animate={{ opacity: 1, y: 0 }}
-			transition={{ duration: 0.3, ease: [0.25, 0.4, 0.25, 1] as const }}
+		<div
+			className="animate-in fade-in-0 slide-in-from-top-2 duration-300 bg-destructive/10 border border-destructive/20 rounded-xl p-4 flex items-start gap-3 mb-4"
 			role="alert"
 			aria-live="assertive"
 		>
@@ -46,6 +42,6 @@ export const SettingsErrorDisplay: React.FC<SettingsErrorDisplayProps> = ({
 					Retry
 				</button>
 			)}
-		</motion.div>
+		</div>
 	);
 };

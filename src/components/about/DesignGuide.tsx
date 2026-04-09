@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Check, Copy, Palette, Type, Layout } from 'lucide-react';
 
-// ── Internal helpers ──────────────────────────────────────────────────────────
+// Internal helpers
 
 const CopyToken = ({ value, label }: { value: string; label?: string }) => {
 	const [copied, setCopied] = useState(false);
@@ -57,9 +57,7 @@ const Swatch = ({ name, cssVar, description }: SwatchProps) => {
 			/>
 			<div className="flex-1 min-w-0">
 				<p className="text-sm font-semibold text-foreground leading-none mb-0.5">{name}</p>
-				{description && (
-					<p className="text-xs text-muted-foreground leading-none">{description}</p>
-				)}
+				{description && <p className="text-xs text-muted-foreground leading-none">{description}</p>}
 			</div>
 			<div className="flex-shrink-0 text-muted-foreground">
 				{copied ? (
@@ -72,7 +70,7 @@ const Swatch = ({ name, cssVar, description }: SwatchProps) => {
 	);
 };
 
-// ── Color Palette ─────────────────────────────────────────────────────────────
+// Color Palette
 
 export const ColorPalette = () => {
 	const brand = [
@@ -114,7 +112,9 @@ export const ColorPalette = () => {
 
 			{/* Brand gradient preview */}
 			<div className="px-6 py-4 border-b border-border">
-				<p className="text-xs font-bold text-primary uppercase tracking-widest mb-2">Brand Gradient</p>
+				<p className="text-xs font-bold text-primary uppercase tracking-widest mb-2">
+					Brand Gradient
+				</p>
 				<div className="h-8 w-full rounded-xl bg-gradient-to-r from-primary via-violet-400 to-blue-500 shadow-sm" />
 				<p className="text-xs font-mono text-muted-foreground/60 mt-1.5">
 					from-primary via-violet-400 to-blue-500
@@ -163,17 +163,60 @@ export const ColorPalette = () => {
 	);
 };
 
-// ── Typography ────────────────────────────────────────────────────────────────
+// Typography
 
 export const Typography = () => {
 	const scale = [
-		{ label: 'Display', size: 'text-4xl', weight: 'font-extrabold', tracking: 'tracking-tight', sample: 'Discord security' },
-		{ label: 'H1', size: 'text-3xl', weight: 'font-bold', tracking: 'tracking-tight', sample: 'Protect your server' },
-		{ label: 'H2', size: 'text-2xl', weight: 'font-bold', tracking: '', sample: 'Built for communities' },
-		{ label: 'H3', size: 'text-xl', weight: 'font-semibold', tracking: '', sample: 'Advanced protection' },
-		{ label: 'Body', size: 'text-base', weight: 'font-normal', tracking: '', sample: 'AntiRaid keeps your Discord server safe from raids, spam, and malicious users in real time.' },
-		{ label: 'Small', size: 'text-sm', weight: 'font-medium', tracking: '', sample: 'Uptime: 99.9% · Response: <1ms' },
-		{ label: 'Caption', size: 'text-xs', weight: 'font-bold', tracking: 'tracking-widest', sample: 'FEATURES · DOCS · COMMANDS' }
+		{
+			label: 'Display',
+			size: 'text-4xl',
+			weight: 'font-extrabold',
+			tracking: 'tracking-tight',
+			sample: 'Discord security'
+		},
+		{
+			label: 'H1',
+			size: 'text-3xl',
+			weight: 'font-bold',
+			tracking: 'tracking-tight',
+			sample: 'Protect your server'
+		},
+		{
+			label: 'H2',
+			size: 'text-2xl',
+			weight: 'font-bold',
+			tracking: '',
+			sample: 'Built for communities'
+		},
+		{
+			label: 'H3',
+			size: 'text-xl',
+			weight: 'font-semibold',
+			tracking: '',
+			sample: 'Advanced protection'
+		},
+		{
+			label: 'Body',
+			size: 'text-base',
+			weight: 'font-normal',
+			tracking: '',
+			sample:
+				'AntiRaid keeps your Discord server safe from raids, spam, and malicious users in real time.'
+		},
+		{
+			label: 'Small',
+			size: 'text-sm',
+			weight: 'font-medium',
+			tracking: '',
+			sample: 'Uptime: 99.9% · Response: <1ms'
+		},
+		{
+			label: 'Caption',
+			size: 'text-xs',
+			weight: 'font-bold',
+			tracking: 'tracking-widest',
+			sample: 'FEATURES · DOCS · COMMANDS'
+		}
 	];
 
 	const weights = [
@@ -224,13 +267,18 @@ export const Typography = () => {
 						<p className="text-2xl font-extrabold bg-gradient-to-r from-primary via-violet-400 to-blue-500 bg-clip-text text-transparent leading-tight">
 							reimagined.
 						</p>
-						<CopyToken value="bg-gradient-to-r from-primary via-violet-400 to-blue-500 bg-clip-text text-transparent" label="bg-gradient-to-r from-primary…" />
+						<CopyToken
+							value="bg-gradient-to-r from-primary via-violet-400 to-blue-500 bg-clip-text text-transparent"
+							label="bg-gradient-to-r from-primary…"
+						/>
 					</div>
 				</div>
 
 				{/* Type scale */}
 				<div>
-					<p className="text-xs font-bold text-primary uppercase tracking-widest mb-2">Type Scale</p>
+					<p className="text-xs font-bold text-primary uppercase tracking-widest mb-2">
+						Type Scale
+					</p>
 					<div className="space-y-3">
 						{scale.map((item) => (
 							<div key={item.label} className="flex items-baseline gap-3 min-w-0">
@@ -266,7 +314,7 @@ export const Typography = () => {
 	);
 };
 
-// ── UI Components ─────────────────────────────────────────────────────────────
+// UI Components
 
 export const Buttons = () => {
 	const [inputVal, setInputVal] = useState('');
@@ -373,9 +421,7 @@ export const Buttons = () => {
 							{ label: 'full', cls: 'rounded-full', size: 'w-7 h-7' }
 						].map((r) => (
 							<div key={r.label} className="flex flex-col items-center gap-1">
-								<div
-									className={`${r.size} ${r.cls} bg-primary/30 border border-primary/40`}
-								/>
+								<div className={`${r.size} ${r.cls} bg-primary/30 border border-primary/40`} />
 								<span className="text-[9px] font-mono text-muted-foreground/50 text-center">
 									{r.label}
 								</span>

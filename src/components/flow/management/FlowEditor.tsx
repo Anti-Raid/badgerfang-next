@@ -1,4 +1,4 @@
-import React, { DragEvent, MouseEvent, useCallback, useContext, useEffect } from 'react';
+import { DragEvent, MouseEvent, useCallback, useEffect } from 'react';
 import {
 	addEdge,
 	Background,

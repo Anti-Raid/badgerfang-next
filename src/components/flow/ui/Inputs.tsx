@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { Eye, EyeOff, Icon } from 'lucide-react';
 import { useState } from 'react';
 
@@ -237,16 +236,10 @@ export const Toggle: React.FC<ToggleProps> = ({
 					aria-label={label}
 					tabIndex={0}
 				>
-					<motion.span
-						className="inline-block h-4 w-4 transform rounded-full bg-white"
-						animate={{
-							translateX: checked ? '1.5rem' : '0.25rem'
-						}}
-						transition={{
-							type: 'spring',
-							stiffness: 500,
-							damping: 30
-						}}
+					<span
+						className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
+							checked ? 'translate-x-6' : 'translate-x-1'
+						}`}
 					/>
 				</button>
 				<span className="ml-3 font-medium text-foreground">{label}</span>

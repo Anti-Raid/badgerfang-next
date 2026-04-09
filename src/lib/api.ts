@@ -201,13 +201,10 @@ export const listForumUserPosts = async (tag: string): Promise<forumTypes.posts[
 
 export const fetchBlogs = async (): Promise<BlogPost[]> => {
 	try {
-		const response = await axios.get<BlogPost[]>(
-			`${BLOG_API_URL}/api/data/blog/list`,
-			{
-				timeout: 5000,
-				validateStatus: (status) => status === 200 || status === 304
-			}
-		);
+		const response = await axios.get<BlogPost[]>(`${BLOG_API_URL}/api/data/blog/list`, {
+			timeout: 5000,
+			validateStatus: (status) => status === 200 || status === 304
+		});
 		return response.data;
 	} catch (error) {
 		console.error('Error fetching  blogs:', error);
@@ -228,13 +225,10 @@ export const fetchBlogs = async (): Promise<BlogPost[]> => {
 
 export const fetchBlogBySlug = async (slug: string): Promise<BlogPost | null> => {
 	try {
-		const response = await axios.get<BlogPost>(
-			`${BLOG_API_URL}/api/data/blog/get?slug=${slug}`,
-			{
-				timeout: 3000,
-				validateStatus: (status) => status === 200 || status === 304
-			}
-		);
+		const response = await axios.get<BlogPost>(`${BLOG_API_URL}/api/data/blog/get?slug=${slug}`, {
+			timeout: 3000,
+			validateStatus: (status) => status === 200 || status === 304
+		});
 		return response.data || null;
 	} catch (error) {
 		console.error('Error fetching  blog by slug:', error);

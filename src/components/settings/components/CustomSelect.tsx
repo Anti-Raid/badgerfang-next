@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Check } from 'lucide-react';
 
 interface Option {
@@ -52,7 +51,6 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 			case 'ArrowDown':
 				e.preventDefault();
 				if (!isOpen) {
-					// Toggle to next option without opening
 					const currentIdx = options.findIndex((o) => o.value === value);
 					const nextIdx = currentIdx < options.length - 1 ? currentIdx + 1 : currentIdx;
 					if (nextIdx !== currentIdx) onChange(options[nextIdx].value);
@@ -63,7 +61,6 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 			case 'ArrowUp':
 				e.preventDefault();
 				if (!isOpen) {
-					// Toggle to prev option without opening
 					const currentIdx = options.findIndex((o) => o.value === value);
 					const prevIdx = currentIdx > 0 ? currentIdx - 1 : currentIdx;
 					if (prevIdx !== currentIdx) onChange(options[prevIdx].value);
@@ -127,53 +124,46 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 				<span className={selectedOption ? 'text-foreground' : 'text-muted-foreground'}>
 					{selectedOption ? selectedOption.label : placeholder}
 				</span>
-				<motion.div
-					animate={{ rotate: isOpen ? 180 : 0 }}
-					transition={{ duration: 0.2 }}
-					className="text-muted-foreground"
-				>
-					<ChevronDown className="w-4 h-4" />
-				</motion.div>
+				<ChevronDown
+					className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+				/>
 			</button>
 
-			<AnimatePresence>
-				{isOpen && (
-					<motion.div
-						initial={{ opacity: 0, y: 4 }}
-						animate={{ opacity: 1, y: 0 }}
-						exit={{ opacity: 0, y: 4 }}
-						transition={{ duration: 0.15 }}
-						className="absolute z-[100] w-full mt-2 py-1 bg-card border border-border rounded-xl shadow-lg max-h-60 overflow-y-auto"
-						role="listbox"
-						aria-label={label}
-					>
-						{options.map((option, idx) => {
-							const isSelected = option.value === value;
-							const isActive = idx === activeIdx;
-							return (
-								<div
-									key={option.value}
-									className={`
-										flex items-center justify-between px-4 py-2.5 mx-1 rounded-lg text-sm cursor-pointer transition-colors
-										${isSelected ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-secondary'}
-										${isActive ? 'bg-secondary' : ''}
-									`}
-									role="option"
-									aria-selected={isSelected}
-									onClick={() => {
-										onChange(option.value);
-										setIsOpen(false);
-									}}
-									onMouseEnter={() => setActiveIdx(idx)}
-								>
-									<span>{option.label}</span>
-									{isSelected && <Check className="w-4 h-4" strokeWidth={2} />}
-								</div>
-							);
-						})}
-					</motion.div>
-				)}
-			</AnimatePresence>
+			{/* Dropdown */}
+			<div
+				className={`absolute z-[100] w-full mt-2 py-1 bg-card border border-border rounded-xl shadow-lg max-h-60 overflow-y-auto transition-all duration-150 origin-top ${
+					isOpen
+						? 'opacity-100 scale-100 pointer-events-auto'
+						: 'opacity-0 scale-95 pointer-events-none'
+				}`}
+				role="listbox"
+				aria-label={label}
+			>
+				{options.map((option, idx) => {
+					const isSelected = option.value === value;
+					const isActive = idx === activeIdx;
+					return (
+						<div
+							key={option.value}
+							className={`
+								flex items-center justify-between px-4 py-2.5 mx-1 rounded-lg text-sm cursor-pointer transition-colors
+								${isSelected ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-secondary'}
+								${isActive ? 'bg-secondary' : ''}
+							`}
+							role="option"
+							aria-selected={isSelected}
+							onClick={() => {
+								onChange(option.value);
+								setIsOpen(false);
+							}}
+							onMouseEnter={() => setActiveIdx(idx)}
+						>
+							<span>{option.label}</span>
+							{isSelected && <Check className="w-4 h-4" strokeWidth={2} />}
+						</div>
+					);
+				})}
+			</div>
 		</div>
 	);
 };
