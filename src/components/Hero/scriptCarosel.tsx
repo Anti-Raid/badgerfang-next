@@ -54,8 +54,14 @@ export const TemplateCarousel = () => {
 		<section className="py-24 relative overflow-hidden bg-gradient-to-b from-background to-background/95">
 			{/* Background elements */}
 			<div className="absolute inset-0 overflow-hidden pointer-events-none">
-				<div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-primary/5 blur-[120px] animate-pulse" style={{ animationDuration: '15s' }} />
-				<div className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full bg-accent/5 blur-[150px] animate-pulse" style={{ animationDuration: '20s' }} />
+				<div
+					className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-primary/5 blur-[120px] animate-pulse"
+					style={{ animationDuration: '15s' }}
+				/>
+				<div
+					className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full bg-accent/5 blur-[150px] animate-pulse"
+					style={{ animationDuration: '20s' }}
+				/>
 			</div>
 
 			<div className="container mx-auto px-4 relative z-10">
