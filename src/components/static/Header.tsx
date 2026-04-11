@@ -269,8 +269,8 @@ const NavBar: React.FC = () => {
 
 			{/* Mobile Menu */}
 			<div
-				className={`md:hidden bg-background/95 backdrop-blur-xl border-t border-border overflow-hidden transition-all duration-250 ${
-					isMobileMenuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'
+				className={`md:hidden bg-background/95 backdrop-blur-xl border-t border-border transition-all duration-250 ${
+					isMobileMenuOpen ? 'max-h-[calc(100vh-4rem)] opacity-100 overflow-y-auto' : 'max-h-0 opacity-0 overflow-hidden'
 				}`}
 			>
 				<div className="px-6 py-5 space-y-1.5">
