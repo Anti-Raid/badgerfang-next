@@ -3,10 +3,10 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import CommandInterface from '@/components/commands/layout';
 import { website_url } from '@/components/common';
 import { generateCommandMetadata } from '@/lib/Metadata';
-import { botStateOptions } from '@/lib/api';
+import { botCommandsOptions } from '@/lib/api';
 
 export const Route = createFileRoute('/commands/')({
-	loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(botStateOptions),
+	loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(botCommandsOptions),
 	component: Commands,
 	head: () =>
 		generateCommandMetadata({

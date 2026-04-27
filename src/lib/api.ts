@@ -1,19 +1,32 @@
-import * as forumTypes from '@/types/forums/types';
-import { api_url } from '@/components/common';
-import { ApiConfig } from '@/types/api/bindings/ApiConfig';
-import { TwState } from '@/types/api/bindings/TwState';
-import { GetStatusResponse } from '@/types/api/bindings/GetStatusResponse';
-import { BaseGuildUserInfo } from '@/types/api/bindings/BaseGuildUserInfo';
-import { UserSessionList } from '@/types/api/bindings/UserSessionList';
-import { CreateUserSession } from '@/types/api/bindings/CreateUserSession';
-import { CreateUserSessionResponse } from '@/types/api/bindings/CreateUserSessionResponse';
-import { ApiDispatchResult } from '@/types/api/bindings/ApiDispatchResult';
-import { Setting } from '@/types/api/bindings/Setting';
-import { JsonValue } from '@/types/api/bindings/serde_json/JsonValue';
-import { AuthorizedSession } from '@/types/api/bindings/AuthorizedSession';
-import { DashboardGuildData } from '@/types/api/bindings/DashboardGuildData';
-import { AuthorizeRequest } from '@/types/api/bindings/AuthorizeRequest';
+import * as forumTypes from '../types/forums/types';
+import { api_url } from '../components/common';
+import { ApiConfig } from '../types/api/bindings/ApiConfig';
+import { GetStatusResponse } from '../types/api/bindings/GetStatusResponse';
+import { BaseGuildUserInfo } from '../types/api/bindings/BaseGuildUserInfo';
+import { UserSessionList } from '../types/api/bindings/UserSessionList';
+import { CreateUserSession } from '../types/api/bindings/CreateUserSession';
+import { CreateUserSessionResponse } from '../types/api/bindings/CreateUserSessionResponse';
+import { ApiDispatchResult } from '../types/api/bindings/ApiDispatchResult';
+import { Setting } from '../types/api/bindings/Setting';
+import { JsonValue } from '../types/api/bindings/serde_json/JsonValue';
+import { AuthorizedSession } from '../types/api/bindings/AuthorizedSession';
+import { DashboardGuildData } from '../types/api/bindings/DashboardGuildData';
+import { AuthorizeRequest } from '../types/api/bindings/AuthorizeRequest';
 import { queryOptions } from '@tanstack/react-query';
+import {
+	getBotConfig,
+	getBotStatus,
+	getBotCommands,
+	getUserGuilds as syscallGetUserGuilds,
+	getUserSessions as syscallGetUserSessions,
+	deleteSession as syscallDeleteSession,
+	createLoginSession,
+	getAuthorizedSession as syscallGetAuthorizedSession,
+	getGuildInfo as syscallGetGuildInfo,
+	createApiSession,
+	BotStatus
+} from './msyscall';
+import { getSettings as syscallGetSettings, executeSettings as syscallExecuteSettings } from './msyscall/ext';
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || api_url;
 export const FORUM_API_URL = 'https://potsypaw.purrquinox.com';
@@ -160,26 +173,35 @@ const apiRequest = async <T>(endpoint: string, options: FetchOptions = {}): Prom
 	}
 };
 
-export const getApiConfig = async (): Promise<ApiConfig> => {
-	return apiRequest<ApiConfig>('/config');
-};
+export { getBotStatus, getBotCommands, getBotConfig };
+export const getSettings = syscallGetSettings;
+export const executeSettings = syscallExecuteSettings;
+export const getUserServers = syscallGetUserGuilds;
+export const baseGuildUserInfo = syscallGetGuildInfo;
+export const revokeSession = syscallDeleteSession;
 
 export const apiConfigOptions = queryOptions({
 	queryKey: ['apiConfig'],
-	queryFn: getApiConfig
+	queryFn: getBotConfig
 });
 
-export const getBotState = async (): Promise<TwState> => {
-	return apiRequest<TwState>('/bot-state');
-};
+export const botStatusOptions = queryOptions({
+	queryKey: ['botStatus'],
+	queryFn: getBotStatus
+});
 
-export const botStateOptions = queryOptions({
-	queryKey: ['botState'],
-	queryFn: getBotState
+export const botCommandsOptions = queryOptions({
+	queryKey: ['botCommands'],
+	queryFn: getBotCommands
 });
 
 export const getBotStats = async (): Promise<GetStatusResponse> => {
-	return apiRequest<GetStatusResponse>('/bot-stats');
+	const status = await getBotStatus();
+	return {
+		shard_conns: status.shard_conns as any,
+		total_guilds: status.total_guilds,
+		total_users: status.total_users
+	};
 };
 
 export const botStatsOptions = queryOptions({
@@ -187,29 +209,23 @@ export const botStatsOptions = queryOptions({
 	queryFn: getBotStats
 });
 
-export const getUserServers = async (refetch: boolean = false): Promise<DashboardGuildData> => {
-	const url = refetch ? '/users/@me/guilds?refresh=true' : '/users/@me/guilds';
-	return apiRequest<DashboardGuildData>(url);
-};
-
 export const userServersOptions = queryOptions({
 	queryKey: ['userServers'],
 	queryFn: () => getUserServers(false)
 });
 
 export const getUserSessions = async (): Promise<UserSessionList> => {
-	try {
-		const data = await apiRequest<{ sessions: any[] }>('/sessions');
-		return {
-			sessions: data.sessions.map((session: any) => ({
-				...session,
-				created_at: new Date(session.created_at).toISOString()
-			}))
-		};
-	} catch (error) {
-		console.error('Failed to fetch user sessions:', error);
-		throw error;
-	}
+	const sessions = await syscallGetUserSessions();
+	return {
+		sessions: sessions.map((s) => ({
+			user_id: s.user_id,
+			token: '',
+			session_id: s.id,
+			expiry: s.expiry,
+			created_at: s.created_at,
+			type: s.type
+		})) as any
+	};
 };
 
 export const userSessionsOptions = queryOptions({
@@ -217,27 +233,17 @@ export const userSessionsOptions = queryOptions({
 	queryFn: getUserSessions
 });
 
-export const revokeSession = async (sessionId: string): Promise<void> => {
-	try {
-		await apiRequest(`/sessions/${sessionId}`, { method: 'DELETE' });
-	} catch (error) {
-		console.error('Failed to revoke session:', error);
-		throw error;
-	}
-};
-
 export const createOauth2Session = async (
 	req: AuthorizeRequest
 ): Promise<CreateUserSessionResponse> => {
-	try {
-		return apiRequest<CreateUserSessionResponse>('/oauth2', {
-			method: 'POST',
-			body: JSON.stringify(req)
-		});
-	} catch (error) {
-		console.error('Failed to create OAuth2 session:', error);
-		throw error;
-	}
+	const res = await createLoginSession(req.code, req.redirect_uri, req.code_verifier);
+	return {
+		user_id: res.session.user_id,
+		token: res.token,
+		session_id: res.session.id,
+		expiry: res.session.expiry,
+		user: res.user as any
+	};
 };
 
 /**
@@ -245,9 +251,7 @@ export const createOauth2Session = async (
  * @returns AuthorizedSession | undefined
  */
 export const getAuthorizedSession = async (): Promise<AuthorizedSession | undefined> => {
-	return apiRequest<AuthorizedSession | undefined>('/sessions/@me', {
-		validateStatus: (status) => status === 200 || status === 401 || status === 403
-	});
+	return (await syscallGetAuthorizedSession()) as any;
 };
 
 export const authorizedSessionOptions = queryOptions({
@@ -259,19 +263,14 @@ export const authorizedSessionOptions = queryOptions({
 export const createSession = async (
 	session: CreateUserSession
 ): Promise<CreateUserSessionResponse> => {
-	try {
-		return apiRequest<CreateUserSessionResponse>('/sessions', {
-			method: 'POST',
-			body: JSON.stringify(session)
-		});
-	} catch (error) {
-		console.error('Failed to create session:', error);
-		throw error;
-	}
-};
-
-export const baseGuildUserInfo = async (guildId: string): Promise<BaseGuildUserInfo> => {
-	return apiRequest<BaseGuildUserInfo>(`/users/@me/guilds/${guildId}`);
+	const res = await createApiSession(session.name, session.expiry);
+	return {
+		user_id: res.session.user_id,
+		token: res.token,
+		session_id: res.session.id,
+		expiry: res.session.expiry,
+		user: null
+	};
 };
 
 export const baseGuildUserInfoOptions = (guildId: string) =>
@@ -280,32 +279,11 @@ export const baseGuildUserInfoOptions = (guildId: string) =>
 		queryFn: () => baseGuildUserInfo(guildId)
 	});
 
-export const getSettings = async (
-	guildId: string
-): Promise<{ [template: string]: ApiDispatchResult<Setting[]> }> => {
-	return apiRequest<{ [template: string]: ApiDispatchResult<Setting[]> }>(
-		`/guilds/${guildId}/settings`
-	);
-};
-
 export const settingsOptions = (guildId: string) =>
 	queryOptions({
 		queryKey: ['guildSettings', guildId],
 		queryFn: () => getSettings(guildId)
 	});
-
-export const executeSettings = async (
-	guildId: string,
-	payload: any
-): Promise<{ [template: string]: ApiDispatchResult<JsonValue> }> => {
-	return apiRequest<{ [template: string]: ApiDispatchResult<JsonValue> }>(
-		`/guilds/${guildId}/settings`,
-		{
-			method: 'POST',
-			body: JSON.stringify(payload)
-		}
-	);
-};
 
 export const listTemplateShop = async (): Promise<any> => {
 	console.log('listTemplateShop');
@@ -447,5 +425,3 @@ export const strapiBlogBySlugOptions = (slug: string) =>
 		queryKey: ['strapiBlog', slug],
 		queryFn: () => fetchStrapiBlogBySlug(slug)
 	});
-
-

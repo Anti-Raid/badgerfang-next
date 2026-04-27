@@ -41,9 +41,8 @@ import {
 	useMotionValue
 } from '@/components/ui/motion';
 import { useQuery } from '@tanstack/react-query';
-import { botStateOptions } from '@/lib/api';
+import { botCommandsOptions } from '@/lib/api';
 import { ApiCreateCommandOption } from '@/types/api/bindings/ApiCreateCommandOption';
-import { TwState } from '@/types/api/bindings/TwState';
 import { ApiCreateCommand } from '@/types/api/bindings/ApiCreateCommand';
 import { useDebouncedSearch, useThrottledMouseMove } from '@/lib/pacer';
 
@@ -142,7 +141,7 @@ export default function CommandInterface() {
 	const [isMounted, setIsMounted] = useState(false);
 	const { mouseX, mouseY } = useMousePosition();
 
-	const { data: botState, isLoading, error } = useQuery(botStateOptions);
+	const { data: commands, isLoading, error } = useQuery(botCommandsOptions);
 
 	useEffect(() => {
 		setIsMounted(true);
@@ -161,14 +160,13 @@ export default function CommandInterface() {
 	const smoothProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
 
 	const allCommands = useMemo(() => {
-		const actualBotState = (botState as any)?.data || botState;
-		if (!actualBotState || !actualBotState.commands || !Array.isArray(actualBotState.commands)) {
-			console.warn('[Commands] Bot state invalid:', { actualBotState, botState });
+		if (!commands || !Array.isArray(commands)) {
+			console.warn('[Commands] Commands data invalid:', { commands });
 			return [];
 		}
 		let idCounter = 0;
-		const commands: any[] = [];
-		actualBotState.commands.forEach((cmd: ApiCreateCommand) => {
+		const processedCommands: any[] = [];
+		commands.forEach((cmd: ApiCreateCommand) => {
 			const extract = (options: any[] = []) => {
 				const sub: any[] = [];
 				const args: any[] = [];
@@ -181,7 +179,7 @@ export default function CommandInterface() {
 			};
 
 			const { sub, args } = extract(cmd.options);
-			commands.push({
+			processedCommands.push({
 				...cmd,
 				moduleName: cmd.name,
 				id: `cmd-${idCounter++}`,
@@ -191,7 +189,7 @@ export default function CommandInterface() {
 
 			sub.forEach((sc) => {
 				const { sub: sSub, args: sArgs } = extract(sc.options);
-				commands.push({
+				processedCommands.push({
 					...sc,
 					moduleName: cmd.name,
 					id: `cmd-${idCounter++}`,
@@ -201,8 +199,8 @@ export default function CommandInterface() {
 				});
 			});
 		});
-		return commands;
-	}, [botState]);
+		return processedCommands;
+	}, [commands]);
 
 	const filteredCommands = useMemo(() => {
 		const searchTerm = typeof debouncedSearchQuery === 'string' ? debouncedSearchQuery.toLowerCase() : String(debouncedSearchQuery || '').toLowerCase();
@@ -217,15 +215,12 @@ export default function CommandInterface() {
 	}, [allCommands, debouncedSearchQuery, selectedModule]);
 
 	const modules = useMemo((): string[] => {
-		const actualBotState = (botState as any)?.data || botState;
-		if (!actualBotState || !actualBotState.commands || !Array.isArray(actualBotState.commands))
+		if (!commands || !Array.isArray(commands))
 			return [];
 		return Array.from(
-			new Set(actualBotState.commands.map((c: any) => c.name).filter((n: any): n is string => !!n))
+			new Set(commands.map((c: any) => c.name).filter((n: any): n is string => !!n))
 		);
-	}, [botState]);
-
-	const actualBotState = useMemo(() => (botState as any)?.data || botState, [botState]);
+	}, [commands]);
 
 	if (isLoading) {
 		return (
@@ -261,7 +256,7 @@ export default function CommandInterface() {
 		);
 	}
 
-	if (!actualBotState || !actualBotState.commands || actualBotState.commands.length === 0) {
+	if (!commands || commands.length === 0) {
 		return (
 			<div className="min-h-screen flex items-center justify-center">
 				<div className="text-center">
