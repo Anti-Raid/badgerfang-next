@@ -1,4 +1,4 @@
-import { MSyscallArgs, MSyscallRet, MSyscallError } from '../../types/msyscall/syscall/index';
+import { MSyscallArgs, MSyscallRet } from '../../types/msyscall/syscall/index';
 import { UserSession, AuthorizedSession } from '../../types/msyscall/types/auth';
 import { BotStatus, BotConfig } from '../../types/msyscall/types/bot';
 import { api_url } from '../../components/common';
@@ -34,7 +34,7 @@ export async function rawMsyscall(args: MSyscallArgs): Promise<MSyscallRet> {
 		headers.Authorization = token;
 	}
 
-	const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || api_url;
+	const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.NEXT_PUBLIC_API_URL || api_url;
 	const url = `${API_BASE_URL}/msyscall`;
 
 	const response = await fetch(url, {

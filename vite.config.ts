@@ -4,8 +4,15 @@ import viteReact from '@vitejs/plugin-react';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import wasm from "vite-plugin-wasm";
 import topLevelAwait from "vite-plugin-top-level-await";
+import { fileURLToPath, URL } from 'node:url';
 
 export default defineConfig({
+	assetsInclude: ['**/*.wasm?module'],
+	resolve: {
+		alias: {
+			'@': fileURLToPath(new URL('./src', import.meta.url))
+		}
+	},
 	server: {
 		port: 4173,
 		host: '0.0.0.0',

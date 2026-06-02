@@ -17,8 +17,8 @@ import {
 } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
 import { format } from 'date-fns';
-import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
-import atomOneDark from 'react-syntax-highlighter/dist/esm/styles/hljs/atom-one-dark';
+import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
+import atomDark from 'react-syntax-highlighter/dist/esm/styles/prism/atom-dark';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import remarkFootnotes from 'remark-footnotes';
@@ -28,14 +28,14 @@ import rehypeKatex from 'rehype-katex';
 import rehypeSlug from 'rehype-slug';
 import 'katex/dist/katex.min.css';
 
-import js from 'react-syntax-highlighter/dist/esm/languages/hljs/javascript';
-import ts from 'react-syntax-highlighter/dist/esm/languages/hljs/typescript';
-import bash from 'react-syntax-highlighter/dist/esm/languages/hljs/bash';
-import markdown from 'react-syntax-highlighter/dist/esm/languages/hljs/markdown';
-import json from 'react-syntax-highlighter/dist/esm/languages/hljs/json';
-import css from 'react-syntax-highlighter/dist/esm/languages/hljs/css';
-import yaml from 'react-syntax-highlighter/dist/esm/languages/hljs/yaml';
-import python from 'react-syntax-highlighter/dist/esm/languages/hljs/python';
+import js from 'react-syntax-highlighter/dist/esm/languages/prism/javascript';
+import ts from 'react-syntax-highlighter/dist/esm/languages/prism/typescript';
+import bash from 'react-syntax-highlighter/dist/esm/languages/prism/bash';
+import markdown from 'react-syntax-highlighter/dist/esm/languages/prism/markdown';
+import json from 'react-syntax-highlighter/dist/esm/languages/prism/json';
+import css from 'react-syntax-highlighter/dist/esm/languages/prism/css';
+import yaml from 'react-syntax-highlighter/dist/esm/languages/prism/yaml';
+import python from 'react-syntax-highlighter/dist/esm/languages/prism/python';
 
 SyntaxHighlighter.registerLanguage('javascript', js);
 SyntaxHighlighter.registerLanguage('js', js);
@@ -181,7 +181,7 @@ const BlogSlugLayout: React.FC<BlogSlugLayoutProps> = ({ slug, initialPost }) =>
 					</button>
 				</div>
 				<SyntaxHighlighter
-					style={atomOneDark}
+					style={atomDark}
 					language={lang}
 					PreTag="div"
 					showLineNumbers={true}

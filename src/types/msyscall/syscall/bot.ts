@@ -2,7 +2,6 @@ import { RawKhronosValue } from '../khronosvalue'
 import { BotStatus, BotConfig } from '../types/bot'
 import { Id } from '../types/common'
 import { StateOp, StateExecResult, TenantState } from '../types/state'
-import { ObjectStorageCall, ObjectStorageResult } from '../types/objstore'
 
 export type MBotSyscall = 
   | { 
@@ -26,6 +25,14 @@ export type MBotSyscall =
       name: string; 
       /** Data to send along with the event */
       data: RawKhronosValue 
+    }
+  | {
+      /** Returns blob data from a signed payload */
+      op: "GetBlobData";
+      /** Blob payload token */
+      payload: string;
+      /** Blob payload signature */
+      signature: string
     }
   | { 
       /** Dispatch an event to a worker process with some safety checks removed (Secure only) */
@@ -70,14 +77,6 @@ export type MBotSyscall =
       ops: StateOp[] 
     }
   | { 
-      /** Admin API to run an object storage op on a tenant (Secure only) */
-      op: "AdminObjectStorage"; 
-      /** The ID of the tenant */
-      id: Id; 
-      /** The object storage call details */
-      call: ObjectStorageCall 
-    }
-  | { 
       /** Admin API to fetch tenant state for a tenant (Secure only) */
       op: "AdminFetchTenantState"; 
       /** The ID of the tenant */
@@ -113,6 +112,12 @@ export type MBotSyscallRet =
       /** The returned data */
       data: RawKhronosValue 
     }
+  | {
+      /** Response containing decoded blob data */
+      op: "BlobData";
+      /** The returned blob data */
+      data: RawKhronosValue
+    }
   | { 
       /** State execution results (Admin only) */
       op: "State"; 
@@ -120,12 +125,6 @@ export type MBotSyscallRet =
       res: StateExecResult[]; 
       /** The updated tenant state, if it was changed */
       new_tenant_state?: TenantState | null 
-    }
-  | { 
-      /** Object storage operation result (Admin only) */
-      op: "ObjectStorage"; 
-      /** The result of the object storage operation */
-      res: ObjectStorageResult 
     }
   | { 
       /** Tenant state response (Admin only) */
