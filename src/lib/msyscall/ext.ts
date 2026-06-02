@@ -1,4 +1,4 @@
-import { dispatchEvent } from './index';
+import { dispatchEvent } from './bot';
 
 /**
  * Gets settings for a guild

@@ -1,114 +1,8 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
-import type { JSX } from 'react';
+import { useEffect, useMemo, useState, type RefObject } from 'react';
 
-export type Variants = Record<string, Record<string, unknown>>;
-
-type MotionStyle = React.CSSProperties & Record<string, unknown>;
 type MotionValueLike = { get?: () => number } | number;
-
-type MotionProps<T extends HTMLElement = HTMLDivElement> = React.HTMLAttributes<T> & {
-	as?: keyof JSX.IntrinsicElements;
-	style?: MotionStyle;
-	initial?: unknown;
-	animate?: unknown;
-	exit?: unknown;
-	transition?: unknown;
-	variants?: Variants;
-	whileHover?: unknown;
-	whileTap?: unknown;
-	whileInView?: unknown;
-	viewport?: unknown;
-	layout?: unknown;
-	layoutId?: string;
-	drag?: boolean | 'x' | 'y';
-	dragConstraints?: unknown;
-	dragElastic?: number;
-	dragMomentum?: boolean;
-	onDragStart?: (...args: unknown[]) => void;
-	onDrag?: (...args: unknown[]) => void;
-	onDragEnd?: (...args: unknown[]) => void;
-};
-
-const stripMotionProps = <T extends Record<string, unknown>>(props: T): Record<string, unknown> => {
-	const {
-		initial,
-		animate,
-		exit,
-		transition,
-		variants,
-		whileHover,
-		whileTap,
-		whileInView,
-		viewport,
-		layout,
-		layoutId,
-		drag,
-		dragConstraints,
-		dragElastic,
-		dragMomentum,
-		onDragStart,
-		onDrag,
-		onDragEnd,
-		...rest
-	} = props;
-	return rest;
-};
-
-const createMotionComponent = (tag: keyof JSX.IntrinsicElements) =>
-	React.forwardRef<HTMLElement, MotionProps>((props, ref) => {
-		const { as, ...raw } = props;
-		const Comp = (as ?? tag) as keyof JSX.IntrinsicElements;
-		const clean = stripMotionProps(raw as Record<string, unknown>);
-		return React.createElement(Comp, { ...(clean as object), ref });
-	});
-
-type MotionFactory = Record<string, React.ComponentType<any>>;
-
-export const motion: MotionFactory = new Proxy(
-	{},
-	{
-		get: (_target, prop: string) => createMotionComponent(prop as keyof JSX.IntrinsicElements)
-	}
-) as MotionFactory;
-
-interface AnimatePresenceProps {
-	children?: React.ReactNode;
-	mode?: 'sync' | 'wait' | 'popLayout';
-	initial?: boolean;
-}
-
-export const AnimatePresence: React.FC<AnimatePresenceProps> = ({ children }) => <>{children}</>;
-
-interface ReorderGroupProps<T> extends MotionProps {
-	as?: keyof JSX.IntrinsicElements;
-	values: T[];
-	onReorder: (values: T[]) => void;
-	axis?: 'x' | 'y';
-}
-
-interface ReorderItemProps extends MotionProps {
-	as?: keyof JSX.IntrinsicElements;
-	value: unknown;
-}
-
-const ReorderGroupComponent = <T,>(props: ReorderGroupProps<T>) => {
-	const { as = 'div', children, ...rest } = props;
-	const clean = stripMotionProps(rest as Record<string, unknown>);
-	return React.createElement(as, clean, children);
-};
-
-const ReorderItemComponent = React.forwardRef<HTMLElement, ReorderItemProps>((props, ref) => {
-	const { as = 'div', children, ...rest } = props;
-	const clean = stripMotionProps(rest as Record<string, unknown>);
-	return React.createElement(as, { ...(clean as object), ref }, children);
-});
-
-export const Reorder = {
-	Group: ReorderGroupComponent,
-	Item: ReorderItemComponent
-};
 
 const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n));
 
@@ -169,7 +63,7 @@ export const useTransform = (
 };
 
 export const useInView = (
-	ref: React.RefObject<Element | null>,
+	ref: RefObject<Element | null>,
 	options?: { once?: boolean; margin?: string; amount?: number }
 ): boolean => {
 	const [inView, setInView] = useState(false);

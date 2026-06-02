@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Reorder, motion } from '@/components/ui/motion';
 import { GripVertical, Edit, Trash2 } from 'lucide-react';
 import { Primary } from '../../ui/Buttons';
 
@@ -15,7 +14,7 @@ interface SettingsReorderableListProps {
 
 export const SettingsReorderableList: React.FC<SettingsReorderableListProps> = ({
 	entries,
-	onReorder,
+	onReorder: _onReorder,
 	onEdit,
 	onDelete,
 	indexBy = 'id'
@@ -28,26 +27,13 @@ export const SettingsReorderableList: React.FC<SettingsReorderableListProps> = (
 		setLocalEntries(entries);
 	}, [entries]);
 
-	const handleReorder = (newEntries: any[]) => {
-		// Update local state immediately for smooth animation
-		setLocalEntries(newEntries);
-		// Call parent callback
-		onReorder(newEntries);
-	};
-
 	return (
 		<div className="space-y-4">
 			<div className="bg-accent/30 border border-border/50 rounded-2xl overflow-hidden p-3">
-				<Reorder.Group 
-					axis="y" 
-					values={localEntries} 
-					onReorder={handleReorder} 
-					className="space-y-2"
-				>
+				<div className="space-y-2">
 					{localEntries.map((entry) => (
-						<Reorder.Item
-							key={entry[indexBy]} // Use stable ID, not index
-							value={entry}
+						<div
+							key={entry[indexBy]}
 							className="group/reorder relative bg-card border border-border/50 hover:border-primary/30 rounded-xl p-4 transition-all duration-200 shadow-sm"
 						>
 							<div className="flex items-center gap-4">
@@ -82,9 +68,9 @@ export const SettingsReorderableList: React.FC<SettingsReorderableListProps> = (
 									</button>
 								</div>
 							</div>
-						</Reorder.Item>
+						</div>
 					))}
-				</Reorder.Group>
+				</div>
 			</div>
 		</div>
 	);

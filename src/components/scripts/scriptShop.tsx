@@ -1,28 +1,34 @@
 'use client';
 
-import { useState, useEffect, useRef, useMemo } from 'react';
-import { motion, AnimatePresence, useInView, Variants } from '@/components/ui/motion';
+import { useState, useRef, useMemo } from 'react';
+import { useInView } from '@/lib/scroll-motion';
 import { FiSearch, FiFilter, FiX, FiPackage, FiZap, FiGrid, FiList } from 'react-icons/fi';
 import { CommonCard } from './ScriptCard';
 import React from 'react';
 import { useDebouncedSearch } from '@/lib/pacer';
+import type { ScriptShopTemplate } from '@/types/script/shop';
+import { cn } from '@/lib/utils';
 
-export const TemplateShop = ({ data }: { data: any[] }) => {
-	// FIXME: Update type once shop is updated
+export const TemplateShop = ({ data }: { data: ScriptShopTemplate[] }) => {
 	const [searchTerm, setSearchTerm] = useState('');
 	const debouncedSearchTerm = useDebouncedSearch(searchTerm, 300);
 	const [isSearchFocused, setIsSearchFocused] = useState(false);
 	const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 	const searchRef = useRef<HTMLInputElement>(null);
 	const headerRef = useRef<HTMLDivElement>(null);
-	const isInView = useInView(headerRef as React.RefObject<HTMLElement>, { threshold: 0.1, rootMargin: '-100px' });
+	const isInView = useInView(headerRef as React.RefObject<HTMLElement>, {
+		threshold: 0.1,
+		rootMargin: '-100px'
+	});
 
-	// Use debounced search for filtering - improves performance
 	const filteredData = useMemo(() => {
 		if (!Array.isArray(data)) return [];
 		if (!debouncedSearchTerm) return data;
 
-		const searchTerm = typeof debouncedSearchTerm === 'string' ? debouncedSearchTerm.toLowerCase() : String(debouncedSearchTerm || '').toLowerCase();
+		const searchTerm =
+			typeof debouncedSearchTerm === 'string'
+				? debouncedSearchTerm.toLowerCase()
+				: String(debouncedSearchTerm || '').toLowerCase();
 		if (!searchTerm) return data;
 
 		return data.filter(
@@ -40,32 +46,8 @@ export const TemplateShop = ({ data }: { data: any[] }) => {
 		}
 	};
 
-	// Animation variants with proper typing
-	const containerVariants: Variants = {
-		hidden: { opacity: 0 },
-		visible: {
-			opacity: 1,
-			transition: {
-				staggerChildren: 0.1
-			}
-		}
-	};
-
-	const itemVariants: Variants = {
-		hidden: { y: 20, opacity: 0 },
-		visible: {
-			y: 0,
-			opacity: 1,
-			transition: {
-				type: 'spring' as const,
-				stiffness: 100
-			}
-		}
-	};
-
 	return (
 		<div className="relative overflow-hidden bg-gradient-to-b from-background to-background/95 py-16">
-			{/* Animated background elements */}
 			<div className="absolute inset-0 overflow-hidden pointer-events-none">
 				<div
 					className="absolute top-0 left-1/4 w-[500px] h-[500px] rounded-full bg-primary/5 blur-[120px] animate-pulse"
@@ -83,11 +65,12 @@ export const TemplateShop = ({ data }: { data: any[] }) => {
 
 			<div className="container mx-auto px-4 relative z-10">
 				<div className="mb-20 text-center" ref={headerRef}>
-					<motion.h1
-						initial={{ opacity: 0, y: -20 }}
-						animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
-						transition={{ duration: 0.6, delay: 0.1 }}
-						className="relative font-monster font-bold text-5xl md:text-6xl lg:text-7xl mb-6 inline-block"
+					<h1
+						className={cn(
+							'relative font-monster font-bold text-5xl md:text-6xl lg:text-7xl mb-6 inline-block transition-all duration-[600ms] ease-out',
+							isInView ? 'translate-y-0 opacity-100' : '-translate-y-5 opacity-0',
+							'delay-100'
+						)}
 					>
 						<span className="relative z-10">Script</span>{' '}
 						<span className="relative">
@@ -96,29 +79,24 @@ export const TemplateShop = ({ data }: { data: any[] }) => {
 								Marketplace
 							</span>
 						</span>
-					</motion.h1>
+					</h1>
 
-					<motion.p
-						initial={{ opacity: 0, y: 20 }}
-						animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-						transition={{ duration: 0.5, delay: 0.2 }}
-						className="font-inter text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed"
+					<p
+						className={cn(
+							'font-inter text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed transition-all duration-500 ease-out',
+							isInView ? 'translate-y-0 opacity-100' : 'translate-y-5 opacity-0',
+							'delay-200'
+						)}
 					>
 						Discover premium, ready-to-use scripts built by the AntiRaid community to enhance your
 						Discord server experience. Browse, preview, and install with just a few clicks.
-					</motion.p>
+					</p>
 				</div>
 
-				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.5, delay: 0.3 }}
-					className="max-w-4xl mx-auto mb-16 relative"
-				>
+				<div className="animate-in fade-in slide-in-from-bottom-4 max-w-4xl mx-auto mb-16 relative duration-500 fill-mode-both delay-300">
 					<div
 						className={`relative transition-all duration-300 ${isSearchFocused ? 'scale-105' : 'scale-100'}`}
 					>
-						{/* Glowing border effect */}
 						<div
 							className={`absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-primary via-accent to-primary opacity-0 transition-opacity duration-300 ${isSearchFocused ? 'opacity-100 animate-gradient-x' : ''}`}
 						></div>
@@ -158,7 +136,6 @@ export const TemplateShop = ({ data }: { data: any[] }) => {
 						</div>
 					</div>
 
-					{/* View mode toggle */}
 					<div className="flex justify-end mt-4">
 						<div className="bg-card/80 backdrop-blur-md rounded-xl border border-border p-1 flex space-x-1">
 							<button
@@ -183,97 +160,65 @@ export const TemplateShop = ({ data }: { data: any[] }) => {
 							</button>
 						</div>
 					</div>
-				</motion.div>
+				</div>
 
-				<AnimatePresence mode="wait">
-					{filteredData.length === 0 ? (
-						<motion.div
-							key="empty"
-							initial={{ opacity: 0, scale: 0.9 }}
-							animate={{ opacity: 1, scale: 1 }}
-							exit={{ opacity: 0, scale: 0.9 }}
-							transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-							className="text-center py-20 max-w-2xl mx-auto"
+				{filteredData.length === 0 ? (
+					<div
+						key="empty"
+						className="text-center py-20 max-w-2xl mx-auto animate-in zoom-in-95 fade-in duration-300"
+					>
+						<div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6 animate-in zoom-in duration-300 delay-200 fill-mode-both">
+							<FiPackage className="w-12 h-12 text-primary" />
+						</div>
+
+						<h3 className="text-2xl font-bold mb-4 font-monster animate-in fade-in slide-in-from-bottom-2 duration-300 delay-300 fill-mode-both">
+							No scripts found
+						</h3>
+
+						<p className="text-muted-foreground text-lg mb-8 animate-in fade-in slide-in-from-bottom-2 duration-300 delay-[400ms] fill-mode-both">
+							We couldn&apos;t find any scripts matching your search criteria.
+						</p>
+
+						<button
+							type="button"
+							onClick={() => setSearchTerm('')}
+							className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-medium flex items-center justify-center mx-auto gap-2 hover:bg-primary/90 active:scale-[0.98] transition-all animate-in fade-in slide-in-from-bottom-2 duration-300 delay-500 fill-mode-both"
 						>
-							<motion.div
-								initial={{ scale: 0 }}
-								animate={{ scale: 1 }}
-								transition={{ type: 'spring', stiffness: 400, delay: 0.2 }}
-								className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6"
+							<FiZap className="w-4 h-4" />
+							View all scripts
+						</button>
+					</div>
+				) : (
+					<div
+						key="results"
+						className={
+							viewMode === 'grid'
+								? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'
+								: 'flex flex-col space-y-6'
+						}
+					>
+						{filteredData.map((template, index) => (
+							<div
+								key={template.id}
+								style={{ animationDelay: `${index * 60}ms` }}
+								className={cn(
+									'animate-in fade-in slide-in-from-bottom-4 fill-mode-both duration-500',
+									viewMode === 'list' && 'max-w-4xl mx-auto w-full',
+									'transition-transform duration-200 hover:-translate-y-1'
+								)}
 							>
-								<FiPackage className="w-12 h-12 text-primary" />
-							</motion.div>
-
-							<motion.h3
-								initial={{ opacity: 0, y: 10 }}
-								animate={{ opacity: 1, y: 0 }}
-								transition={{ delay: 0.3 }}
-								className="text-2xl font-bold mb-4 font-monster"
-							>
-								No scripts found
-							</motion.h3>
-
-							<motion.p
-								initial={{ opacity: 0, y: 10 }}
-								animate={{ opacity: 1, y: 0 }}
-								transition={{ delay: 0.4 }}
-								className="text-muted-foreground text-lg mb-8"
-							>
-								We couldn&apos;t find any scripts matching your search criteria.
-							</motion.p>
-
-							<motion.button
-								initial={{ opacity: 0, y: 10 }}
-								animate={{ opacity: 1, y: 0 }}
-								transition={{ delay: 0.5 }}
-								whileHover={{ scale: 1.05 }}
-								whileTap={{ scale: 0.95 }}
-								onClick={() => setSearchTerm('')}
-								className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-medium flex items-center justify-center mx-auto gap-2 hover:bg-primary/90 transition-colors"
-							>
-								<FiZap className="w-4 h-4" />
-								View all scripts
-							</motion.button>
-						</motion.div>
-					) : (
-						<motion.div
-							key="results"
-							variants={containerVariants}
-							initial="hidden"
-							animate="visible"
-							exit={{ opacity: 0 }}
-							className={
-								viewMode === 'grid'
-									? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'
-									: 'flex flex-col space-y-6'
-							}
-						>
-							{filteredData.map((template, index) => (
-								<motion.div
-									key={template.id}
-									variants={itemVariants}
-									whileHover={{ y: -5, transition: { duration: 0.2 } }}
-									className={viewMode === 'list' ? 'max-w-4xl mx-auto w-full' : ''}
-								>
-									<CommonCard template={template} />
-								</motion.div>
-							))}
-						</motion.div>
-					)}
-				</AnimatePresence>
+								<CommonCard template={template} />
+							</div>
+						))}
+					</div>
+				)}
 
 				{filteredData.length > 0 && (
-					<motion.div
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						transition={{ delay: 0.8 }}
-						className="mt-16 text-center"
-					>
+					<div className="mt-16 text-center animate-in fade-in duration-500 fill-mode-both delay-700">
 						<p className="text-muted-foreground">
-							Showing <span className="text-primary font-medium">{filteredData.length}</span>{' '}
-							scripts
+							Showing <span className="text-primary font-medium">{filteredData.length}</span> scripts
 						</p>
-					</motion.div>
+					</div>
 				)}
 			</div>
 		</div>

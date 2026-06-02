@@ -3,6 +3,12 @@ export interface ShardConn {
   status: string;
   /** The real latency of the shard connection in milliseconds */
   latency: number;
+  /** The number of guilds the shard is connected to */
+  guilds: number;
+  /** The uptime of the shard connection in seconds */
+  uptime: number;
+  /** The total uptime of the shard connection in seconds */
+  total_uptime: number;
 }
 
 export interface BotStatus {

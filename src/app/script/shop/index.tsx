@@ -17,8 +17,9 @@ export const Route = createFileRoute('/script/shop/')({
 		generateScriptMetadata({
 			canonicalUrl: `${website_url}/script/shop`
 		}),
-	// Enable SSR for better SEO
-	ssr: true
+	// Shop data depends on client session token for msyscall auth.
+	// Rendering on the client avoids SSR-only fetch failures.
+	ssr: false
 });
 
 function TemplateShopPage() {

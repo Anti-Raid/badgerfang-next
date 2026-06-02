@@ -1,49 +1,73 @@
 'use client';
 
-import * as React from 'react';
-import { ThemeProvider as NextThemesProvider, ThemeProviderProps } from 'next-themes';
+import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 
-/**
- * Wraps child components with a themed context using NextThemesProvider.
- *
- * This component configures NextThemesProvider to apply a theme based on the user's system preference by default.
- * It sets the "class" attribute for DOM theme management, enables system theme detection, and supplies the following themes:
- * 'dark', 'blue-theme', 'dark-blue-theme', 'dark-red-theme', 'green-theme', 'dark-green-theme', 'electric-purple-theme',
- * 'arctic-frost-theme', and 'sunset-amber-theme'.
- * Any additional props are forwarded to the NextThemesProvider.
- *
- * @param children - The child components that receive the theme context.
- */
-export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
-	return (
-		<NextThemesProvider
-			attribute="class"
-			defaultTheme="system"
-			enableSystem
-			themes={[
-				'dark',
-				'blue-theme',
-				'dark-blue-theme',
-				'dark-red-theme',
-				'green-theme',
-				'dark-green-theme',
-				'electric-purple-theme',
-				'arctic-frost-theme',
-				'sunset-amber-theme',
-				'stargaze-theme',
-				'sunbeam-theme',
-				'velvetsky-theme',
-				'crisp-theme',
-				'float-theme',
-				'puzzlebloom-theme',
-				'neon-cyber-theme',
-				'retro-haze-theme',
-				'deep-ocean-theme',
-				'cotton-candy-theme'
-			]}
-			{...props}
-		>
-			{children}
-		</NextThemesProvider>
-	);
+interface ThemeContextType {
+	theme: string;
+	setTheme: (theme: string) => void;
+}
+
+const ThemeContext = createContext<ThemeContextType>({
+	theme: 'dark',
+	setTheme: () => {}
+});
+
+export function useTheme() {
+	return useContext(ThemeContext);
+}
+
+const LIGHT_THEMES = [
+	'arctic-frost-theme',
+	'sunbeam-theme',
+	'crisp-theme',
+	'float-theme',
+	'puzzlebloom-theme',
+	'cotton-candy-theme'
+];
+
+export function ThemeProvider({
+	children,
+	defaultTheme = 'dark'
+}: {
+	children: ReactNode;
+	defaultTheme?: string;
+}) {
+	// Initialize state with defaultTheme, then update from localStorage on mount
+	const [theme, setThemeState] = useState(defaultTheme);
+	const [mounted, setMounted] = useState(false);
+
+	// Effect to apply theme whenever it changes
+	useEffect(() => {
+		if (!mounted) return;
+
+		const root = document.documentElement;
+		root.setAttribute('data-theme', theme);
+		localStorage.setItem('theme', theme);
+		
+		const isDark = !LIGHT_THEMES.includes(theme);
+		if (isDark) {
+			root.classList.add('dark');
+			root.style.colorScheme = 'dark';
+		} else {
+			root.classList.remove('dark');
+			root.style.colorScheme = 'light';
+		}
+		
+		console.log(`[ThemeProvider] Theme applied: ${theme} (isDark: ${isDark})`);
+	}, [theme, mounted]);
+
+	// Initialize theme from localStorage on mount
+	useEffect(() => {
+		const saved = localStorage.getItem('theme');
+		if (saved) {
+			setThemeState(saved);
+		}
+		setMounted(true);
+	}, []);
+
+	const setTheme = useCallback((newTheme: string) => {
+		setThemeState(newTheme);
+	}, []);
+
+	return <ThemeContext.Provider value={{ theme, setTheme }}>{children}</ThemeContext.Provider>;
 }

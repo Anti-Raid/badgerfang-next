@@ -1,7 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { Archive, Zap, Shield, User } from 'lucide-react';
-import { motion } from '@/components/ui/motion';
 import { Link } from '@tanstack/react-router';
 import { HistoryTimeline } from '@/components/about/history-timeline';
 import { FeatureCard } from '@/components/about/FeatureCard';
@@ -25,11 +24,8 @@ const AboutLayout = () => {
 				<div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-background/80"></div>
 
 				<div className="container relative mx-auto px-4 py-24 sm:px-6 lg:px-8">
-					<motion.div
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: isLoaded ? 1 : 0, y: isLoaded ? 0 : 20 }}
-						transition={{ duration: 0.5 }}
-						className="max-w-4xl"
+					<div
+						className={`max-w-4xl transition-all duration-700 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
 					>
 						<h1 className="text-5xl md:text-7xl font-monster font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary/80 to-extra">
 							About AntiRaid
@@ -51,17 +47,14 @@ const AboutLayout = () => {
 								</button>
 							</a>
 						</div>
-					</motion.div>
+					</div>
 				</div>
 			</section>
 
 			{/* About Section */}
 			<section id="about" className="py-16 container mx-auto px-4 sm:px-6 lg:px-8">
-				<motion.div
-					initial={{ opacity: 0 }}
-					animate={{ opacity: isLoaded ? 1 : 0 }}
-					transition={{ duration: 0.5, delay: 0.2 }}
-					className="max-w-3xl mx-auto text-center"
+				<div
+					className={`max-w-3xl mx-auto text-center transition-all duration-700 delay-200 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
 				>
 					<h2 className="text-3xl md:text-4xl font-monster font-bold mb-6">Powerful Protection</h2>
 					<p className="text-lg text-foreground/80 leading-relaxed">
@@ -71,7 +64,7 @@ const AboutLayout = () => {
 						your community while we handle the security, providing real-time defense against
 						potential threats.
 					</p>
-				</motion.div>
+				</div>
 			</section>
 
 			{/* Features Section */}

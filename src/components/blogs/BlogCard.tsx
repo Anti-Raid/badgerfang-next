@@ -1,9 +1,7 @@
 'use client';
 
 import type React from 'react';
-import { useState, useRef } from 'react';
 import { useRouter, useSearch, Link } from '@tanstack/react-router';
-import { motion, useMotionValue, useTransform } from '@/components/ui/motion';
 import { Calendar, ArrowRight, Tag, Clock, User, BookOpen } from 'lucide-react';
 import { format } from 'date-fns';
 import type { Blog } from '@/types/blogs/index';
@@ -16,39 +14,22 @@ interface BlogCardProps {
 }
 
 /**
- * Renders an animated blog preview card with 3D tilt, hover effects, and interactive tag filtering.
+ * Renders an animated blog preview card with hover effects and interactive tag filtering.
  *
- * Displays a blog post's image, tags, title, description, author information, publication date, and estimated reading time. The card animates into view with a staggered fade and slide, tilts in 3D based on mouse movement, and scales with a glowing gradient on hover. Clicking a tag updates the URL to filter blogs by that tag.
+ * Displays a blog post's image, tags, title, description, author information, publication date, and estimated reading time. The card animates into view with a staggered fade and slide, and lifts with a glowing gradient on hover. Clicking a tag updates the URL to filter blogs by that tag.
  *
  * @param blog - The blog post data to display.
  * @param index - The card's position in a list, used to stagger animation.
  */
 export default function BlogCard({ blog, index, isFeatured = false }: BlogCardProps) {
-	const [isHovered, setIsHovered] = useState(false);
-	const mouseX = useMotionValue(0);
-	const mouseY = useMotionValue(0);
-	const cardRef = useRef<HTMLDivElement>(null);
-
 	const router = useRouter();
 	const searchParams = useSearch({ strict: false });
-
-	const rotateX = useTransform(mouseY, [-100, 100], [5, -5]);
-	const rotateY = useTransform(mouseX, [-100, 100], [-5, 5]);
 
 	const calculateReadingTime = (content: string): string => {
 		const wordsPerMinute = 200;
 		const wordCount = content.split(/\s+/).length;
 		const minutes = Math.ceil(wordCount / wordsPerMinute);
 		return `${minutes} min read`;
-	};
-
-	const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-		if (!cardRef.current) return;
-		const rect = cardRef.current.getBoundingClientRect();
-		const x = e.clientX - rect.left - rect.width / 2;
-		const y = e.clientY - rect.top - rect.height / 2;
-		mouseX.set(x);
-		mouseY.set(y);
 	};
 
 	const handleTagClick = (e: React.MouseEvent, tag: string) => {
@@ -60,31 +41,12 @@ export default function BlogCard({ blog, index, isFeatured = false }: BlogCardPr
 	};
 
 	return (
-		<motion.div
-			ref={cardRef}
-			initial={{ opacity: 0, y: 30 }}
-			animate={{ opacity: 1, y: 0 }}
-			transition={{
-				duration: 0.6,
-				delay: index * 0.1,
-				ease: [0.22, 1, 0.36, 1]
-			}}
-			style={{
-				rotateX,
-				rotateY,
-				perspective: 1000
-			} as any}
-			onMouseMove={handleMouseMove}
-			onMouseEnter={() => setIsHovered(true)}
-			onMouseLeave={() => {
-				setIsHovered(false);
-				mouseX.set(0);
-				mouseY.set(0);
-			}}
-			className="group relative h-full flex flex-col"
+		<div
+			style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'both' }}
+			className="animate-in fade-in slide-in-from-bottom-5 duration-600 group relative h-full flex flex-col"
 		>
 			<Link to="/blogs/$slug" params={{ slug: blog.slug }} className="flex flex-col h-full">
-				<div className="relative h-full flex flex-col overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md border border-white/5 group-hover:border-primary/30 transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-primary/10 shadow-lg">
+				<div className="relative h-full flex flex-col overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md border border-white/5 group-hover:border-primary/30 transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-primary/10 shadow-lg group-hover:-translate-y-2">
 					{/* Glow Effect */}
 					<div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
@@ -195,6 +157,6 @@ export default function BlogCard({ blog, index, isFeatured = false }: BlogCardPr
 					<div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-purple-500 to-accent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
 				</div>
 			</Link>
-		</motion.div>
+		</div>
 	);
 }

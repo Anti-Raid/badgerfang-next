@@ -1,7 +1,6 @@
 'use client';
 
 import { Link } from '@tanstack/react-router';
-import { motion } from '@/components/ui/motion';
 import { FaGithub, FaDiscord } from 'react-icons/fa';
 import { RiTwitterXFill, RiTeamFill, RiShieldCheckFill } from 'react-icons/ri';
 import { TbApi } from 'react-icons/tb';

@@ -150,6 +150,46 @@ export const decode = (data: RawKhronosValue, depth?: number): KhronosValue => {
     }
 }
 
+export type PlainKhronosValue =
+    | string
+    | number
+    | bigint
+    | boolean
+    | null
+    | Uint8Array
+    | Vector
+    | Date
+    | Interval
+    | TimeZone
+    | MemoryVfs
+    | PlainKhronosValue[]
+    | { [key: string]: PlainKhronosValue };
+
+const isStringKey = (value: KhronosValue | PlainKhronosValue): value is string => typeof value === 'string';
+
+const toPlain = (value: KhronosValue, depth = 0): PlainKhronosValue => {
+    if (depth > 100) return null;
+
+    if (value instanceof Map) {
+        const object: Record<string, PlainKhronosValue> = {};
+        for (const [key, nestedValue] of value.entries()) {
+            const plainKey = isStringKey(key) ? key : String(key);
+            object[plainKey] = toPlain(nestedValue, depth + 1);
+        }
+        return object;
+    }
+
+    if (Array.isArray(value)) {
+        return value.map((item) => toPlain(item, depth + 1));
+    }
+
+    return value as PlainKhronosValue;
+};
+
+export const decodePlain = (data: RawKhronosValue, depth?: number): PlainKhronosValue => {
+    return toPlain(decode(data, depth), depth || 0);
+}
+
 export type EncodableKhronosValue = 
     | string 
     | number 
@@ -218,41 +258,3 @@ export const encode = (value: EncodableKhronosValue): RawKhronosValue => {
         throw new Error("unknown object passed to encode()")
     }
 }
-
-// test
-const json: RawKhronosValue = {
-  "Map": [
-    [
-      {
-        "Text": "key1"
-      },
-      {
-        "Text": "value1"
-      }
-    ],
-    [
-      {
-        "Text": "key2"
-      },
-      {
-        "Vector": [
-          1.0,
-          2.1,
-          3.2
-        ]
-      }
-    ],
-    [
-      {
-        "Text": "key3"
-      },
-      {
-        "MemoryVfs": {}
-      }
-    ]
-  ]
-}
-
-
-console.log(decode(json));
-console.log(encode(decode(json)));

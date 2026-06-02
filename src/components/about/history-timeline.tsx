@@ -2,7 +2,6 @@
 
 import { JSX } from 'react';
 import { useState, useEffect, useRef } from 'react';
-import { motion, useScroll, useTransform } from '@/components/ui/motion';
 import { Milestone, Zap, Users, Code, ChevronDown } from 'lucide-react';
 import { FaBullhorn } from 'react-icons/fa';
 
@@ -14,14 +13,27 @@ interface TimelineEvent {
 }
 
 export const HistoryTimeline = () => {
-	const [isLoaded, setIsLoaded] = useState(false);
 	const containerRef = useRef<HTMLDivElement>(null);
-	const { scrollYProgress } = useScroll();
-
-	const lineHeight = useTransform(scrollYProgress, [0, 1], ['0%', '100%'] as any);
+	const [isSectionVisible, setIsSectionVisible] = useState(false);
 
 	useEffect(() => {
-		setIsLoaded(true);
+		const element = containerRef.current;
+		if (!element) return;
+
+		const observer = new IntersectionObserver(
+			(entries) => {
+				if (entries[0]?.isIntersecting) {
+					setIsSectionVisible(true);
+					observer.disconnect();
+				}
+			},
+			{
+				threshold: 0.2
+			}
+		);
+
+		observer.observe(element);
+		return () => observer.disconnect();
 	}, []);
 
 	const timelineEvents: TimelineEvent[] = [
@@ -106,11 +118,10 @@ export const HistoryTimeline = () => {
 
 			<div className="container relative mx-auto px-4 sm:px-6 lg:px-8" ref={containerRef}>
 				<div className="text-center mb-20">
-					<motion.div
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: isLoaded ? 1 : 0, y: isLoaded ? 0 : 20 }}
-						transition={{ duration: 0.5 }}
-						className="relative"
+					<div
+						className={`relative transition-all duration-700 ease-out ${
+							isSectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+						}`}
 					>
 						<div className="absolute -top-10 left-1/2 transform -translate-x-1/2 w-40 h-1 bg-gradient-to-r from-transparent via-primary to-transparent"></div>
 
@@ -130,27 +141,24 @@ export const HistoryTimeline = () => {
 							<div className="absolute -right-2 -top-2 w-4 h-4 bg-background border-2 border-primary"></div>
 						</div>
 
-						<motion.div
-							className="absolute -bottom-12 w-full flex justify-center text-primary"
-							animate={{ y: [0, 10, 0] }}
-							transition={{ repeat: Infinity, duration: 2 }}
-						>
+						<div className="absolute -bottom-12 w-full flex justify-center text-primary animate-bounce">
 							<ChevronDown className="w-8 h-8" />
-						</motion.div>
-					</motion.div>
+						</div>
+					</div>
 				</div>
 
 				<div className="relative max-w-4xl mx-auto">
 					{/* Desktop central line */}
 					<div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-primary/10"></div>
-					<motion.div
-						className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-1 bg-primary/50 origin-top"
-						style={{ height: lineHeight }}
+					<div
+						className={`hidden md:block absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-primary/50 origin-top transition-transform duration-1000 ease-out ${
+							isSectionVisible ? 'scale-y-100' : 'scale-y-0'
+						}`}
 					/>
 
 					{timelineEvents.map((event, index) => (
 						<div key={`${event.year}-${index}`} className="mb-16 last:mb-0">
-							<TimelineEvent event={event} index={index} isLoaded={isLoaded} />
+							<TimelineEvent event={event} index={index} />
 							{index < timelineEvents.length - 1 && <TimelineConnector />}
 						</div>
 					))}
@@ -163,19 +171,46 @@ export const HistoryTimeline = () => {
 interface TimelineEventProps {
 	event: TimelineEvent;
 	index: number;
-	isLoaded: boolean;
 }
 
-const TimelineEvent = ({ event, index, isLoaded }: TimelineEventProps) => {
+const TimelineEvent = ({ event, index }: TimelineEventProps) => {
 	const isEven = index % 2 === 0;
 	const containerRef = useRef<HTMLDivElement>(null);
-	const { scrollYProgress: rawScrollYProgress } = useScroll();
+	const [isVisible, setIsVisible] = useState(false);
 
-	const opacity = useTransform(rawScrollYProgress, [0, 0.5], [0, 1]);
-	const x = useTransform(rawScrollYProgress, [0, 0.5], isEven ? [-50, 0] : [50, 0]);
+	useEffect(() => {
+		const element = containerRef.current;
+		if (!element) return;
+
+		const observer = new IntersectionObserver(
+			(entries) => {
+				if (entries[0]?.isIntersecting) {
+					setIsVisible(true);
+					observer.disconnect();
+				}
+			},
+			{
+				threshold: 0.25,
+				rootMargin: '0px 0px -10% 0px'
+			}
+		);
+
+		observer.observe(element);
+		return () => observer.disconnect();
+	}, []);
 
 	return (
-		<motion.div ref={containerRef} style={{ opacity, x }} className="relative">
+		<div
+			ref={containerRef}
+			className={`relative transform-gpu transition-all duration-700 ease-out ${
+				isVisible
+					? 'opacity-100 translate-x-0'
+					: isEven
+						? '-translate-x-8 opacity-0'
+						: 'translate-x-8 opacity-0'
+			}`}
+			style={{ transitionDelay: `${index * 120}ms` }}
+		>
 			<div
 				className={`flex flex-col md:flex-row items-center ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'}`}
 			>
@@ -217,11 +252,7 @@ const TimelineEvent = ({ event, index, isLoaded }: TimelineEventProps) => {
 						<span className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-primary"></span>
 
 						{/* Pulsing glow */}
-						<motion.div
-							className="absolute inset-0 bg-primary/20 z-0"
-							animate={{ opacity: [0.2, 0.5, 0.2] }}
-							transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-						/>
+						<div className="absolute inset-0 bg-primary/20 z-0 animate-pulse-glow" />
 
 						{/* Icon content */}
 						<div className="relative z-10 text-primary">{event.icon}</div>
@@ -231,7 +262,7 @@ const TimelineEvent = ({ event, index, isLoaded }: TimelineEventProps) => {
 					<div className="block md:hidden w-1 h-6 bg-primary/30" />
 				</div>
 			</div>
-		</motion.div>
+		</div>
 	);
 };
 
@@ -240,11 +271,7 @@ const TimelineConnector = () => {
 		<div className="flex justify-center relative">
 			<div className="w-1 h-16 bg-primary/40 z-0 relative">
 				{/* Animated data flow effect */}
-				<motion.div
-					className="absolute top-0 left-0 w-full h-4 bg-primary/80"
-					animate={{ top: ['0%', '100%'] }}
-					transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-				/>
+				<div className="absolute top-0 left-0 w-full h-4 bg-primary/80 animate-scan" />
 			</div>
 		</div>
 	);

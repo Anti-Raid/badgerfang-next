@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from '@/components/ui/motion';
 import { ChevronDown, Plus } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface SectionProps {
 	title: string;
@@ -23,13 +23,7 @@ export const Section: React.FC<SectionProps> = ({
 	const contentId = React.useId();
 
 	return (
-		<motion.div
-			className="group/section"
-			initial={{ opacity: 0, y: 10 }}
-			whileInView={{ opacity: 1, y: 0 }}
-			viewport={{ once: true }}
-			transition={{ duration: 0.4 }}
-		>
+		<div className="group/section animate-in fade-in slide-in-from-bottom-2 duration-500 fill-mode-both">
 			<div className="bg-card border border-border/50 rounded-2xl overflow-hidden transition-all duration-300 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5">
 				{/* Header Section */}
 				<button
@@ -65,36 +59,30 @@ export const Section: React.FC<SectionProps> = ({
 								}
 							`}
 						>
-							<motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.3 }}>
-								<ChevronDown size={16} />
-							</motion.div>
+							<ChevronDown
+								size={16}
+								className={cn('transition-transform duration-300', isOpen && 'rotate-180')}
+							/>
 							<span>{isOpen ? 'Close' : 'Configure'}</span>
 						</div>
 					</div>
 				</button>
 
-				<AnimatePresence>
-					{isOpen && (
-						<motion.div
-							initial={{ height: 0, opacity: 0 }}
-							animate={{ height: 'auto', opacity: 1 }}
-							exit={{ height: 0, opacity: 0 }}
-							transition={{ duration: 0.3 }}
-							id={contentId}
-						>
-							<div className="border-t border-border/50 p-6 bg-accent/10">
-								<motion.div
-									initial={{ y: 5, opacity: 0 }}
-									animate={{ y: 0, opacity: 1 }}
-									transition={{ duration: 0.2 }}
-								>
-									{children}
-								</motion.div>
-							</div>
-						</motion.div>
+				<div
+					className={cn(
+						'grid transition-[grid-template-rows] duration-300 ease-out',
+						isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
 					)}
-				</AnimatePresence>
+				>
+					<div className="min-h-0 overflow-hidden">
+						{isOpen ? (
+							<div id={contentId} className="border-t border-border/50 p-6 bg-accent/10">
+								<div className="animate-in fade-in slide-in-from-top-1 duration-200">{children}</div>
+							</div>
+						) : null}
+					</div>
+				</div>
 			</div>
-		</motion.div>
+		</div>
 	);
 };

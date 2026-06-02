@@ -4,9 +4,10 @@ import { Link } from '@tanstack/react-router';
 import { FiArrowLeft } from 'react-icons/fi';
 import { ScriptIDE } from '../ide/ide';
 import { CommonCard } from './ScriptCard';
+import type { ScriptShopTemplate } from '@/types/script/shop';
 
 interface ScriptLayoutProps {
-	script: any; // TODO: Fixme once shop is updated
+	script: ScriptShopTemplate;
 	files: { [key: string]: string };
 }
 

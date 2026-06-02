@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from '@/components/ui/motion';
-import { useTheme } from 'next-themes';
+import React, { useState, useEffect } from 'react';
+import { useTheme } from '@/components/ui/ThemeProvider';
 import { PaletteIcon, Check, Sparkles, X } from 'lucide-react';
 
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
@@ -15,9 +14,126 @@ interface Theme {
 interface ThemeSelectorProps {
 	isOpen?: boolean;
 	onOpenChange?: (open: boolean) => void;
+	variant?: 'dropdown' | 'sheet' | 'icon';
 }
 
-const ThemeSelector: React.FC<ThemeSelectorProps & { variant?: 'dropdown' | 'sheet' | 'icon' }> = ({
+const themes: Theme[] = [
+	// Original themes
+	{ id: 'dark', label: 'Dark' },
+	{ id: 'blue-theme', label: 'Ocean Blue' },
+	{ id: 'dark-blue-theme', label: 'Midnight Navy' },
+	{ id: 'dark-red-theme', label: 'Crimson Night' },
+	{ id: 'green-theme', label: 'Emerald' },
+	{ id: 'dark-green-theme', label: 'Forest Deep' },
+	{ id: 'electric-purple-theme', label: 'Electric Purple' },
+	{ id: 'sunset-amber-theme', label: 'Sunset Amber' },
+
+	// Modern themes
+	{ id: 'stargaze-theme', label: 'Stargaze' },
+	{ id: 'sunbeam-theme', label: 'Sunbeam' },
+	{ id: 'velvetsky-theme', label: 'Velvet Sky' },
+	{ id: 'crisp-theme', label: 'Crisp' },
+	{ id: 'float-theme', label: 'Float' },
+	{ id: 'puzzlebloom-theme', label: 'PuzzleBloom' },
+
+	// New Vibrant Themes
+	{ id: 'neon-cyber-theme', label: 'Neon Cyber' },
+	{ id: 'retro-haze-theme', label: 'Retro Haze' },
+	{ id: 'deep-ocean-theme', label: 'Deep Ocean' },
+	{ id: 'cotton-candy-theme', label: 'Cotton Candy' }
+];
+
+const getThemeColors = (themeId: string) => {
+	switch (themeId) {
+		// Original themes
+		case 'dark':
+			return 'from-[hsl(268,95%,55%)] to-[hsl(244,80%,65%)]';
+		case 'blue-theme':
+			return 'from-[hsl(210,100%,60%)] to-[hsl(195,85%,65%)]';
+		case 'dark-blue-theme':
+			return 'from-[hsl(220,95%,50%)] to-[hsl(200,90%,60%)]';
+		case 'dark-red-theme':
+			return 'from-[hsl(355,95%,55%)] to-[hsl(330,90%,65%)]';
+		case 'green-theme':
+			return 'from-[hsl(155,85%,45%)] to-[hsl(170,85%,55%)]';
+		case 'dark-green-theme':
+			return 'from-[hsl(155,95%,40%)] to-[hsl(170,90%,50%)]';
+		case 'electric-purple-theme':
+			return 'from-[hsl(275,100%,60%)] to-[hsl(290,90%,70%)]';
+		case 'sunset-amber-theme':
+			return 'from-[hsl(35,100%,55%)] to-[hsl(20,90%,65%)]';
+
+		// New themes
+		case 'stargaze-theme':
+			return 'from-[#BBA9AB] to-[#B4A9B8]';
+		case 'sunbeam-theme':
+			return 'from-[#F0F1ED] to-[#A5CCDC]';
+		case 'velvetsky-theme':
+			return 'from-[#A792B1] to-[#A8C0D9]';
+		case 'crisp-theme':
+			return 'from-[#F0F1ED] to-[#A5CCDC]';
+		case 'float-theme':
+			return 'from-[#A6D1D9] to-[#7FB8BE]';
+		case 'puzzlebloom-theme':
+			return 'from-[#F0E3CB] to-[#D9AA90]';
+
+		// New Vibrant Themes
+		case 'neon-cyber-theme':
+			return 'from-[#d946ef] to-[#06b6d4]';
+		case 'retro-haze-theme':
+			return 'from-[#fb923c] to-[#a855f7]';
+		case 'deep-ocean-theme':
+			return 'from-[#0ea5e9] to-[#1e293b]';
+		case 'cotton-candy-theme':
+			return 'from-[#f9a8d4] to-[#a5f3fc]';
+
+		default:
+			return 'from-primary to-extra';
+	}
+};
+
+const ThemeButton = ({
+	themeOption,
+	isActive,
+	onSelect
+}: {
+	themeOption: Theme;
+	isActive: boolean;
+	onSelect: (id: string) => void;
+}) => {
+	return (
+		<button
+			onClick={() => onSelect(themeOption.id)}
+			className={`relative h-20 rounded-2xl overflow-hidden transition-all duration-300 group shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
+			${isActive ? 'ring-2 ring-primary ring-offset-2 ring-offset-background scale-[0.98]' : 'hover:scale-[1.02] hover:shadow-md'}
+			`}
+		>
+			{/* Gradient Background */}
+			<div className={`absolute inset-0 bg-gradient-to-br ${getThemeColors(themeOption.id)}`} />
+
+			{/* Overlay */}
+			<div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
+
+			{/* Content */}
+			<div className="relative h-full p-3 flex flex-col justify-between">
+				<div className="flex justify-between items-start">
+					{isActive && (
+						<div className="animate-in zoom-in duration-200 bg-white/30 backdrop-blur-md rounded-full p-1">
+							<Check className="h-3 w-3 text-white" />
+						</div>
+					)}
+				</div>
+				<span
+					className={`text-sm font-bold text-white/95 group-hover:text-white transition-colors text-left truncate shadow-sm ${!isActive && 'mt-auto'}`}
+				>
+					{themeOption.label}
+				</span>
+			</div>
+		</button>
+	);
+};
+
+const ThemeSelector: React.FC<ThemeSelectorProps> = ({
 	isOpen: controlledIsOpen,
 	onOpenChange,
 	variant = 'dropdown'
@@ -35,81 +151,6 @@ const ThemeSelector: React.FC<ThemeSelectorProps & { variant?: 'dropdown' | 'she
 	const [mounted, setMounted] = useState(false);
 	const { theme, setTheme } = useTheme();
 
-	const themes: Theme[] = [
-		// Original themes
-		{ id: 'dark', label: 'Dark' },
-		{ id: 'blue-theme', label: 'Ocean Blue' },
-		{ id: 'dark-blue-theme', label: 'Midnight Navy' },
-		{ id: 'dark-red-theme', label: 'Crimson Night' },
-		{ id: 'green-theme', label: 'Emerald' },
-		{ id: 'dark-green-theme', label: 'Forest Deep' },
-		{ id: 'electric-purple-theme', label: 'Electric Purple' },
-		{ id: 'sunset-amber-theme', label: 'Sunset Amber' },
-
-		// Modern themes
-		{ id: 'stargaze-theme', label: 'Stargaze' },
-		{ id: 'sunbeam-theme', label: 'Sunbeam' },
-		{ id: 'velvetsky-theme', label: 'Velvet Sky' },
-		{ id: 'crisp-theme', label: 'Crisp' },
-		{ id: 'float-theme', label: 'Float' },
-		{ id: 'puzzlebloom-theme', label: 'PuzzleBloom' },
-
-		// New Vibrant Themes
-		{ id: 'neon-cyber-theme', label: 'Neon Cyber' },
-		{ id: 'retro-haze-theme', label: 'Retro Haze' },
-		{ id: 'deep-ocean-theme', label: 'Deep Ocean' },
-		{ id: 'cotton-candy-theme', label: 'Cotton Candy' }
-	];
-
-	const getThemeColors = (themeId: string) => {
-		switch (themeId) {
-			// Original themes
-			case 'dark':
-				return 'from-[hsl(268,95%,55%)] to-[hsl(244,80%,65%)]';
-			case 'blue-theme':
-				return 'from-[hsl(210,100%,60%)] to-[hsl(195,85%,65%)]';
-			case 'dark-blue-theme':
-				return 'from-[hsl(220,95%,50%)] to-[hsl(200,90%,60%)]';
-			case 'dark-red-theme':
-				return 'from-[hsl(355,95%,55%)] to-[hsl(330,90%,65%)]';
-			case 'green-theme':
-				return 'from-[hsl(155,85%,45%)] to-[hsl(170,85%,55%)]';
-			case 'dark-green-theme':
-				return 'from-[hsl(155,95%,40%)] to-[hsl(170,90%,50%)]';
-			case 'electric-purple-theme':
-				return 'from-[hsl(275,100%,60%)] to-[hsl(290,90%,70%)]';
-			case 'sunset-amber-theme':
-				return 'from-[hsl(35,100%,55%)] to-[hsl(20,90%,65%)]';
-
-			// New themes
-			case 'stargaze-theme':
-				return 'from-[#BBA9AB] to-[#B4A9B8]';
-			case 'sunbeam-theme':
-				return 'from-[#F0F1ED] to-[#A5CCDC]';
-			case 'velvetsky-theme':
-				return 'from-[#A792B1] to-[#A8C0D9]';
-			case 'crisp-theme':
-				return 'from-[#F0F1ED] to-[#A5CCDC]';
-			case 'float-theme':
-				return 'from-[#A6D1D9] to-[#7FB8BE]';
-			case 'puzzlebloom-theme':
-				return 'from-[#F0E3CB] to-[#D9AA90]';
-
-			// New Vibrant Themes
-			case 'neon-cyber-theme':
-				return 'from-[#d946ef] to-[#06b6d4]';
-			case 'retro-haze-theme':
-				return 'from-[#fb923c] to-[#a855f7]';
-			case 'deep-ocean-theme':
-				return 'from-[#0ea5e9] to-[#1e293b]';
-			case 'cotton-candy-theme':
-				return 'from-[#f9a8d4] to-[#a5f3fc]';
-
-			default:
-				return 'from-primary to-extra';
-		}
-	};
-
 	// Set mounted to true once the component is mounted
 	useEffect(() => {
 		setMounted(true);
@@ -118,51 +159,16 @@ const ThemeSelector: React.FC<ThemeSelectorProps & { variant?: 'dropdown' | 'she
 	useEffect(() => {
 		if (theme && mounted) {
 			document.documentElement.classList.add('theme-transition');
-			setTimeout(() => {
+			const timer = setTimeout(() => {
 				document.documentElement.classList.remove('theme-transition');
 			}, 300);
+			return () => clearTimeout(timer);
 		}
 	}, [theme, mounted]);
 
-	const ThemeButton = ({ themeOption }: { themeOption: Theme }) => {
-		const isActive = theme === themeOption.id;
-		return (
-			<button
-				onClick={() => {
-					setTheme(themeOption.id);
-					setIsOpen(false);
-				}}
-				className={`relative h-20 rounded-2xl overflow-hidden transition-all duration-300 group shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
-				${isActive ? 'ring-2 ring-primary ring-offset-2 ring-offset-background scale-[0.98]' : 'hover:scale-[1.02] hover:shadow-md'}
-				`}
-			>
-				{/* Gradient Background */}
-				<div className={`absolute inset-0 bg-gradient-to-br ${getThemeColors(themeOption.id)}`} />
-
-				{/* Overlay */}
-				<div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
-
-				{/* Content */}
-				<div className="relative h-full p-3 flex flex-col justify-between">
-					<div className="flex justify-between items-start">
-						{isActive && (
-							<motion.div
-								initial={{ scale: 0 }}
-								animate={{ scale: 1 }}
-								className="bg-white/30 backdrop-blur-md rounded-full p-1"
-							>
-								<Check className="h-3 w-3 text-white" />
-							</motion.div>
-						)}
-					</div>
-					<span
-						className={`text-sm font-bold text-white/95 group-hover:text-white transition-colors text-left truncate shadow-sm ${!isActive && 'mt-auto'}`}
-					>
-						{themeOption.label}
-					</span>
-				</div>
-			</button>
-		);
+	const handleThemeSelect = (id: string) => {
+		setTheme(id);
+		setIsOpen(false);
 	};
 
 	return (
@@ -221,7 +227,9 @@ const ThemeSelector: React.FC<ThemeSelectorProps & { variant?: 'dropdown' | 'she
 							{/* Header */}
 							<div className="px-6 pb-4 flex items-center justify-between border-b border-border/30 shrink-0">
 								<div>
-									<h3 className="text-xl font-bold text-foreground tracking-tight">Theme Gallery</h3>
+									<h3 className="text-xl font-bold text-foreground tracking-tight">
+										Theme Gallery
+									</h3>
 									<p className="text-sm text-muted-foreground">Select your preferred style</p>
 								</div>
 								<button
@@ -236,7 +244,12 @@ const ThemeSelector: React.FC<ThemeSelectorProps & { variant?: 'dropdown' | 'she
 							<div className="p-4 overflow-y-auto soft-scrollbar">
 								<div className="grid grid-cols-2 gap-3 pb-safe-area-inset-bottom">
 									{themes.map((t) => (
-										<ThemeButton key={t.id} themeOption={t} />
+										<ThemeButton
+											key={t.id}
+											themeOption={t}
+											isActive={theme === t.id}
+											onSelect={handleThemeSelect}
+										/>
 									))}
 								</div>
 								<div className="h-8 md:h-0" />
@@ -261,7 +274,12 @@ const ThemeSelector: React.FC<ThemeSelectorProps & { variant?: 'dropdown' | 'she
 							<div className="p-3 max-h-[450px] overflow-y-auto no-scrollbar">
 								<div className="grid grid-cols-2 gap-2.5">
 									{themes.map((t) => (
-										<ThemeButton key={t.id} themeOption={t} />
+										<ThemeButton
+											key={t.id}
+											themeOption={t}
+											isActive={theme === t.id}
+											onSelect={handleThemeSelect}
+										/>
 									))}
 								</div>
 							</div>

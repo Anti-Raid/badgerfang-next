@@ -1,8 +1,7 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useRouterState } from '@tanstack/react-router';
-import { motion, AnimatePresence } from '@/components/ui/motion';
-import { useTheme } from 'next-themes';
+import { useTheme } from '@/components/ui/ThemeProvider';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import {
 	Home,
@@ -83,8 +82,6 @@ const NavBar: React.FC = () => {
 		return () => window.removeEventListener('scroll', handleScroll);
 	}, []);
 
-	// Removed click outside handler - Radix handles this automatically
-
 	useEffect(() => {
 		const fetchUserData = async () => {
 			const authCreds = getAuthCreds();
@@ -109,16 +106,6 @@ const NavBar: React.FC = () => {
 		return '/logo.webp';
 	};
 
-	const toggleDropdown = (dropdown: 'theme' | 'profile') => {
-		if (dropdown === 'theme') {
-			setIsProfileOpen(false);
-			setIsThemeOpen((prev) => !prev);
-		} else {
-			setIsThemeOpen(false);
-			setIsProfileOpen((prev) => !prev);
-		}
-	};
-
 	const handleLogout = async () => {
 		await logoutUser();
 		setIsProfileOpen(false);
@@ -130,11 +117,7 @@ const NavBar: React.FC = () => {
 	const ProfileMenu = () => (
 		<DropdownMenu.Root open={isProfileOpen} onOpenChange={setIsProfileOpen}>
 			<DropdownMenu.Trigger asChild>
-				<motion.button
-					whileHover={{ scale: 1.02 }}
-					whileTap={{ scale: 0.98 }}
-					className="flex items-center gap-2.5 pl-1.5 pr-3 py-1.5 rounded-full bg-secondary/30 hover:bg-secondary/50 border border-white/5 transition-all"
-				>
+				<button className="flex items-center gap-2.5 pl-1.5 pr-3 py-1.5 rounded-full bg-secondary/30 hover:bg-secondary/50 border border-white/5 transition-all hover:scale-[1.02] active:scale-[0.98]">
 					<img
 						src={userData ? getAvatarUrl(userData) : getLogoPath()}
 						alt="User"
@@ -145,11 +128,11 @@ const NavBar: React.FC = () => {
 						{userData?.username || 'User'}
 					</span>
 					<ChevronDown className="w-3 h-3 text-muted-foreground hidden md:block" />
-				</motion.button>
+				</button>
 			</DropdownMenu.Trigger>
 			<DropdownMenu.Portal>
 				<DropdownMenu.Content
-					className="w-60 bg-background/95 backdrop-blur-3xl rounded-2xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-50 overflow-hidden p-2 space-y-1"
+					className="w-60 bg-background/95 backdrop-blur-3xl rounded-2xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-50 overflow-hidden p-2 space-y-1 animate-in fade-in zoom-in-95 duration-200"
 					sideOffset={16}
 					align="end"
 				>
@@ -193,8 +176,7 @@ const NavBar: React.FC = () => {
 			className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${scrolled ? 'pt-4' : 'pt-6'}`}
 		>
 			<div className="max-w-7xl mx-auto px-4 sm:px-6">
-				<motion.nav
-					layout
+				<nav
 					className={`
                         relative flex items-center justify-between
                         h-14 md:h-16 px-2 md:px-4
@@ -210,12 +192,10 @@ const NavBar: React.FC = () => {
 						<Link to="/" className="flex items-center gap-2 group relative">
 							<div className="relative">
 								<div className="absolute inset-0 bg-primary/20 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-								<motion.img
-									whileHover={{ rotate: 360, scale: 1.1 }}
-									transition={{ duration: 0.5 }}
+								<img
 									src={getLogoPath()}
 									alt="AntiRaid"
-									className="h-8 w-8 lg:h-9 lg:w-9 rounded-full relative z-10"
+									className="h-8 w-8 lg:h-9 lg:w-9 rounded-full relative z-10 transition-transform duration-500 group-hover:rotate-[360deg] group-hover:scale-110"
 								/>
 							</div>
 							<span className="text-lg lg:text-xl font-bold font-monster tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground via-foreground to-primary/80 group-hover:to-primary transition-all duration-300">
@@ -237,17 +217,9 @@ const NavBar: React.FC = () => {
 											className={`
                                             relative px-4 lg:px-6 py-2.5 rounded-full text-xs lg:text-sm font-bold transition-all duration-300
                                             flex items-center gap-2 lg:gap-2.5 whitespace-nowrap group/nav
-                                            ${isActive ? 'text-primary-foreground' : 'text-foreground/70 hover:text-foreground'}
+                                            ${isActive ? 'text-primary-foreground bg-primary shadow-[0_4px_16px_rgba(var(--primary),0.4)]' : 'text-foreground/70 hover:text-foreground'}
                                         `}
 										>
-											{isActive && (
-												<motion.div
-													layoutId="nav-pill"
-													className="absolute inset-0 bg-primary shadow-[0_4px_16px_rgba(var(--primary),0.4)] rounded-full"
-													initial={false}
-													transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-												/>
-											)}
 											<span className="relative z-10 flex items-center gap-2 lg:gap-2.5">
 												<item.icon
 													className={`w-4 h-4 lg:w-4.5 lg:h-4.5 transition-transform duration-300 ${isActive ? '' : 'group-hover/nav:scale-110'}`}
@@ -279,123 +251,117 @@ const NavBar: React.FC = () => {
 							{userData ? (
 								<ProfileMenu />
 							) : (
-								<motion.button
-									whileHover={{ scale: 1.05 }}
-									whileTap={{ scale: 0.95 }}
+								<button
 									onClick={() => {
 										loginUser();
-										navigate({ to: '/dashboard' });
 									}}
-									className="group relative px-5 py-2 rounded-full overflow-hidden bg-primary"
+									className="group relative px-5 py-2 rounded-full overflow-hidden bg-primary transition-transform hover:scale-105 active:scale-95"
 								>
 									<div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
 									<span className="relative flex items-center gap-2 text-sm font-bold text-primary-foreground">
 										Login <LogIn className="w-3 h-3" />
 									</span>
-								</motion.button>
+								</button>
 							)}
 						</div>
 
 						{/* Mobile Menu Toggle */}
 						<div className="md:hidden ml-2">
-							<motion.button
-								whileTap={{ scale: 0.9 }}
+							<button
 								onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-								className="p-2 rounded-full bg-secondary/30 text-foreground"
+								className="p-2 rounded-full bg-secondary/30 text-foreground transition-transform active:scale-90"
 							>
 								{isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-							</motion.button>
+							</button>
 						</div>
 					</div>
-				</motion.nav>
+				</nav>
 			</div>
 
 			{/* Mobile Menu Overlay */}
-			<AnimatePresence>
-				{isMobileMenuOpen && (
-					<motion.div
-						initial={{ opacity: 0, y: -20, scale: 0.95 }}
-						animate={{ opacity: 1, y: 0, scale: 1 }}
-						exit={{ opacity: 0, y: -20, scale: 0.95 }}
-						className="absolute top-24 inset-x-4 p-4 bg-background/98 backdrop-blur-3xl rounded-3xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-40 md:hidden flex flex-col gap-2"
-					>
-						<div className="flex items-center justify-between mb-4 px-2">
-							<span className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
-								Navigation
-							</span>
-							<div ref={themeRef}>
-								<ThemeSelector isOpen={isThemeOpen} onOpenChange={setIsThemeOpen} variant="sheet" />
-							</div>
+			{isMobileMenuOpen && (
+				<div className="animate-in fade-in slide-in-from-top-5 duration-300 absolute top-24 inset-x-4 p-4 bg-background/98 backdrop-blur-3xl rounded-3xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-40 md:hidden flex flex-col gap-2">
+					<div className="flex items-center justify-between mb-4 px-2">
+						<span className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
+							Navigation
+						</span>
+						<div ref={themeRef}>
+							<ThemeSelector isOpen={isThemeOpen} onOpenChange={setIsThemeOpen} variant="sheet" />
 						</div>
-						{NavItems.map((item) => (
-							<Link
-								key={item.name}
-								to={item.href}
-								onClick={() => setIsMobileMenuOpen(false)}
-								className={`
-                                    flex items-center gap-3 p-3 rounded-xl transition-all
-                                    ${currentPath === item.href ? 'bg-primary/10 text-primary font-bold' : 'hover:bg-secondary/50 text-muted-foreground hover:text-foreground'}
-                                `}
-							>
-								<item.icon className="w-5 h-5" />
-								{item.name}
-							</Link>
-						))}
-						<div className="h-px bg-white/5 my-2" />
+					</div>
+					{NavItems.map((item) => (
+						<Link
+							key={item.name}
+							to={item.href}
+							onClick={() => setIsMobileMenuOpen(false)}
+							className={`
+								flex items-center gap-3 p-3 rounded-xl transition-all
+								${currentPath === item.href ? 'bg-primary/10 text-primary font-bold' : 'hover:bg-secondary/50 text-muted-foreground hover:text-foreground'}
+							`}
+						>
+							<item.icon className="w-5 h-5" />
+							{item.name}
+						</Link>
+					))}
+					<div className="h-px bg-white/5 my-2" />
 
-						{userData ? (
-							<div className="flex flex-col gap-1">
-								<div className="px-3 py-2 flex items-center gap-3">
-									<img src={getAvatarUrl(userData)} className="w-8 h-8 rounded-full" alt="" loading="lazy" />
-									<div className="flex flex-col">
-										<span className="text-sm font-bold">{userData.username}</span>
-										<span className="text-[10px] text-muted-foreground uppercase tracking-widest">
-											Account
-										</span>
-									</div>
+					{userData ? (
+						<div className="flex flex-col gap-1">
+							<div className="px-3 py-2 flex items-center gap-3">
+								<img
+									src={getAvatarUrl(userData)}
+									className="w-8 h-8 rounded-full"
+									alt=""
+									loading="lazy"
+								/>
+								<div className="flex flex-col">
+									<span className="text-sm font-bold">{userData.username}</span>
+									<span className="text-[10px] text-muted-foreground uppercase tracking-widest">
+										Account
+									</span>
 								</div>
-								{[
-									{ name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-									{ name: 'Developer', href: '/dashboard/developers', icon: Terminal },
-									{ name: 'Logout', onClick: handleLogout, icon: LogOut, danger: true }
-								].map((item) =>
-									item.href ? (
-										<Link
-											key={item.name}
-											to={item.href}
-											onClick={() => setIsMobileMenuOpen(false)}
-											className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 text-muted-foreground hover:text-foreground transition-all"
-										>
-											<item.icon className="w-5 h-5" />
-											{item.name}
-										</Link>
-									) : (
-										<button
-											key={item.name}
-											onClick={item.onClick}
-											className={`flex items-center gap-3 p-3 rounded-xl transition-all text-left ${item.danger ? 'text-red-400 hover:bg-red-500/10' : 'text-muted-foreground hover:text-foreground hover:bg-white/5'}`}
-										>
-											<item.icon className="w-5 h-5" />
-											{item.name}
-										</button>
-									)
-								)}
 							</div>
-						) : (
-							<button
-								onClick={() => {
-									loginUser();
-									setIsMobileMenuOpen(false);
-								}}
-								className="flex items-center gap-3 p-3 rounded-xl bg-primary text-primary-foreground font-bold"
-							>
-								<LogIn className="w-5 h-5" />
-								Login
-							</button>
-						)}
-					</motion.div>
-				)}
-			</AnimatePresence>
+							{[
+								{ name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+								{ name: 'Developer', href: '/dashboard/developers', icon: Terminal },
+								{ name: 'Logout', onClick: handleLogout, icon: LogOut, danger: true }
+							].map((item) =>
+								item.href ? (
+									<Link
+										key={item.name}
+										to={item.href}
+										onClick={() => setIsMobileMenuOpen(false)}
+										className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 text-muted-foreground hover:text-foreground transition-all"
+									>
+										<item.icon className="w-5 h-5" />
+										{item.name}
+									</Link>
+								) : (
+									<button
+										key={item.name}
+										onClick={item.onClick}
+										className={`flex items-center gap-3 p-3 rounded-xl transition-all text-left ${item.danger ? 'text-red-400 hover:bg-red-500/10' : 'text-muted-foreground hover:text-foreground hover:bg-white/5'}`}
+									>
+										<item.icon className="w-5 h-5" />
+										{item.name}
+									</button>
+								)
+							)}
+						</div>
+					) : (
+						<button
+							onClick={() => {
+								loginUser();
+								setIsMobileMenuOpen(false);
+							}}
+							className="flex items-center gap-3 p-3 rounded-xl bg-primary text-primary-foreground font-bold"
+						>
+							<LogIn className="w-5 h-5" />
+							Login
+						</button>
+					)}
+				</div>
+			)}
 		</header>
 	);
 };

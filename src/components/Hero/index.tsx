@@ -3,8 +3,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { botStatsOptions } from '@/lib/api';
-import { motion, Variants } from '@/components/ui/motion';
-import { GetStatusResponse } from '@/types/api/bindings/GetStatusResponse';
 import { Archive, Zap, Shield, User } from 'lucide-react';
 import { FeatureCard } from '@/components/about/FeatureCard';
 import { Primary, Secondary } from '../ui/Buttons';
@@ -125,25 +123,7 @@ const Hero = () => {
 		return () => clearInterval(intervalId);
 	}, [stats?.total_users, updateUserCount]);
 
-	const containerVariants = {
-		hidden: { opacity: 0 },
-		visible: {
-			opacity: 1,
-			transition: {
-				staggerChildren: 0.1,
-				delayChildren: 0.2
-			}
-		}
-	};
-
-	const itemVariants: Variants = {
-		hidden: { y: 20, opacity: 0 },
-		visible: {
-			y: 0,
-			opacity: 1,
-			transition: { type: 'spring', stiffness: 100 }
-		}
-	};
+	if (!isVisible) return null;
 
 	return (
 		<>
@@ -151,41 +131,35 @@ const Hero = () => {
 				{/* Animated background elements */}
 
 				<main className="container mx-auto px-4 py-16 relative z-10" ref={heroRef}>
-					<motion.div
-						variants={containerVariants}
-						initial="hidden"
-						animate={isVisible ? 'visible' : 'hidden'}
-						className="text-center mb-8"
+					<div
+						className="animate-in fade-in duration-700 text-center mb-8"
 					>
-						<motion.div
-							variants={itemVariants}
-							className="inline-flex items-center gap-4 px-6 py-2 rounded-full bg-primary/10 backdrop-blur-sm border border-primary/20 mb-8 shadow-lg shadow-primary/5"
+						<div
+							className="animate-in fade-in slide-in-from-bottom-5 duration-500 delay-200 fill-mode-both inline-flex items-center gap-4 px-6 py-2 rounded-full bg-primary/10 backdrop-blur-sm border border-primary/20 mb-8 shadow-lg shadow-primary/5"
 						>
 							<span className="h-px w-5 bg-gradient-to-r from-transparent to-primary"></span>
 							<span className="text-primary/90 font-monster text-sm font-medium tracking-wider uppercase">
 								Most Advanced Security
 							</span>
 							<span className="h-px w-5 bg-gradient-to-r from-primary to-transparent"></span>
-						</motion.div>
+						</div>
 
 						{/* Hero Section */}
 						<div className="max-w-4xl relative mx-auto text-center space-y-8">
-							<motion.h1
-								variants={itemVariants}
-								className="text-5xl md:text-7xl font-bold tracking-tight text-foreground mb-6 font-monster"
+							<h1
+								className="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out fill-mode-both delay-300 text-5xl md:text-7xl font-bold tracking-tight text-foreground mb-6 font-monster"
 							>
 								Protect Your Discord Server with{' '}
-								<span className="relative inline-block">
-									<span className="absolute -inset-1 blur-2xl bg-gradient-to-r from-primary to-accent opacity-50 rounded-lg animate-pulse"></span>
+								<span className="relative inline-block group">
+									<span className="absolute -inset-2 blur-3xl bg-primary/30 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 animate-pulse-glow"></span>
 									<span className="relative bg-gradient-to-r from-primary via-purple-500 to-accent bg-clip-text text-transparent font-lora italic drop-shadow-[0_0_15px_rgba(var(--primary),0.5)]">
 										AntiRaid
 									</span>
 								</span>
-							</motion.h1>
+							</h1>
 
-							<motion.p
-								variants={itemVariants}
-								className="text-muted-foreground mb-10 font-inter text-lg md:text-xl"
+							<p
+								className="animate-in fade-in slide-in-from-bottom-5 duration-500 delay-400 fill-mode-both text-muted-foreground mb-10 font-inter text-lg md:text-xl"
 							>
 								Join the other{' '}
 								<span className="relative inline-block">
@@ -202,14 +176,12 @@ const Hero = () => {
 									</span>
 								</span>{' '}
 								users that trust AntiRaid to protect their communities
-							</motion.p>
+							</p>
 
 							{/* CTA Buttons */}
-							<motion.div variants={itemVariants} className="flex flex-wrap gap-4 justify-center">
-								<motion.div
-									whileHover={{ scale: 1.05 }}
-									whileTap={{ scale: 0.98 }}
-									transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+							<div className="animate-in fade-in slide-in-from-bottom-5 duration-500 delay-500 fill-mode-both flex flex-wrap gap-4 justify-center">
+								<div
+									className="hover:scale-105 active:scale-95 transition-transform duration-200"
 								>
 									<Primary
 										Title="Invite now"
@@ -217,11 +189,9 @@ const Hero = () => {
 										icon={GoArrowUpRight}
 										className="!px-8 !py-4 !text-base shadow-primary/40 hover:shadow-primary/60"
 									/>
-								</motion.div>
-								<motion.div
-									whileHover={{ scale: 1.05 }}
-									whileTap={{ scale: 0.98 }}
-									transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+								</div>
+								<div
+									className="hover:scale-105 active:scale-95 transition-transform duration-200"
 								>
 									<Secondary
 										Title="Learn more"
@@ -229,12 +199,12 @@ const Hero = () => {
 										icon={GoArrowUpRight}
 										className="!px-8 !py-4 !text-base"
 									/>
-								</motion.div>
-							</motion.div>
+								</div>
+							</div>
 						</div>
 
 						{/* Trusted By Section */}
-						<motion.div variants={itemVariants} className="mt-16 text-center">
+						<div className="animate-in fade-in slide-in-from-bottom-5 duration-500 delay-600 fill-mode-both mt-16 text-center">
 							<div className="inline-flex items-center gap-4 px-6 py-2 rounded-full bg-accent/10 backdrop-blur-sm border border-accent/20 mb-8 shadow-lg shadow-accent/5">
 								<span className="h-px w-5 bg-gradient-to-r from-transparent to-primary"></span>
 								<span className="text-primary font-monster text-sm font-medium tracking-wider uppercase">
@@ -245,10 +215,10 @@ const Hero = () => {
 
 							{/* Discord Server Icons */}
 							<ServerIcons />
-						</motion.div>
+						</div>
 
 						{/* Scripting Languages Section */}
-						<motion.div variants={itemVariants} className="mt-24 max-w-4xl mx-auto">
+						<div className="animate-in fade-in slide-in-from-bottom-5 duration-500 delay-700 fill-mode-both mt-24 max-w-4xl mx-auto">
 							<div className="text-center mb-8">
 								<div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 backdrop-blur-sm border border-primary/20 mb-4 shadow-lg shadow-primary/5">
 									<FaCode className="w-4 h-4 text-primary" />
@@ -269,10 +239,8 @@ const Hero = () => {
 
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 								{/* Luau Card */}
-								<motion.div
-									whileHover={{ scale: 1.02, y: -5 }}
-									transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-									className="group relative bg-gradient-to-br from-blue-500/10 via-background/50 to-blue-600/10 backdrop-blur-sm border border-blue-500/20 rounded-2xl p-8 hover:border-blue-500/40 transition-all hover:shadow-[0_10px_30px_rgba(59,130,246,0.15)]"
+								<div
+									className="group relative bg-gradient-to-br from-blue-500/10 via-background/50 to-blue-600/10 backdrop-blur-sm border border-blue-500/20 rounded-2xl p-8 hover:border-blue-500/40 transition-all hover:shadow-[0_10px_30px_rgba(59,130,246,0.15)] hover:-translate-y-1 duration-300"
 								>
 									<div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
 									<div className="relative z-10">
@@ -298,13 +266,11 @@ const Hero = () => {
 											</span>
 										</div>
 									</div>
-								</motion.div>
+								</div>
 
 								{/* JavaScript Card */}
-								<motion.div
-									whileHover={{ scale: 1.02, y: -5 }}
-									transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-									className="group relative bg-gradient-to-br from-yellow-500/10 via-background/50 to-yellow-600/10 backdrop-blur-sm border border-yellow-500/20 rounded-2xl p-8 hover:border-yellow-500/40 transition-all hover:shadow-[0_10px_30px_rgba(234,179,8,0.15)]"
+								<div
+									className="group relative bg-gradient-to-br from-yellow-500/10 via-background/50 to-yellow-600/10 backdrop-blur-sm border border-yellow-500/20 rounded-2xl p-8 hover:border-yellow-500/40 transition-all hover:shadow-[0_10px_30px_rgba(234,179,8,0.15)] hover:-translate-y-1 duration-300"
 								>
 									<div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
 									<div className="relative z-10">
@@ -332,12 +298,12 @@ const Hero = () => {
 											</span>
 										</div>
 									</div>
-								</motion.div>
+								</div>
 							</div>
-						</motion.div>
+						</div>
 
 						{/* Features Section */}
-						<motion.div variants={itemVariants} className="mt-24 max-w-7xl mx-auto">
+						<div className="animate-in fade-in slide-in-from-bottom-5 duration-500 delay-1000 fill-mode-both mt-24 max-w-7xl mx-auto">
 							<div className="text-center mb-12">
 								<div className="inline-flex items-center gap-4 px-6 py-2 rounded-full bg-primary/10 backdrop-blur-sm border border-primary/20 mb-6 shadow-lg shadow-primary/5">
 									<span className="h-px w-5 bg-gradient-to-r from-transparent to-primary"></span>
@@ -444,8 +410,8 @@ const Hero = () => {
 									isLoaded={isVisible}
 								/>
 							</div>
-						</motion.div>
-					</motion.div>
+						</div>
+					</div>
 				</main>
 
 				{/* Curved divider */}

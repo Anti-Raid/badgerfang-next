@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from '@/components/ui/motion';
 import { FaDiscord, FaQuoteLeft, FaQuoteRight } from 'react-icons/fa';
 import { Image } from '@unpic/react';
 
@@ -25,9 +24,9 @@ export const ReviewsCarousel = () => {
 	];
 
 	const [currentIndex, setCurrentIndex] = useState(0);
-	const [direction, setDirection] = useState(0);
 	const [isPaused, setIsPaused] = useState(false);
 	const [authorData, setAuthorData] = useState({ name: '', avatar: '' });
+	const [isChanging, setIsChanging] = useState(false);
 	const intervalRef = useRef<NodeJS.Timeout | null>(null);
 	const authorCache = useRef<{ [key: string]: { name: string; avatar: string } }>({});
 
@@ -61,8 +60,7 @@ export const ReviewsCarousel = () => {
 
 			intervalRef.current = setInterval(() => {
 				if (!isPaused) {
-					setDirection(1);
-					setCurrentIndex((prevIndex) => (prevIndex + 1) % reviews.length);
+					handleNavigation((currentIndex + 1) % reviews.length);
 				}
 			}, 6000);
 		};
@@ -72,39 +70,15 @@ export const ReviewsCarousel = () => {
 		return () => {
 			if (intervalRef.current) clearInterval(intervalRef.current);
 		};
-	}, [reviews.length, isPaused]);
+	}, [reviews.length, isPaused, currentIndex]);
 
 	const handleNavigation = (index: number) => {
-		if (intervalRef.current) clearInterval(intervalRef.current);
-
-		setDirection(index > currentIndex ? 1 : -1);
-		setCurrentIndex(index);
-
-		intervalRef.current = setInterval(() => {
-			if (!isPaused) {
-				setDirection(1);
-				setCurrentIndex((prevIndex) => (prevIndex + 1) % reviews.length);
-			}
-		}, 6000);
-	};
-
-	// Variants for animations
-	const slideVariants = {
-		enter: (direction: number) => ({
-			x: direction > 0 ? 1000 : -1000,
-			opacity: 0,
-			scale: 0.95
-		}),
-		center: {
-			x: 0,
-			opacity: 1,
-			scale: 1
-		},
-		exit: (direction: number) => ({
-			x: direction > 0 ? -1000 : 1000,
-			opacity: 0,
-			scale: 0.95
-		})
+		if (index === currentIndex) return;
+		setIsChanging(true);
+		setTimeout(() => {
+			setCurrentIndex(index);
+			setIsChanging(false);
+		}, 300);
 	};
 
 	// Render stars based on rating
@@ -134,36 +108,25 @@ export const ReviewsCarousel = () => {
 			</div>
 
 			<div className="text-center mb-16 relative container mx-auto px-4 z-10">
-				<motion.div
-					initial={{ opacity: 0, y: 30 }}
-					whileInView={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.6 }}
-					viewport={{ once: true, margin: '-100px' }}
-					className="text-center mb-16 relative"
+				<div
+					className="animate-in fade-in slide-in-from-bottom-5 duration-700 text-center mb-16 relative"
 				>
-					<motion.div
-						initial={{ width: 0, opacity: 0 }}
-						whileInView={{ width: 'auto', opacity: 1 }}
-						transition={{ duration: 0.8 }}
-						viewport={{ once: true }}
-						className="inline-flex items-center gap-4 px-6 py-2 rounded-full bg-primary/10 backdrop-blur-sm border border-primary/20 mb-2 shadow-lg shadow-primary/5"
+					<div
+						className="animate-in zoom-in duration-500 delay-200 inline-flex items-center gap-4 px-6 py-2 rounded-full bg-primary/10 backdrop-blur-sm border border-primary/20 mb-2 shadow-lg shadow-primary/5"
 					>
 						<span className="h-px w-5 bg-gradient-to-r from-transparent to-primary"></span>
 						<span className="text-primary/90 font-monster text-sm font-medium tracking-wider uppercase">
 							Reviews
 						</span>
 						<span className="h-px w-5 bg-gradient-to-r from-primary to-transparent"></span>
-					</motion.div>
-				</motion.div>
+					</div>
+				</div>
 
-				<motion.h2
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.5, delay: 0.1 }}
-					className="text-4xl md:text-5xl font-bold mb-6 font-monster"
+				<h2
+					className="animate-in fade-in slide-in-from-bottom-5 duration-500 delay-100 text-4xl md:text-5xl font-bold mb-6 font-monster"
 				>
 					Discover what our <span className="text-primary">Amazing Users</span> have to say about us
-				</motion.h2>
+				</h2>
 			</div>
 
 			<div className="max-w-4xl mx-auto relative px-4 z-10">
@@ -172,109 +135,88 @@ export const ReviewsCarousel = () => {
 					onMouseEnter={() => setIsPaused(true)}
 					onMouseLeave={() => setIsPaused(false)}
 				>
-					<AnimatePresence initial={false} mode="wait">
-						<motion.div
-							key={currentIndex}
-							custom={direction}
-							variants={slideVariants as any}
-							initial="enter"
-							animate="center"
-							exit="exit"
-							transition={{
-								x: { type: 'spring', stiffness: 300, damping: 30 },
-								opacity: { duration: 0.3 },
-								scale: { duration: 0.3 }
-							}}
-							className="relative"
-						>
-							<div className="rounded-xl overflow-hidden">
-								<div className="backdrop-blur-sm bg-card/80 shadow-xl shadow-primary/5 border border-border rounded-xl p-8 md:p-10">
-									<div className="flex items-center justify-between mb-8">
-										<div className="flex items-center space-x-4">
-											<div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-primary/20 shadow-lg shadow-primary/10">
-												<Image
-													src={authorData.avatar || '/logo.webp'}
-													alt={authorData.name || 'User Avatar'}
-													layout="fullWidth"
-													className="absolute inset-0 w-full h-full object-cover"
-												/>
-											</div>
-											<div>
-												<h3 className="font-bold text-lg font-monster">{authorData.name}</h3>
-												<div className="flex items-center space-x-3">
-													{reviews[currentIndex].date && (
-														<span className="text-xs text-muted-foreground">
-															{reviews[currentIndex].date}
-														</span>
-													)}
-													{reviews[currentIndex].rating &&
-														renderStars(reviews[currentIndex].rating)}
-												</div>
+					<div
+						className={`transition-all duration-500 ease-in-out ${isChanging ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}
+					>
+						<div className="rounded-xl overflow-hidden">
+							<div className="backdrop-blur-sm bg-card/80 shadow-xl shadow-primary/5 border border-border rounded-xl p-8 md:p-10">
+								<div className="flex items-center justify-between mb-8">
+									<div className="flex items-center space-x-4">
+										<div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-primary/20 shadow-lg shadow-primary/10">
+											<Image
+												src={authorData.avatar || '/logo.webp'}
+												alt={authorData.name || 'User Avatar'}
+												layout="fullWidth"
+												className="absolute inset-0 w-full h-full object-cover"
+											/>
+										</div>
+										<div>
+											<h3 className="font-bold text-lg font-monster">{authorData.name}</h3>
+											<div className="flex items-center space-x-3">
+												{reviews[currentIndex].date && (
+													<span className="text-xs text-muted-foreground">
+														{reviews[currentIndex].date}
+													</span>
+												)}
+												{reviews[currentIndex].rating &&
+													renderStars(reviews[currentIndex].rating)}
 											</div>
 										</div>
-
-										<motion.a
-											href={reviews[currentIndex].discordUrl}
-											target="_blank"
-											rel="noopener noreferrer"
-											className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 hover:bg-primary/20 transition-all group"
-											whileHover={{ scale: 1.1, boxShadow: '0 0 15px rgba(var(--primary), 0.3)' } as any}
-											whileTap={{ scale: 0.95 }}
-											aria-label="View review on Discord"
-										>
-											<FaDiscord className="text-primary group-hover:text-primary-foreground transition-colors text-xl" />
-										</motion.a>
 									</div>
 
-									<div className="relative">
-										<FaQuoteLeft className="absolute -top-3 -left-1 text-primary/20 text-3xl" />
-
-										<motion.div
-											className="relative z-10 px-6 py-2"
-											initial={{ opacity: 0, y: 20 }}
-											animate={{ opacity: 1, y: 0 }}
-											transition={{ delay: 0.2 }}
-										>
-											<p className="text-foreground/90 font-inter leading-relaxed text-lg">
-												{reviews[currentIndex].content}
-											</p>
-										</motion.div>
-
-										<FaQuoteRight className="absolute -bottom-3 -right-1 text-primary/20 text-3xl" />
-									</div>
-
-									<div className="absolute top-12 right-12 opacity-5">
-										<svg
-											width="120"
-											height="120"
-											viewBox="0 0 24 24"
-											fill="currentColor"
-											className="text-primary"
-										>
-											<path d="M21.85,9a2,2,0,0,0-1-1.72l-9-5.2a2,2,0,0,0-2,0l-9,5.2A2,2,0,0,0,0,9V19a2,2,0,0,0,1,1.72l9,5.2a2,2,0,0,0,2,0l9-5.2A2,2,0,0,0,22,19Z" />
-										</svg>
-									</div>
-
-									<div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 rounded-xl pointer-events-none"></div>
+									<a
+										href={reviews[currentIndex].discordUrl}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 hover:bg-primary/20 transition-all group hover:scale-110 active:scale-95 shadow-lg shadow-primary/5 hover:shadow-primary/20"
+										aria-label="View review on Discord"
+									>
+										<FaDiscord className="text-primary group-hover:text-primary-foreground transition-colors text-xl" />
+									</a>
 								</div>
+
+								<div className="relative">
+									<FaQuoteLeft className="absolute -top-3 -left-1 text-primary/20 text-3xl" />
+
+									<div
+										className="relative z-10 px-6 py-2"
+									>
+										<p className="text-foreground/90 font-inter leading-relaxed text-lg">
+											{reviews[currentIndex].content}
+										</p>
+									</div>
+
+									<FaQuoteRight className="absolute -bottom-3 -right-1 text-primary/20 text-3xl" />
+								</div>
+
+								<div className="absolute top-12 right-12 opacity-5">
+									<svg
+										width="120"
+										height="120"
+										viewBox="0 0 24 24"
+										fill="currentColor"
+										className="text-primary"
+									>
+										<path d="M21.85,9a2,2,0,0,0-1-1.72l-9-5.2a2,2,0,0,0-2,0l-9,5.2A2,2,0,0,0,0,9V19a2,2,0,0,0,1,1.72l9,5.2a2,2,0,0,0,2,0l9-5.2A2,2,0,0,0,22,19Z" />
+									</svg>
+								</div>
+
+								<div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 rounded-xl pointer-events-none"></div>
 							</div>
-						</motion.div>
-					</AnimatePresence>
+						</div>
+					</div>
 				</div>
 
 				<div className="flex justify-center mt-8 space-x-2">
 					{reviews.map((_, index) => (
-						<motion.button
+						<button
 							key={index}
 							onClick={() => handleNavigation(index)}
-							className={`w-3 h-3 rounded-full transition-all duration-300 ${
+							className={`w-3 h-3 rounded-full transition-all duration-300 hover:scale-150 active:scale-90 ${
 								currentIndex === index
 									? 'bg-primary shadow-lg shadow-primary/30'
 									: 'bg-muted hover:bg-muted-foreground/30'
 							}`}
-							whileHover={{ scale: 1.5 }}
-							whileTap={{ scale: 0.9 }}
-							transition={{ type: 'spring', stiffness: 400, damping: 17 }}
 							aria-label={`Go to review ${index + 1}`}
 						/>
 					))}

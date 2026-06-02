@@ -5,8 +5,7 @@ import type React from 'react';
 import { useMemo, useState, useRef, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { botStatsOptions } from '@/lib/api';
-import type { GetStatusResponse } from '@/types/api/bindings/GetStatusResponse';
-import type { ShardConn } from '@/types/api/bindings/ShardConn';
+import type { ShardConn } from '@/types/msyscall/types/bot';
 import {
 	ResponsiveContainer,
 	PieChart,
@@ -20,6 +19,7 @@ import {
 	Tooltip,
 	LineChart,
 	Line,
+
 	RadialBarChart,
 	RadialBar,
 	Legend,
@@ -50,12 +50,6 @@ import {
 	ChevronRight,
 	User
 } from 'lucide-react';
-import {
-	motion,
-	AnimatePresence,
-	useScroll,
-	useSpring
-} from '@/components/ui/motion';
 
 // --- Types & Constants ---
 
@@ -77,7 +71,8 @@ const GLOW_VARIANTS: Record<string, string> = {
 
 // --- Utilities & Hooks ---
 
-const formatUptime = (seconds: number): string => {
+const formatUptime = (seconds?: number): string => {
+	if (seconds === undefined) return 'Unavailable';
 	const d = Math.floor(seconds / 86400);
 	const h = Math.floor((seconds % 86400) / 3600);
 	const m = Math.floor((seconds % 3600) / 60);
@@ -126,12 +121,9 @@ const ShardNode = ({
 	const Icon = config.icon;
 
 	return (
-		<motion.div
-			initial={{ opacity: 0, scale: 0.95, y: 20 }}
-			animate={{ opacity: 1, scale: 1, y: 0 }}
-			whileHover={{ y: -5 }}
-			transition={{ duration: 0.4, delay: index * 0.05 }}
-			className="group relative"
+		<div
+			className="group relative animate-in fade-in zoom-in-95 slide-in-from-bottom-4 duration-500 hover:-translate-y-1 transition-all"
+			style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'both' }}
 		>
 			{/* Holographic Glowing Border */}
 			<div className="absolute -inset-[1px] bg-gradient-to-br from-primary via-primary/50 to-accent/50 rounded-[2rem] opacity-0 group-hover:opacity-30 transition-opacity blur-[2px]" />
@@ -180,22 +172,25 @@ const ShardNode = ({
 							</div>
 							<div className="flex items-end gap-1">
 								<span className="text-2xl font-black font-monster italic text-primary">
-									{details.real_latency}
+									{details.latency}
 								</span>
 								<span className="text-[10px] font-bold text-foreground/30 uppercase mb-1">ms</span>
 							</div>
 						</div>
 					</div>
-					<div className="bg-white/[0.02] rounded-2xl p-4 border border-white/5 group-hover:border-primary/10 transition-colors relative overflow-hidden">
-						<div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+					<div className="bg-white/[0.02] rounded-2xl p-4 border border-white/5 group-hover:border-primary/20 transition-all relative overflow-hidden group/metric">
+						<div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover/metric:opacity-100 transition-opacity" />
+						{/* Holographic Scanline */}
+						<div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-20 bg-[linear-gradient(to_bottom,transparent_0%,rgba(var(--primary),0.2)_50%,transparent_100%)] bg-[length:100%_4px] animate-scan" />
+						
 						<div className="relative">
 							<div className="flex items-center gap-2 mb-2 text-foreground/30">
-								<Globe size={12} className="group-hover:text-primary transition-colors" />
-								<span className="text-[9px] font-black uppercase tracking-widest">Guilds</span>
+								<Globe size={12} className="group-hover:text-primary transition-colors animate-pulse" />
+								<span className="text-[9px] font-black uppercase tracking-widest">Shared Guilds</span>
 							</div>
 							<div className="flex items-end gap-1">
-								<span className="text-2xl font-black font-monster italic">
-									{details.guilds.toLocaleString()}
+								<span className="text-2xl font-black font-monster italic text-primary drop-shadow-[0_0_8px_rgba(var(--primary),0.3)]">
+									{details.guilds || '---'}
 								</span>
 							</div>
 						</div>
@@ -209,38 +204,24 @@ const ShardNode = ({
 								size={14}
 								className="text-foreground/20 group-hover:text-primary/50 transition-colors"
 							/>
-							<motion.div
-								animate={{ rotate: 360 }}
-								transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
-								className="absolute inset-0 border-t border-primary/40 rounded-full opacity-0 group-hover:opacity-100"
-							/>
+							<div className="absolute inset-0 border-t border-primary/40 rounded-full opacity-0 group-hover:opacity-100 animate-[spin_4s_linear_infinite]" />
 						</div>
 						<span className="text-[10px] font-bold text-foreground/20 group-hover:text-foreground/40 transition-colors uppercase tracking-[0.1em]">
-							UPTIME: {formatUptime(details.uptime)}
+							GLOBAL UPTIME: {formatUptime(details.uptime)}
 						</span>
 					</div>
 					<div className="flex gap-1.5 items-end h-4">
 						{[1, 2, 3, 4].map((i) => (
-							<motion.div
+							<div
 								key={i}
-								animate={{ 
-									scale: 1.2,
-									opacity: 0.8
-								}}
-								transition={{ 
-									duration: 1.5, 
-									repeat: Infinity, 
-									repeatType: 'reverse',
-									delay: i * 0.2,
-									ease: 'easeInOut'
-								}}
-								className="w-1 h-3 bg-primary/40 rounded-full"
+								className="w-1 h-3 bg-primary/40 rounded-full animate-pulse"
+								style={{ animationDelay: `${i * 200}ms` }}
 							/>
 						))}
 					</div>
 				</div>
 			</div>
-		</motion.div>
+		</div>
 	);
 };
 
@@ -250,8 +231,6 @@ export default function StatusPage() {
 	const [tab, setTab] = useState<'overview' | 'shards'>('overview');
 
 	const containerRef = useRef<HTMLDivElement>(null);
-	const { scrollYProgress } = useScroll();
-	const smoothProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
 	
 	// Mouse position for spotlight effect
 	const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -264,11 +243,6 @@ export default function StatusPage() {
 		return () => window.removeEventListener('mousemove', handleMouseMove);
 	}, []);
 
-	const spotlightBackground = useMemo(
-		() => `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(var(--primary), 0.08), transparent 40%)`,
-		[mousePosition.x, mousePosition.y]
-	);
-
 	const {
 		data,
 		isLoading: loading,
@@ -280,18 +254,19 @@ export default function StatusPage() {
 		refetchIntervalInBackground: true
 	});
 
-	const err = error instanceof Error ? error.message : error ? String(error) : null;
-
 	const metrics = useMemo(() => {
 		if (!data) return null;
 		const shards = Object.values(data.shard_conns).map((s) => s!);
 		const totalServers = data.total_guilds;
-		const avgLatency = Math.round(shards.reduce((a, b) => a + b.real_latency, 0) / shards.length);
+		const avgLatency =
+			shards.length > 0
+				? Math.round(shards.reduce((a, b) => a + b.latency, 0) / shards.length)
+				: 0;
 		const totalUsers = data.total_users;
 		const onlineShards = shards.filter(
 			(s) => s.status === 'Ready' || s.status === 'Connected'
 		).length;
-		const health = Math.round((onlineShards / shards.length) * 100);
+		const health = shards.length > 0 ? Math.round((onlineShards / shards.length) * 100) : 0;
 
 		return {
 			totalServers,
@@ -299,7 +274,8 @@ export default function StatusPage() {
 			totalUsers,
 			onlineShards,
 			totalShards: shards.length,
-			health
+			health,
+			uptime: data.uptime
 		};
 	}, [data]);
 
@@ -307,26 +283,16 @@ export default function StatusPage() {
 		if (!data) return [];
 		return Object.entries(data.shard_conns).map(([id, s]) => ({
 			name: `N${id}`,
-			latency: s?.real_latency || 0,
-			guilds: s?.guilds || 0,
-			uptime: s?.uptime || 0
+			latency: s?.latency || 0
 		}));
 	}, [data]);
 
 	if (loading) {
 		return (
 			<div className="min-h-screen flex items-center justify-center">
-					<div className="relative w-32 h-32">
-						<motion.div
-							animate={{ rotate: 360, scale: 1.05 }}
-							transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
-							className="absolute inset-0 rounded-full border-t-2 border-primary border-r-transparent border-b-transparent border-l-transparent"
-						/>
-						<motion.div
-							animate={{ rotate: -360, opacity: 0.5 }}
-							transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
-							className="absolute inset-4 rounded-full border-b-2 border-accent/50 border-t-transparent border-r-transparent border-l-transparent"
-						/>
+				<div className="relative w-32 h-32">
+					<div className="absolute inset-0 rounded-full border-t-2 border-primary border-r-transparent border-b-transparent border-l-transparent animate-[spin_3s_linear_infinite]" />
+					<div className="absolute inset-4 rounded-full border-b-2 border-accent/50 border-t-transparent border-r-transparent border-l-transparent animate-[spin_4s_linear_infinite_reverse] opacity-50" />
 					<div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
 						<Terminal className="text-primary animate-pulse" size={24} />
 						<span className="text-[8px] font-black uppercase tracking-[0.3em] text-primary/60">
@@ -346,11 +312,7 @@ export default function StatusPage() {
 			{/* Hero HUD */}
 			<section className="relative pt-32 pb-20 px-6 lg:pt-56 lg:pb-32 overflow-hidden z-10">
 				<div className="max-w-7xl mx-auto flex flex-col items-center">
-					<motion.div
-						initial={{ opacity: 0, scale: 0.9 }}
-						animate={{ opacity: 1, scale: 1 }}
-						className="relative z-10 mb-12"
-					>
+					<div className="relative z-10 mb-12 animate-in fade-in zoom-in-90 duration-700">
 						<div className="absolute -inset-20 bg-primary/10 rounded-full blur-[120px] animate-pulse" />
 						<h1 className="text-[14vw] lg:text-[12rem] font-black font-monster leading-[0.75] tracking-tighter text-center uppercase">
 							<span className="relative block italic text-transparent bg-clip-text bg-gradient-to-b from-white to-white/10 pb-4">
@@ -362,19 +324,16 @@ export default function StatusPage() {
 						</h1>
 						{/* Scanline Effect on Title */}
 						<div className="absolute inset-0 pointer-events-none mix-blend-overlay opacity-30 bg-[linear-gradient(to_bottom,transparent_0%,rgba(255,255,255,0.1)_50%,transparent_100%)] bg-[length:100%_4px] animate-scan" />
-					</motion.div>
+					</div>
 
-					<motion.div
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ delay: 0.2 }}
-						className="flex items-center gap-4 text-primary/40 font-mono text-xs uppercase tracking-[0.4em] mb-20"
+					<div
+						className="flex items-center gap-4 text-primary/40 font-mono text-xs uppercase tracking-[0.4em] mb-20 animate-in fade-in slide-in-from-bottom-5 duration-700 delay-200 fill-mode-both"
 					>
 						<Radio size={20} className="animate-pulse" />
 						<span>Core Online</span>
 						<div className="h-px w-20 bg-gradient-to-r from-primary to-transparent" />
 						<span>Real-Time Status</span>
-					</motion.div>
+					</div>
 
 					{/* Metrics Grid */}
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-7xl relative">
@@ -403,6 +362,12 @@ export default function StatusPage() {
 							label="Shard Nodes"
 							value={`${metrics?.onlineShards}/${metrics?.totalShards} Units`}
 							color="primary"
+						/>
+						<MetricsBadge
+							icon={Clock}
+							label="Global Uptime"
+							value={formatUptime(metrics?.uptime)}
+							color="emerald"
 						/>
 						<div className="group relative overflow-hidden">
 							<div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -466,10 +431,7 @@ export default function StatusPage() {
 										{item.label}
 									</span>
 									{tab === item.id && (
-										<motion.div
-											layoutId="active-tab-glow"
-											className="absolute inset-0 rounded-2xl bg-primary/20 blur-xl -z-10"
-										/>
+										<div className="absolute inset-0 rounded-2xl bg-primary/20 blur-xl -z-10 animate-in fade-in duration-300" />
 									)}
 								</button>
 							))}
@@ -477,16 +439,9 @@ export default function StatusPage() {
 					</div>
 
 					{/* Digital Workspace */}
-					<div className="w-full">
-						<AnimatePresence mode="wait">
-							{tab === 'overview' && (
-								<motion.div
-									key="overview"
-									initial={{ opacity: 0, y: 20 }}
-									animate={{ opacity: 1, y: 0 }}
-									exit={{ opacity: 0, y: -20 }}
-									className="space-y-12"
-								>
+					<div className="w-full relative">
+						{tab === 'overview' && (
+							<div className="space-y-12 animate-in fade-in slide-in-from-bottom-5 duration-500">
 									<div className="flex items-center justify-between">
 										<div>
 											<h2 className="text-4xl font-black font-monster tracking-tighter uppercase italic mb-2">
@@ -607,16 +562,11 @@ export default function StatusPage() {
 											</ResponsiveContainer>
 										</div>
 									</div>
-								</motion.div>
-							)}
+							</div>
+						)}
 
-							{tab === 'shards' && (
-								<motion.div
-									key="shards"
-									initial={{ opacity: 0, y: 20 }}
-									animate={{ opacity: 1, y: 0 }}
-									exit={{ opacity: 0, y: -20 }}
-								>
+						{tab === 'shards' && (
+							<div className="animate-in fade-in slide-in-from-bottom-5 duration-500">
 									<div className="flex items-center justify-between mb-16">
 										<div>
 											<h2 className="text-4xl font-black font-monster tracking-tighter uppercase italic mb-2">
@@ -633,9 +583,8 @@ export default function StatusPage() {
 											<ShardNode key={id} shard={id} details={s!} index={idx} />
 										))}
 									</div>
-								</motion.div>
-							)}
-						</AnimatePresence>
+							</div>
+						)}
 					</div>
 				</div>
 			</section>

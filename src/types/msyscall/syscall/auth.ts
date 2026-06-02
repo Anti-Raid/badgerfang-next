@@ -1,5 +1,5 @@
 import { encode, decode } from '../khronosvalue'
-import { UserSession } from '../types/auth'
+import { AuthorizedSession, UserSession } from '../types/auth'
 import { PartialUser } from '../types/discord'
 
 export type MAuthSyscall = {
@@ -22,6 +22,9 @@ export type MAuthSyscall = {
     /** Gets the current user's sessions */
     op: "GetUserSessions"
 } | {
+    /** Gets the authorized session for the current token */
+    op: "GetAuthorizedSession"
+} | {
     /** Delete a session (login or api) */
     op: "DeleteSession",
     /** The ID of the session to delete */
@@ -42,6 +45,11 @@ export type MAuthSyscallRet = {
     op: "UserSessions",
     /** The list of active sessions for the user */
     sessions: UserSession[]
+} | {
+    /** The current authorized session */
+    op: "AuthorizedSession",
+    /** Session metadata for the current token */
+    session: AuthorizedSession
 } | {
     /** Ack/success response */
     op: "Ack"

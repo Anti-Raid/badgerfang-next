@@ -1,6 +1,6 @@
 import { MAuthSyscallRet } from '../../types/msyscall/syscall/auth';
 import { UserSession, AuthorizedSession } from '../../types/msyscall/types/auth';
-import { opFetcher, rawMsyscall } from './index';
+import { opFetcher } from './index';
 
 /**
  * Creates a login session using oauth2
@@ -47,12 +47,9 @@ export async function deleteSession(sessionId: string): Promise<void> {
  */
 export async function getAuthorizedSession(): Promise<AuthorizedSession | undefined> {
   try {
-    const res = await rawMsyscall({
-      op: "Auth",
-      req: { op: "GetAuthorizedSession" } as any // Not yet in documented types but exists in backend
-    });
-    if (res.op === 'Auth' && (res.data as any).op === 'AuthorizedSession') {
-      return (res.data as any).session;
+    const res = await opFetcher("Auth", { op: "GetAuthorizedSession" });
+    if (res.op === 'AuthorizedSession') {
+      return res.session;
     }
     return undefined;
   } catch (e) {

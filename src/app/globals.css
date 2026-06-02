@@ -1,7 +1,48 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-@tailwind variants;
+@import 'tailwindcss';
+
+@plugin "@tailwindcss/forms";
+@plugin "tailwindcss-animate";
+
+@theme {
+	--font-monocraft: 'Monocraft', sans-serif;
+	--font-cursive: 'Borel', cursive;
+	--font-monster: 'Montserrat', sans-serif;
+	--font-cabin: 'Cabin', sans-serif;
+	--font-inter: 'Inter', sans-serif;
+	--font-lora: 'Lora', serif;
+
+	--radius-lg: var(--radius);
+	--radius-md: calc(var(--radius) - 2px);
+	--radius-sm: calc(var(--radius) - 4px);
+
+	--color-background: hsl(var(--background));
+	--color-foreground: hsl(var(--foreground));
+	--color-extra: hsl(var(--extra));
+	--color-card: hsl(var(--card));
+	--color-card-foreground: hsl(var(--card-foreground));
+	--color-popover: hsl(var(--popover));
+	--color-popover-foreground: hsl(var(--popover-foreground));
+	--color-primary: hsl(var(--primary));
+	--color-primary-foreground: hsl(var(--primary-foreground));
+	--color-secondary: hsl(var(--secondary));
+	--color-secondary-foreground: hsl(var(--secondary-foreground));
+	--color-muted: hsl(var(--muted));
+	--color-muted-foreground: hsl(var(--muted-foreground));
+	--color-accent: hsl(var(--accent));
+	--color-accent-foreground: hsl(var(--accent-foreground));
+	--color-destructive: hsl(var(--destructive));
+	--color-destructive-foreground: hsl(var(--destructive-foreground));
+	--color-border: hsl(var(--border));
+	--color-input: hsl(var(--input));
+	--color-ring: hsl(var(--ring));
+	--color-chart-1: hsl(var(--chart-1));
+	--color-chart-2: hsl(var(--chart-2));
+	--color-chart-3: hsl(var(--chart-3));
+	--color-chart-4: hsl(var(--chart-4));
+	--color-chart-5: hsl(var(--chart-5));
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
 
 .no-scrollbar::-webkit-scrollbar {
 	display: none;
@@ -42,7 +83,7 @@
 }
 
 /* Glassmorphism Utility */
-.glass {
+@utility glass {
 	background: hsl(var(--card) / 0.7);
 	backdrop-filter: blur(12px);
 	-webkit-backdrop-filter: blur(12px);
@@ -52,12 +93,14 @@
 		0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
-.glass-hover:hover {
-	background: hsl(var(--card) / 0.8);
-	border-color: hsl(var(--primary) / 0.3);
-	box-shadow:
-		0 10px 15px -3px rgba(0, 0, 0, 0.1),
-		0 4px 6px -2px rgba(0, 0, 0, 0.05);
+@utility glass-hover {
+	&:hover {
+		background: hsl(var(--card) / 0.8);
+		border-color: hsl(var(--primary) / 0.3);
+		box-shadow:
+			0 10px 15px -3px rgba(0, 0, 0, 0.1),
+			0 4px 6px -2px rgba(0, 0, 0, 0.05);
+	}
 }
 
 :root {
@@ -95,7 +138,8 @@
 	--radius: 0.5rem;
 }
 
-.dark {
+.dark,
+[data-theme='dark'] {
 	--background: 263 92% 5%;
 	--foreground: 0 0% 98%;
 
@@ -128,7 +172,7 @@
 	--ring: 281 100% 40%;
 }
 
-.blue-theme {
+[data-theme='blue-theme'] {
 	--background: 215 55% 8%;
 	--foreground: 215 30% 98%;
 
@@ -161,7 +205,7 @@
 	--ring: 210 100% 60%;
 }
 
-.dark-blue-theme {
+[data-theme='dark-blue-theme'] {
 	--background: 225 60% 4%;
 	--foreground: 215 30% 98%;
 
@@ -194,7 +238,7 @@
 	--ring: 220 95% 50%;
 }
 
-.dark-red-theme {
+[data-theme='dark-red-theme'] {
 	--background: 350 60% 6%;
 	--foreground: 350 15% 98%;
 
@@ -227,7 +271,7 @@
 	--ring: 355 95% 55%;
 }
 
-.green-theme {
+[data-theme='green-theme'] {
 	--background: 160 60% 7%;
 	--foreground: 150 15% 98%;
 
@@ -260,7 +304,7 @@
 	--ring: 155 85% 45%;
 }
 
-.dark-green-theme {
+[data-theme='dark-green-theme'] {
 	--background: 160 70% 3%;
 	--foreground: 150 15% 98%;
 
@@ -293,7 +337,7 @@
 	--ring: 155 95% 40%;
 }
 
-.electric-purple-theme {
+[data-theme='electric-purple-theme'] {
 	--background: 280 70% 5%;
 	--foreground: 280 20% 98%;
 
@@ -326,7 +370,7 @@
 	--ring: 275 100% 60%;
 }
 
-.sunset-amber-theme {
+[data-theme='sunset-amber-theme'] {
 	--background: 20 60% 5%;
 	--foreground: 35 100% 98%;
 	--card: 20 50% 8%;
@@ -350,7 +394,7 @@
 	--ring: 35 100% 55%;
 }
 
-.arctic-frost-theme {
+[data-theme='arctic-frost-theme'] {
 	--background: 210 60% 98%;
 	--foreground: 210 50% 10%;
 	--card: 210 50% 95%;
@@ -374,7 +418,7 @@
 	--ring: 195 90% 50%;
 }
 
-.stargaze-theme {
+[data-theme='stargaze-theme'] {
 	--background: 210 20% 30%;
 	--foreground: 0 0% 95%;
 	--card: 210 20% 40%;
@@ -396,7 +440,7 @@
 	--ring: 210 50% 70%;
 }
 
-.sunbeam-theme {
+[data-theme='sunbeam-theme'] {
 	--background: 40 25% 97%;
 	--foreground: 210 25% 35%;
 	--card: 40 20% 93%;
@@ -418,7 +462,7 @@
 	--ring: 40 60% 85%;
 }
 
-.crisp-theme {
+[data-theme='crisp-theme'] {
 	--background: 0 0% 97%;
 	--foreground: 210 25% 35%;
 	--card: 0 0% 93%;
@@ -440,7 +484,7 @@
 	--ring: 210 60% 85%;
 }
 
-.velvetsky-theme {
+[data-theme='velvetsky-theme'] {
 	--background: 210 35% 55%;
 	--foreground: 0 0% 97%;
 	--card: 210 35% 65%;
@@ -462,7 +506,7 @@
 	--ring: 210 60% 80%;
 }
 
-.float-theme {
+[data-theme='float-theme'] {
 	--background: 210 25% 85%;
 	--foreground: 210 25% 35%;
 	--card: 210 25% 75%;
@@ -484,7 +528,7 @@
 	--ring: 210 60% 85%;
 }
 
-.puzzlebloom-theme {
+[data-theme='puzzlebloom-theme'] {
 	--background: 120 20% 50%;
 	--foreground: 0 0% 95%;
 	--card: 120 20% 60%;
@@ -506,7 +550,7 @@
 	--ring: 120 50% 70%;
 }
 
-.neon-cyber-theme {
+[data-theme='neon-cyber-theme'] {
 	--background: 280 85% 5%;
 	--foreground: 180 100% 90%;
 	--card: 280 65% 10%;
@@ -528,7 +572,7 @@
 	--ring: 320 100% 60%;
 }
 
-.retro-haze-theme {
+[data-theme='retro-haze-theme'] {
 	--background: 260 20% 15%;
 	--foreground: 35 100% 85%;
 	--card: 260 20% 20%;
@@ -550,7 +594,7 @@
 	--ring: 15 85% 65%;
 }
 
-.deep-ocean-theme {
+[data-theme='deep-ocean-theme'] {
 	--background: 215 40% 10%;
 	--foreground: 180 30% 95%;
 	--card: 215 40% 15%;
@@ -572,7 +616,7 @@
 	--ring: 190 90% 50%;
 }
 
-.cotton-candy-theme {
+[data-theme='cotton-candy-theme'] {
 	--background: 330 30% 98%;
 	--foreground: 260 40% 30%;
 	--card: 330 30% 95%;
@@ -596,8 +640,7 @@
 
 @layer base {
 	* {
-		/* @apply border-border; */
-		border-color: hsl(var(--border));
+		border-color: var(--color-border);
 	}
 
 	body {
@@ -627,7 +670,7 @@
 
 	/* Global High-Visibility Focus State (A11y/WCAG) */
 	*:focus-visible {
-		@apply !outline-none !ring-2 !ring-[#ffffff] !ring-offset-2 !ring-offset-background;
+		@apply !outline-hidden !ring-2 !ring-[#ffffff] !ring-offset-2 !ring-offset-background;
 	}
 }
 
@@ -773,7 +816,6 @@
 }
 
 @keyframes pulse-glow {
-
 	0%,
 	100% {
 		opacity: 0.5;

@@ -1,4 +1,10 @@
-import { Outlet, createRootRouteWithContext, HeadContent, Scripts, ErrorComponent } from '@tanstack/react-router';
+import {
+	Outlet,
+	createRootRouteWithContext,
+	HeadContent,
+	Scripts,
+	ErrorComponent
+} from '@tanstack/react-router';
 import React, { useEffect } from 'react';
 import type { ReactNode } from 'react';
 import '@/app/globals.css';
@@ -8,7 +14,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import type { QueryClient } from '@tanstack/react-query';
 import { website_url, title, logo, twitter, owner } from '@/components/common';
 import ErrorPageComponent from './-error';
-import NotFoundPage from './not-found';
+import NotFoundPage from './not-found/-NotFoundPage';
 
 interface RouterContext {
 	queryClient: QueryClient;
