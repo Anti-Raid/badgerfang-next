@@ -34,9 +34,7 @@ export default function ToastProvider({ children }: ToastProviderProps) {
 					boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)',
 					color: 'hsl(var(--foreground))'
 				}}
-				progressStyle={{
-					background: 'linear-gradient(to right, hsl(var(--primary)), hsl(var(--extra)))'
-				}}
+				progressClassName="toast-progress-bar"
 			/>
 		</>
 	);

@@ -1,5 +1,4 @@
 import useSWR from 'swr';
-import axios from 'axios';
 import { SWRResponse } from 'swr';
 import { API_BASE_URL, getAuthorizedSession } from '../api';
 import { AuthorizedSession } from '@/types/api/bindings/AuthorizedSession';
@@ -51,19 +50,7 @@ export const useAuthCheck = () => {
 
 // Non-hook version for server components or outside React
 export const checkAuthCreds = async (
-	data: CreateUserSessionResponse
+	_data: CreateUserSessionResponse
 ): Promise<AuthorizedSession | undefined> => {
-	const resp = await axios.get('/sessions/@me', {
-		validateStatus: (status) => status === 200 || status === 401 || status == 403
-	});
-
-	if (resp.status === 401 || resp.status === 403) {
-		return undefined; // Unauthorized or forbidden
-	}
-
-	if (resp.status !== 200) {
-		throw new Error(`Failed to fetch authorized session: ${resp.statusText}`);
-	}
-
-	return resp.data;
+	return getAuthorizedSession();
 };

@@ -1,124 +1,134 @@
 'use client';
 
-import { Shield, User, Code, Database, FileCode, Lock, Bell } from 'lucide-react';
-import { Section } from './components/section';
-import { Fragment, useEffect, useState } from 'react';
-import { baseGuildUserInfo, executeSettings, getSettings } from '@/lib/api';
+import { Shield, Code } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { noOpFetcher, SettingComponent, SettingDataFetcher } from './components/setting';
+import { baseGuildUserInfo, dispatchWebSettings } from '@/lib/api';
+import {
+	dispatchResultToSetting,
+	toDispatchResults,
+	type Event,
+	type Page
+} from '@/lib/settings/events.parse';
+import type { EncodableKhronosValue } from '@/lib/msyscall/khronosvalue';
+import type { BaseGuildUserInfo } from '@/lib/msyscall/types/discord';
+import { getIconUrl } from '@/lib/auth/getIconUrl';
+import { SettingsContext, type Choice, type SettingsContextValue } from './sv2/context';
+import { SV2 } from './sv2/SV2';
 import { SettingsErrorDisplay } from './components/ErrorDisplay';
-import { ApiDispatchResult } from '@/types/api/bindings/ApiDispatchResult';
-import { Setting } from '@/types/api/bindings/Setting';
 
 /**
- * Renders a dashboard for managing guild settings.
+ * Renders the settings-v2 dashboard for a guild.
  *
- * This component fetches the guild's base information using the provided guild ID and displays a settings dashboard.
- * While fetching data, it shows a loading indicator. If an error occurs, an error message is displayed with a retry option,
- * and a toast notification is triggered. Once the data is loaded, it renders a sticky header with the guild's icon and name,
- * along with various sections for managing server roles, members, scripts, key-value data, published scripts, and lockdown settings.
- *
- * @param guildId - Unique identifier of the guild.
- * @returns A JSX element representing the settings dashboard.
+ * Fetches the guild's base info (for role/channel choices and header chrome) and
+ * the settings pages via the `WebSettings` `fetch_page` event, then renders each
+ * template's component tree with {@link SV2} inside a {@link SettingsContext}.
  */
 export default function Settings({ guildId }: { guildId: string }) {
-	const [guildData, setGuildData] = useState<any>(null);
-	const [guildSettings, setGuildSettings] = useState<{
-		[key: string]: ApiDispatchResult<any>;
-	} | null>(null);
+	const [guildData, setGuildData] = useState<BaseGuildUserInfo | null>(null);
+	const [settings, setSettings] = useState<Record<string, Page>>({});
+	const [settingsErr, setSettingsErr] = useState<[string, string][]>([]);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
 
-	const fetcher: SettingDataFetcher = {
-		...noOpFetcher,
-		listEntries: async (setting: Setting) => {
-			const payload = {
-				operation: 'View',
-				setting: setting.id,
-				fields: {}
-			};
-			const result = await executeSettings(guildId, payload);
-			return result as { [templateName: string]: ApiDispatchResult<any> };
-		},
-		createEntry: async (setting: Setting, entry: any) => {
-			const payload = {
-				operation: 'Create',
-				setting: setting.id,
-				fields: entry
-			};
-			const result = await executeSettings(guildId, payload);
-			return result as { [templateName: string]: ApiDispatchResult<any> };
-		},
-		updateEntry: async (setting: Setting, entry: any) => {
-			const payload = {
-				operation: 'Update',
-				setting: setting.id,
-				fields: entry
-			};
-			const result = await executeSettings(guildId, payload);
-			return result as { [templateName: string]: ApiDispatchResult<any> };
-		},
-		deleteEntry: async (setting: Setting, entry: any) => {
-			const payload = {
-				operation: 'Delete',
-				setting: setting.id,
-				fields: entry
-			};
-			const result = await executeSettings(guildId, payload);
-			return result as { [templateName: string]: ApiDispatchResult<any> };
-		},
-		reorderEntries: async (setting: Setting, entries: any[]) => {
-			const payload = {
-				operation: 'Reorder',
-				setting: setting.id,
-				fields: entries
-			};
-			const result = await executeSettings(guildId, payload);
-			return result as { [templateName: string]: ApiDispatchResult<any> };
-		}
-	};
+	const roleChoices = useMemo<Choice[]>(
+		() => (guildData ? guildData.roles.map((r) => ({ label: r.name, value: r.id })) : []),
+		[guildData]
+	);
+	const channelChoices = useMemo<Choice[]>(
+		() =>
+			guildData
+				? guildData.channels
+						// type 4 = GUILD_CATEGORY
+						.filter((c) => c.channel.type !== 4)
+						.map((c) => ({ label: c.channel.name, value: c.channel.id }))
+				: [],
+		[guildData]
+	);
 
-	useEffect(() => {
-		const fetchData = async () => {
-			try {
-				const data = await baseGuildUserInfo(guildId);
-				let settings = await getSettings(guildId);
-
-				const builtins = settings['$builtins'];
-				if (builtins) {
-					delete settings['$builtins'];
-					settings = {
-						$builtins: builtins,
-						...settings
-					};
+	const fetchSettings = useCallback(async () => {
+		const raw = await dispatchWebSettings(guildId, { type: 'fetch_page' } as Event);
+		const ders = toDispatchResults(raw);
+		const next: Record<string, Page> = {};
+		const errs: [string, string][] = [];
+		for (const der of ders) {
+			if (der.type === 'err') {
+				errs.push([der.id, der.value != null ? String(der.value) : 'Unknown error']);
+			} else {
+				try {
+					next[der.id] = dispatchResultToSetting(der.value);
+				} catch (e) {
+					errs.push([der.id, e instanceof Error ? e.message : String(e)]);
 				}
-
-				setGuildData(data);
-				setGuildSettings(settings);
-			} catch (error) {
-				if (isAxiosError(error)) {
-					const errorMessage =
-						error.response?.data?.message || 'Failed to fetch guild data. Please try again later.';
-					setError(errorMessage);
-					toast.error(errorMessage, { position: 'top-left' });
-				} else {
-					setError(`An unexpected error occurred. Please try again later: ${error}`);
-					toast.error('An unexpected error occurred. Please try again later.', {
-						position: 'top-left'
-					});
-				}
-			} finally {
-				setLoading(false);
 			}
-		};
-
-		fetchData();
+		}
+		setSettings(next);
+		setSettingsErr(errs);
 	}, [guildId]);
 
-	function isAxiosError(error: any): error is { response?: { data?: { message?: string } } } {
-		return error && error.response;
-	}
+	useEffect(() => {
+		let cancelled = false;
+		const load = async () => {
+			setLoading(true);
+			setError(null);
+			try {
+				const data = await baseGuildUserInfo(guildId);
+				if (cancelled) return;
+				setGuildData(data);
+				await fetchSettings();
+			} catch (e) {
+				if (cancelled) return;
+				const message =
+					e instanceof Error ? e.message : 'Failed to fetch guild data. Please try again later.';
+				setError(message);
+				toast.error(message, { position: 'top-left' });
+			} finally {
+				if (!cancelled) setLoading(false);
+			}
+		};
+		load();
+		return () => {
+			cancelled = true;
+		};
+	}, [guildId, fetchSettings]);
+
+	const setFieldValue = useCallback<SettingsContextValue['setFieldValue']>(
+		(template, formsetId, formIdx, fieldId, value) => {
+			setSettings((prev) => {
+				const page = prev[template];
+				if (!page) return prev;
+				const forms = page.formdata[formsetId];
+				if (!forms) return prev;
+				const newForms = forms.map((f, i) =>
+					i === formIdx ? { ...f, data: { ...f.data, [fieldId]: value } } : f
+				);
+				return {
+					...prev,
+					[template]: { ...page, formdata: { ...page.formdata, [formsetId]: newForms } }
+				};
+			});
+		},
+		[]
+	);
+
+	const dispatchEvent = useCallback(
+		(event: Event) => dispatchWebSettings(guildId, event as unknown as EncodableKhronosValue),
+		[guildId]
+	);
+
+	const ctx = useMemo<SettingsContextValue>(
+		() => ({
+			guildId,
+			roleChoices,
+			channelChoices,
+			settings,
+			setFieldValue,
+			dispatchEvent,
+			refetch: fetchSettings
+		}),
+		[guildId, roleChoices, channelChoices, settings, setFieldValue, dispatchEvent, fetchSettings]
+	);
 
 	if (loading) {
 		return (
@@ -166,6 +176,8 @@ export default function Settings({ guildId }: { guildId: string }) {
 		);
 	}
 
+	const hasSettings = Object.keys(settings).length > 0;
+
 	return (
 		<div className="min-h-screen bg-background text-foreground pb-24">
 			<ToastContainer theme="dark" />
@@ -177,9 +189,10 @@ export default function Settings({ guildId }: { guildId: string }) {
 			>
 				<div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
 					<div className="flex items-center gap-4">
-						{guildData.icon ? (
+						{guildData?.icon ? (
+							// eslint-disable-next-line @next/next/no-img-element
 							<img
-								src={guildData.icon || '/logo.webp'}
+								src={getIconUrl(guildId, guildData.icon)}
 								alt={`${guildData.name} server icon`}
 								className="w-10 h-10 rounded-xl border border-border object-cover"
 							/>
@@ -188,11 +201,11 @@ export default function Settings({ guildId }: { guildId: string }) {
 								className="w-10 h-10 rounded-xl bg-secondary border border-border flex items-center justify-center text-muted-foreground font-medium"
 								aria-hidden="true"
 							>
-								{guildData.name.charAt(0)}
+								{guildData?.name.charAt(0) ?? '?'}
 							</div>
 						)}
 						<div>
-							<span className="text-base font-medium tracking-tight block">{guildData.name}</span>
+							<span className="text-base font-medium tracking-tight block">{guildData?.name}</span>
 							<p className="text-xs text-muted-foreground">Server Settings</p>
 						</div>
 					</div>
@@ -204,8 +217,8 @@ export default function Settings({ guildId }: { guildId: string }) {
 				<div className="mb-12 animate-in fade-in-0 slide-in-from-bottom-3 duration-500">
 					<h1 className="text-3xl font-semibold tracking-tight mb-3">Settings</h1>
 					<p className="text-muted-foreground max-w-xl">
-						Configure how your server interacts with AntiRaid. Customize roles, detection levels,
-						and automated responses.
+						Configure how your server interacts with AntiRaid. Customize roles, detection levels, and
+						automated responses.
 					</p>
 
 					<div className="mt-8 p-5 bg-secondary/50 rounded-xl border border-border flex items-center gap-4">
@@ -222,72 +235,31 @@ export default function Settings({ guildId }: { guildId: string }) {
 					</div>
 				</div>
 
-				<div className="space-y-8">
-					{guildSettings && guildData && (
-						<>
-							{Object.keys(guildSettings)
-								.filter((s) => guildSettings[s].type !== 'Ok')
-								.map((setting, idx) => (
-									<SettingsErrorDisplay
-										key={idx}
-										loadErrors={{ [setting]: guildSettings[setting].data }}
-									/>
-								))}
-
-							{Object.keys(guildSettings)
-								.filter((s) => guildSettings[s].type === 'Ok')
-								.map((s) => ({ s, setting: guildSettings[s].data as Setting[] }))
-								.map((setting) => (
-									<Fragment key={setting.s}>
-										{setting.s !== '$builtins' && (
-											<div className="mb-6 pt-6 border-t border-border">
-												<h2 className="text-xs font-medium uppercase tracking-widest text-muted-foreground mb-4">
-													Template: {setting.s}
-												</h2>
-											</div>
-										)}
-
-										<div className="grid grid-cols-1 gap-4">
-											{setting.setting.map((s_item, idx) => (
-												<Section
-													key={idx}
-													title={s_item.name}
-													description={s_item.description}
-													icon={
-														s_item.icon == 'Bell' ? (
-															<Bell />
-														) : s_item.icon == 'Shield' ? (
-															<Shield />
-														) : s_item.icon == 'User' ? (
-															<User />
-														) : s_item.icon == 'Code' ? (
-															<Code />
-														) : s_item.icon == 'Database' ? (
-															<Database />
-														) : s_item.icon == 'FileCode' ? (
-															<FileCode />
-														) : s_item.icon == 'Lock' ? (
-															<Lock />
-														) : (
-															<Shield />
-														)
-													}
-													defaultOpen={idx === 0 && setting.s === '$builtins'}
-												>
-													<SettingComponent
-														guildId={guildId}
-														setting={s_item}
-														guildData={guildData}
-														fetcher={fetcher}
-													/>
-												</Section>
-											))}
-										</div>
-									</Fragment>
-								))}
-						</>
+				<SettingsContext.Provider value={ctx}>
+					{settingsErr.length > 0 && (
+						<SettingsErrorDisplay
+							loadErrors={Object.fromEntries(settingsErr)}
+							onRetry={() => fetchSettings()}
+						/>
 					)}
-				</div>
+
+					<div className="space-y-8">
+						{Object.entries(settings).map(([template, page]) => (
+							<div key={template}>
+								<div className="mb-6 pt-6 border-t border-border">
+									<h2 className="text-xs font-medium uppercase tracking-widest text-muted-foreground mb-4">
+										Template: {template}
+									</h2>
+								</div>
+								<SV2 template={template} comps={page.components} />
+							</div>
+						))}
+
+						{!hasSettings && settingsErr.length === 0 && (
+							<p className="text-sm text-muted-foreground">No settings available for this server.</p>
+						)}
+					</div>
+				</SettingsContext.Provider>
 			</main>
 		</div>
 	);
