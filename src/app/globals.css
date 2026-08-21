@@ -7,10 +7,15 @@
  * Accessibility: WCAG 2.1 AA compliant
  */
 
-@import 'animate.css';
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import './animate.css';
+@import 'tailwindcss';
+@config '../../tailwind.config.ts';
+
+/* Toast progress bar gradient (react-toastify v11 dropped container `progressStyle`;
+   styled via `progressClassName` instead). */
+.toast-progress-bar {
+	background: linear-gradient(to right, hsl(var(--primary)), hsl(var(--extra))) !important;
+}
 
 /* ============================================
    DESIGN TOKENS & LIGHT THEME

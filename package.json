@@ -8,14 +8,27 @@
     "url": "https://github.com/Anti-Raid/badgerfang-next"
   },
   "scripts": {
+    "build:animalang": "test -f node_modules/animalang/dist/index.es.js || (cd node_modules/animalang && bun install && bun run build)",
     "dev": "next dev",
-    "build": "next build",
+    "predev": "bun run build:animalang",
+    "build": "bun run build:animalang && next build",
     "start": "next start",
     "format": "prettier --write .",
     "testflow": "jest"
   },
   "jest": {
-    "preset": "ts-jest"
+    "preset": "ts-jest",
+    "transform": {
+      "^.+\\.tsx?$": [
+        "ts-jest",
+        {
+          "tsconfig": {
+            "rootDir": ".",
+            "incremental": false
+          }
+        }
+      ]
+    }
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
@@ -24,6 +37,7 @@
     "@types/marked": "^6.0.0",
     "@types/react-syntax-highlighter": "^15.5.13",
     "@xyflow/react": "^12.11.0",
+    "animalang": "github:Anti-Raid/animalang",
     "axios": "^1.17.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -51,6 +65,7 @@
     "node": "<=22"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^25.9.1",
     "@types/react": "19.2.14",

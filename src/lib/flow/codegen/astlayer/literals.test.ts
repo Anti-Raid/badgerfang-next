@@ -1,3 +1,4 @@
+import { describe, test, expect } from '@jest/globals';
 import { LiteralEnum } from './finalrepr';
 import { writeLiteral } from './literals';
 

@@ -404,14 +404,20 @@ const ArgRow = ({ arg }: { arg: any }) => (
 			)}
 			{arg.choices?.length > 0 && (
 				<div className="mt-1 flex flex-wrap gap-1">
-					{arg.choices.map((c: string) => (
-						<span
-							key={c}
-							className="text-[10px] px-1.5 py-px bg-background border border-border rounded font-mono text-muted-foreground"
-						>
-							{c}
-						</span>
-					))}
+					{arg.choices.map((c: any) => {
+						// Command option choices are objects ({ name, value }); fall back to
+						// the raw value if a plain string is ever provided.
+						const label = typeof c === 'string' ? c : (c?.name ?? String(c?.value ?? ''));
+						const value = typeof c === 'string' ? c : String(c?.value ?? c?.name ?? '');
+						return (
+							<span
+								key={value}
+								className="text-[10px] px-1.5 py-px bg-background border border-border rounded font-mono text-muted-foreground"
+							>
+								{label}
+							</span>
+						);
+					})}
 				</div>
 			)}
 		</div>

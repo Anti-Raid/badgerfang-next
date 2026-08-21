@@ -1,4 +1,4 @@
-import { DragEvent, MouseEvent, useCallback, useEffect } from 'react';
+import { DragEvent, useCallback, useEffect } from 'react';
 import {
 	addEdge,
 	Background,
@@ -10,6 +10,7 @@ import {
 	getOutgoers,
 	Node,
 	NodeChange,
+	OnNodeDrag,
 	ReactFlow,
 	useEdgesState,
 	useNodesState,
@@ -205,8 +206,8 @@ export default function FlowEditor({ initialData, onChange }: Props) {
 		[getNode, getNodes, getEdges, getOutgoers]
 	);
 
-	const onDragEnd = useCallback(
-		(_event: MouseEvent, node: Node<NodeExtData>) => {
+	const onDragEnd = useCallback<OnNodeDrag<Node<NodeExtData>>>(
+		(_event, node) => {
 			// Check if the X/Y intersects with an existing node
 			const existingNode = getIntersectingNodes(node, false).filter((node) => {
 				return subflowComps.includes(node.type || '');

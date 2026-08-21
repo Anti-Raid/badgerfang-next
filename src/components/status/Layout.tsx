@@ -39,6 +39,15 @@ import {
 type TabKey = 'overview' | 'shards';
 
 const STATUS_VARIANTS = {
+	// The msyscall API reports healthy shards as "ACTIVE".
+	Active: {
+		colorClass: 'text-emerald-400',
+		bgClass: 'bg-emerald-400/10',
+		borderClass: 'border-emerald-400/20',
+		dotClass: 'bg-emerald-400',
+		label: 'Operational',
+		icon: Check
+	},
 	Ready: {
 		colorClass: 'text-emerald-400',
 		bgClass: 'bg-emerald-400/10',
@@ -86,8 +95,18 @@ const formatUptime = (seconds: number): string => {
 	return parts.join(' ');
 };
 
-const getStatusConfig = (status: string) =>
-	STATUS_VARIANTS[status as keyof typeof STATUS_VARIANTS] ?? STATUS_VARIANTS.Default;
+// Statuses that mean a shard is healthy/online (matched case-insensitively).
+const ONLINE_STATUSES = ['active', 'ready', 'connected'];
+
+const isShardOnline = (status: string | undefined): boolean =>
+	!!status && ONLINE_STATUSES.includes(status.toLowerCase());
+
+const getStatusConfig = (status: string) => {
+	const key = Object.keys(STATUS_VARIANTS).find(
+		(k) => k.toLowerCase() === status?.toLowerCase()
+	) as keyof typeof STATUS_VARIANTS | undefined;
+	return key ? STATUS_VARIANTS[key] : STATUS_VARIANTS.Default;
+};
 
 // Metric Card
 
@@ -161,7 +180,9 @@ const ShardNode = ({
 						<span className="text-[10px] font-bold uppercase tracking-widest">Latency</span>
 					</div>
 					<div className="flex items-end gap-0.5">
-						<span className="text-xl font-bold text-primary">{details.real_latency}</span>
+						<span className="text-xl font-bold text-primary">
+							{Math.ceil(details.real_latency)}
+						</span>
 						<span className="text-xs text-muted-foreground mb-0.5">ms</span>
 					</div>
 				</div>
@@ -248,9 +269,7 @@ export default function StatusPage() {
 		const totalServers = data.total_guilds;
 		const avgLatency = Math.round(shards.reduce((a, b) => a + b.real_latency, 0) / shards.length);
 		const totalUsers = data.total_users;
-		const onlineShards = shards.filter(
-			(s) => s.status === 'Ready' || s.status === 'Connected'
-		).length;
+		const onlineShards = shards.filter((s) => isShardOnline(s.status)).length;
 		const health = Math.round((onlineShards / shards.length) * 100);
 		return {
 			totalServers,

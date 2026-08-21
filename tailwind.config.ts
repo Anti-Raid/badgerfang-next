@@ -1,6 +1,7 @@
 import type { Config } from 'tailwindcss';
 import forms from '@tailwindcss/forms';
 import typography from '@tailwindcss/typography';
+import tailwindcssAnimate from 'tailwindcss-animate';
 
 export default {
 	darkMode: 'class',
@@ -101,5 +102,5 @@ export default {
 			}
 		}
 	},
-	plugins: [forms, typography, require('tailwindcss-animate')]
+	plugins: [forms, typography, tailwindcssAnimate]
 } satisfies Config;
